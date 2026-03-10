@@ -687,7 +687,7 @@ function renderStep4() {
             ${selected.optionalSkills.map(s => {
               const checked = state.selectedOptional.includes(s);
               return `<label class="optional-checkbox-label ${checked ? 'checked' : ''}" onclick="toggleOptional('${s}',${selected.optionalCount})">
-                <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.preventDefault();" style="pointer-events:none;"/>
+                <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); event.preventDefault();" style="pointer-events:none;"/>
                 ${s}
               </label>`;
             }).join('')}
