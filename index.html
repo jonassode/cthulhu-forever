@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cthulhu Eternal — Character Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ct-bg':      '#0a0e14',
+            'ct-surface': '#111827',
+            'ct-card':    '#1a2233',
+            'ct-text':    '#e8d9b4',
+            'ct-muted':   '#9a8d72',
+            'ct-green':   '#1e4d2b',
+            'ct-greenl':  '#2d6b3c',
+            'ct-gold':    '#c9a84c',
+            'ct-goldl':   '#e8c76a',
+            'ct-border':  '#2a3548',
+            'ct-danger':  '#7a1c1c',
+            'ct-dangerl': '#a33030',
+          },
+          fontFamily: {
+            cinzel: ['Cinzel', 'serif'],
+            lato:   ['Lato', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-ct-bg text-ct-text font-lato min-h-screen">
+  <div id="app"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
