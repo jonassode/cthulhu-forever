@@ -60,6 +60,28 @@ function rollAllAttributes() {
   ATTRIBUTES.forEach(a => { state.attrAssign[a] = null; });
 }
 
+// Returns true if the die at `index` in `values` is the one dropped (lowest)
+function isDieDropped(values, index) {
+  const minVal = Math.min(...values);
+  const firstMinIdx = values.indexOf(minVal);
+  return index === firstMinIdx;
+}
+
+// Truncate text at word boundary to avoid mid-word cuts
+function truncateWords(text, maxLength) {
+  if (text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (lastSpace > maxLength * 0.6 ? truncated.slice(0, lastSpace) : truncated) + '…';
+}
+
+// Ensure state.bonds array has the correct length
+function ensureBondsCount() {
+  const count = getEffectiveBondsCount();
+  while (state.bonds.length < count) state.bonds.push('');
+  while (state.bonds.length > count) state.bonds.pop();
+}
+
 function getAttrValue(attrKey) {
   const id = state.attrAssign[attrKey];
   if (id === null || id === undefined) return null;
@@ -197,11 +219,7 @@ function nextStep() {
     if (state.currentStep === 4) {
       // Entering step 5 — init skills & bonds
       initSkills();
-      const arch = getArchetype();
-      const bondCount = getEffectiveBondsCount();
-      if (state.bonds.length !== bondCount) {
-        state.bonds = Array(bondCount).fill('');
-      }
+      ensureBondsCount();
       state.resources = getEffectiveResources();
     }
     goToStep(state.currentStep + 1);
@@ -392,15 +410,9 @@ function renderStep3() {
 
   // Build roll pool chips
   const poolHtml = hasRolled ? unassigned.map(rs => {
-    const sorted  = [...rs.values].sort((a, b) => b - a);
-    const dropped = rs.values.indexOf(Math.min(...rs.values));
-    const diceLabels = rs.values.map((v, i) => {
-      const isDropped = (rs.values.filter((x, j) => j < i && x === v).length + 
-                         sorted.filter((x, j) => j >= 3 && x === v).length > 0) ||
-                        (i === rs.values.indexOf(Math.min(...rs.values)) && 
-                         rs.values.filter(x => x === Math.min(...rs.values)).length === 1);
-      return `<span class="${isDropped ? 'dropped' : ''}">${v}</span>`;
-    });
+    const diceLabels = rs.values.map((v, i) =>
+      `<span class="${isDieDropped(rs.values, i) ? 'dropped' : ''}">${v}</span>`
+    );
     return `<div class="roll-chip" draggable="true" data-roll-id="${rs.id}"
               title="Drag to assign to an attribute"
               onclick="handleChipClick(${rs.id})">
@@ -417,14 +429,9 @@ function renderStep3() {
       : null;
 
     if (rs) {
-      const sorted = [...rs.values].sort((a, b) => b - a);
-      const diceLabels = rs.values.map((v, i) => {
-        const isDropped = (rs.values.filter((x, j) => j < i && x === v).length +
-                           sorted.filter((x, j) => j >= 3 && x === v).length > 0) ||
-                          (i === rs.values.indexOf(Math.min(...rs.values)) &&
-                           rs.values.filter(x => x === Math.min(...rs.values)).length === 1);
-        return `<span class="${isDropped ? 'dropped' : ''}">${v}</span>`;
-      });
+      const diceLabels = rs.values.map((v, i) =>
+        `<span class="${isDieDropped(rs.values, i) ? 'dropped' : ''}">${v}</span>`
+      );
       return `
         <div class="attr-slot assigned" data-attr="${attr}"
              ondragover="handleDragOver(event)" ondrop="handleDrop(event,'${attr}')"
@@ -650,7 +657,7 @@ function renderStep4() {
          onclick="selectArchetype('${arch.id}')" role="button" tabindex="0"
          onkeydown="if(event.key==='Enter'||event.key===' ')selectArchetype('${arch.id}')">
       <div class="arch-name">${arch.name}</div>
-      <div class="arch-desc">${arch.description.slice(0, 80)}…</div>
+      <div class="arch-desc">${truncateWords(arch.description, 80)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
         <span style="font-size:0.68rem;color:var(--text-secondary);">Bonds: ${arch.bonds}</span>
         ${resourcePips(4, arch.resources)}
@@ -756,8 +763,7 @@ function renderStep5() {
   const bondCount = getEffectiveBondsCount();
 
   // Ensure bonds array is right length
-  while (state.bonds.length < bondCount) state.bonds.push('');
-  while (state.bonds.length > bondCount) state.bonds.pop();
+  ensureBondsCount();
 
   const effectiveResources = getEffectiveResources();
 

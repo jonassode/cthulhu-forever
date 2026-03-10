@@ -35,6 +35,9 @@ html, body {
 h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 
 /* ── Scrollbar ── */
+/* Firefox scrollbar */
+* { scrollbar-width: thin; scrollbar-color: var(--border-color) var(--bg-secondary); }
+/* WebKit scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-secondary); }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
@@ -1053,13 +1056,12 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   padding: 5px 10px;
   font-size: 0.72rem;
   color: var(--text-primary);
-  white-space: nowrap;
+  white-space: normal;   /* allow wrapping for multi-word tooltips */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;
   z-index: 100;
   max-width: 220px;
-  white-space: normal;
   text-align: center;
   line-height: 1.4;
 }
