@@ -176,8 +176,8 @@ const ARCHETYPES = [
     description: 'Creative souls whose work brings them dangerously close to the unknown.',
     archetypeSkills: [
       { name: 'Appraise',          value: 40 },
-      { name: 'Art (Type)',        value: 60 },
-      { name: 'Art (Type)',        value: 40 },
+      { name: 'Art (Type)',        value: 60 }, // primary art specialization
+      { name: 'Art (Type)',        value: 40 }, // secondary art specialization
       { name: 'Insight',           value: 60 },
       { name: 'Search',            value: 60 },
       { name: 'Streetwise (Type)', value: 30 },

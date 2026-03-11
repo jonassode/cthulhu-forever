@@ -758,7 +758,7 @@ function renderStep3() {
           <div id="optional-skills-container">
             ${selected.optionalSkills.map(s => {
               const checked = state.selectedOptional.includes(s.name);
-              return `<label class="optional-checkbox-label ${checked ? 'checked' : ''}" onclick="toggleOptional('${s.name.replace(/'/g, "\\'")}',${selected.optionalCount})">
+              return `<label class="optional-checkbox-label ${checked ? 'checked' : ''}" onclick="toggleOptional('${s.name}',${selected.optionalCount})">
                 <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); event.preventDefault();" style="pointer-events:none;"/>
                 ${s.name} <strong>${s.value}%</strong>
               </label>`;
