@@ -3,12 +3,11 @@
    Skills, Archetypes, Edges
    ============================================================ */
 
-const ATTRIBUTES = ['STR', 'CON', 'DEX', 'SIZ', 'INT', 'POW', 'CHA'];
+const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
 const ATTRIBUTE_FULL = {
   STR: 'Strength',
   CON: 'Constitution',
   DEX: 'Dexterity',
-  SIZ: 'Size',
   INT: 'Intelligence',
   POW: 'Power',
   CHA: 'Charisma',
@@ -39,13 +38,14 @@ const JAZZ_SKILLS = {
   'Library Use':      20,
   'Medicine':          0,
   'Melee Weapons':    30,
-  'Military Science':  0,
+  'Military Training': 0,
   'Navigate':         10,
   'Occult':           10,
   'Persuade':         25,
   'Pilot':             0,
   'Psychoanalysis':    0,
   'Psychology':       10,
+  'Regional Lore':     0,
   'Ride':             10,
   'Search':           20,
   'Stealth':          10,
@@ -53,6 +53,7 @@ const JAZZ_SKILLS = {
   'Survival':         10,
   'Swim':             20,
   'Unarmed Combat':   40,
+  'Unnatural':         0,
 };
 
 const MODERN_SKILLS = Object.assign({}, JAZZ_SKILLS, {
@@ -206,7 +207,7 @@ const ARCHETYPES = [
     ages: ['jazz'],
     description: 'Veterans who commanded troops in the great wars and have returned bearing invisible scars alongside their medals.',
     flavor: '"Command is loneliness." You have given orders that sent men to their deaths; now you face enemies that no rank can impress.',
-    bonusSkills: ['Accounting', 'Alertness', 'Firearms', 'History', 'Insight', 'Military Science', 'Navigate', 'Persuade'],
+    bonusSkills: ['Accounting', 'Alertness', 'Firearms', 'History', 'Insight', 'Military Training', 'Navigate', 'Persuade'],
     bonusAmount: 20,
     optionalSkills: ['Heavy Weapons', 'Law', 'Melee Weapons', 'Pilot'],
     optionalCount: 2,
@@ -260,7 +261,7 @@ const ARCHETYPES = [
     flavor: '"Survival is not the same as living." You have survived things no human being should witness; now you add stranger things to that list.',
     bonusSkills: ['Alertness', 'Athletics', 'Firearms', 'First Aid', 'Navigate', 'Stealth', 'Survival', 'Unarmed Combat'],
     bonusAmount: 20,
-    optionalSkills: ['Demolitions', 'Heavy Weapons', 'Melee Weapons', 'Military Science'],
+    optionalSkills: ['Demolitions', 'Heavy Weapons', 'Melee Weapons', 'Military Training'],
     optionalCount: 2,
     bonds: 2,
     resources: 1,
@@ -341,7 +342,7 @@ const ARCHETYPES = [
     flavor: '"Violence is a tool, not an answer." The tools you carry were forged for human conflicts. What waits ahead is not human.',
     bonusSkills: ['Alertness', 'Athletics', 'Drive', 'Firearms', 'First Aid', 'Navigate', 'Stealth', 'Unarmed Combat'],
     bonusAmount: 20,
-    optionalSkills: ['Demolitions', 'Heavy Weapons', 'Military Science', 'SIGINT'],
+    optionalSkills: ['Demolitions', 'Heavy Weapons', 'Military Training', 'SIGINT'],
     optionalCount: 2,
     bonds: 2,
     resources: 2,

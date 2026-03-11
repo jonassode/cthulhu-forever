@@ -11,9 +11,13 @@ const state = {
 
   rolledSets: [],     // [{id:N, values:[d1,d2,d3,d4], total:N}]
   attrAssign: {       // attribute -> rolledSet.id (or null)
-    STR: null, CON: null, DEX: null, SIZ: null,
+    STR: null, CON: null, DEX: null,
     INT: null, POW: null, CHA: null,
   },
+
+  upbringing: null,        // 'normal' | 'harsh' | 'very_harsh'
+  harshStatChoice: null,   // 'STR' | 'CON' — only for 'harsh' upbringing
+  adversityPoints: {},     // skillName -> bonus picks spent (adversity pool)
 
   archetype: null,               // archetype id
   selectedOptional: [],          // chosen optional skill names
@@ -52,7 +56,7 @@ function keepHighest3(dice) {
 }
 
 function rollAllAttributes() {
-  state.rolledSets = Array.from({ length: 7 }, (_, i) => {
+  state.rolledSets = Array.from({ length: 6 }, (_, i) => {
     const values = rollDice4d6();
     return { id: i, values, total: keepHighest3(values) };
   });
@@ -82,11 +86,23 @@ function ensureBondsCount() {
   while (state.bonds.length > count) state.bonds.pop();
 }
 
+function getUpbringingBonus(attrKey) {
+  if (!state.upbringing || state.upbringing === 'normal') return 0;
+  if (state.upbringing === 'harsh') {
+    return state.harshStatChoice === attrKey ? 1 : 0;
+  }
+  if (state.upbringing === 'very_harsh') {
+    return (attrKey === 'STR' || attrKey === 'CON') ? 1 : 0;
+  }
+  return 0;
+}
+
 function getAttrValue(attrKey) {
   const id = state.attrAssign[attrKey];
   if (id === null || id === undefined) return null;
   const rs = state.rolledSets.find(r => r.id === id);
-  return rs ? rs.total : null;
+  if (!rs) return null;
+  return rs.total + getUpbringingBonus(attrKey);
 }
 
 function getAttrValues() {
@@ -106,11 +122,14 @@ function assignedRollIds() {
 function calculateDerived() {
   const v = getAttrValues();
   if (!v.STR || !v.CON || !v.POW) return null;
+  const SAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
+    ? v.POW * 4
+    : v.POW * 5;
   return {
-    HP:  Math.floor((v.STR + v.CON) / 2),
+    HP:  Math.ceil((v.STR + v.CON) / 2),
     WP:  v.POW,
-    SAN: v.POW * 5,
-    BP:  v.POW * 5 - v.POW,
+    SAN: SAN,
+    BP:  SAN - v.POW,
   };
 }
 
@@ -132,9 +151,11 @@ function getArchetypeSkillBonus(skillName) {
 
 function getFinalSkillValue(skillName) {
   const base = (getCurrentSkills()[skillName] || 0);
+  if (skillName === 'Unnatural') return base; // cannot be increased with picks
   const archBonus = getArchetypeSkillBonus(skillName);
-  const bpAdded = state.skillPoints[skillName] || 0;
-  return Math.min(99, base + archBonus + bpAdded);
+  const bpPicks  = state.skillPoints[skillName] || 0;
+  const advPicks = state.adversityPoints[skillName] || 0;
+  return Math.min(80, base + archBonus + (bpPicks + advPicks) * 20);
 }
 
 function initSkills() {
@@ -143,15 +164,18 @@ function initSkills() {
   Object.keys(skills).forEach(s => { fresh[s] = 0; });
   state.skillPoints = fresh;
   state.resourcesBonusSpent = 0;
+  state.adversityPoints = {};
+  ADVERSITY_SKILLS.forEach(s => { state.adversityPoints[s] = 0; });
 }
 
 function getBonusPointsTotal() {
-  return getAttrValue('INT') || 0;
+  // Fixed at 10 per SKILL.md: "Every Protagonist starts with 10 Bonus Picks"
+  return 10;
 }
 
 function getBonusPointsSpent() {
-  const skillPts = Object.values(state.skillPoints).reduce((s, v) => s + v, 0);
-  return skillPts + (state.resourcesBonusSpent * 10);
+  const skillPicks = Object.values(state.skillPoints).reduce((s, v) => s + v, 0);
+  return skillPicks + state.resourcesBonusSpent;
 }
 
 function getBonusPointsRemaining() {
@@ -173,11 +197,42 @@ function getEffectiveBondsCount() {
   return arch.bonds + contactsEdge;
 }
 
+// Maps the archetype's 1–4 resource level to the 0–20 scale per SKILL.md:
+// 1 = Poor (5), 2 = Average (10), 3 = Wealthy (15), 4 = Elite (20)
+function archetypeResourcesValue(level) {
+  const map = { 1: 5, 2: 10, 3: 15, 4: 20 };
+  return map[level] || 5;
+}
+
 function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
+  const base = archetypeResourcesValue(arch.resources);
   const resourcefulEdge = state.harshEdges.includes('resourceful') ? 1 : 0;
-  return Math.min(4, arch.resources + state.resourcesBonusSpent + resourcefulEdge);
+  // Per SKILL.md: first Bonus Pick on Resources adds +5; each subsequent pick adds +2
+  let bonus = 0;
+  if (state.resourcesBonusSpent > 0) {
+    bonus = 5 + (state.resourcesBonusSpent - 1) * 2;
+  }
+  return Math.min(20, base + bonus + resourcefulEdge);
+}
+
+// ── Adversity Picks ─────────────────────────────────────────
+
+const ADVERSITY_SKILLS = ['First Aid', 'Military Training', 'Regional Lore', 'Survival'];
+
+function getAdversityTotal() {
+  if (state.upbringing === 'harsh')      return 1;
+  if (state.upbringing === 'very_harsh') return 2;
+  return 0;
+}
+
+function getAdversitySpent() {
+  return Object.values(state.adversityPoints).reduce((s, v) => s + v, 0);
+}
+
+function getAdversityRemaining() {
+  return getAdversityTotal() - getAdversitySpent();
 }
 
 // ── Validation ─────────────────────────────────────────────
@@ -186,16 +241,22 @@ function canProceed(step) {
   switch (step) {
     case 1: return !!state.age;
     case 2: return !!state.harshness;
-    case 3: return allAttributesAssigned();
+    case 3: {
+      if (!allAttributesAssigned()) return false;
+      if (!state.upbringing) return false;
+      if (state.upbringing === 'harsh' && !state.harshStatChoice) return false;
+      return true;
+    }
     case 4: {
       if (!state.archetype) return false;
       const arch = getArchetype();
       return arch && state.selectedOptional.length === arch.optionalCount;
     }
     case 5: {
-      const bpOk = getBonusPointsRemaining() === 0;
+      const bpOk  = getBonusPointsRemaining() === 0;
+      const advOk = getAdversityRemaining() === 0;
       const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.trim() !== '');
-      return bpOk && bondsOk;
+      return bpOk && advOk && bondsOk;
     }
     case 6: return state.identity.name.trim() !== '';
     default: return false;
@@ -474,9 +535,10 @@ function renderStep3() {
     </div>`;
   }).join('') : '';
 
+  const sanFormula = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
   const derivedHtml = derived ? `
     <div class="derived-stats">
-      <div class="derived-stat" data-tooltip="(STR + CON) ÷ 2">
+      <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
         <div class="ds-label">Hit Points</div>
         <div class="ds-value">${derived.HP}</div>
       </div>
@@ -484,7 +546,7 @@ function renderStep3() {
         <div class="ds-label">Willpower</div>
         <div class="ds-value">${derived.WP}</div>
       </div>
-      <div class="derived-stat" data-tooltip="POW × 5">
+      <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
         <div class="ds-label">Sanity</div>
         <div class="ds-value">${derived.SAN}</div>
       </div>
@@ -497,11 +559,11 @@ function renderStep3() {
   return `
   <div class="step-content">
     <h2 class="step-title">Roll Your Attributes</h2>
-    <p class="step-subtitle">Roll 4d6 seven times, keeping the highest three dice each time. Assign each result to an attribute by dragging or using the dropdowns below.</p>
+    <p class="step-subtitle">Roll 4d6 six times, keeping the highest three dice each time. Assign each result to an attribute by dragging or using the dropdowns below.</p>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
       <span style="font-size:0.8rem;color:var(--text-secondary);">
-        ${hasRolled ? `${7 - Object.values(state.attrAssign).filter(v=>v!==null&&v!==undefined).length} value(s) remaining to assign` : 'No rolls yet'}
+        ${hasRolled ? `${6 - Object.values(state.attrAssign).filter(v=>v!==null&&v!==undefined).length} value(s) remaining to assign` : 'No rolls yet'}
       </span>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         ${hasRolled ? `<button class="btn btn-outline" onclick="rerollAll()" style="font-size:0.72rem;padding:6px 14px;">↺ Re-Roll All</button>` : ''}
@@ -538,7 +600,11 @@ function renderStep3() {
       </div>
     </details>` : ''}
 
-    ${!allAttributesAssigned() && hasRolled ? `<p class="validation-msg">Assign all 7 attribute values to continue.</p>` : ''}
+    ${!allAttributesAssigned() && hasRolled ? `<p class="validation-msg">Assign all 6 attribute values to continue.</p>` : ''}
+
+    ${allAssigned ? renderUpbringing() : ''}
+
+    ${allAssigned && !canProceed(3) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
   </div>`;
 }
 
@@ -553,6 +619,85 @@ function rerollAll() {
   if (confirm('Re-roll all dice? This will clear your current assignments.')) {
     doRollAll();
   }
+}
+
+function renderUpbringing() {
+  const upbOpts = [
+    {
+      id: 'normal',
+      label: 'Normal(-ish)',
+      sanNote: 'SAN = POW × 5',
+      bonus: 'No stat bonus',
+      adversity: '0 adversity picks',
+      desc: 'A relatively ordinary background. No special bonuses or adversities.',
+    },
+    {
+      id: 'harsh',
+      label: 'Harsh',
+      sanNote: 'SAN = POW × 4',
+      bonus: '+1 to STR or CON',
+      adversity: '1 adversity pick (+20% to one adversity skill)',
+      desc: 'A difficult upbringing has toughened you physically and mentally.',
+    },
+    {
+      id: 'very_harsh',
+      label: 'Very Harsh',
+      sanNote: 'SAN = POW × 4',
+      bonus: '+1 to both STR and CON',
+      adversity: '2 adversity picks (+20% each, adversity skills only)',
+      desc: 'Forged by hardship, you are exceptionally resilient — but carry deep scars.',
+    },
+  ];
+
+  let statChoiceHtml = '';
+  if (state.upbringing === 'harsh') {
+    statChoiceHtml = `
+    <div class="notice mt-3" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.82rem;color:var(--text-primary);">Apply +1 bonus to:</span>
+      <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+        <input type="radio" name="harshStat" value="STR" ${state.harshStatChoice==='STR'?'checked':''}
+               onchange="selectHarshStat('STR')"> STR (${getAttrValue('STR') || '—'})
+      </label>
+      <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+        <input type="radio" name="harshStat" value="CON" ${state.harshStatChoice==='CON'?'checked':''}
+               onchange="selectHarshStat('CON')"> CON (${getAttrValue('CON') || '—'})
+      </label>
+    </div>`;
+  }
+
+  return `
+    <div class="section-header" style="margin-top:2rem;"><h3>Upbringing &amp; Adversity</h3></div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
+      Your upbringing shapes your starting resilience and initial sanity score.
+      Adversity skill picks can only improve: <strong>First Aid, Military Training, Regional Lore, Survival</strong>.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;" class="sm:grid-cols-1">
+      ${upbOpts.map(o => `
+        <div class="sel-card ${state.upbringing === o.id ? 'selected' : ''}"
+             onclick="selectUpbringing('${o.id}')" role="button" tabindex="0"
+             onkeydown="if(event.key==='Enter'||event.key===' ')selectUpbringing('${o.id}')">
+          <div class="card-check">${checkIcon()}</div>
+          <div class="card-tag">${o.label}</div>
+          <div class="card-desc" style="font-size:0.78rem;margin-top:0.4rem;">${o.desc}</div>
+          <ul class="card-detail-list mt-2" style="font-size:0.74rem;">
+            <li>${o.bonus}</li>
+            <li>${o.sanNote}</li>
+            <li>${o.adversity}</li>
+          </ul>
+        </div>`).join('')}
+    </div>
+    ${statChoiceHtml}`;
+}
+
+function selectUpbringing(val) {
+  state.upbringing = val;
+  if (val !== 'harsh') state.harshStatChoice = null;
+  render();
+}
+
+function selectHarshStat(attr) {
+  state.harshStatChoice = attr;
+  render();
 }
 
 function handleAttrDropdown(attr, val) {
@@ -660,7 +805,7 @@ function renderStep4() {
       <div class="arch-desc">${truncateWords(arch.description, 80)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
         <span style="font-size:0.68rem;color:var(--text-secondary);">Bonds: ${arch.bonds}</span>
-        ${resourcePips(4, arch.resources)}
+        <span style="font-size:0.68rem;color:var(--text-secondary);">Resources: ${archetypeResourcesValue(arch.resources)}</span>
       </div>
     </div>`).join('');
 
@@ -697,12 +842,7 @@ function renderStep4() {
 
       <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:0.8rem;color:var(--text-secondary);">
         <span>Bonds: <strong style="color:var(--text-primary);">${selected.bonds}</strong></span>
-        <span>Resources:
-          <span class="resources-pips" style="display:inline-flex;gap:3px;vertical-align:middle;">
-            ${[1,2,3,4].map(i => `<span class="pip ${i <= selected.resources ? 'filled' : ''}"></span>`).join('')}
-          </span>
-          (${selected.resources}/4)
-        </span>
+        <span>Starting Resources: <strong style="color:var(--text-primary);">${archetypeResourcesValue(selected.resources)}</strong> / 20</span>
       </div>
 
       ${!optDone ? `<p class="validation-msg">Select exactly ${selected.optionalCount} optional skill${selected.optionalCount > 1 ? 's' : ''} to continue.</p>` : ''}
@@ -761,6 +901,8 @@ function renderStep5() {
   const isGritty  = state.harshness === 'gritty';
   const skills    = getCurrentSkills();
   const bondCount = getEffectiveBondsCount();
+  const advTotal  = getAdversityTotal();
+  const advLeft   = getAdversityRemaining();
 
   // Ensure bonds array is right length
   ensureBondsCount();
@@ -777,27 +919,76 @@ function renderStep5() {
   });
 
   const skillRows = allSkillNames.map(skillName => {
-    const base     = skills[skillName] || 0;
-    const archBon  = getArchetypeSkillBonus(skillName);
-    const bpAdded  = state.skillPoints[skillName] || 0;
-    const final    = getFinalSkillValue(skillName);
-    const isBonus  = archBon > 0;
-    const canAdd   = bpLeft > 0 && bpAdded < 20;
-    const canSub   = bpAdded > 0;
+    const base      = skills[skillName] || 0;
+    const archBon   = getArchetypeSkillBonus(skillName);
+    const bpPicks   = state.skillPoints[skillName] || 0;
+    const final     = getFinalSkillValue(skillName);
+    const isBonus   = archBon > 0;
+    const isUnnat   = skillName === 'Unnatural';
+    const advPicks  = state.adversityPoints[skillName] || 0;
+    // canAdd: have picks left AND adding one more pick won't exceed 80%
+    const canAdd = !isUnnat && bpLeft > 0 && (base + archBon + (bpPicks + advPicks + 1) * 20) <= 80;
+    const canSub = !isUnnat && bpPicks > 0;
+
+    const bonusDisplay = bpPicks > 0 ? `+${bpPicks * 20}%` : (isUnnat ? 'locked' : '—');
 
     return `<tr>
       <td class="skill-name ${isBonus ? 'bonus-skill' : ''}" style="width:45%">
-        ${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}</span>` : ''}
+        ${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}
+        ${isUnnat ? ` <span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
       </td>
       <td class="skill-base">${base}%</td>
       <td style="text-align:center;white-space:nowrap;">
         <button class="skill-adj-btn" onclick="adjustSkill('${skillName}',-1)" ${canSub ? '' : 'disabled'}>−</button>
-        <span class="skill-bonus-added" style="display:inline-block;min-width:32px;text-align:center;">${bpAdded > 0 ? '+'+bpAdded : '—'}</span>
+        <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${bonusDisplay}</span>
         <button class="skill-adj-btn plus" onclick="adjustSkill('${skillName}',1)" ${canAdd ? '' : 'disabled'}>+</button>
       </td>
       <td class="skill-final">${final}%</td>
     </tr>`;
   }).join('');
+
+  // Adversity picks section (only for harsh / very harsh upbringing)
+  const adversityHtml = advTotal > 0 ? `
+    <div class="section-header" style="margin-top:2rem;">
+      <h3>Adversity Skill Picks — ${advLeft} / ${advTotal} remaining</h3>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.6;">
+      From your <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : 'Harsh'}</strong> upbringing you receive
+      ${advTotal} adversity pick${advTotal > 1 ? 's' : ''} (+20% each). These may only be applied to the four adversity skills below.
+    </p>
+    <div style="overflow-x:auto;">
+      <table class="skills-table">
+        <thead>
+          <tr>
+            <th style="width:45%;">Adversity Skill</th>
+            <th style="text-align:center;">Base</th>
+            <th style="text-align:center;">Adv. Bonus</th>
+            <th style="text-align:center;">Final</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${ADVERSITY_SKILLS.map(skillName => {
+            const base     = skills[skillName] || 0;
+            const archBon  = getArchetypeSkillBonus(skillName);
+            const advPicks = state.adversityPoints[skillName] || 0;
+            const bpPicks  = state.skillPoints[skillName] || 0;
+            const final    = getFinalSkillValue(skillName);
+            const canAdd = advLeft > 0 && (base + archBon + (bpPicks + advPicks + 1) * 20) <= 80;
+            const canSub = advPicks > 0;
+            return `<tr>
+              <td class="skill-name" style="width:45%">${skillName}</td>
+              <td class="skill-base">${base}%</td>
+              <td style="text-align:center;white-space:nowrap;">
+                <button class="skill-adj-btn" onclick="adjustAdversity('${skillName}',-1)" ${canSub ? '' : 'disabled'}>−</button>
+                <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${advPicks > 0 ? '+' + (advPicks * 20) + '%' : '—'}</span>
+                <button class="skill-adj-btn plus" onclick="adjustAdversity('${skillName}',1)" ${canAdd ? '' : 'disabled'}>+</button>
+              </td>
+              <td class="skill-final">${final}%</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>` : '';
 
   const edgesHtml = isGritty ? `
     <div class="section-header" style="margin-top:2rem;"><h3>Gritty Edges — Harshness Points: ${hpLeft} / ${hpTotal} remaining</h3></div>
@@ -835,21 +1026,21 @@ function renderStep5() {
         </div>`).join('')}
     </div>`;
 
+  // Resources: show 0-20 value; display what the next pick adds
+  const nextPickGain = state.resourcesBonusSpent === 0 ? 5 : 2;
   const resourcesHtml = `
-    <div class="section-header" style="margin-top:2rem;"><h3>Resources</h3></div>
+    <div class="section-header" style="margin-top:2rem;"><h3>Resources (0–20 scale)</h3></div>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-      <div class="resources-pips" style="gap:6px;">
-        ${[1,2,3,4].map(i => `<div class="pip ${i <= effectiveResources ? 'filled' : ''}" style="width:20px;height:20px;"></div>`).join('')}
-      </div>
+      <span style="font-size:1.5rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2.5rem;text-align:center;">${effectiveResources}</span>
       <span style="font-size:0.82rem;color:var(--text-secondary);">
-        Rating: <strong style="color:var(--text-primary);">${effectiveResources}/4</strong>
-        (base: ${arch ? arch.resources : 0}${state.resourcesBonusSpent > 0 ? ` +${state.resourcesBonusSpent} purchased` : ''})
+        / 20 &nbsp;|&nbsp; base: ${arch ? archetypeResourcesValue(arch.resources) : 0}
+        ${state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
       </span>
       <button class="skill-adj-btn" onclick="adjustResources(-1)"
               ${state.resourcesBonusSpent > 0 ? '' : 'disabled'}>−</button>
-      <span style="font-size:0.78rem;color:var(--text-secondary);">+1 costs 10 BP</span>
+      <span style="font-size:0.78rem;color:var(--text-secondary);">1 pick → +${nextPickGain}</span>
       <button class="skill-adj-btn plus" onclick="adjustResources(1)"
-              ${bpLeft >= 10 && effectiveResources < 4 ? '' : 'disabled'}>+</button>
+              ${bpLeft >= 1 && effectiveResources < 20 ? '' : 'disabled'}>+</button>
     </div>`;
 
   const bpClass = bpLeft === 0 ? 'good' : bpLeft < 0 ? 'warn' : '';
@@ -858,25 +1049,29 @@ function renderStep5() {
   return `
   <div class="step-content">
     <h2 class="step-title">Distribute Your Points</h2>
-    <p class="step-subtitle">You have <strong style="color:var(--accent-gold);">${bpTotal}</strong> bonus points (equal to your INT score) to improve skills, bonds, and resources.</p>
+    <p class="step-subtitle">You have <strong style="color:var(--accent-gold);">${bpTotal} Bonus Picks</strong> to spend. Each pick adds <strong>+20%</strong> to a skill (max final value 80%), or can be sacrificed to increase Resources or a Bond.</p>
 
     <div class="points-bar">
       <div class="points-counter">
         <span class="pts-val ${bpClass}">${bpLeft}</span>
-        <span class="pts-label">Bonus Points Remaining</span>
+        <span class="pts-label">Bonus Picks Remaining</span>
       </div>
       <div style="font-size:0.78rem;color:var(--text-secondary);">
         Spent: ${bpSpent} / ${bpTotal}
       </div>
+      ${advTotal > 0 ? `<div class="points-counter">
+        <span class="pts-val ${advLeft === 0 ? 'good' : ''}">${advLeft}</span>
+        <span class="pts-label">Adversity Picks Remaining</span>
+      </div>` : ''}
       ${isGritty ? `<div class="points-counter">
         <span class="pts-val ${hpLeft === 0 ? 'good' : ''}">${hpLeft}</span>
         <span class="pts-label">Harshness Points Remaining</span>
       </div>` : ''}
     </div>
 
-    ${bpLeft === 0 ? `<div class="notice mb-4"><strong>All bonus points spent.</strong> Scroll down to name your bonds, then proceed.</div>` : ''}
+    ${bpLeft === 0 && advLeft === 0 ? `<div class="notice mb-4"><strong>All picks spent.</strong> Scroll down to name your bonds, then proceed.</div>` : ''}
 
-    <div class="section-header"><h3>Skills — max +20 per skill from bonus points</h3></div>
+    <div class="section-header"><h3>Skills — each Bonus Pick adds +20% (max final 80%)</h3></div>
     <div style="overflow-x:auto;">
       <table class="skills-table">
         <thead>
@@ -891,23 +1086,33 @@ function renderStep5() {
       </table>
     </div>
 
+    ${adversityHtml}
     ${edgesHtml}
     ${bondsHtml}
     ${resourcesHtml}
 
     ${!canProceed(5) ? `<p class="validation-msg">
-      ${bpLeft !== 0 ? `Spend all ${bpLeft > 0 ? bpLeft + ' remaining' : 'over-budget'} bonus points. ` : ''}
+      ${bpLeft !== 0 ? `Spend all ${bpLeft > 0 ? bpLeft + ' remaining' : 'over-budget'} bonus picks. ` : ''}
+      ${advLeft !== 0 ? `Spend all ${advLeft} remaining adversity pick${advLeft > 1 ? 's' : ''}. ` : ''}
       ${!allBondsNamed ? 'Name all bonds. ' : ''}
     </p>` : ''}
   </div>`;
 }
 
 function adjustSkill(skillName, delta) {
-  const current = state.skillPoints[skillName] || 0;
-  const newVal  = current + delta;
-  if (newVal < 0 || newVal > 20) return;
-  if (delta > 0 && getBonusPointsRemaining() < delta) return;
-  state.skillPoints[skillName] = newVal;
+  if (skillName === 'Unnatural') return; // cannot be increased
+  const base     = getCurrentSkills()[skillName] || 0;
+  const archBon  = getArchetypeSkillBonus(skillName);
+  const current  = state.skillPoints[skillName] || 0;
+  const newPicks = current + delta;
+  if (newPicks < 0) return;
+  if (delta > 0) {
+    if (getBonusPointsRemaining() < 1) return;
+    // Check 80% cap (adversity picks already factored in getFinalSkillValue)
+    const advPicks = state.adversityPoints[skillName] || 0;
+    if (base + archBon + (newPicks + advPicks) * 20 > 80) return;
+  }
+  state.skillPoints[skillName] = newPicks;
   render();
 }
 
@@ -915,13 +1120,29 @@ function adjustResources(delta) {
   const arch = getArchetype();
   if (!arch) return;
   if (delta > 0) {
-    if (getBonusPointsRemaining() < 10) return;
-    if (getEffectiveResources() >= 4) return;
+    if (getBonusPointsRemaining() < 1) return;
+    if (getEffectiveResources() >= 20) return;
     state.resourcesBonusSpent++;
   } else {
     if (state.resourcesBonusSpent <= 0) return;
     state.resourcesBonusSpent--;
   }
+  render();
+}
+
+function adjustAdversity(skillName, delta) {
+  if (!ADVERSITY_SKILLS.includes(skillName)) return;
+  const base     = getCurrentSkills()[skillName] || 0;
+  const archBon  = getArchetypeSkillBonus(skillName);
+  const current  = state.adversityPoints[skillName] || 0;
+  const newPicks = current + delta;
+  if (newPicks < 0) return;
+  if (delta > 0) {
+    if (getAdversityRemaining() < 1) return;
+    const bpPicks = state.skillPoints[skillName] || 0;
+    if (base + archBon + (bpPicks + newPicks) * 20 > 80) return;
+  }
+  state.adversityPoints[skillName] = newPicks;
   render();
 }
 
@@ -971,7 +1192,7 @@ function renderStep6() {
       const final   = getFinalSkillValue(s);
       return { name: s, base, archBon, final, boosted: archBon > 0 };
     })
-    .filter(s => s.final > 0);
+    .filter(s => s.final > 0 || s.name === 'Unnatural');
 
   const charSheetHtml = canShow ? `
   <div class="character-sheet" id="character-sheet">
@@ -984,6 +1205,7 @@ function renderStep6() {
         <span><strong>${arch ? arch.name : '—'}</strong> Archetype</span>
         <span>Age <strong>${state.identity.characterAge}</strong></span>
         <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong> · ${state.harshness === 'gritty' ? 'Gritty' : 'Standard'}</span>
+        ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
       </div>
     </div>
 
@@ -1004,20 +1226,20 @@ function renderStep6() {
     <div class="sheet-section">
       <div class="sheet-section-title">Derived Statistics</div>
       <div class="derived-row">
-        <div class="derived-box" data-tooltip="(STR + CON) ÷ 2">
+        <div class="derived-box" data-tooltip="⌈(STR + CON) ÷ 2⌉">
           <span class="db-name">HP</span><span class="db-val">${derived ? derived.HP : '—'}</span>
         </div>
         <div class="derived-box" data-tooltip="Equal to POW">
           <span class="db-name">WP</span><span class="db-val">${derived ? derived.WP : '—'}</span>
         </div>
-        <div class="derived-box" data-tooltip="POW × 5">
+        <div class="derived-box" data-tooltip="${(state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4 (Harsh/Very Harsh upbringing)' : 'POW × 5 (Normal upbringing)'}">
           <span class="db-name">SAN</span><span class="db-val">${derived ? derived.SAN : '—'}</span>
         </div>
         <div class="derived-box" data-tooltip="Breaking Point = SAN − POW">
           <span class="db-name">BP</span><span class="db-val">${derived ? derived.BP : '—'}</span>
         </div>
-        <div class="derived-box">
-          <span class="db-name">Resources</span><span class="db-val">${getEffectiveResources()}/4</span>
+        <div class="derived-box" data-tooltip="Resources (0–20 scale)">
+          <span class="db-name">Resources</span><span class="db-val">${getEffectiveResources()}/20</span>
         </div>
       </div>
     </div>
@@ -1140,6 +1362,9 @@ function resetState() {
   state.harshness   = null;
   state.rolledSets  = [];
   ATTRIBUTES.forEach(a => { state.attrAssign[a] = null; });
+  state.upbringing       = null;
+  state.harshStatChoice  = null;
+  state.adversityPoints  = {};
   state.archetype        = null;
   state.selectedOptional = [];
   state.skillPoints      = {};
