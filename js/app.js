@@ -7,7 +7,6 @@
 const state = {
   currentStep: 1,
   age: null,          // 'jazz' | 'modern'
-  harshness: null,    // 'standard' | 'gritty'
 
   rolledSets: [],     // [{id:N, values:[d1,d2,d3,d4], total:N}]
   attrAssign: {       // attribute -> rolledSet.id (or null)
@@ -26,9 +25,6 @@ const state = {
   bonds: [],                     // array of strings
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
-
-  harshEdges: [],                // array of purchased edge ids
-  harshEdgeBondsExtra: 0,        // extra bonds from 'contacts' edge
 
   identity: {
     name: '',
@@ -182,19 +178,10 @@ function getBonusPointsRemaining() {
   return getBonusPointsTotal() - getBonusPointsSpent();
 }
 
-function getHarshnessPointsTotal()    { return state.harshness === 'gritty' ? 8 : 0; }
-function getHarshnessPointsSpent() {
-  return GRITTY_EDGES
-    .filter(e => state.harshEdges.includes(e.id))
-    .reduce((s, e) => s + e.cost, 0);
-}
-function getHarshnessPointsRemaining() { return getHarshnessPointsTotal() - getHarshnessPointsSpent(); }
-
 function getEffectiveBondsCount() {
   const arch = getArchetype();
   if (!arch) return 0;
-  const contactsEdge = state.harshEdges.includes('contacts') ? 1 : 0;
-  return arch.bonds + contactsEdge;
+  return arch.bonds;
 }
 
 // Maps the archetype's 1–4 resource level to the 0–20 scale per SKILL.md:
@@ -208,13 +195,12 @@ function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
   const base = archetypeResourcesValue(arch.resources);
-  const resourcefulEdge = state.harshEdges.includes('resourceful') ? 1 : 0;
   // Per SKILL.md: first Bonus Pick on Resources adds +5; each subsequent pick adds +2
   let bonus = 0;
   if (state.resourcesBonusSpent > 0) {
     bonus = 5 + (state.resourcesBonusSpent - 1) * 2;
   }
-  return Math.min(20, base + bonus + resourcefulEdge);
+  return Math.min(20, base + bonus);
 }
 
 // ── Adversity Picks ─────────────────────────────────────────
@@ -240,25 +226,24 @@ function getAdversityRemaining() {
 function canProceed(step) {
   switch (step) {
     case 1: return !!state.age;
-    case 2: return !!state.harshness;
-    case 3: {
+    case 2: {
       if (!allAttributesAssigned()) return false;
       if (!state.upbringing) return false;
       if (state.upbringing === 'harsh' && !state.harshStatChoice) return false;
       return true;
     }
-    case 4: {
+    case 3: {
       if (!state.archetype) return false;
       const arch = getArchetype();
       return arch && state.selectedOptional.length === arch.optionalCount;
     }
-    case 5: {
+    case 4: {
       const bpOk  = getBonusPointsRemaining() === 0;
       const advOk = getAdversityRemaining() === 0;
       const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.trim() !== '');
       return bpOk && advOk && bondsOk;
     }
-    case 6: return state.identity.name.trim() !== '';
+    case 5: return state.identity.name.trim() !== '';
     default: return false;
   }
 }
@@ -275,10 +260,7 @@ function nextStep() {
   if (canProceed(state.currentStep)) {
     // Side effects on transition
     if (state.currentStep === 3) {
-      // Entering step 4 — reset archetype if age changed
-    }
-    if (state.currentStep === 4) {
-      // Entering step 5 — init skills & bonds
+      // Entering step 4 — init skills & bonds
       initSkills();
       ensureBondsCount();
       state.resources = getEffectiveResources();
@@ -399,70 +381,9 @@ function selectAge(val) {
   render();
 }
 
-// ── RENDER: Step 2 — Harshness ──────────────────────────────
+// ── RENDER: Step 2 — Attributes ─────────────────────────────
 
 function renderStep2() {
-  return `
-  <div class="step-content">
-    <h2 class="step-title">Set the Tone</h2>
-    <p class="step-subtitle">Choose how unforgiving your world will be. This affects special abilities available to your character.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
-
-      <div class="sel-card ${state.harshness === 'standard' ? 'selected' : ''}"
-           onclick="selectHarshness('standard')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectHarshness('standard')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-tag">Standard</div>
-        <div class="card-title">Standard Rules</div>
-        <div class="card-desc">
-          The baseline Cthulhu Eternal experience. 
-          Characters are capable investigators facing extraordinary odds, with a reasonable chance of survival 
-          if they keep their wits about them.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>No Harshness Points</li>
-          <li>Standard recovery rates</li>
-          <li>Recommended for new players</li>
-          <li>Focus on investigation and story</li>
-        </ul>
-      </div>
-
-      <div class="sel-card ${state.harshness === 'gritty' ? 'selected' : ''}"
-           onclick="selectHarshness('gritty')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectHarshness('gritty')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-tag" style="background:rgba(122,28,28,0.5);color:#fca5a5;border:1px solid rgba(163,48,48,0.5);">Gritty</div>
-        <div class="card-title">Gritty Rules</div>
-        <div class="card-desc">
-          A darker, more punishing version of the rules where every encounter carries lasting consequences. 
-          In exchange for greater danger, characters receive <strong>8 Harshness Points</strong> 
-          to spend on powerful special edges.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Gain 8 Harshness Points to spend</li>
-          <li>Unlock special Gritty Edges</li>
-          <li>Harsher consequences for failure</li>
-          <li>Recommended for experienced groups</li>
-        </ul>
-      </div>
-    </div>
-
-    ${state.harshness === 'gritty' ? `<div class="notice mt-4">
-      <strong>Gritty Mode</strong> selected. You will receive <strong>8 Harshness Points</strong> to spend 
-      on special edges in Step 5.
-    </div>` : ''}
-  </div>`;
-}
-
-function selectHarshness(val) {
-  state.harshness = val;
-  render();
-}
-
-// ── RENDER: Step 3 — Attributes ─────────────────────────────
-
-function renderStep3() {
   const poolRollIds = assignedRollIds();
   const unassigned  = state.rolledSets.filter(r => !poolRollIds.has(r.id));
   const hasRolled   = state.rolledSets.length > 0;
@@ -604,7 +525,7 @@ function renderStep3() {
 
     ${allAssigned ? renderUpbringing() : ''}
 
-    ${allAssigned && !canProceed(3) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
+    ${allAssigned && !canProceed(2) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
   </div>`;
 }
 
@@ -791,9 +712,9 @@ function handleDrop(e, targetAttr) {
   render();
 }
 
-// ── RENDER: Step 4 — Archetype ──────────────────────────────
+// ── RENDER: Step 3 — Archetype ──────────────────────────────
 
-function renderStep4() {
+function renderStep3() {
   const filtered = ARCHETYPES.filter(a => a.ages.includes(state.age));
   const selected  = getArchetype();
 
@@ -889,16 +810,13 @@ function toggleOptional(skillName, maxCount) {
   }, 50);
 }
 
-// ── RENDER: Step 5 — Point Distribution ─────────────────────
+// ── RENDER: Step 4 — Point Distribution ─────────────────────
 
-function renderStep5() {
+function renderStep4() {
   const arch      = getArchetype();
   const bpTotal   = getBonusPointsTotal();
   const bpSpent   = getBonusPointsSpent();
   const bpLeft    = bpTotal - bpSpent;
-  const hpTotal   = getHarshnessPointsTotal();
-  const hpLeft    = getHarshnessPointsRemaining();
-  const isGritty  = state.harshness === 'gritty';
   const skills    = getCurrentSkills();
   const bondCount = getEffectiveBondsCount();
   const advTotal  = getAdversityTotal();
@@ -990,26 +908,6 @@ function renderStep5() {
       </table>
     </div>` : '';
 
-  const edgesHtml = isGritty ? `
-    <div class="section-header" style="margin-top:2rem;"><h3>Gritty Edges — Harshness Points: ${hpLeft} / ${hpTotal} remaining</h3></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;" class="sm:grid-cols-1">
-      ${GRITTY_EDGES.map(edge => {
-        const owned   = state.harshEdges.includes(edge.id);
-        const canBuy  = !owned && hpLeft >= edge.cost;
-        return `<div class="edge-card ${owned ? 'purchased' : ''}">
-          <div class="edge-info">
-            <div class="edge-name">${edge.name}</div>
-            <div class="edge-desc">${edge.description}</div>
-            <div class="edge-cost">Cost: ${edge.cost} HP${owned ? ' ✓ Purchased' : ''}</div>
-          </div>
-          ${owned
-            ? `<button class="edge-btn refund" onclick="refundEdge('${edge.id}')">Refund</button>`
-            : `<button class="edge-btn buy" onclick="buyEdge('${edge.id}')" ${canBuy ? '' : 'disabled'}>Buy</button>`
-          }
-        </div>`;
-      }).join('')}
-    </div>` : '';
-
   const bondsHtml = `
     <div class="section-header" style="margin-top:2rem;">
       <h3>Bonds (${bondCount} — name each person your character values most)</h3>
@@ -1063,10 +961,6 @@ function renderStep5() {
         <span class="pts-val ${advLeft === 0 ? 'good' : ''}">${advLeft}</span>
         <span class="pts-label">Adversity Picks Remaining</span>
       </div>` : ''}
-      ${isGritty ? `<div class="points-counter">
-        <span class="pts-val ${hpLeft === 0 ? 'good' : ''}">${hpLeft}</span>
-        <span class="pts-label">Harshness Points Remaining</span>
-      </div>` : ''}
     </div>
 
     ${bpLeft === 0 && advLeft === 0 ? `<div class="notice mb-4"><strong>All picks spent.</strong> Scroll down to name your bonds, then proceed.</div>` : ''}
@@ -1087,11 +981,10 @@ function renderStep5() {
     </div>
 
     ${adversityHtml}
-    ${edgesHtml}
     ${bondsHtml}
     ${resourcesHtml}
 
-    ${!canProceed(5) ? `<p class="validation-msg">
+    ${!canProceed(4) ? `<p class="validation-msg">
       ${bpLeft !== 0 ? `Spend all ${bpLeft > 0 ? bpLeft + ' remaining' : 'over-budget'} bonus picks. ` : ''}
       ${advLeft !== 0 ? `Spend all ${advLeft} remaining adversity pick${advLeft > 1 ? 's' : ''}. ` : ''}
       ${!allBondsNamed ? 'Name all bonds. ' : ''}
@@ -1146,38 +1039,17 @@ function adjustAdversity(skillName, delta) {
   render();
 }
 
-function buyEdge(id) {
-  const edge = GRITTY_EDGES.find(e => e.id === id);
-  if (!edge) return;
-  if (getHarshnessPointsRemaining() < edge.cost) return;
-  if (state.harshEdges.includes(id)) return;
-  state.harshEdges.push(id);
-  // Special effects
-  if (id === 'contacts') {
-    state.bonds.push('');
-  }
-  render();
-}
-
-function refundEdge(id) {
-  state.harshEdges = state.harshEdges.filter(e => e !== id);
-  if (id === 'contacts' && state.bonds.length > getEffectiveBondsCount()) {
-    state.bonds.pop();
-  }
-  render();
-}
-
 function updateBond(index, value) {
   state.bonds[index] = value;
   // Don't re-render (would lose focus), just update canProceed state silently
   // Update the next button disabled state
   const nextBtn = document.getElementById('next-btn');
-  if (nextBtn) nextBtn.disabled = !canProceed(5);
+  if (nextBtn) nextBtn.disabled = !canProceed(4);
 }
 
-// ── RENDER: Step 6 — Identity & Export ──────────────────────
+// ── RENDER: Step 5 — Identity & Export ──────────────────────
 
-function renderStep6() {
+function renderStep5() {
   const arch    = getArchetype();
   const derived = calculateDerived();
   const skills  = getCurrentSkills();
@@ -1204,7 +1076,7 @@ function renderStep6() {
       <div class="sheet-meta">
         <span><strong>${arch ? arch.name : '—'}</strong> Archetype</span>
         <span>Age <strong>${state.identity.characterAge}</strong></span>
-        <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong> · ${state.harshness === 'gritty' ? 'Gritty' : 'Standard'}</span>
+        <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong></span>
         ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
       </div>
     </div>
@@ -1260,15 +1132,6 @@ function renderStep6() {
       <div>${state.bonds.filter(b => b.trim()).map(b => `<span class="bond-tag">${escapeHtml(b)}</span>`).join('')}</div>
     </div>
 
-    ${state.harshEdges.length > 0 ? `
-    <div class="sheet-section">
-      <div class="sheet-section-title">Gritty Edges</div>
-      <div>${state.harshEdges.map(id => {
-        const e = GRITTY_EDGES.find(g => g.id === id);
-        return e ? `<span class="bond-tag" style="background:rgba(122,28,28,0.2);border-color:rgba(163,48,48,0.4);">${e.name}</span>` : '';
-      }).join('')}</div>
-    </div>` : ''}
-
     ${state.identity.backstory.trim() ? `
     <div class="sheet-section">
       <div class="sheet-section-title">Backstory</div>
@@ -1315,7 +1178,7 @@ function renderStep6() {
       </div>
     </div>
 
-    ${!canProceed(6) ? `<p class="validation-msg">A character name is required.</p>` : ''}
+    ${!canProceed(5) ? `<p class="validation-msg">A character name is required.</p>` : ''}
 
     <div class="ornament-divider">✦</div>
 
@@ -1345,7 +1208,7 @@ function updateIdentity(field, value) {
   } else {
     // Just update next button
     const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) nextBtn.disabled = !canProceed(6);
+    if (nextBtn) nextBtn.disabled = !canProceed(5);
   }
 }
 
@@ -1359,7 +1222,6 @@ function confirmReset() {
 function resetState() {
   state.currentStep = 1;
   state.age         = null;
-  state.harshness   = null;
   state.rolledSets  = [];
   ATTRIBUTES.forEach(a => { state.attrAssign[a] = null; });
   state.upbringing       = null;
@@ -1371,7 +1233,6 @@ function resetState() {
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
-  state.harshEdges       = [];
   state.identity         = { name: '', profession: '', characterAge: 25, backstory: '' };
 }
 
@@ -1379,7 +1240,7 @@ function resetState() {
 
 function renderNavButtons() {
   const isFirst = state.currentStep === 1;
-  const isLast  = state.currentStep === 6;
+  const isLast  = state.currentStep === 5;
   const proceed = canProceed(state.currentStep);
 
   return `
@@ -1388,7 +1249,7 @@ function renderNavButtons() {
       ← Previous
     </button>
     <span style="font-size:0.78rem;color:var(--text-secondary);">
-      Step ${state.currentStep} of 6
+      Step ${state.currentStep} of 5
     </span>
     ${isLast
       ? `<button class="btn btn-gold" onclick="confirmReset()">✦ Start Over</button>`
@@ -1408,7 +1269,6 @@ function renderCurrentStep() {
     case 3: return renderStep3();
     case 4: return renderStep4();
     case 5: return renderStep5();
-    case 6: return renderStep6();
     default: return '<p>Unknown step.</p>';
   }
 }
