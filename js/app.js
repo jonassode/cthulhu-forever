@@ -190,17 +190,10 @@ function getEffectiveBondsCount() {
   return arch.bonds;
 }
 
-// Maps the archetype's 1–5 resource level to the 0–20 scale per SKILL.md:
-// 1 = Destitute (0), 2 = Working Class (5), 3 = Middle Class (10), 4 = Wealthy (15), 5 = Elite (20)
-function archetypeResourcesValue(level) {
-  const map = { 1: 0, 2: 5, 3: 10, 4: 15, 5: 20 };
-  return map[level] !== undefined ? map[level] : 0;
-}
-
 function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
-  const base = archetypeResourcesValue(arch.resources);
+  const base = arch.resources;
   // Per SKILL.md: first Bonus Pick on Resources adds +5; each subsequent pick adds +2
   let bonus = 0;
   if (state.resourcesBonusSpent > 0) {
@@ -732,7 +725,7 @@ function renderStep3() {
       <div class="arch-desc">${truncateWords(arch.description, 80)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
         <span style="font-size:0.68rem;color:var(--text-secondary);">Bonds: ${arch.bonds}</span>
-        <span style="font-size:0.68rem;color:var(--text-secondary);">Resources: ${archetypeResourcesValue(arch.resources)}</span>
+        <span style="font-size:0.68rem;color:var(--text-secondary);">Resources: ${arch.resources}</span>
       </div>
     </div>`).join('');
 
@@ -769,7 +762,7 @@ function renderStep3() {
 
       <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:0.8rem;color:var(--text-secondary);">
         <span>Bonds: <strong style="color:var(--text-primary);">${selected.bonds}</strong></span>
-        <span>Starting Resources: <strong style="color:var(--text-primary);">${archetypeResourcesValue(selected.resources)}</strong> / 20</span>
+        <span>Starting Resources: <strong style="color:var(--text-primary);">${selected.resources}</strong> / 20</span>
       </div>
 
       ${!optDone ? `<p class="validation-msg">Select exactly ${selected.optionalCount} optional skill${selected.optionalCount > 1 ? 's' : ''} to continue.</p>` : ''}
@@ -937,7 +930,7 @@ function renderStep4() {
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
       <span style="font-size:1.5rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2.5rem;text-align:center;">${effectiveResources}</span>
       <span style="font-size:0.82rem;color:var(--text-secondary);">
-        / 20 &nbsp;|&nbsp; base: ${arch ? archetypeResourcesValue(arch.resources) : 0}
+        / 20 &nbsp;|&nbsp; base: ${arch ? arch.resources : 0}
         ${state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
       </span>
       <button class="skill-adj-btn" onclick="adjustResources(-1)"
