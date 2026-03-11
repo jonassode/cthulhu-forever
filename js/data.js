@@ -388,54 +388,12 @@ const ARCHETYPES = [
   },
 ];
 
-// ── Gritty Edges ─────────────────────────────────────────────
-
-const GRITTY_EDGES = [
-  {
-    id: 'hardened',
-    name: 'Hardened',
-    cost: 3,
-    description: 'You have faced the abyss and returned scarred but functional. Your Breaking Point increases by 5.',
-  },
-  {
-    id: 'quick_healer',
-    name: 'Quick Healer',
-    cost: 2,
-    description: 'Your body knits itself with remarkable speed. You heal 2 HP per day of rest instead of 1.',
-  },
-  {
-    id: 'iron_will',
-    name: 'Iron Will',
-    cost: 3,
-    description: 'A bedrock of psychological resilience keeps you upright when others crumble. Add +5 to all Sanity checks.',
-  },
-  {
-    id: 'combat_veteran',
-    name: 'Combat Veteran',
-    cost: 2,
-    description: 'Instinct honed by violence gives you an edge. Gain +10% to Unarmed Combat and one weapon skill of your choice.',
-  },
-  {
-    id: 'contacts',
-    name: 'Well-Connected',
-    cost: 2,
-    description: 'Your network of allies runs deeper than most. Gain one additional Bond beyond your archetype total.',
-  },
-  {
-    id: 'resourceful',
-    name: 'Resourceful',
-    cost: 2,
-    description: 'You have cultivated reserves of wealth, influence, or supplies. Your Resources rating increases by 1.',
-  },
-];
-
 // ── Step config ───────────────────────────────────────────────
 
 const STEPS = [
   { id: 1, label: 'Era',        title: 'Choose Your Era' },
-  { id: 2, label: 'Tone',       title: 'Set the Tone' },
-  { id: 3, label: 'Attributes', title: 'Roll Your Attributes' },
-  { id: 4, label: 'Archetype',  title: 'Choose Your Archetype' },
-  { id: 5, label: 'Points',     title: 'Distribute Your Points' },
-  { id: 6, label: 'Identity',   title: 'Forge Your Identity' },
+  { id: 2, label: 'Attributes', title: 'Roll Your Attributes' },
+  { id: 3, label: 'Archetype',  title: 'Choose Your Archetype' },
+  { id: 4, label: 'Points',     title: 'Distribute Your Points' },
+  { id: 5, label: 'Identity',   title: 'Forge Your Identity' },
 ];
