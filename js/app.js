@@ -141,8 +141,14 @@ function getArchetype() {
 function getArchetypeSkillBonus(skillName) {
   const arch = getArchetype();
   if (!arch) return 0;
-  const allBonusSkills = [...arch.bonusSkills, ...state.selectedOptional];
-  return allBonusSkills.includes(skillName) ? arch.bonusAmount : 0;
+  const base = getCurrentSkills()[skillName] || 0;
+  // Check fixed archetypal skills
+  const arcSkill = arch.archetypeSkills.find(s => s.name === skillName);
+  if (arcSkill) return Math.max(0, arcSkill.value - base);
+  // Check chosen optional skills
+  const optSkill = arch.optionalSkills.find(s => s.name === skillName && state.selectedOptional.includes(s.name));
+  if (optSkill) return Math.max(0, optSkill.value - base);
+  return 0;
 }
 
 function getFinalSkillValue(skillName) {
@@ -184,11 +190,11 @@ function getEffectiveBondsCount() {
   return arch.bonds;
 }
 
-// Maps the archetype's 1–4 resource level to the 0–20 scale per SKILL.md:
-// 1 = Poor (5), 2 = Average (10), 3 = Wealthy (15), 4 = Elite (20)
+// Maps the archetype's 1–5 resource level to the 0–20 scale per SKILL.md:
+// 1 = Destitute (0), 2 = Working Class (5), 3 = Middle Class (10), 4 = Wealthy (15), 5 = Elite (20)
 function archetypeResourcesValue(level) {
-  const map = { 1: 5, 2: 10, 3: 15, 4: 20 };
-  return map[level] || 5;
+  const map = { 1: 0, 2: 5, 3: 10, 4: 15, 5: 20 };
+  return map[level] !== undefined ? map[level] : 0;
 }
 
 function getEffectiveResources() {
@@ -205,7 +211,7 @@ function getEffectiveResources() {
 
 // ── Adversity Picks ─────────────────────────────────────────
 
-const ADVERSITY_SKILLS = ['First Aid', 'Military Training', 'Regional Lore', 'Survival'];
+const ADVERSITY_SKILLS = ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 
 function getAdversityTotal() {
   if (state.upbringing === 'harsh')      return 1;
@@ -337,7 +343,7 @@ function renderStep1() {
           <li>Setting: 1920–1939</li>
           <li>Technology: Motor cars, telegraphs, early radio</li>
           <li>Tone: Gothic mystery, colonial horror</li>
-          <li>Archetypes: 16 classic occupations available</li>
+          <li>Archetypes: 11 classic occupations available</li>
         </ul>
       </div>
 
@@ -356,7 +362,7 @@ function renderStep1() {
           <li>Setting: Present Day</li>
           <li>Technology: Computers, the internet, forensics</li>
           <li>Tone: Conspiracy, urban dread, digital horror</li>
-          <li>Archetypes: 12 contemporary occupations available</li>
+          <li>Archetypes: 11 contemporary occupations available</li>
         </ul>
       </div>
     </div>
@@ -590,7 +596,7 @@ function renderUpbringing() {
     <div class="section-header" style="margin-top:2rem;"><h3>Upbringing &amp; Adversity</h3></div>
     <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
       Your upbringing shapes your starting resilience and initial sanity score.
-      Adversity skill picks can only improve: <strong>First Aid, Military Training, Regional Lore, Survival</strong>.
+      Adversity skill picks can only improve: <strong>First Aid, Military Training (Type), Regional Lore (Type), Survival (Type)</strong>.
     </p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;" class="sm:grid-cols-1">
       ${upbOpts.map(o => `
@@ -736,13 +742,13 @@ function renderStep3() {
     detailHtml = `
     <div class="archetype-detail" id="archetype-detail">
       <h3>${selected.name}</h3>
-      <p class="flavor">${selected.flavor}</p>
+      ${selected.recommendedStats ? `<div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem;font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;">Recommended Stats: ${selected.recommendedStats.join(', ')}</div>` : ''}
       <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">${selected.description}</p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;" class="sm:grid-cols-1">
         <div>
-          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);font-family:var(--font-head);margin-bottom:6px;">Bonus Skills (+${selected.bonusAmount}%)</div>
-          <div>${selected.bonusSkills.map(s => `<span class="skill-pill">${s}</span>`).join('')}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);font-family:var(--font-head);margin-bottom:6px;">Archetypal Skills</div>
+          <div>${selected.archetypeSkills.map(s => `<span class="skill-pill">${s.name} <strong>${s.value}%</strong></span>`).join('')}</div>
         </div>
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
@@ -751,10 +757,10 @@ function renderStep3() {
           </div>
           <div id="optional-skills-container">
             ${selected.optionalSkills.map(s => {
-              const checked = state.selectedOptional.includes(s);
-              return `<label class="optional-checkbox-label ${checked ? 'checked' : ''}" onclick="toggleOptional('${s}',${selected.optionalCount})">
+              const checked = state.selectedOptional.includes(s.name);
+              return `<label class="optional-checkbox-label ${checked ? 'checked' : ''}" onclick="toggleOptional('${s.name}',${selected.optionalCount})">
                 <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); event.preventDefault();" style="pointer-events:none;"/>
-                ${s}
+                ${s.name} <strong>${s.value}%</strong>
               </label>`;
             }).join('')}
           </div>
