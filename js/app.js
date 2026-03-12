@@ -1200,10 +1200,29 @@ function renderStep5() {
 }
 
 function updateIdentity(field, value) {
+  const prevName = state.identity.name;
   state.identity[field] = value;
-  // Re-render if name (to show/hide sheet)
+
   if (field === 'name') {
-    render();
+    const wasEmpty = prevName.trim() === '';
+    const isEmpty  = value.trim() === '';
+
+    if (wasEmpty !== isEmpty) {
+      // Transitioning between empty/non-empty: need full re-render to show/hide sheet
+      render();
+      const el = document.getElementById('char-name');
+      if (el) {
+        const pos = value.length;
+        el.focus();
+        el.setSelectionRange(pos, pos);
+      }
+    } else {
+      // Just update next button and the name display inside the sheet header
+      const nextBtn = document.getElementById('next-btn');
+      if (nextBtn) nextBtn.disabled = !canProceed(5);
+      const nameEl = document.querySelector('.sheet-name');
+      if (nameEl) nameEl.textContent = value;
+    }
   } else {
     // Just update next button
     const nextBtn = document.getElementById('next-btn');
