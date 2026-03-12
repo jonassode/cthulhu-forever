@@ -22,7 +22,7 @@ const state = {
   selectedOptional: [],          // chosen optional skill names
 
   skillPoints: {},               // skillName -> bonus pts added (from bonus pool)
-  bonds: [],                     // array of strings
+  bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
 
@@ -78,7 +78,7 @@ function truncateWords(text, maxLength) {
 // Ensure state.bonds array has the correct length
 function ensureBondsCount() {
   const count = getEffectiveBondsCount();
-  while (state.bonds.length < count) state.bonds.push('');
+  while (state.bonds.length < count) state.bonds.push({ name: '', type: null, bonusSpent: 0 });
   while (state.bonds.length > count) state.bonds.pop();
 }
 
@@ -168,6 +168,8 @@ function initSkills() {
   state.resourcesBonusSpent = 0;
   state.adversityPoints = {};
   ADVERSITY_SKILLS.forEach(s => { state.adversityPoints[s] = 0; });
+  // Reset community bond bonus picks
+  state.bonds.forEach(b => { if (b && typeof b === 'object') b.bonusSpent = 0; });
 }
 
 function getBonusPointsTotal() {
@@ -177,7 +179,8 @@ function getBonusPointsTotal() {
 
 function getBonusPointsSpent() {
   const skillPicks = Object.values(state.skillPoints).reduce((s, v) => s + v, 0);
-  return skillPicks + state.resourcesBonusSpent;
+  const bondPicks  = state.bonds.reduce((s, b) => s + (b && b.bonusSpent ? b.bonusSpent : 0), 0);
+  return skillPicks + state.resourcesBonusSpent + bondPicks;
 }
 
 function getBonusPointsRemaining() {
@@ -200,6 +203,20 @@ function getEffectiveResources() {
     bonus = 5 + (state.resourcesBonusSpent - 1) * 2;
   }
   return Math.min(20, base + bonus);
+}
+
+// Returns the effective numeric value of a bond object.
+// Individual bonds are tied to CHA; Community bonds are Resources÷2 plus bonus from picks.
+function getBondEffectiveValue(bond) {
+  if (!bond || !bond.type) return null;
+  if (bond.type === 'individual') {
+    return getAttrValue('CHA');
+  }
+  // Community bond: base is Resources÷2, bonus per SKILL.md
+  const base = Math.floor(getEffectiveResources() / 2);
+  const n = bond.bonusSpent || 0;
+  const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
+  return base + bonus;
 }
 
 // ── Adversity Picks ─────────────────────────────────────────
@@ -239,7 +256,7 @@ function canProceed(step) {
     case 4: {
       const bpOk  = getBonusPointsRemaining() === 0;
       const advOk = getAdversityRemaining() === 0;
-      const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.trim() !== '');
+      const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.type !== null && b.name.trim() !== '');
       return bpOk && advOk && bondsOk;
     }
     case 5: return state.identity.name.trim() !== '';
@@ -907,20 +924,42 @@ function renderStep4() {
       </table>
     </div>` : '';
 
+  const cha = getAttrValue('CHA');
   const bondsHtml = `
     <div class="section-header" style="margin-top:2rem;">
-      <h3>Bonds (${bondCount} — name each person your character values most)</h3>
+      <h3>Bonds (${bondCount})</h3>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;" class="sm:grid-cols-1">
-      ${state.bonds.map((b, i) => `
-        <div>
-          <label style="font-size:0.72rem;color:var(--text-secondary);display:block;margin-bottom:3px;font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;">
-            Bond ${i + 1}
-          </label>
-          <input class="bond-input" type="text" placeholder="Name a person…"
-                 value="${escapeHtml(b)}"
-                 oninput="updateBond(${i},this.value)" />
-        </div>`).join('')}
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.6;">
+      Choose a type for each bond. <strong>Personal</strong> bonds represent specific people and start at your CHA score (${cha !== null ? cha : '—'}).
+      <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2 (${Math.floor(effectiveResources / 2)}). Community bonds can be improved with Bonus Picks.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      ${state.bonds.map((b, i) => {
+        const val = getBondEffectiveValue(b);
+        const isIndividual = b.type === 'individual';
+        const isCommunity  = b.type === 'community';
+        const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
+        const canAdd = isCommunity && getBonusPointsRemaining() > 0;
+        const canSub = isCommunity && (b.bonusSpent || 0) > 0;
+        return `<div class="bond-row">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
+            <button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateBondType(${i},'individual')">Personal</button>
+            <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateBondType(${i},'community')">Community</button>
+            ${b.type ? `
+              <input class="bond-input" type="text" placeholder="${isIndividual ? 'Name a person…' : 'Name an organization, church, or neighborhood…'}"
+                     value="${escapeHtml(b.name)}"
+                     oninput="updateBond(${i},this.value)" style="flex:1;min-width:10rem;" />
+              <span style="font-size:1rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2rem;text-align:right;">${val !== null ? val : '—'}</span>
+              ${isCommunity ? `
+                <button class="skill-adj-btn" onclick="adjustBond(${i},-1)" ${canSub ? '' : 'disabled'}>−</button>
+                <span style="font-size:0.72rem;color:var(--text-secondary);">+${nextPickGain}</span>
+                <button class="skill-adj-btn plus" onclick="adjustBond(${i},1)" ${canAdd ? '' : 'disabled'}>+</button>
+              ` : ''}
+            ` : ''}
+          </div>
+        </div>`;
+      }).join('')}
     </div>`;
 
   // Resources: show 0-20 value; display what the next pick adds
@@ -941,7 +980,7 @@ function renderStep4() {
     </div>`;
 
   const bpClass = bpLeft === 0 ? 'good' : bpLeft < 0 ? 'warn' : '';
-  const allBondsNamed = state.bonds.length > 0 && state.bonds.every(b => b.trim() !== '');
+  const allBondsReady = state.bonds.length > 0 && state.bonds.every(b => b.type !== null && b.name.trim() !== '');
 
   return `
   <div class="step-content">
@@ -962,7 +1001,7 @@ function renderStep4() {
       </div>` : ''}
     </div>
 
-    ${bpLeft === 0 && advLeft === 0 ? `<div class="notice mb-4"><strong>All picks spent.</strong> Scroll down to name your bonds, then proceed.</div>` : ''}
+    ${bpLeft === 0 && advLeft === 0 ? `<div class="notice mb-4"><strong>All picks spent.</strong> Scroll down to set up your bonds, then proceed.</div>` : ''}
 
     <div class="section-header"><h3>Skills — each Bonus Pick adds +20% (max final 80%)</h3></div>
     <div style="overflow-x:auto;">
@@ -986,7 +1025,7 @@ function renderStep4() {
     ${!canProceed(4) ? `<p class="validation-msg">
       ${bpLeft !== 0 ? `Spend all ${bpLeft > 0 ? bpLeft + ' remaining' : 'over-budget'} bonus picks. ` : ''}
       ${advLeft !== 0 ? `Spend all ${advLeft} remaining adversity pick${advLeft > 1 ? 's' : ''}. ` : ''}
-      ${!allBondsNamed ? 'Name all bonds. ' : ''}
+      ${!allBondsReady ? 'Choose a type and name for all bonds. ' : ''}
     </p>` : ''}
   </div>`;
 }
@@ -1039,11 +1078,35 @@ function adjustAdversity(skillName, delta) {
 }
 
 function updateBond(index, value) {
-  state.bonds[index] = value;
+  state.bonds[index].name = value;
   // Don't re-render (would lose focus), just update canProceed state silently
   // Update the next button disabled state
   const nextBtn = document.getElementById('next-btn');
   if (nextBtn) nextBtn.disabled = !canProceed(4);
+}
+
+function updateBondType(index, type) {
+  const bond = state.bonds[index];
+  if (!bond || typeof bond !== 'object') return;
+  // If switching away from community, refund bonus picks
+  if (bond.type === 'community' && type !== 'community') {
+    bond.bonusSpent = 0;
+  }
+  bond.type = type;
+  render();
+}
+
+function adjustBond(index, delta) {
+  const bond = state.bonds[index];
+  if (!bond || bond.type !== 'community') return;
+  if (delta > 0) {
+    if (getBonusPointsRemaining() < 1) return;
+    bond.bonusSpent = (bond.bonusSpent || 0) + 1;
+  } else {
+    if ((bond.bonusSpent || 0) <= 0) return;
+    bond.bonusSpent--;
+  }
+  render();
 }
 
 // ── RENDER: Step 5 — Identity & Export ──────────────────────
@@ -1128,7 +1191,17 @@ function renderStep5() {
 
     <div class="sheet-section">
       <div class="sheet-section-title">Bonds</div>
-      <div>${state.bonds.filter(b => b.trim()).map(b => `<span class="bond-tag">${escapeHtml(b)}</span>`).join('')}</div>
+      <div class="bonds-sheet-list">
+        ${state.bonds.filter(b => b.name && b.name.trim()).map(b => {
+          const val = getBondEffectiveValue(b);
+          const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
+          return `<div class="bond-sheet-row">
+            <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
+            <span class="bond-sheet-name">${escapeHtml(b.name)}</span>
+            <span class="bond-sheet-val">${val !== null ? val : '—'}</span>
+          </div>`;
+        }).join('')}
+      </div>
     </div>
 
     ${state.identity.backstory.trim() ? `
