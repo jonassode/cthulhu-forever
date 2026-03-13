@@ -947,11 +947,34 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--accent-gold);
 }
 .resource-checkbox {
-  width: 1.2rem;
-  height: 1.2rem;
-  accent-color: var(--accent-gold);
+  appearance: none;
+  -webkit-appearance: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--text-primary);
+  border-radius: 2px;
   cursor: pointer;
   flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.resource-checkbox:checked {
+  background: var(--bg-card);
+  border-color: var(--text-primary);
+}
+.resource-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 30%;
+  height: 55%;
+  border: 1.5px solid var(--accent-gold);
+  border-top: none;
+  border-left: none;
 }
 .resource-row {
   display: flex;
@@ -1003,11 +1026,34 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   font-size: 0.78rem;
 }
 .skill-sheet-cb {
-  width: 0.85rem;
-  height: 0.85rem;
-  accent-color: var(--accent-gold);
+  appearance: none;
+  -webkit-appearance: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--text-primary);
+  border-radius: 2px;
   cursor: pointer;
   flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.skill-sheet-cb:checked {
+  background: var(--bg-card);
+  border-color: var(--text-primary);
+}
+.skill-sheet-cb:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 28%;
+  height: 52%;
+  border: 1.5px solid var(--accent-gold);
+  border-top: none;
+  border-left: none;
 }
 .skill-row-sheet .sr-name {
   flex: 1;
@@ -1251,5 +1297,16 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .sheet-backstory { color: #444 !important; }
   .resources-pips .pip { border-color: #8B7355 !important; }
   .resources-pips .pip.filled { background: #8B7355 !important; }
+  .resource-checkbox,
+  .skill-sheet-cb {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #f5f5f5 !important;
+    border: 1px solid #555 !important;
+  }
+  .resource-checkbox:checked::after,
+  .skill-sheet-cb:checked::after {
+    border-color: #4a3728 !important;
+  }
   @page { margin: 1.5cm; }
 }

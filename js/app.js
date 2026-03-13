@@ -1228,9 +1228,9 @@ function renderStep5() {
       <div class="skills-grid-sheet">
         ${skillsForSheet.map(s => `
           <div class="skill-row-sheet">
-            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)">
             <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.name}</span>
             <span class="sr-val">${s.final}%</span>
+            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)">
           </div>`).join('')}
       </div>
     </div>
