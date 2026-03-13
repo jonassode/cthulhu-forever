@@ -1181,7 +1181,7 @@ function renderStep5() {
     <div class="sheet-header">
       <div>
         <div class="sheet-name">${escapeHtml(state.identity.name)}</div>
-        <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;"><strong>Job:</strong> ${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</div>
+        <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;"><strong>Profession / Occupation:</strong> <span id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</span></div>
       </div>
       <div class="sheet-meta">
         <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
@@ -1277,7 +1277,7 @@ function renderStep5() {
     </div>
 
     <div class="sheet-section">
-      <div class="sheet-section-title">Background</div>
+      <div class="sheet-section-title">Backstory</div>
       <div class="sheet-backstory">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
     </div>
   </div>` : '';
@@ -1371,6 +1371,14 @@ function updateIdentity(field, value) {
     // Just update next button
     const nextBtn = document.getElementById('next-btn');
     if (nextBtn) nextBtn.disabled = !canProceed(5);
+
+    if (field === 'profession') {
+      const profEl = document.getElementById('sheet-profession');
+      if (profEl) profEl.textContent = value.trim() ? value : '—';
+    } else if (field === 'backstory') {
+      const backstoryEl = document.querySelector('.sheet-backstory');
+      if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
+    }
   }
 }
 
