@@ -121,11 +121,18 @@ function calculateDerived() {
   const SAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
     ? v.POW * 4
     : v.POW * 5;
+  let DMG;
+  if      (v.STR <= 4)  DMG = -2;
+  else if (v.STR <= 8)  DMG = -1;
+  else if (v.STR <= 12) DMG =  0;
+  else if (v.STR <= 16) DMG = +1;
+  else                  DMG = +2;
   return {
     HP:  Math.ceil((v.STR + v.CON) / 2),
     WP:  v.POW,
     SAN: SAN,
     BP:  SAN - v.POW,
+    DMG: DMG,
   };
 }
 
@@ -490,6 +497,10 @@ function renderStep2() {
       <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
         <div class="ds-label">Break. Point</div>
         <div class="ds-value">${derived.BP}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
+        <div class="ds-label">Dmg Bonus</div>
+        <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
       </div>
     </div>` : '';
 
@@ -1171,6 +1182,9 @@ function renderStep5() {
         </div>
         <div class="derived-box" data-tooltip="Breaking Point = SAN − POW">
           <span class="db-name">BP</span><span class="db-val">${derived ? derived.BP : '—'}</span>
+        </div>
+        <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
+          <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
         </div>
         <div class="derived-box" data-tooltip="Resources (0–20 scale)">
           <span class="db-name">Resources</span><span class="db-val">${getEffectiveResources()}/20</span>
