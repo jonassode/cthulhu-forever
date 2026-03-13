@@ -26,6 +26,9 @@ const state = {
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
 
+  resourceChecked: [],           // array of booleans for resource checkboxes
+  skillChecked: {},              // skillName -> boolean (checked state on sheet)
+
   identity: {
     name: '',
     profession: '',
@@ -1202,8 +1205,8 @@ function renderStep5() {
       ${(() => {
         const resRating = getEffectiveResources();
         const cap = getResourcesCapacity(resRating);
-        const checkboxHtml = Array(cap.checkboxes).fill(0).map(() =>
-          '<span class="resource-checkbox">□</span>'
+        const checkboxHtml = Array(cap.checkboxes).fill(0).map((_, i) =>
+          `<input type="checkbox" class="resource-checkbox" data-idx="${i}" ${state.resourceChecked[i] ? 'checked' : ''} onchange="toggleResourceCheck(${i})">`
         ).join('');
         return `
         <div class="resource-row">
@@ -1227,6 +1230,7 @@ function renderStep5() {
           <div class="skill-row-sheet">
             <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.name}</span>
             <span class="sr-val">${s.final}%</span>
+            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)">
           </div>`).join('')}
       </div>
     </div>
@@ -1345,6 +1349,14 @@ function updateIdentity(field, value) {
   }
 }
 
+function toggleResourceCheck(idx) {
+  state.resourceChecked[idx] = !(state.resourceChecked[idx] || false);
+}
+
+function toggleSkillCheck(skillName) {
+  state.skillChecked[skillName] = !(state.skillChecked[skillName] || false);
+}
+
 function confirmReset() {
   if (confirm('Start over? All character data will be lost.')) {
     resetState();
@@ -1366,6 +1378,8 @@ function resetState() {
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
+  state.resourceChecked  = [];
+  state.skillChecked     = {};
   state.identity         = { name: '', profession: '', characterAge: 25, backstory: '' };
 }
 
