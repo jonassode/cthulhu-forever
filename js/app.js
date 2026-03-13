@@ -212,6 +212,14 @@ function getEffectiveResources() {
   return Math.min(20, base + bonus);
 }
 
+// Returns the Resources capacity for a given rating per SKILL.md table.
+function getResourcesCapacity(rating) {
+  if (rating <= 0)  return { atHand: 0, stowed: 0, inStorage: 0, checkboxes: 0 };
+  if (rating <= 6)  return { atHand: rating, stowed: 0, inStorage: 0, checkboxes: 1 };
+  if (rating <= 12) return { atHand: 6, stowed: rating - 6, inStorage: 0, checkboxes: 2 };
+  return { atHand: 6, stowed: 6, inStorage: rating - 12, checkboxes: 3 };
+}
+
 // Returns the effective numeric value of a bond object.
 // Individual bonds are tied to CHA; Community bonds are Resources÷2 plus bonus from picks.
 function getBondEffectiveValue(bond) {
@@ -1186,10 +1194,30 @@ function renderStep5() {
         <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
           <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
         </div>
-        <div class="derived-box" data-tooltip="Resources (0–20 scale)">
-          <span class="db-name">Resources</span><span class="db-val">${getEffectiveResources()}/20</span>
-        </div>
       </div>
+    </div>
+
+      <div class="sheet-section">
+      <div class="sheet-section-title">Resources</div>
+      ${(() => {
+        const resRating = getEffectiveResources();
+        const cap = getResourcesCapacity(resRating);
+        const checkboxHtml = Array(cap.checkboxes).fill(0).map(() =>
+          '<span class="resource-checkbox">□</span>'
+        ).join('');
+        return `
+        <div class="resource-row">
+          <div class="resource-block">
+            <span class="resource-label">Rating</span>
+            <span class="resource-rating-val">${resRating}</span>
+          </div>
+          <div class="resource-block">
+            <span class="resource-label">At Hand / Stowed / In Storage</span>
+            <span class="resource-capacity-val">${cap.atHand} / ${cap.stowed} / ${cap.inStorage}</span>
+          </div>
+          ${cap.checkboxes > 0 ? `<div class="resource-checkboxes">${checkboxHtml}</div>` : ''}
+        </div>`;
+      })()}
     </div>
 
     <div class="sheet-section">

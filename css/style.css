@@ -946,6 +946,46 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   font-weight: 900;
   color: var(--accent-gold);
 }
+.resource-checkbox {
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.resource-block {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.resource-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-family: var(--font-head);
+}
+.resource-rating-val {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+}
+.resource-capacity-val {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.resource-checkboxes {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
 .skills-grid-sheet {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
