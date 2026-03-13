@@ -947,9 +947,11 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--accent-gold);
 }
 .resource-checkbox {
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--text-secondary);
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 .resource-row {
   display: flex;
@@ -995,11 +997,22 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.35rem;
   padding: 3px 0;
   border-bottom: 1px solid rgba(42,53,72,0.4);
   font-size: 0.78rem;
 }
-.skill-row-sheet .sr-name { color: var(--text-primary); }
+.skill-sheet-cb {
+  width: 0.85rem;
+  height: 0.85rem;
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.skill-row-sheet .sr-name {
+  flex: 1;
+  color: var(--text-primary);
+}
 .skill-row-sheet .sr-name.boosted { color: #8ee8a4; }
 .skill-row-sheet .sr-val {
   font-family: var(--font-head);
