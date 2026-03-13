@@ -81,15 +81,33 @@ Starting value is defined by the Archetype:
 - **Subsequent Picks:** +2 to Resources.
 - **Hard Cap:** Resources cannot exceed 20 at character creation.
 
-**Resources Breakdown:**
+#### Resources Capacity Table
 
-| Rating | Description |
-|--------|-------------|
-| 0 | Destitute. No permanent home, no reliable income. |
-| 5 | Working Class. Small rental, modest lifestyle, manual labor. |
-| 10 | Middle Class. Owns/rents a home, some savings, professional job. |
-| 15 | Wealthy. Significant assets, luxury lifestyle, high-status role. |
-| 20+ | Elite. Vast estates, global influence, no need for salary. |
+This table dictates how many items of significant cost/rarity a Protagonist can maintain.
+
+| Resource Rating | At Hand / Stowed / In Storage | Check Boxes |
+|-----------------|-------------------------------|-------------|
+| 0               | 0 / 0 / 0                     | 0           |
+| 1               | 1 / 0 / 0                     | 1           |
+| 2               | 2 / 0 / 0                     | 1           |
+| 3               | 3 / 0 / 0                     | 1           |
+| 4               | 4 / 0 / 0                     | 1           |
+| 5               | 5 / 0 / 0                     | 1           |
+| 6               | 6 / 0 / 0                     | 1           |
+| 7               | 6 / 1 / 0                     | 2           |
+| 8               | 6 / 2 / 0                     | 2           |
+| 9               | 6 / 3 / 0                     | 2           |
+| 10              | 6 / 4 / 0                     | 2           |
+| 11              | 6 / 5 / 0                     | 2           |
+| 12              | 6 / 6 / 0                     | 2           |
+| 13              | 6 / 6 / 1                     | 3           |
+| 14              | 6 / 6 / 2                     | 3           |
+| 15              | 6 / 6 / 3                     | 3           |
+| 16              | 6 / 6 / 4                     | 3           |
+| 17              | 6 / 6 / 5                     | 3           |
+| 18              | 6 / 6 / 6                     | 3           |
+| 19              | 6 / 6 / 7                     | 3           |
+| 20+             | 6 / 6 / 8+                    | 3           |
 
 ### Bonds
 
