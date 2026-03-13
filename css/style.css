@@ -1112,6 +1112,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   line-height: 1.7;
   font-style: italic;
   white-space: pre-wrap;
+  min-height: 4rem;
 }
 
 /* ── Buttons ── */
@@ -1286,7 +1287,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
     background: #fff !important;
     color: #111 !important;
   }
-  .app-header, .stepper, .nav-row, .no-print { display: none !important; }
+  .app-header, .stepper, .nav-row, .no-print,
+  .step-title, .step-subtitle, .notice { display: none !important; }
   .character-sheet {
     background: #fff !important;
     border: 1px solid #ccc !important;

@@ -1181,10 +1181,10 @@ function renderStep5() {
     <div class="sheet-header">
       <div>
         <div class="sheet-name">${escapeHtml(state.identity.name)}</div>
-        ${state.identity.profession ? `<div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;">${escapeHtml(state.identity.profession)}</div>` : ''}
+        <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;"><strong>Profession / Occupation:</strong> <span id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</span></div>
       </div>
       <div class="sheet-meta">
-        <span><strong>${arch ? arch.name : '—'}</strong> Archetype</span>
+        <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
         <span>Age <strong>${state.identity.characterAge}</strong></span>
         <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong></span>
         ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
@@ -1276,11 +1276,10 @@ function renderStep5() {
       </div>
     </div>
 
-    ${state.identity.backstory.trim() ? `
     <div class="sheet-section">
       <div class="sheet-section-title">Backstory</div>
-      <div class="sheet-backstory">${escapeHtml(state.identity.backstory)}</div>
-    </div>` : ''}
+      <div class="sheet-backstory">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+    </div>
   </div>` : '';
 
   return `
@@ -1288,7 +1287,7 @@ function renderStep5() {
     <h2 class="step-title">Forge Your Identity</h2>
     <p class="step-subtitle">Give your investigator a name and history. The cosmos is indifferent to your existence, but your allies are not.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="sm:grid-cols-1">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="sm:grid-cols-1 no-print">
       <div>
         <div class="form-group">
           <label class="form-label">Character Name <span style="color:var(--danger-light);">*</span></label>
@@ -1322,12 +1321,12 @@ function renderStep5() {
       </div>
     </div>
 
-    ${!canProceed(5) ? `<p class="validation-msg">A character name is required.</p>` : ''}
+    ${!canProceed(5) ? `<p class="validation-msg no-print">A character name is required.</p>` : ''}
 
-    <div class="ornament-divider">✦</div>
+    <div class="ornament-divider no-print">✦</div>
 
     ${canShow ? `
-    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;" class="no-print">
       <button class="btn btn-gold" onclick="window.print()">
         <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24">
           <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
@@ -1372,6 +1371,14 @@ function updateIdentity(field, value) {
     // Just update next button
     const nextBtn = document.getElementById('next-btn');
     if (nextBtn) nextBtn.disabled = !canProceed(5);
+
+    if (field === 'profession') {
+      const profEl = document.getElementById('sheet-profession');
+      if (profEl) profEl.textContent = value.trim() ? value : '—';
+    } else if (field === 'backstory') {
+      const backstoryEl = document.querySelector('.sheet-backstory');
+      if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
+    }
   }
 }
 
