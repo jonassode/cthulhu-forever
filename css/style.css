@@ -651,6 +651,24 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   box-shadow: 0 0 8px rgba(201,168,76,0.15);
 }
 
+.skill-type-input {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  color: var(--text-primary);
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  width: 100%;
+  max-width: 14rem;
+  transition: border-color 0.2s;
+}
+.skill-type-input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 6px rgba(201,168,76,0.15);
+}
+
 /* Bond type toggle buttons */
 .bond-type-btn {
   background: var(--bg-secondary);

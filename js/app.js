@@ -22,6 +22,7 @@ const state = {
   selectedOptional: [],          // chosen optional skill names
 
   skillPoints: {},               // skillName -> bonus pts added (from bonus pool)
+  skillTypes: {},                // skillName -> user-entered type string (for "(Type)" skills)
   bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
@@ -76,6 +77,13 @@ function truncateWords(text, maxLength) {
   const truncated = text.slice(0, maxLength);
   const lastSpace = truncated.lastIndexOf(' ');
   return (lastSpace > maxLength * 0.6 ? truncated.slice(0, lastSpace) : truncated) + '…';
+}
+
+// Returns the display name for a skill, replacing "(Type)" with a user-specified type if set
+function getSkillDisplayName(skillName) {
+  if (!skillName.includes('(Type)')) return skillName;
+  const customType = (state.skillTypes[skillName] || '').trim();
+  return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
 // Ensure state.bonds array has the correct length
@@ -175,6 +183,7 @@ function initSkills() {
   const fresh = {};
   Object.keys(skills).forEach(s => { fresh[s] = 0; });
   state.skillPoints = fresh;
+  state.skillTypes = {};
   state.resourcesBonusSpent = 0;
   state.adversityPoints = {};
   ADVERSITY_SKILLS.forEach(s => { state.adversityPoints[s] = 0; });
@@ -887,11 +896,16 @@ function renderStep4() {
     const canSub = !isUnnat && bpPicks > 0;
 
     const bonusDisplay = bpPicks > 0 ? `+${bpPicks * 20}%` : (isUnnat ? 'locked' : '—');
+    const isTyped = skillName.includes('(Type)');
 
     return `<tr>
       <td class="skill-name ${isBonus ? 'bonus-skill' : ''}" style="width:45%">
         ${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}
         ${isUnnat ? ` <span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
+        ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
+          value="${escapeHtml(state.skillTypes[skillName] || '')}"
+          oninput="updateSkillType('${skillName}',this.value)"
+          aria-label="Specify type for ${escapeHtml(skillName)}" /></div>` : ''}
       </td>
       <td class="skill-base">${base}%</td>
       <td style="text-align:center;white-space:nowrap;">
@@ -931,8 +945,15 @@ function renderStep4() {
             const final    = getFinalSkillValue(skillName);
             const canAdd = advLeft > 0 && (base + archBon + (bpPicks + advPicks + 1) * 20) <= 80;
             const canSub = advPicks > 0;
+            const isTyped = skillName.includes('(Type)');
             return `<tr>
-              <td class="skill-name" style="width:45%">${skillName}</td>
+              <td class="skill-name" style="width:45%">
+                ${skillName}
+                ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
+                  value="${escapeHtml(state.skillTypes[skillName] || '')}"
+                  oninput="updateSkillType('${skillName}',this.value)"
+                  aria-label="Specify type for ${escapeHtml(skillName)}" /></div>` : ''}
+              </td>
               <td class="skill-base">${base}%</td>
               <td style="text-align:center;white-space:nowrap;">
                 <button class="skill-adj-btn" onclick="adjustAdversity('${skillName}',-1)" ${canSub ? '' : 'disabled'}>−</button>
@@ -1107,6 +1128,11 @@ function updateBond(index, value) {
   if (nextBtn) nextBtn.disabled = !canProceed(4);
 }
 
+function updateSkillType(skillName, value) {
+  state.skillTypes[skillName] = value;
+  // Don't re-render (would lose focus); the display name is only used on the character sheet
+}
+
 function updateBondType(index, type) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object') return;
@@ -1146,7 +1172,7 @@ function renderStep5() {
       const base    = skills[s];
       const archBon = getArchetypeSkillBonus(s);
       const final   = getFinalSkillValue(s);
-      return { name: s, base, archBon, final, boosted: archBon > 0 };
+      return { name: s, displayName: getSkillDisplayName(s), base, archBon, final, boosted: archBon > 0 };
     })
     .filter(s => s.final > 0 || s.name === 'Unnatural');
 
@@ -1228,7 +1254,7 @@ function renderStep5() {
       <div class="skills-grid-sheet">
         ${skillsForSheet.map(s => `
           <div class="skill-row-sheet">
-            <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.name}</span>
+            <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.displayName}</span>
             <span class="sr-val">${s.final}%</span>
             <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)">
           </div>`).join('')}
@@ -1375,6 +1401,7 @@ function resetState() {
   state.archetype        = null;
   state.selectedOptional = [];
   state.skillPoints      = {};
+  state.skillTypes       = {};
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
