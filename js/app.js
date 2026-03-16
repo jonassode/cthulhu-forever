@@ -35,6 +35,8 @@ const state = {
     profession: '',
     characterAge: 25,
     backstory: '',
+    motivations: '',
+    gear: '',
   },
 };
 
@@ -286,7 +288,8 @@ function canProceed(step) {
       const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.type !== null && b.name.trim() !== '');
       return bpOk && advOk && bondsOk;
     }
-    case 5: return state.identity.name.trim() !== '';
+    case 5: return true; // motivations & gear are optional
+    case 6: return state.identity.name.trim() !== '';
     default: return false;
   }
 }
@@ -1157,9 +1160,41 @@ function adjustBond(index, delta) {
   render();
 }
 
-// ── RENDER: Step 5 — Identity & Export ──────────────────────
+// ── RENDER: Step 5 — Motivations & Gear ─────────────────────
 
 function renderStep5() {
+  return `
+  <div class="step-content">
+    <h2 class="step-title">Motivations &amp; Gear</h2>
+    <p class="step-subtitle">Define what drives your investigator and what they carry into the darkness. Both fields are optional.</p>
+
+    <div class="form-group">
+      <label class="form-label">Motivations</label>
+      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.5rem;line-height:1.6;">
+        Describe up to five things your investigator finds meaningful — people, beliefs, causes, or ideals they would risk their sanity to protect.
+        Examples: <em>protecting my younger sister</em>, <em>uncovering the truth no matter the cost</em>, <em>preserving ancient knowledge</em>, <em>loyalty to my colleagues</em>, <em>faith in a higher power</em>.
+      </p>
+      <textarea class="form-textarea" id="char-motivations" rows="5"
+                placeholder="List up to five motivations, one per line…"
+                oninput="updateIdentity('motivations',this.value)">${escapeHtml(state.identity.motivations)}</textarea>
+    </div>
+
+    <div class="form-group" style="margin-top:1.5rem;">
+      <label class="form-label">Gear &amp; Weapons</label>
+      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.5rem;line-height:1.6;">
+        Work with your Keeper to define what equipment you start with that fits your character and the era.
+        Examples: <em>a revolver and holster</em>, <em>a worn leather-bound journal</em>, <em>a first-aid kit</em>, <em>a folding camera</em>.
+      </p>
+      <textarea class="form-textarea" id="char-gear" rows="5"
+                placeholder="Describe your starting equipment and weapons…"
+                oninput="updateIdentity('gear',this.value)">${escapeHtml(state.identity.gear)}</textarea>
+    </div>
+  </div>`;
+}
+
+// ── RENDER: Step 6 — Identity & Export ──────────────────────
+
+function renderStep6() {
   const arch    = getArchetype();
   const derived = calculateDerived();
   const skills  = getCurrentSkills();
@@ -1280,6 +1315,18 @@ function renderStep5() {
       <div class="sheet-section-title">Backstory</div>
       <div class="sheet-backstory">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
     </div>
+
+    ${state.identity.motivations.trim() ? `
+    <div class="sheet-section">
+      <div class="sheet-section-title">Motivations</div>
+      <div class="sheet-backstory">${escapeHtml(state.identity.motivations)}</div>
+    </div>` : ''}
+
+    ${state.identity.gear.trim() ? `
+    <div class="sheet-section">
+      <div class="sheet-section-title">Gear &amp; Weapons</div>
+      <div class="sheet-backstory">${escapeHtml(state.identity.gear)}</div>
+    </div>` : ''}
   </div>` : '';
 
   return `
@@ -1321,7 +1368,7 @@ function renderStep5() {
       </div>
     </div>
 
-    ${!canProceed(5) ? `<p class="validation-msg no-print">A character name is required.</p>` : ''}
+    ${!canProceed(6) ? `<p class="validation-msg no-print">A character name is required.</p>` : ''}
 
     <div class="ornament-divider no-print">✦</div>
 
@@ -1363,14 +1410,14 @@ function updateIdentity(field, value) {
     } else {
       // Just update next button and the name display inside the sheet header
       const nextBtn = document.getElementById('next-btn');
-      if (nextBtn) nextBtn.disabled = !canProceed(5);
+      if (nextBtn) nextBtn.disabled = !canProceed(6);
       const nameEl = document.querySelector('.sheet-name');
       if (nameEl) nameEl.textContent = value;
     }
   } else {
     // Just update next button
     const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) nextBtn.disabled = !canProceed(5);
+    if (nextBtn) nextBtn.disabled = !canProceed(6);
 
     if (field === 'profession') {
       const profEl = document.getElementById('sheet-profession');
@@ -1414,14 +1461,14 @@ function resetState() {
   state.resourcesBonusSpent = 0;
   state.resourceChecked  = [];
   state.skillChecked     = {};
-  state.identity         = { name: '', profession: '', characterAge: 25, backstory: '' };
+  state.identity         = { name: '', profession: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
 }
 
 // ── RENDER: Nav Buttons ─────────────────────────────────────
 
 function renderNavButtons() {
   const isFirst = state.currentStep === 1;
-  const isLast  = state.currentStep === 5;
+  const isLast  = state.currentStep === 6;
   const proceed = canProceed(state.currentStep);
 
   return `
@@ -1430,7 +1477,7 @@ function renderNavButtons() {
       ← Previous
     </button>
     <span style="font-size:0.78rem;color:var(--text-secondary);">
-      Step ${state.currentStep} of 5
+      Step ${state.currentStep} of 6
     </span>
     ${isLast
       ? `<button class="btn btn-gold" onclick="confirmReset()">✦ Start Over</button>`
@@ -1450,6 +1497,7 @@ function renderCurrentStep() {
     case 3: return renderStep3();
     case 4: return renderStep4();
     case 5: return renderStep5();
+    case 6: return renderStep6();
     default: return '<p>Unknown step.</p>';
   }
 }

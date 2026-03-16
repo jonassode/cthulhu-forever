@@ -762,9 +762,10 @@ const ARCHETYPES = [
 // ── Step config ───────────────────────────────────────────────
 
 const STEPS = [
-  { id: 1, label: 'Era',        title: 'Choose Your Era' },
-  { id: 2, label: 'Attributes', title: 'Roll Your Attributes' },
-  { id: 3, label: 'Archetype',  title: 'Choose Your Archetype' },
-  { id: 4, label: 'Points',     title: 'Distribute Your Points' },
-  { id: 5, label: 'Identity',   title: 'Forge Your Identity' },
+  { id: 1, label: 'Era',         title: 'Choose Your Era' },
+  { id: 2, label: 'Attributes',  title: 'Roll Your Attributes' },
+  { id: 3, label: 'Archetype',   title: 'Choose Your Archetype' },
+  { id: 4, label: 'Points',      title: 'Distribute Your Points' },
+  { id: 5, label: 'Motivations', title: 'Motivations & Gear' },
+  { id: 6, label: 'Identity',    title: 'Forge Your Identity' },
 ];
