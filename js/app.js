@@ -1410,14 +1410,14 @@ function updateIdentity(field, value) {
     } else {
       // Just update next button and the name display inside the sheet header
       const nextBtn = document.getElementById('next-btn');
-      if (nextBtn) nextBtn.disabled = !canProceed(6);
+      if (nextBtn) nextBtn.disabled = !canProceed(state.currentStep);
       const nameEl = document.querySelector('.sheet-name');
       if (nameEl) nameEl.textContent = value;
     }
   } else {
     // Just update next button
     const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) nextBtn.disabled = !canProceed(6);
+    if (nextBtn) nextBtn.disabled = !canProceed(state.currentStep);
 
     if (field === 'profession') {
       const profEl = document.getElementById('sheet-profession');
