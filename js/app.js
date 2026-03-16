@@ -1311,22 +1311,20 @@ function renderStep6() {
       </div>
     </div>
 
-    <div class="sheet-section">
-      <div class="sheet-section-title">Backstory</div>
-      <div class="sheet-backstory">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+    <div class="sheet-3col-row">
+      <div class="sheet-section">
+        <div class="sheet-section-title">Backstory</div>
+        <div class="sheet-backstory">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+      </div>
+      <div class="sheet-section">
+        <div class="sheet-section-title">Motivations</div>
+        <div class="sheet-backstory">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
+      </div>
+      <div class="sheet-section">
+        <div class="sheet-section-title">Gear &amp; Weapons</div>
+        <div class="sheet-backstory">${state.identity.gear.trim() ? escapeHtml(state.identity.gear) : ''}</div>
+      </div>
     </div>
-
-    ${state.identity.motivations.trim() ? `
-    <div class="sheet-section">
-      <div class="sheet-section-title">Motivations</div>
-      <div class="sheet-backstory">${escapeHtml(state.identity.motivations)}</div>
-    </div>` : ''}
-
-    ${state.identity.gear.trim() ? `
-    <div class="sheet-section">
-      <div class="sheet-section-title">Gear &amp; Weapons</div>
-      <div class="sheet-backstory">${escapeHtml(state.identity.gear)}</div>
-    </div>` : ''}
   </div>` : '';
 
   return `
