@@ -896,6 +896,18 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-bottom: 1px solid rgba(42,53,72,0.6);
 }
 .sheet-section:last-child { border-bottom: none; }
+.sheet-3col-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid rgba(42,53,72,0.6);
+}
+.sheet-3col-row .sheet-section {
+  border-bottom: none;
+  border-right: 1px solid rgba(42,53,72,0.6);
+}
+.sheet-3col-row .sheet-section:last-child {
+  border-right: none;
+}
 .sheet-section-title {
   font-family: var(--font-head);
   font-size: 0.7rem;
