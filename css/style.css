@@ -1089,7 +1089,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   flex: 1;
   color: var(--text-primary);
 }
-.skill-row-sheet .sr-name.boosted { color: #8ee8a4; }
 .skill-row-sheet .sr-val {
   font-family: var(--font-head);
   font-weight: 700;
