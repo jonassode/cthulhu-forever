@@ -949,6 +949,13 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   font-size: 0.65rem;
   color: var(--text-secondary);
 }
+.attr-box .ab-feature {
+  font-size: 0.6rem;
+  color: var(--accent);
+  font-style: italic;
+  margin-top: 0.15rem;
+  line-height: 1.2;
+}
 .derived-row {
   display: flex;
   gap: 0.75rem;

@@ -149,6 +149,26 @@ function calculateDerived() {
   };
 }
 
+const DISTINGUISHING_FEATURES = {
+  STR: ['Feeble',        'Weak',    null, 'Muscular',      'Huge'],
+  CON: ['Bedridden',     'Sickly',  null, 'Perfect Health','Indefatigable'],
+  DEX: ['Barely Mobile', 'Clumsy',  null, 'Nimble',        'Acrobatic'],
+  INT: ['Imbecilic',     'Slow',    null, 'Perceptive',    'Brilliant'],
+  POW: ['Spineless',     'Nervous', null, 'Strong-Willed', 'Indomitable'],
+  CHA: ['Unbearable',    'Awkward', null, 'Charming',      'Magnetic'],
+};
+
+function getDistinguishingFeature(attrKey, value) {
+  if (!value) return null;
+  const features = DISTINGUISHING_FEATURES[attrKey];
+  if (!features) return null;
+  if (value <= 4)  return features[0];
+  if (value <= 8)  return features[1];
+  if (value <= 12) return features[2]; // null = Average
+  if (value <= 16) return features[3];
+  return features[4];
+}
+
 function getCurrentSkills() {
   return state.age === 'jazz' ? JAZZ_SKILLS : MODERN_SKILLS;
 }
@@ -1234,10 +1254,12 @@ function renderStep6() {
       <div class="attrs-row">
         ${ATTRIBUTES.map(a => {
           const v = getAttrValue(a);
+          const feature = getDistinguishingFeature(a, v);
           return `<div class="attr-box">
             <div class="ab-name">${a}</div>
             <div class="ab-val">${v}</div>
             <div class="ab-x5">${v * 5}%</div>
+            ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
       </div>
