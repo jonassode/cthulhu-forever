@@ -1526,7 +1526,19 @@ function render() {
     <div id="main-content">
       ${renderCurrentStep()}
       ${renderNavButtons()}
-    </div>`;
+    </div>
+    <footer class="app-footer no-print">
+      <div class="app-footer__credits">
+        <span>Based on <strong>Cthulhu Eternal</strong> published by
+          <a href="https://cthulhueternal.com/" target="_blank" rel="noopener noreferrer">Cthulhu Reborn</a>
+        </span>
+      </div>
+      <div class="app-footer__issues">
+        <span>Found a bug or have a suggestion?
+          <a href="https://github.com/jonassode/cthulhu-forever/issues" target="_blank" rel="noopener noreferrer">Raise a ticket on GitHub</a>
+        </span>
+      </div>
+    </footer>`;
 
   // Attach drag listeners after DOM is updated
   attachDragListeners();
