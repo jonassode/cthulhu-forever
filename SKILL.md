@@ -19,6 +19,19 @@ Protagonists have six core statistics.
 
 **Generation:** Roll 4D6 (drop lowest) for each stat.
 
+### Distinguishing Features
+
+A stat of 8 or below, or 13 or above (i.e., outside the average range of 9–12), is exceptional and grants a **Distinguishing Feature** — a descriptor that reflects how that stat manifests physically or mentally. Features in the average range (9–12 inclusive) are not listed on the character sheet.
+
+| Statistic    | 3–4           | 5–8      | 9–12      | 13–16          | 17–18          |
+|--------------|---------------|----------|-----------|----------------|----------------|
+| Strength     | Feeble        | Weak     | (Average) | Muscular       | Huge           |
+| Constitution | Bedridden     | Sickly   | (Average) | Perfect Health | Indefatigable  |
+| Dexterity    | Barely Mobile | Clumsy   | (Average) | Nimble         | Acrobatic      |
+| Intelligence | Imbecilic     | Slow     | (Average) | Perceptive     | Brilliant      |
+| Power        | Spineless     | Nervous  | (Average) | Strong-Willed  | Indomitable    |
+| Charisma     | Unbearable    | Awkward  | (Average) | Charming       | Magnetic       |
+
 ---
 
 ## 2. Derived Attributes
