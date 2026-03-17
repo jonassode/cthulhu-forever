@@ -1529,7 +1529,7 @@ function render() {
     </div>
     <footer class="app-footer no-print">
       <div class="app-footer__credits">
-        <span>Based on <strong>Cthulhu Eternal</strong> published by
+        <span><strong>Cthulhu Eternal</strong> is a horror TTRPG published by
           <a href="https://cthulhueternal.com/" target="_blank" rel="noopener noreferrer">Cthulhu Reborn</a>
         </span>
       </div>
