@@ -1216,7 +1216,10 @@ function renderStep6() {
     <div class="sheet-header">
       <div>
         <div class="sheet-name">${escapeHtml(state.identity.name)}</div>
-        <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;"><strong>Profession / Occupation:</strong> <span id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</span></div>
+        <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;display:flex;gap:1.5rem;flex-wrap:wrap;">
+          <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
+          <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
+        </div>
       </div>
       <div class="sheet-meta">
         <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
@@ -1348,6 +1351,13 @@ function renderStep6() {
                  value="${escapeHtml(state.identity.profession)}"
                  oninput="updateIdentity('profession',this.value)" />
         </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <input class="form-input" type="text" id="char-gender"
+                 placeholder="How do you identify?"
+                 value="${escapeHtml(state.identity.gender)}"
+                 oninput="updateIdentity('gender',this.value)" />
+        </div>
       </div>
       <div>
         <div class="form-group">
@@ -1420,6 +1430,9 @@ function updateIdentity(field, value) {
     if (field === 'profession') {
       const profEl = document.getElementById('sheet-profession');
       if (profEl) profEl.textContent = value.trim() ? value : '—';
+    } else if (field === 'gender') {
+      const genderEl = document.getElementById('sheet-gender');
+      if (genderEl) genderEl.textContent = value.trim() ? value : '—';
     } else if (field === 'backstory') {
       const backstoryEl = document.querySelector('.sheet-backstory');
       if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
@@ -1459,7 +1472,7 @@ function resetState() {
   state.resourcesBonusSpent = 0;
   state.resourceChecked  = [];
   state.skillChecked     = {};
-  state.identity         = { name: '', profession: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
+  state.identity         = { name: '', profession: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
 }
 
 // ── RENDER: Nav Buttons ─────────────────────────────────────
