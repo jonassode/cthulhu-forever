@@ -24,6 +24,7 @@ const state = {
   skillPoints: {},               // skillName -> bonus pts added (from bonus pool)
   skillTypes: {},                // skillName -> user-entered type string (for "(Type)" skills)
   customSkills: [],              // array of {id, isClone, baseName, baseValue, type, customName, points}
+  advancedMode: false,           // show/hide clone & custom skill controls
   bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
@@ -932,7 +933,7 @@ function renderStep4() {
         <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
           <span>${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}</span>
           ${isUnnat ? `<span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
-          ${isTyped ? `<button class="clone-skill-btn" data-skill="${escapeHtml(skillName)}" onclick="cloneSkill(this.dataset.skill)" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
+          ${isTyped && state.advancedMode ? `<button class="clone-skill-btn" data-skill="${escapeHtml(skillName)}" onclick="cloneSkill(this.dataset.skill)" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
         </div>
         ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
           value="${escapeHtml(state.skillTypes[skillName] || '')}"
@@ -1144,8 +1145,11 @@ function renderStep4() {
         <tbody>${skillRows}${customSkillRows}</tbody>
       </table>
     </div>
-    <div style="text-align:right;margin-top:0.5rem;">
-      <button class="add-custom-skill-btn" onclick="addCustomSkill()">+ Add Custom Skill</button>
+    <div style="text-align:right;margin-top:0.5rem;display:flex;align-items:center;justify-content:flex-end;gap:0.75rem;">
+      <button class="advanced-mode-toggle-btn" onclick="toggleAdvancedMode()">
+        ${state.advancedMode ? '▲ Hide Advanced' : '▼ Advanced Mode'}
+      </button>
+      ${state.advancedMode ? `<button class="add-custom-skill-btn" onclick="addCustomSkill()" title="Talk to your Keeper before adding custom skills.">+ Add Custom Skill</button>` : ''}
     </div>
 
     ${adversityHtml}
@@ -1218,6 +1222,11 @@ function getCustomSkillDisplayName(cs) {
 
 function getFinalCustomSkillValue(cs) {
   return Math.min(80, cs.baseValue + (cs.points || 0) * 20);
+}
+
+function toggleAdvancedMode() {
+  state.advancedMode = !state.advancedMode;
+  render();
 }
 
 function cloneSkill(skillName) {
