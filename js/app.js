@@ -23,6 +23,7 @@ const state = {
 
   skillPoints: {},               // skillName -> bonus pts added (from bonus pool)
   skillTypes: {},                // skillName -> user-entered type string (for "(Type)" skills)
+  customSkills: [],              // array of {id, isClone, baseName, baseValue, type, customName, points}
   bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
@@ -43,6 +44,9 @@ const state = {
 // Drag state (module-level, not persisted)
 let _dragRollId  = null;  // roll id being dragged
 let _dragFromAttr = null; // attr key if dragging from a slot
+
+// Counter for custom skill unique IDs
+let _customSkillIdCounter = 0;
 
 // ── Utility ────────────────────────────────────────────────
 
@@ -206,6 +210,7 @@ function initSkills() {
   Object.keys(skills).forEach(s => { fresh[s] = 0; });
   state.skillPoints = fresh;
   state.skillTypes = {};
+  state.customSkills = [];
   state.resourcesBonusSpent = 0;
   state.adversityPoints = {};
   ADVERSITY_SKILLS.forEach(s => { state.adversityPoints[s] = 0; });
@@ -221,7 +226,8 @@ function getBonusPointsTotal() {
 function getBonusPointsSpent() {
   const skillPicks = Object.values(state.skillPoints).reduce((s, v) => s + v, 0);
   const bondPicks  = state.bonds.reduce((s, b) => s + (b && b.bonusSpent ? b.bonusSpent : 0), 0);
-  return skillPicks + state.resourcesBonusSpent + bondPicks;
+  const customPicks = (state.customSkills || []).reduce((s, cs) => s + (cs.points || 0), 0);
+  return skillPicks + state.resourcesBonusSpent + bondPicks + customPicks;
 }
 
 function getBonusPointsRemaining() {
@@ -923,8 +929,11 @@ function renderStep4() {
 
     return `<tr>
       <td class="skill-name ${isBonus ? 'bonus-skill' : ''}" style="width:45%">
-        ${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}
-        ${isUnnat ? ` <span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
+        <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+          <span>${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}</span>
+          ${isUnnat ? `<span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
+          ${isTyped ? `<button class="clone-skill-btn" data-skill="${escapeHtml(skillName)}" onclick="cloneSkill(this.dataset.skill)" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
+        </div>
         ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
           value="${escapeHtml(state.skillTypes[skillName] || '')}"
           oninput="updateSkillType('${skillName}',this.value)"
@@ -940,7 +949,59 @@ function renderStep4() {
     </tr>`;
   }).join('');
 
-  // Adversity picks section (only for harsh / very harsh upbringing)
+  // Custom / cloned skill rows
+  const customSkillRows = (state.customSkills || []).map(cs => {
+    const final   = getFinalCustomSkillValue(cs);
+    const points  = cs.points || 0;
+    const canAdd  = bpLeft > 0 && (cs.baseValue + (points + 1) * 20) <= 80;
+    const canSub  = points > 0;
+    const bonusDisplay = points > 0 ? `+${points * 20}%` : '—';
+
+    if (cs.isClone) {
+      return `<tr class="custom-skill-row">
+        <td class="skill-name" style="width:45%">
+          <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+            <span class="custom-skill-badge">clone</span>
+            <span>${escapeHtml(cs.baseName)}</span>
+            <button class="remove-custom-skill-btn" onclick="removeCustomSkill(${cs.id})" title="Remove this skill" aria-label="Remove cloned skill">×</button>
+          </div>
+          <div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
+            value="${escapeHtml(cs.type || '')}"
+            oninput="updateCustomSkillType(${cs.id},this.value)"
+            aria-label="Specify type for cloned ${escapeHtml(cs.baseName)}" /></div>
+        </td>
+        <td class="skill-base">${cs.baseValue}%</td>
+        <td style="text-align:center;white-space:nowrap;">
+          <button class="skill-adj-btn" onclick="adjustCustomSkill(${cs.id},-1)" ${canSub ? '' : 'disabled'}>−</button>
+          <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${bonusDisplay}</span>
+          <button class="skill-adj-btn plus" onclick="adjustCustomSkill(${cs.id},1)" ${canAdd ? '' : 'disabled'}>+</button>
+        </td>
+        <td class="skill-final">${final}%</td>
+      </tr>`;
+    } else {
+      return `<tr class="custom-skill-row">
+        <td class="skill-name" style="width:45%">
+          <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+            <span class="custom-skill-badge">custom</span>
+            <input type="text" class="skill-type-input" placeholder="Skill name…"
+              value="${escapeHtml(cs.customName || '')}"
+              oninput="updateCustomSkillName(${cs.id},this.value)"
+              aria-label="Custom skill name" style="flex:1;min-width:7rem;" />
+            <button class="remove-custom-skill-btn" onclick="removeCustomSkill(${cs.id})" title="Remove this skill" aria-label="Remove custom skill">×</button>
+          </div>
+        </td>
+        <td class="skill-base">0%</td>
+        <td style="text-align:center;white-space:nowrap;">
+          <button class="skill-adj-btn" onclick="adjustCustomSkill(${cs.id},-1)" ${canSub ? '' : 'disabled'}>−</button>
+          <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${bonusDisplay}</span>
+          <button class="skill-adj-btn plus" onclick="adjustCustomSkill(${cs.id},1)" ${canAdd ? '' : 'disabled'}>+</button>
+        </td>
+        <td class="skill-final">${final}%</td>
+      </tr>`;
+    }
+  }).join('');
+
+
   const adversityHtml = advTotal > 0 ? `
     <div class="section-header" style="margin-top:2rem;">
       <h3>Adversity Skill Picks — ${advLeft} / ${advTotal} remaining</h3>
@@ -1080,8 +1141,11 @@ function renderStep4() {
             <th style="text-align:center;">Final</th>
           </tr>
         </thead>
-        <tbody>${skillRows}</tbody>
+        <tbody>${skillRows}${customSkillRows}</tbody>
       </table>
+    </div>
+    <div style="text-align:right;margin-top:0.5rem;">
+      <button class="add-custom-skill-btn" onclick="addCustomSkill()">+ Add Custom Skill</button>
     </div>
 
     ${adversityHtml}
@@ -1141,6 +1205,78 @@ function adjustAdversity(skillName, delta) {
   }
   state.adversityPoints[skillName] = newPicks;
   render();
+}
+
+// ── Custom / Cloned Skills ───────────────────────────────────
+
+function getCustomSkillDisplayName(cs) {
+  if (!cs.isClone) return (cs.customName || '').trim() || '(unnamed)';
+  const typePart = (cs.type || '').trim();
+  if (!typePart) return cs.baseName;
+  return cs.baseName.replaceAll('(Type)', '(' + typePart + ')');
+}
+
+function getFinalCustomSkillValue(cs) {
+  return Math.min(80, cs.baseValue + (cs.points || 0) * 20);
+}
+
+function cloneSkill(skillName) {
+  const base = getCurrentSkills()[skillName] || 0;
+  state.customSkills.push({
+    id: ++_customSkillIdCounter,
+    isClone: true,
+    baseName: skillName,
+    baseValue: base,
+    type: '',
+    customName: null,
+    points: 0,
+  });
+  render();
+}
+
+function addCustomSkill() {
+  state.customSkills.push({
+    id: ++_customSkillIdCounter,
+    isClone: false,
+    baseName: null,
+    baseValue: 0,
+    type: null,
+    customName: '',
+    points: 0,
+  });
+  render();
+}
+
+function removeCustomSkill(id) {
+  state.customSkills = state.customSkills.filter(cs => cs.id !== id);
+  render();
+}
+
+function adjustCustomSkill(id, delta) {
+  const cs = state.customSkills.find(s => s.id === id);
+  if (!cs) return;
+  const newPicks = (cs.points || 0) + delta;
+  if (newPicks < 0) return;
+  if (delta > 0) {
+    if (getBonusPointsRemaining() < 1) return;
+    if (cs.baseValue + newPicks * 20 > 80) return;
+  }
+  cs.points = newPicks;
+  render();
+}
+
+function updateCustomSkillType(id, value) {
+  const cs = state.customSkills.find(s => s.id === id);
+  if (!cs) return;
+  cs.type = value;
+  // Don't re-render to preserve focus
+}
+
+function updateCustomSkillName(id, value) {
+  const cs = state.customSkills.find(s => s.id === id);
+  if (!cs) return;
+  cs.customName = value;
+  // Don't re-render to preserve focus
 }
 
 function updateBond(index, value) {
@@ -1221,15 +1357,28 @@ function renderStep6() {
 
   const canShow = state.identity.name.trim() !== '';
 
-  const skillsForSheet = Object.keys(skills)
-    .sort((a, b) => a.localeCompare(b))
-    .map(s => {
-      const base    = skills[s];
-      const archBon = getArchetypeSkillBonus(s);
-      const final   = getFinalSkillValue(s);
-      return { name: s, displayName: getSkillDisplayName(s), base, archBon, final, boosted: archBon > 0 };
-    })
-    .filter(s => s.final > 0 || s.name === 'Unnatural');
+  const skillsForSheet = [
+    ...Object.keys(skills)
+      .sort((a, b) => a.localeCompare(b))
+      .map(s => {
+        const base    = skills[s];
+        const archBon = getArchetypeSkillBonus(s);
+        const final   = getFinalSkillValue(s);
+        return { name: s, displayName: getSkillDisplayName(s), base, archBon, final, boosted: archBon > 0 };
+      })
+      .filter(s => s.final > 0 || s.name === 'Unnatural'),
+    ...(state.customSkills || [])
+      .filter(cs => cs.isClone || (cs.customName || '').trim() !== '')
+      .map(cs => ({
+        name: `custom_${cs.id}`,
+        displayName: getCustomSkillDisplayName(cs),
+        base: cs.baseValue,
+        archBon: 0,
+        final: getFinalCustomSkillValue(cs),
+        boosted: false,
+      }))
+      .filter(s => s.final > 0),
+  ].sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   const charSheetHtml = canShow ? `
   <div class="character-sheet" id="character-sheet">
@@ -1489,6 +1638,7 @@ function resetState() {
   state.selectedOptional = [];
   state.skillPoints      = {};
   state.skillTypes       = {};
+  state.customSkills     = [];
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;

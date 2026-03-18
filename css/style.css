@@ -669,7 +669,69 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   box-shadow: 0 0 6px rgba(201,168,76,0.15);
 }
 
-/* Bond type toggle buttons */
+/* Clone skill button */
+.clone-skill-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.clone-skill-btn:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
+
+/* Remove custom skill button */
+.remove-custom-skill-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--danger-light);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.remove-custom-skill-btn:hover { color: #e05050; border-color: #e05050; }
+
+/* Add Custom Skill button */
+.add-custom-skill-btn {
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-family: var(--font-head);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.add-custom-skill-btn:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
+
+/* Custom skill row styling */
+.custom-skill-row td { background: rgba(201,168,76,0.04); }
+
+/* Badge for clone/custom label */
+.custom-skill-badge {
+  font-size: 0.6rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 3px;
+  padding: 1px 4px;
+  flex-shrink: 0;
+}
+
+
 .bond-type-btn {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
