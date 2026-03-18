@@ -932,7 +932,7 @@ function renderStep4() {
         <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
           <span>${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}</span>
           ${isUnnat ? `<span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
-          ${isTyped ? `<button class="clone-skill-btn" onclick="cloneSkill('${skillName}')" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
+          ${isTyped ? `<button class="clone-skill-btn" data-skill="${escapeHtml(skillName)}" onclick="cloneSkill(this.dataset.skill)" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
         </div>
         ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
           value="${escapeHtml(state.skillTypes[skillName] || '')}"
