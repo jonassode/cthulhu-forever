@@ -32,6 +32,8 @@ const state = {
 
   resourceChecked: [],           // array of booleans for resource checkboxes
   skillChecked: {},              // skillName -> boolean (checked state on sheet)
+  violenceChecked: [false, false, false],     // 3 checkboxes for Violence SAN incidents
+  helplessnessChecked: [false, false, false], // 3 checkboxes for Helplessness SAN incidents
 
   identity: {
     name: '',
@@ -146,12 +148,15 @@ function calculateDerived() {
   else if (v.STR <= 12) DMG =  0;
   else if (v.STR <= 16) DMG = +1;
   else                  DMG = +2;
+  const unnaturalValue = getFinalSkillValue('Unnatural');
   return {
-    HP:  Math.ceil((v.STR + v.CON) / 2),
-    WP:  v.POW,
-    SAN: SAN,
-    BP:  SAN - v.POW,
-    DMG: DMG,
+    HP:          Math.ceil((v.STR + v.CON) / 2),
+    WP:          v.POW,
+    SAN:         SAN,
+    BP:          SAN - v.POW,
+    DMG:         DMG,
+    MaxSAN:      99 - unnaturalValue,
+    RecoverySAN: v.POW * 5,
   };
 }
 
@@ -532,26 +537,57 @@ function renderStep2() {
 
   const sanFormula = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
   const derivedHtml = derived ? `
-    <div class="derived-stats">
-      <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
-        <div class="ds-label">Hit Points</div>
-        <div class="ds-value">${derived.HP}</div>
+    <div class="derived-stats-columns">
+      <div class="derived-stats-col">
+        <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
+          <div class="ds-label">Hit Points</div>
+          <div class="ds-value">${derived.HP}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="Equal to POW">
+          <div class="ds-label">Willpower</div>
+          <div class="ds-value">${derived.WP}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
+          <div class="ds-label">Dmg Bonus</div>
+          <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
+        </div>
       </div>
-      <div class="derived-stat" data-tooltip="Equal to POW">
-        <div class="ds-label">Willpower</div>
-        <div class="ds-value">${derived.WP}</div>
-      </div>
-      <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
-        <div class="ds-label">Sanity</div>
-        <div class="ds-value">${derived.SAN}</div>
-      </div>
-      <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
-        <div class="ds-label">Break. Point</div>
-        <div class="ds-value">${derived.BP}</div>
-      </div>
-      <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
-        <div class="ds-label">Dmg Bonus</div>
-        <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
+      <div class="derived-stats-col">
+        <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
+          <div class="ds-label">Sanity</div>
+          <div class="ds-value">${derived.SAN}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
+          <div class="ds-label">Break. Point</div>
+          <div class="ds-value">${derived.BP}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="99 − Unnatural skill">
+          <div class="ds-label">Max SAN</div>
+          <div class="ds-value">${derived.MaxSAN}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="Always POW × 5">
+          <div class="ds-label">Recovery SAN</div>
+          <div class="ds-value">${derived.RecoverySAN}</div>
+        </div>
+        <div class="san-incidents-block">
+          <div class="san-incidents-title">Incidents of SAN loss</div>
+          <div class="san-incident-row">
+            <span class="san-incident-label">Violence</span>
+            <span class="san-incident-boxes">
+              <input type="checkbox" class="san-checkbox" ${state.violenceChecked[0] ? 'checked' : ''} onchange="toggleViolenceCheck(0)">
+              <input type="checkbox" class="san-checkbox" ${state.violenceChecked[1] ? 'checked' : ''} onchange="toggleViolenceCheck(1)">
+              <input type="checkbox" class="san-checkbox" ${state.violenceChecked[2] ? 'checked' : ''} onchange="toggleViolenceCheck(2)">
+            </span>
+          </div>
+          <div class="san-incident-row">
+            <span class="san-incident-label">Helplessness</span>
+            <span class="san-incident-boxes">
+              <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[0] ? 'checked' : ''} onchange="toggleHelplessnessCheck(0)">
+              <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[1] ? 'checked' : ''} onchange="toggleHelplessnessCheck(1)">
+              <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[2] ? 'checked' : ''} onchange="toggleHelplessnessCheck(2)">
+            </span>
+          </div>
+        </div>
       </div>
     </div>` : '';
 
@@ -1439,21 +1475,54 @@ function renderStep6() {
 
     <div class="sheet-section">
       <div class="sheet-section-title">Derived Statistics</div>
-      <div class="derived-row">
-        <div class="derived-box" data-tooltip="⌈(STR + CON) ÷ 2⌉">
-          <span class="db-name">HP</span><span class="db-val">${derived ? derived.HP : '—'}</span>
+      <div class="derived-stats-columns">
+        <div class="derived-stats-col">
+          <div class="derived-row">
+            <div class="derived-box" data-tooltip="⌈(STR + CON) ÷ 2⌉">
+              <span class="db-name">HP</span><span class="db-val">${derived ? derived.HP : '—'}</span>
+            </div>
+            <div class="derived-box" data-tooltip="Equal to POW">
+              <span class="db-name">WP</span><span class="db-val">${derived ? derived.WP : '—'}</span>
+            </div>
+            <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
+              <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
+            </div>
+          </div>
         </div>
-        <div class="derived-box" data-tooltip="Equal to POW">
-          <span class="db-name">WP</span><span class="db-val">${derived ? derived.WP : '—'}</span>
-        </div>
-        <div class="derived-box" data-tooltip="${(state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4 (Harsh/Very Harsh upbringing)' : 'POW × 5 (Normal upbringing)'}">
-          <span class="db-name">SAN</span><span class="db-val">${derived ? derived.SAN : '—'}</span>
-        </div>
-        <div class="derived-box" data-tooltip="Breaking Point = SAN − POW">
-          <span class="db-name">BP</span><span class="db-val">${derived ? derived.BP : '—'}</span>
-        </div>
-        <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
-          <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
+        <div class="derived-stats-col">
+          <div class="derived-row">
+            <div class="derived-box" data-tooltip="${(state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4 (Harsh/Very Harsh upbringing)' : 'POW × 5 (Normal upbringing)'}">
+              <span class="db-name">SAN</span><span class="db-val">${derived ? derived.SAN : '—'}</span>
+            </div>
+            <div class="derived-box" data-tooltip="Breaking Point = SAN − POW">
+              <span class="db-name">BP</span><span class="db-val">${derived ? derived.BP : '—'}</span>
+            </div>
+            <div class="derived-box" data-tooltip="99 − Unnatural skill">
+              <span class="db-name">Max SAN</span><span class="db-val">${derived ? derived.MaxSAN : '—'}</span>
+            </div>
+            <div class="derived-box" data-tooltip="Always POW × 5">
+              <span class="db-name">Recovery SAN</span><span class="db-val">${derived ? derived.RecoverySAN : '—'}</span>
+            </div>
+          </div>
+          <div class="san-incidents-block">
+            <div class="san-incidents-title">Incidents of SAN loss</div>
+            <div class="san-incident-row">
+              <span class="san-incident-label">Violence</span>
+              <span class="san-incident-boxes">
+                <input type="checkbox" class="san-checkbox" ${state.violenceChecked[0] ? 'checked' : ''} onchange="toggleViolenceCheck(0)">
+                <input type="checkbox" class="san-checkbox" ${state.violenceChecked[1] ? 'checked' : ''} onchange="toggleViolenceCheck(1)">
+                <input type="checkbox" class="san-checkbox" ${state.violenceChecked[2] ? 'checked' : ''} onchange="toggleViolenceCheck(2)">
+              </span>
+            </div>
+            <div class="san-incident-row">
+              <span class="san-incident-label">Helplessness</span>
+              <span class="san-incident-boxes">
+                <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[0] ? 'checked' : ''} onchange="toggleHelplessnessCheck(0)">
+                <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[1] ? 'checked' : ''} onchange="toggleHelplessnessCheck(1)">
+                <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[2] ? 'checked' : ''} onchange="toggleHelplessnessCheck(2)">
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1640,6 +1709,14 @@ function toggleResourceCheck(idx) {
 
 function toggleSkillCheck(skillName) {
   state.skillChecked[skillName] = !(state.skillChecked[skillName] || false);
+}
+
+function toggleViolenceCheck(idx) {
+  state.violenceChecked[idx] = !state.violenceChecked[idx];
+}
+
+function toggleHelplessnessCheck(idx) {
+  state.helplessnessChecked[idx] = !state.helplessnessChecked[idx];
 }
 
 function toggleShowAllSkills() {
