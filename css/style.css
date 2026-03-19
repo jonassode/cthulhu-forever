@@ -1183,18 +1183,18 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   align-items: center;
 }
 .skills-grid-sheet {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 4px 1.5rem;
+  columns: 200px;
+  column-gap: 1.5rem;
 }
 .skill-row-sheet {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.35rem;
-  padding: 3px 0;
+  padding: 3px 0 7px;
   border-bottom: 1px solid rgba(42,53,72,0.4);
   font-size: 0.78rem;
+  break-inside: avoid;
 }
 .skill-sheet-cb {
   appearance: none;
@@ -1427,7 +1427,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .derived-stats  { grid-template-columns: repeat(2, 1fr); }
   .attrs-row      { justify-content: center; }
   .derived-row    { justify-content: center; }
-  .skills-grid-sheet { grid-template-columns: 1fr; }
+  .skills-grid-sheet { columns: 1; }
   .sheet-header   { flex-direction: column; }
   .points-bar     { flex-direction: column; align-items: flex-start; }
   .stepper        { gap: 0; }
