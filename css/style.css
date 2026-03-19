@@ -497,6 +497,72 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   gap: 0.75rem;
   margin-top: 1.25rem;
 }
+.derived-stats-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+.derived-stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.derived-stats-col .derived-stats {
+  margin-top: 0;
+}
+.san-incidents-block {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+.san-incidents-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-family: var(--font-head);
+  margin-bottom: 0.4rem;
+}
+.san-incident-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.san-incident-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-family: var(--font-head);
+  min-width: 90px;
+}
+.san-incident-boxes {
+  display: flex;
+  gap: 0.3rem;
+}
+.san-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--text-primary);
+  border-radius: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+.san-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  color: var(--accent-gold);
+  line-height: 1;
+}
 .derived-stat {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -1425,6 +1491,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 @media (max-width: 640px) {
   .archetype-grid { grid-template-columns: repeat(2, 1fr); }
   .derived-stats  { grid-template-columns: repeat(2, 1fr); }
+  .derived-stats-columns { grid-template-columns: 1fr; }
   .attrs-row      { justify-content: center; }
   .derived-row    { justify-content: center; }
   .skills-grid-sheet { columns: 1; }
@@ -1459,6 +1526,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
     border: 1px solid #ccc !important;
   }
   .attr-box .ab-val, .derived-box .db-val { color: #222 !important; }
+  .san-incidents-block { background: #f9f9f9 !important; border: 1px solid #ccc !important; }
+  .san-incidents-title, .san-incident-label { color: #555 !important; }
   .skill-row-sheet .sr-val { color: #222 !important; }
   .skill-row-sheet .sr-name { color: #333 !important; }
   .bond-sheet-row { border-bottom: 1px solid #ddd !important; }

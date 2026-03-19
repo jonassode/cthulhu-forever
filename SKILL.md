@@ -43,6 +43,14 @@ A stat of 8 or below, or 13 or above (i.e., outside the average range of 9–12)
 | Sanity (SAN) | `POW × 5` (Normal) or `POW × 4` (Harsh/Very Harsh) |
 | Breaking Point | `SAN - POW` |
 | Damage Bonus | STR 1–4: −2; 5–8: −1; 9–12: 0; 13–16: +1; 17–18: +2 |
+| Max SAN | `99 - Unnatural skill` |
+| Recovery SAN | `POW × 5` (always) |
+
+### Incidents of SAN loss
+
+**Violence** ☐ ☐ ☐
+
+**Helplessness** ☐ ☐ ☐
 
 ---
 
