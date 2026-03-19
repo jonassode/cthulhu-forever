@@ -996,14 +996,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-radius: 12px;
   overflow: hidden;
   margin-top: 2rem;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 27px,
-      rgba(42,53,72,0.25) 27px,
-      rgba(42,53,72,0.25) 28px
-    );
 }
 .sheet-header {
   background: linear-gradient(135deg, #111827 0%, #1a2233 100%);
