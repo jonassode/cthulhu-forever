@@ -968,6 +968,63 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--text-primary);
   font-family: var(--font-head);
 }
+.sheet-settings {
+  position: relative;
+  flex-shrink: 0;
+}
+.sheet-settings-btn {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  transition: all 0.2s;
+}
+.sheet-settings-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.sheet-settings-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  min-width: 170px;
+  padding: 6px 0;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.sheet-settings-dropdown.open {
+  display: block;
+}
+.sheet-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  user-select: none;
+  transition: background 0.15s;
+}
+.sheet-settings-item:hover {
+  background: var(--bg-secondary);
+}
+.sheet-settings-item input[type="checkbox"] {
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
 .sheet-section {
   padding: 1.25rem 1.75rem;
   border-bottom: 1px solid rgba(42,53,72,0.6);

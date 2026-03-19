@@ -25,6 +25,7 @@ const state = {
   skillTypes: {},                // skillName -> user-entered type string (for "(Type)" skills)
   customSkills: [],              // array of {id, isClone, baseName, baseValue, type, customName, points}
   advancedMode: false,           // show/hide clone & custom skill controls
+  showAllSkills: false,          // show all skills including 0% on character sheet
   bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
@@ -1375,7 +1376,7 @@ function renderStep6() {
         const final   = getFinalSkillValue(s);
         return { name: s, displayName: getSkillDisplayName(s), base, archBon, final, boosted: archBon > 0 };
       })
-      .filter(s => s.final > 0 || s.name === 'Unnatural'),
+      .filter(s => state.showAllSkills || s.final > 0 || s.name === 'Unnatural'),
     ...(state.customSkills || [])
       .filter(cs => cs.isClone || (cs.customName || '').trim() !== '')
       .map(cs => ({
@@ -1386,7 +1387,7 @@ function renderStep6() {
         final: getFinalCustomSkillValue(cs),
         boosted: false,
       }))
-      .filter(s => s.final > 0),
+      .filter(s => state.showAllSkills || s.final > 0),
   ].sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   const charSheetHtml = canShow ? `
@@ -1399,11 +1400,24 @@ function renderStep6() {
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
         </div>
       </div>
-      <div class="sheet-meta">
-        <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
-        <span>Age <strong>${state.identity.characterAge}</strong></span>
-        <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong></span>
-        ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
+      <div style="display:flex;align-items:flex-start;gap:1rem;">
+        <div class="sheet-meta">
+          <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
+          <span>Age <strong>${state.identity.characterAge}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong></span>
+          ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
+        </div>
+        <div class="sheet-settings" id="sheet-settings">
+          <button class="sheet-settings-btn" onclick="toggleSheetSettings(event)" aria-label="Sheet settings" aria-expanded="false" aria-haspopup="true" title="Sheet settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <div class="sheet-settings-dropdown" id="sheet-settings-dropdown">
+            <label class="sheet-settings-item">
+              <input type="checkbox" ${state.showAllSkills ? 'checked' : ''} onchange="toggleShowAllSkills()">
+              <span>Show All Skills</span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1628,6 +1642,20 @@ function toggleSkillCheck(skillName) {
   state.skillChecked[skillName] = !(state.skillChecked[skillName] || false);
 }
 
+function toggleShowAllSkills() {
+  state.showAllSkills = !state.showAllSkills;
+  render();
+}
+
+function toggleSheetSettings(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('sheet-settings-dropdown');
+  if (dropdown) {
+    dropdown.classList.toggle('open');
+    event.currentTarget.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+  }
+}
+
 function confirmReset() {
   if (confirm('Start over? All character data will be lost.')) {
     resetState();
@@ -1741,4 +1769,11 @@ function escapeHtml(str) {
 
 document.addEventListener('DOMContentLoaded', () => {
   render();
+  document.addEventListener('click', (e) => {
+    const settings = document.getElementById('sheet-settings');
+    if (settings && !settings.contains(e.target)) {
+      const dropdown = document.getElementById('sheet-settings-dropdown');
+      if (dropdown) dropdown.classList.remove('open');
+    }
+  });
 });
