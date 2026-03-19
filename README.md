@@ -1,4 +1,4 @@
-# cthulhu-forever
+# Cthulhu Forever
 A Cthulhu Eternal Character Generator
 
 ## Getting Started
