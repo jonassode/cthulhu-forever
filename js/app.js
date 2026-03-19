@@ -569,25 +569,6 @@ function renderStep2() {
           <div class="ds-label">Recovery SAN</div>
           <div class="ds-value">${derived.RecoverySAN}</div>
         </div>
-        <div class="san-incidents-block">
-          <div class="san-incidents-title">Incidents of SAN loss</div>
-          <div class="san-incident-row">
-            <span class="san-incident-label">Violence</span>
-            <span class="san-incident-boxes">
-              <input type="checkbox" class="san-checkbox" ${state.violenceChecked[0] ? 'checked' : ''} onchange="toggleViolenceCheck(0)">
-              <input type="checkbox" class="san-checkbox" ${state.violenceChecked[1] ? 'checked' : ''} onchange="toggleViolenceCheck(1)">
-              <input type="checkbox" class="san-checkbox" ${state.violenceChecked[2] ? 'checked' : ''} onchange="toggleViolenceCheck(2)">
-            </span>
-          </div>
-          <div class="san-incident-row">
-            <span class="san-incident-label">Helplessness</span>
-            <span class="san-incident-boxes">
-              <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[0] ? 'checked' : ''} onchange="toggleHelplessnessCheck(0)">
-              <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[1] ? 'checked' : ''} onchange="toggleHelplessnessCheck(1)">
-              <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[2] ? 'checked' : ''} onchange="toggleHelplessnessCheck(2)">
-            </span>
-          </div>
-        </div>
       </div>
     </div>` : '';
 
