@@ -1764,9 +1764,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   gap: 2px;
   flex-shrink: 0;
 }
-.bond-sheet-val.bond-damaged {
-  color: var(--danger-light);
-}
 
 /* ── Disorders / Conditions ── */
 .disorders-list {
@@ -1799,7 +1796,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 /* ── Print overrides for new elements ── */
 @media print {
   .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
-  .bond-sheet-val.bond-damaged { color: #a33030 !important; }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
   .bond-score-group button { display: none !important; }

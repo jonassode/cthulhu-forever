@@ -1745,15 +1745,13 @@ function buildCharSheetHtml() {
         ${state.bonds.map((b, origIdx) => {
           if (!b.name || !b.name.trim()) return '';
           const playScore = getBondPlayScore(b);
-          const baseScore = getBondEffectiveValue(b);
           const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
-          const isDamaged = playScore !== null && baseScore !== null && playScore < baseScore;
           return `<div class="bond-sheet-row">
             <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
             <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
             <span class="bond-score-group">
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>` : ''}
-              <span class="bond-sheet-val${isDamaged ? ' bond-damaged' : ''}" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
+              <span class="bond-sheet-val" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>` : ''}
             </span>
           </div>`;
