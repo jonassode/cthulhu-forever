@@ -6,6 +6,7 @@
 
 const state = {
   currentStep: 1,
+  playMode: false,    // true = character sheet only view
   age: null,          // 'jazz' | 'modern'
 
   rolledSets: [],     // [{id:N, values:[d1,d2,d3,d4], total:N}]
@@ -1404,12 +1405,12 @@ function renderStep5() {
 
 // ── RENDER: Step 6 — Identity & Export ──────────────────────
 
-function renderStep6() {
+function buildCharSheetHtml() {
+  if (!state.identity.name.trim()) return '';
+
   const arch    = getArchetype();
   const derived = calculateDerived();
   const skills  = getCurrentSkills();
-
-  const canShow = state.identity.name.trim() !== '';
 
   const skillsForSheet = [
     ...Object.keys(skills)
@@ -1434,7 +1435,7 @@ function renderStep6() {
       .filter(s => state.showAllSkills || s.final > 0),
   ].sort((a, b) => a.displayName.localeCompare(b.displayName));
 
-  const charSheetHtml = canShow ? `
+  return `
   <div class="character-sheet" id="character-sheet">
     <div class="sheet-header">
       <div>
@@ -1619,7 +1620,12 @@ function renderStep6() {
         <div class="sheet-backstory" id="sheet-gear" title="Double-click to edit" ondblclick="startEditText('gear','sheet-gear')">${state.identity.gear.trim() ? escapeHtml(state.identity.gear) : ''}</div>
       </div>
     </div>
-  </div>` : '';
+  </div>`;
+}
+
+function renderStep6() {
+  const canShow = state.identity.name.trim() !== '';
+  const charSheetHtml = buildCharSheetHtml();
 
   return `
   <div class="step-content">
@@ -1682,6 +1688,9 @@ function renderStep6() {
       </button>
       <button class="btn btn-danger" onclick="confirmReset()">
         ↺ Start Over
+      </button>
+      <button class="btn btn-gold" onclick="enterPlayMode()">
+        ▶ Play Mode
       </button>
     </div>
     ${charSheetHtml}
@@ -1971,8 +1980,21 @@ function confirmReset() {
   }
 }
 
+function enterPlayMode() {
+  state.playMode = true;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function exitPlayMode() {
+  state.playMode = false;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function resetState() {
   state.currentStep = 1;
+  state.playMode    = false;
   state.age         = null;
   state.rolledSets  = [];
   ATTRIBUTES.forEach(a => { state.attrAssign[a] = null; });
@@ -1993,6 +2015,36 @@ function resetState() {
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
+}
+
+// ── RENDER: Play Mode ────────────────────────────────────────
+
+function renderPlayMode() {
+  const charSheetHtml = buildCharSheetHtml();
+  return `
+  <div class="play-mode-view">
+    <div class="play-mode-bar no-print">
+      <div class="play-mode-title">
+        <span class="play-mode-heading">Cthulhu Eternal</span>
+        <span class="play-mode-label">Play Mode</span>
+      </div>
+      <div class="play-mode-actions">
+        <button class="btn btn-gold" onclick="window.print()">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24">
+            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Print
+        </button>
+        <button class="btn btn-outline" onclick="exitPlayMode()">
+          ← Back to Builder
+        </button>
+      </div>
+    </div>
+    <div class="play-mode-sheet">
+      ${charSheetHtml}
+    </div>
+  </div>`;
 }
 
 // ── RENDER: Nav Buttons ─────────────────────────────────────
@@ -2036,6 +2088,11 @@ function renderCurrentStep() {
 function render() {
   const app = document.getElementById('app');
   if (!app) return;
+
+  if (state.playMode) {
+    app.innerHTML = renderPlayMode();
+    return;
+  }
 
   app.innerHTML = `
     <div class="app-header no-print">
