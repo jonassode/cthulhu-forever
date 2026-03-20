@@ -1592,12 +1592,13 @@ function renderStep6() {
     <div class="sheet-section">
       <div class="sheet-section-title">Bonds</div>
       <div class="bonds-sheet-list">
-        ${state.bonds.filter(b => b.name && b.name.trim()).map(b => {
+        ${state.bonds.map((b, origIdx) => {
+          if (!b.name || !b.name.trim()) return '';
           const val = getBondEffectiveValue(b);
           const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
           return `<div class="bond-sheet-row">
             <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
-            <span class="bond-sheet-name">${escapeHtml(b.name)}</span>
+            <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
             <span class="bond-sheet-val">${val !== null ? val : '—'}</span>
           </div>`;
         }).join('')}
@@ -1607,15 +1608,15 @@ function renderStep6() {
     <div class="sheet-3col-row">
       <div class="sheet-section">
         <div class="sheet-section-title">Backstory</div>
-        <div class="sheet-backstory">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+        <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Motivations</div>
-        <div class="sheet-backstory">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
+        <div class="sheet-backstory" id="sheet-motivations" title="Double-click to edit" ondblclick="startEditText('motivations','sheet-motivations')">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Gear &amp; Weapons</div>
-        <div class="sheet-backstory">${state.identity.gear.trim() ? escapeHtml(state.identity.gear) : ''}</div>
+        <div class="sheet-backstory" id="sheet-gear" title="Double-click to edit" ondblclick="startEditText('gear','sheet-gear')">${state.identity.gear.trim() ? escapeHtml(state.identity.gear) : ''}</div>
       </div>
     </div>
   </div>` : '';
@@ -1724,7 +1725,7 @@ function updateIdentity(field, value) {
       const genderEl = document.getElementById('sheet-gender');
       if (genderEl) genderEl.textContent = value.trim() ? value : '—';
     } else if (field === 'backstory') {
-      const backstoryEl = document.querySelector('.sheet-backstory');
+      const backstoryEl = document.getElementById('sheet-backstory');
       if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
     }
   }
@@ -1844,6 +1845,108 @@ function finishEditStat(statKey, elemId, input) {
   }
 
   const span = makeStatSpan(elemId, statKey, newVal);
+  input.replaceWith(span);
+}
+
+// ── Inline text editing (double-click) ──────────────────────
+
+function startEditText(fieldKey, elemId) {
+  const div = document.getElementById(elemId);
+  if (!div || div.querySelector('textarea')) return;
+
+  const current = state.identity[fieldKey];
+  const textarea = document.createElement('textarea');
+  textarea.className = 'db-edit-textarea';
+  textarea.value = current;
+
+  let finished = false;
+
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    finishEditText(fieldKey, elemId, textarea);
+  };
+
+  const cancel = () => {
+    if (finished) return;
+    finished = true;
+    div.textContent = current;
+  };
+
+  textarea.addEventListener('blur', finish);
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+
+  div.textContent = '';
+  div.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+}
+
+function finishEditText(fieldKey, elemId, textarea) {
+  const newVal = textarea.value;
+  state.identity[fieldKey] = newVal;
+  const div = document.getElementById(elemId);
+  if (div) {
+    div.textContent = newVal;
+  }
+}
+
+// ── Inline bond name editing (double-click) ──────────────────
+
+function createBondNameSpan(origIdx, name) {
+  const span = document.createElement('span');
+  span.className = 'bond-sheet-name';
+  span.id = 'bond-sheet-name-' + origIdx;
+  span.title = 'Double-click to edit';
+  span.textContent = name;
+  span.addEventListener('dblclick', () => startEditBondName(origIdx));
+  return span;
+}
+
+function startEditBondName(origIdx) {
+  const elemId = 'bond-sheet-name-' + origIdx;
+  const span = document.getElementById(elemId);
+  if (!span || span.tagName === 'INPUT') return;
+
+  const current = state.bonds[origIdx] ? state.bonds[origIdx].name : '';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = current;
+  input.className = 'db-edit-bond-input';
+
+  let finished = false;
+
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    finishEditBondName(origIdx, input);
+  };
+
+  const cancel = () => {
+    if (finished) return;
+    finished = true;
+    input.replaceWith(createBondNameSpan(origIdx, current));
+  };
+
+  input.addEventListener('blur', finish);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+}
+
+function finishEditBondName(origIdx, input) {
+  const newName = input.value;
+  if (state.bonds[origIdx]) {
+    state.bonds[origIdx].name = newName;
+  }
+  const span = createBondNameSpan(origIdx, newName);
   input.replaceWith(span);
 }
 
