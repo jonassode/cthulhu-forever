@@ -1776,4 +1776,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
   .bond-score-group button { display: none !important; }
+  .skill-adj-btn { display: none !important; }
+  .stat-btn { display: none !important; }
+  .bond-type-btn { display: none !important; }
+  .sheet-settings-btn { display: none !important; }
 }
