@@ -1031,6 +1031,33 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   position: relative;
   flex-shrink: 0;
 }
+.sheet-edit-mode-btn {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.sheet-edit-mode-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.sheet-edit-mode-btn.active {
+  background: rgba(201,168,76,0.15);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.skill-edit-controls {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
 .sheet-settings-btn {
   background: transparent;
   border: 1px solid rgba(201,168,76,0.3);
@@ -1780,4 +1807,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .stat-btn { display: none !important; }
   .bond-type-btn { display: none !important; }
   .sheet-settings-btn { display: none !important; }
+  .sheet-edit-mode-btn { display: none !important; }
+  .skill-edit-controls { display: none !important; }
 }
