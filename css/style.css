@@ -887,6 +887,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   flex: 1;
   font-size: 0.88rem;
   color: var(--text-primary);
+  cursor: pointer;
 }
 .bond-sheet-val {
   font-size: 1rem;
@@ -1391,6 +1392,42 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   font-style: italic;
   white-space: pre-wrap;
   min-height: 4rem;
+  cursor: pointer;
+}
+.sheet-backstory:hover {
+  text-decoration: underline dotted var(--accent-gold);
+}
+.db-edit-textarea {
+  width: 100%;
+  min-height: 4rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--accent-gold);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-style: italic;
+  line-height: 1.7;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  padding: 0;
+  white-space: pre-wrap;
+}
+.bond-sheet-name:hover {
+  text-decoration: underline dotted var(--accent-gold);
+}
+.db-edit-bond-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--accent-gold);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+  width: 100%;
 }
 
 /* ── Buttons ── */
