@@ -43,6 +43,10 @@ const state = {
   bpAdjust: 0,            // manual offset applied to the calculated Breaking Point during play
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
+  editMode: false,        // true = character sheet edit mode (pen icon toggled)
+  resourcesEditAdjust: 0, // integer offset to Resources rating applied in edit mode
+  skillEditAdjust: {},    // skillName -> integer offset applied to skill values in edit mode
+
   identity: {
     name: '',
     profession: '',
@@ -251,6 +255,13 @@ function getFinalSkillValue(skillName) {
   return Math.min(80, base + archBonus + (bpPicks + advPicks) * 20);
 }
 
+// Returns the displayed skill value including any edit-mode adjustment.
+function getDisplayedSkillValue(skillName) {
+  const base = getFinalSkillValue(skillName);
+  const editAdj = state.skillEditAdjust[skillName] || 0;
+  return Math.min(99, Math.max(0, base + editAdj));
+}
+
 function initSkills() {
   const skills = getCurrentSkills();
   const fresh = {};
@@ -299,6 +310,12 @@ function getEffectiveResources() {
   return Math.min(20, base + bonus);
 }
 
+// Returns the displayed Resources rating, including any edit-mode adjustment.
+function getDisplayedResources() {
+  const base = getEffectiveResources();
+  return Math.min(20, Math.max(0, base + (state.resourcesEditAdjust || 0)));
+}
+
 // Returns the Resources capacity for a given rating per SKILL.md table.
 function getResourcesCapacity(rating) {
   if (rating <= 0)  return { atHand: 0, stowed: 0, inStorage: 0, checkboxes: 0 };
@@ -341,6 +358,33 @@ function adjustBondPlayScore(idx, delta) {
 // Adjusts the Breaking Point by a manual offset.
 function adjustBP(delta) {
   state.bpAdjust = (state.bpAdjust || 0) + delta;
+  render();
+}
+
+// Toggles Edit Mode on/off.
+function toggleEditMode() {
+  state.editMode = !state.editMode;
+  render();
+}
+
+// Adjusts the Resources rating in edit mode.
+function adjustResourcesInEditMode(delta) {
+  const base = getEffectiveResources();
+  const current = base + (state.resourcesEditAdjust || 0);
+  const newVal = Math.min(20, Math.max(0, current + delta));
+  state.resourcesEditAdjust = newVal - base;
+  render();
+}
+
+// Adjusts a skill value in edit mode.
+function adjustSkillInEditMode(skillName, delta) {
+  const current = state.skillEditAdjust[skillName] || 0;
+  const base = getFinalSkillValue(skillName);
+  const newAdj = current + delta;
+  // Clamp so total skill value stays between 0 and 99
+  if (base + newAdj < 0) return;
+  if (base + newAdj > 99) return;
+  state.skillEditAdjust[skillName] = newAdj;
   render();
 }
 
@@ -1505,15 +1549,20 @@ function buildCharSheetHtml() {
           <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
-        <div class="sheet-settings" id="sheet-settings">
-          <button class="sheet-settings-btn" onclick="toggleSheetSettings(event)" aria-label="Sheet settings" aria-expanded="false" aria-haspopup="true" title="Sheet settings">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <div style="display:flex;align-items:flex-start;gap:0.5rem;">
+          <button class="sheet-edit-mode-btn no-print${state.editMode ? ' active' : ''}" onclick="toggleEditMode()" aria-label="${state.editMode ? 'Exit edit mode' : 'Enter edit mode'}" title="${state.editMode ? 'Exit edit mode' : 'Enter edit mode'}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <div class="sheet-settings-dropdown" id="sheet-settings-dropdown">
-            <label class="sheet-settings-item">
-              <input type="checkbox" ${state.showAllSkills ? 'checked' : ''} onchange="toggleShowAllSkills()">
-              <span>Show All Skills</span>
-            </label>
+          <div class="sheet-settings" id="sheet-settings">
+            <button class="sheet-settings-btn" onclick="toggleSheetSettings(event)" aria-label="Sheet settings" aria-expanded="false" aria-haspopup="true" title="Sheet settings">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+            <div class="sheet-settings-dropdown" id="sheet-settings-dropdown">
+              <label class="sheet-settings-item">
+                <input type="checkbox" ${state.showAllSkills ? 'checked' : ''} onchange="toggleShowAllSkills()">
+                <span>Show All Skills</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -1578,9 +1627,9 @@ function buildCharSheetHtml() {
             <div class="derived-box" data-tooltip="Breaking Point = SAN − POW (adjust for permanent SAN changes)">
               <span class="db-name">BP</span>
               ${derived ? `<div class="db-val-group">
-                <button class="stat-btn" onclick="adjustBP(-1)" title="Decrease BP" aria-label="Decrease BP">−</button>
+                ${state.editMode ? `<button class="stat-btn no-print" onclick="adjustBP(-1)" title="Decrease BP" aria-label="Decrease BP">−</button>` : ''}
                 <span class="db-val" id="bp-val">${derived.BP + (state.bpAdjust || 0)}</span>
-                <button class="stat-btn" onclick="adjustBP(1)" title="Increase BP" aria-label="Increase BP">+</button>
+                ${state.editMode ? `<button class="stat-btn no-print" onclick="adjustBP(1)" title="Increase BP" aria-label="Increase BP">+</button>` : ''}
               </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="99 − Unnatural skill">
@@ -1618,7 +1667,7 @@ function buildCharSheetHtml() {
       <div class="sheet-section">
       <div class="sheet-section-title">Resources</div>
       ${(() => {
-        const resRating = getEffectiveResources();
+        const resRating = getDisplayedResources();
         const cap = getResourcesCapacity(resRating);
         const checkboxHtml = Array(cap.checkboxes).fill(0).map((_, i) =>
           `<input type="checkbox" class="resource-checkbox" data-idx="${i}" ${state.resourceChecked[i] ? 'checked' : ''} onchange="toggleResourceCheck(${i})">`
@@ -1627,7 +1676,11 @@ function buildCharSheetHtml() {
         <div class="resource-row">
           <div class="resource-block">
             <span class="resource-label">Rating</span>
-            <span class="resource-rating-val">${resRating}</span>
+            ${state.editMode ? `<div class="db-val-group no-print" style="display:inline-flex;align-items:center;gap:4px;">
+              <button class="stat-btn stat-btn-compact no-print" onclick="adjustResourcesInEditMode(-1)" title="Decrease Resources rating" aria-label="Decrease Resources rating">−</button>
+              <span class="resource-rating-val">${resRating}</span>
+              <button class="stat-btn stat-btn-compact no-print" onclick="adjustResourcesInEditMode(1)" title="Increase Resources rating" aria-label="Increase Resources rating">+</button>
+            </div>` : `<span class="resource-rating-val">${resRating}</span>`}
           </div>
           <div class="resource-block">
             <span class="resource-label">At Hand / Stowed / In Storage</span>
@@ -1641,12 +1694,30 @@ function buildCharSheetHtml() {
     <div class="sheet-section">
       <div class="sheet-section-title">Skills</div>
       <div class="skills-grid-sheet">
-        ${skillsForSheet.map(s => `
+        ${skillsForSheet.map(s => {
+          const displayVal = s.name.startsWith('custom_')
+            ? s.final
+            : getDisplayedSkillValue(s.name);
+          const editAdj = state.skillEditAdjust[s.name] || 0;
+          const isUnnatural = s.name === 'Unnatural';
+          if (state.editMode && !isUnnatural) {
+            return `
+            <div class="skill-row-sheet">
+              <span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>
+              <span class="sr-val">${displayVal}%</span>
+              <div class="skill-edit-controls no-print">
+                <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',-1)" title="Decrease ${s.displayName}" aria-label="Decrease ${s.displayName}">−</button>
+                <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',1)" title="Increase ${s.displayName}" aria-label="Increase ${s.displayName}">+</button>
+              </div>
+            </div>`;
+          }
+          return `
           <div class="skill-row-sheet">
-            <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.displayName}</span>
-            <span class="sr-val">${s.final}%</span>
-            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)" ${s.name === 'Unnatural' ? 'style="visibility:hidden" aria-hidden="true" disabled' : ''}>
-          </div>`).join('')}
+            <span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>
+            <span class="sr-val">${displayVal}%</span>
+            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)" ${isUnnatural ? 'style="visibility:hidden" aria-hidden="true" disabled' : ''}>
+          </div>`;
+        }).join('')}
       </div>
     </div>
 
@@ -1681,9 +1752,9 @@ function buildCharSheetHtml() {
             <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
             <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
             <span class="bond-score-group">
-              <button class="stat-btn stat-btn-compact" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>
+              ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>` : ''}
               <span class="bond-sheet-val${isDamaged ? ' bond-damaged' : ''}" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
-              <button class="stat-btn stat-btn-compact" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>
+              ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>` : ''}
             </span>
           </div>`;
         }).join('')}
