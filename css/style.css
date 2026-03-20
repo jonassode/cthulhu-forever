@@ -1704,3 +1704,76 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   max-width: 980px;
   margin: 0 auto;
 }
+
+/* ── Adapted badge ── */
+.adapted-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(30,77,43,0.3);
+  border: 1px solid rgba(45,107,60,0.6);
+  color: #7effa0;
+  border-radius: 10px;
+  padding: 1px 8px;
+  margin-left: 0.35rem;
+  flex-shrink: 0;
+}
+
+/* ── Compact stat button (smaller +/- used inside skill rows and bond rows) ── */
+.stat-btn-compact {
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── Bond score group (in-play tracking) ── */
+.bond-score-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.bond-sheet-val.bond-damaged {
+  color: var(--danger-light);
+}
+
+/* ── Disorders / Conditions ── */
+.disorders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+.disorder-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.disorder-input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.disorder-input:focus {
+  border-color: var(--accent-gold);
+}
+
+/* ── Print overrides for new elements ── */
+@media print {
+  .adapted-badge { background: #eaf5ee !important; border-color: #4a9060 !important; color: #2a6040 !important; }
+  .bond-sheet-val.bond-damaged { color: #a33030 !important; }
+  .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
+  .disorder-row button, .add-custom-skill-btn { display: none !important; }
+  .bond-score-group button { display: none !important; }
+}

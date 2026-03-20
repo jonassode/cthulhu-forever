@@ -27,7 +27,7 @@ const state = {
   customSkills: [],              // array of {id, isClone, baseName, baseValue, type, customName, points}
   advancedMode: false,           // show/hide clone & custom skill controls
   showAllSkills: false,          // show all skills including 0% on character sheet
-  bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent}
+  bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent, currentScore}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
 
@@ -40,9 +40,13 @@ const state = {
   currentWP:  null, // current WP (null = use derived max)
   currentSAN: null, // current SAN (null = use derived value)
 
+  bpAdjust: 0,            // manual offset applied to the calculated Breaking Point during play
+  disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
+
   identity: {
     name: '',
     profession: '',
+    nationality: '',
     characterAge: 25,
     backstory: '',
     motivations: '',
@@ -56,6 +60,9 @@ let _dragFromAttr = null; // attr key if dragging from a slot
 
 // Counter for custom skill unique IDs
 let _customSkillIdCounter = 0;
+
+// Counter for disorder unique IDs
+let _disorderIdCounter = 0;
 
 // ── Utility ────────────────────────────────────────────────
 
@@ -101,10 +108,15 @@ function getSkillDisplayName(skillName) {
   return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
+// Returns a fresh bond object with default values.
+function createEmptyBond() {
+  return { name: '', type: null, bonusSpent: 0, currentScore: null };
+}
+
 // Ensure state.bonds array has the correct length
 function ensureBondsCount() {
   const count = getEffectiveBondsCount();
-  while (state.bonds.length < count) state.bonds.push({ name: '', type: null, bonusSpent: 0 });
+  while (state.bonds.length < count) state.bonds.push(createEmptyBond());
   while (state.bonds.length > count) state.bonds.pop();
 }
 
@@ -307,6 +319,46 @@ function getBondEffectiveValue(bond) {
   const n = bond.bonusSpent || 0;
   const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
   return base + bonus;
+}
+
+// Returns the current in-play bond score (respects damage tracked via currentScore).
+function getBondPlayScore(bond) {
+  if (!bond) return null;
+  if (bond.currentScore !== null && bond.currentScore !== undefined) return bond.currentScore;
+  return getBondEffectiveValue(bond);
+}
+
+// Adjusts the in-play bond score by delta (clamped to 0).
+function adjustBondPlayScore(idx, delta) {
+  const bond = state.bonds[idx];
+  if (!bond) return;
+  const current = getBondPlayScore(bond);
+  if (current === null) return;
+  bond.currentScore = Math.max(0, current + delta);
+  render();
+}
+
+// Adjusts the Breaking Point by a manual offset.
+function adjustBP(delta) {
+  state.bpAdjust = (state.bpAdjust || 0) + delta;
+  render();
+}
+
+// ── Disorders ───────────────────────────────────────────────
+
+function addDisorder() {
+  state.disorders.push({ id: ++_disorderIdCounter, text: '' });
+  render();
+}
+
+function removeDisorder(id) {
+  state.disorders = state.disorders.filter(d => d.id !== id);
+  render();
+}
+
+function updateDisorderText(id, value) {
+  const d = state.disorders.find(d => d.id === id);
+  if (d) d.text = value;
 }
 
 // ── Adversity Picks ─────────────────────────────────────────
@@ -1443,6 +1495,7 @@ function buildCharSheetHtml() {
         <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;display:flex;gap:1.5rem;flex-wrap:wrap;">
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
+          <span>Nationality <strong id="sheet-nationality">${state.identity.nationality ? escapeHtml(state.identity.nationality) : '—'}</strong></span>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
@@ -1522,8 +1575,13 @@ function buildCharSheetHtml() {
                 <button class="stat-btn" onclick="adjustSAN(1)" title="Increase SAN" aria-label="Increase SAN">+</button>
               </div>` : `<span class="db-val">—</span>`}
             </div>
-            <div class="derived-box" data-tooltip="Breaking Point = SAN − POW">
-              <span class="db-name">BP</span><span class="db-val">${derived ? derived.BP : '—'}</span>
+            <div class="derived-box" data-tooltip="Breaking Point = SAN − POW (adjust for permanent SAN changes)">
+              <span class="db-name">BP</span>
+              ${derived ? `<div class="db-val-group">
+                <button class="stat-btn" onclick="adjustBP(-1)" title="Decrease BP" aria-label="Decrease BP">−</button>
+                <span class="db-val" id="bp-val">${derived.BP + (state.bpAdjust || 0)}</span>
+                <button class="stat-btn" onclick="adjustBP(1)" title="Increase BP" aria-label="Increase BP">+</button>
+              </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="99 − Unnatural skill">
               <span class="db-name">Max SAN</span><span class="db-val">${derived ? derived.MaxSAN : '—'}</span>
@@ -1541,6 +1599,7 @@ function buildCharSheetHtml() {
                 <input type="checkbox" class="san-checkbox" ${state.violenceChecked[1] ? 'checked' : ''} onchange="toggleViolenceCheck(1)">
                 <input type="checkbox" class="san-checkbox" ${state.violenceChecked[2] ? 'checked' : ''} onchange="toggleViolenceCheck(2)">
               </span>
+              ${state.violenceChecked.every(b => b) ? `<span class="adapted-badge">Adapted</span>` : ''}
             </div>
             <div class="san-incident-row">
               <span class="san-incident-label">Helplessness</span>
@@ -1549,6 +1608,7 @@ function buildCharSheetHtml() {
                 <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[1] ? 'checked' : ''} onchange="toggleHelplessnessCheck(1)">
                 <input type="checkbox" class="san-checkbox" ${state.helplessnessChecked[2] ? 'checked' : ''} onchange="toggleHelplessnessCheck(2)">
               </span>
+              ${state.helplessnessChecked.every(b => b) ? `<span class="adapted-badge">Adapted</span>` : ''}
             </div>
           </div>
         </div>
@@ -1591,20 +1651,45 @@ function buildCharSheetHtml() {
     </div>
 
     <div class="sheet-section">
+      <div class="sheet-section-title">Disorders / Conditions</div>
+      <div class="disorders-list" id="disorders-list">
+        ${state.disorders.length === 0
+          ? `<span style="font-size:0.78rem;color:var(--text-secondary);font-style:italic;">No active disorders.</span>`
+          : state.disorders.map(d => `
+            <div class="disorder-row" id="disorder-row-${d.id}">
+              <input type="text" class="disorder-input" value="${escapeHtml(d.text)}"
+                     placeholder="Describe the disorder or condition…"
+                     oninput="updateDisorderText(${d.id},this.value)"
+                     aria-label="Disorder description" />
+              <button class="remove-custom-skill-btn" onclick="removeDisorder(${d.id})" title="Remove disorder" aria-label="Remove disorder">×</button>
+            </div>`).join('')
+        }
+      </div>
+      <button class="add-custom-skill-btn" onclick="addDisorder()" style="margin-top:0.5rem;">+ Add Disorder</button>
+    </div>
+
+    <div class="sheet-section">
       <div class="sheet-section-title">Bonds</div>
       <div class="bonds-sheet-list">
         ${state.bonds.map((b, origIdx) => {
           if (!b.name || !b.name.trim()) return '';
-          const val = getBondEffectiveValue(b);
+          const playScore = getBondPlayScore(b);
+          const baseScore = getBondEffectiveValue(b);
           const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
+          const isDamaged = playScore !== null && baseScore !== null && playScore < baseScore;
           return `<div class="bond-sheet-row">
             <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
             <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
-            <span class="bond-sheet-val">${val !== null ? val : '—'}</span>
+            <span class="bond-score-group">
+              <button class="stat-btn stat-btn-compact" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>
+              <span class="bond-sheet-val${isDamaged ? ' bond-damaged' : ''}" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
+              <button class="stat-btn stat-btn-compact" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>
+            </span>
           </div>`;
         }).join('')}
       </div>
     </div>
+
 
     <div class="sheet-3col-row">
       <div class="sheet-section">
@@ -1654,6 +1739,13 @@ function renderStep6() {
                  placeholder="How do you identify?"
                  value="${escapeHtml(state.identity.gender)}"
                  oninput="updateIdentity('gender',this.value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nationality / Birthplace</label>
+          <input class="form-input" type="text" id="char-nationality"
+                 placeholder="Where are you from?"
+                 value="${escapeHtml(state.identity.nationality)}"
+                 oninput="updateIdentity('nationality',this.value)" />
         </div>
       </div>
       <div>
@@ -1733,6 +1825,9 @@ function updateIdentity(field, value) {
     } else if (field === 'gender') {
       const genderEl = document.getElementById('sheet-gender');
       if (genderEl) genderEl.textContent = value.trim() ? value : '—';
+    } else if (field === 'nationality') {
+      const natEl = document.getElementById('sheet-nationality');
+      if (natEl) natEl.textContent = value.trim() ? value : '—';
     } else if (field === 'backstory') {
       const backstoryEl = document.getElementById('sheet-backstory');
       if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
@@ -1750,10 +1845,14 @@ function toggleSkillCheck(skillName) {
 
 function toggleViolenceCheck(idx) {
   state.violenceChecked[idx] = !state.violenceChecked[idx];
+  // Re-render to show/hide the Adapted badge
+  render();
 }
 
 function toggleHelplessnessCheck(idx) {
   state.helplessnessChecked[idx] = !state.helplessnessChecked[idx];
+  // Re-render to show/hide the Adapted badge
+  render();
 }
 
 // ── HP / WP / SAN Adjustment ────────────────────────────────
@@ -2011,10 +2110,12 @@ function resetState() {
   state.resourcesBonusSpent = 0;
   state.resourceChecked  = [];
   state.skillChecked     = {};
-  state.identity         = { name: '', profession: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
+  state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
+  state.bpAdjust         = 0;
+  state.disorders        = [];
 }
 
 // ── RENDER: Play Mode ────────────────────────────────────────
