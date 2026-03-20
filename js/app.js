@@ -1536,7 +1536,7 @@ function buildCharSheetHtml() {
     <div class="sheet-header">
       <div>
         <div class="sheet-name">${escapeHtml(state.identity.name)}</div>
-        <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:3px;display:flex;gap:1.5rem;flex-wrap:wrap;">
+        <div class="sheet-meta" style="margin-top:3px;">
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
           <span>Nationality <strong id="sheet-nationality">${state.identity.nationality ? escapeHtml(state.identity.nationality) : '—'}</strong></span>
