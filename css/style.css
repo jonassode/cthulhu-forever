@@ -836,9 +836,9 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--accent-gold);
 }
 .bond-type-btn.active-community {
-  background: rgba(30,77,43,0.25);
-  border-color: var(--accent-greenl);
-  color: #7effa0;
+  background: rgba(154,141,114,0.12);
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
 }
 
 /* Bond row wrapper */
@@ -879,9 +879,9 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--accent-gold);
 }
 .bond-type-badge.bond-type-community {
-  background: rgba(30,77,43,0.25);
-  border: 1px solid rgba(45,107,60,0.5);
-  color: #7effa0;
+  background: rgba(154,141,114,0.12);
+  border: 1px solid rgba(154,141,114,0.35);
+  color: var(--text-secondary);
 }
 .bond-sheet-name {
   flex: 1;
@@ -1629,7 +1629,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .skill-row-sheet .sr-name { color: #333 !important; }
   .bond-sheet-row { border-bottom: 1px solid #ddd !important; }
   .bond-type-badge.bond-type-individual { background: #fdf6e3 !important; border-color: #c8a84c !important; color: #7a6020 !important; }
-  .bond-type-badge.bond-type-community { background: #eaf5ee !important; border-color: #4a9060 !important; color: #2a6040 !important; }
+  .bond-type-badge.bond-type-community { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
   .bond-sheet-name { color: #222 !important; }
   .bond-sheet-val { color: #4a3728 !important; }
   .sheet-backstory { color: #444 !important; }
@@ -1712,9 +1712,9 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   font-family: var(--font-head);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: rgba(30,77,43,0.3);
-  border: 1px solid rgba(45,107,60,0.6);
-  color: #7effa0;
+  background: rgba(154,141,114,0.12);
+  border: 1px solid rgba(154,141,114,0.35);
+  color: var(--text-secondary);
   border-radius: 10px;
   padding: 1px 8px;
   margin-left: 0.35rem;
@@ -1771,7 +1771,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 
 /* ── Print overrides for new elements ── */
 @media print {
-  .adapted-badge { background: #eaf5ee !important; border-color: #4a9060 !important; color: #2a6040 !important; }
+  .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
   .bond-sheet-val.bond-damaged { color: #a33030 !important; }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
