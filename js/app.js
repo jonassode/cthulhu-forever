@@ -40,7 +40,6 @@ const state = {
   currentWP:  null, // current WP (null = use derived max)
   currentSAN: null, // current SAN (null = use derived value)
 
-  currentUnnatural: null, // in-play Unnatural skill value (null = use creation value of 0)
   bpAdjust: 0,            // manual offset applied to the calculated Breaking Point during play
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
@@ -154,13 +153,6 @@ function assignedRollIds() {
   return new Set(Object.values(state.attrAssign).filter(v => v !== null && v !== undefined));
 }
 
-function getCurrentUnnaturalValue() {
-  if (state.currentUnnatural !== null && state.currentUnnatural !== undefined) {
-    return state.currentUnnatural;
-  }
-  return getFinalSkillValue('Unnatural');
-}
-
 function calculateDerived() {
   const v = getAttrValues();
   if (!v.STR || !v.CON || !v.POW) return null;
@@ -173,7 +165,7 @@ function calculateDerived() {
   else if (v.STR <= 12) DMG =  0;
   else if (v.STR <= 16) DMG = +1;
   else                  DMG = +2;
-  const unnaturalValue = getCurrentUnnaturalValue();
+  const unnaturalValue = getFinalSkillValue('Unnatural');
   return {
     HP:          Math.ceil((v.STR + v.CON) / 2),
     WP:          v.POW,
@@ -343,14 +335,6 @@ function adjustBondPlayScore(idx, delta) {
   const current = getBondPlayScore(bond);
   if (current === null) return;
   bond.currentScore = Math.max(0, current + delta);
-  render();
-}
-
-// Adjusts the in-play Unnatural skill value (clamped 0–99) and triggers a full re-render
-// since Max SAN depends on this value.
-function adjustUnnatural(delta) {
-  const current = getCurrentUnnaturalValue();
-  state.currentUnnatural = Math.max(0, Math.min(99, current + delta));
   render();
 }
 
@@ -1486,8 +1470,7 @@ function buildCharSheetHtml() {
       .map(s => {
         const base    = skills[s];
         const archBon = getArchetypeSkillBonus(s);
-        // For Unnatural, use in-play value so Max SAN and the skill row stay in sync
-        const final   = s === 'Unnatural' ? getCurrentUnnaturalValue() : getFinalSkillValue(s);
+        const final   = getFinalSkillValue(s);
         return { name: s, displayName: getSkillDisplayName(s), base, archBon, final, boosted: archBon > 0 };
       })
       .filter(s => state.showAllSkills || s.final > 0 || s.name === 'Unnatural'),
@@ -1658,21 +1641,12 @@ function buildCharSheetHtml() {
     <div class="sheet-section">
       <div class="sheet-section-title">Skills</div>
       <div class="skills-grid-sheet">
-        ${skillsForSheet.map(s => {
-          const isUnnatural = s.name === 'Unnatural';
-          return `
+        ${skillsForSheet.map(s => `
           <div class="skill-row-sheet">
             <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.displayName}</span>
             <span class="sr-val">${s.final}%</span>
-            ${isUnnatural
-              ? `<span class="unnatural-adj" style="display:inline-flex;align-items:center;gap:2px;">
-                   <button class="stat-btn stat-btn-compact" onclick="adjustUnnatural(-1)" title="Decrease Unnatural" aria-label="Decrease Unnatural">−</button>
-                   <button class="stat-btn stat-btn-compact" onclick="adjustUnnatural(1)" title="Increase Unnatural" aria-label="Increase Unnatural">+</button>
-                 </span>`
-              : `<input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)">`
-            }
-          </div>`;
-        }).join('')}
+            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)" ${s.name === 'Unnatural' ? 'style="visibility:hidden" aria-hidden="true" disabled' : ''}>
+          </div>`).join('')}
       </div>
     </div>
 
@@ -2140,7 +2114,6 @@ function resetState() {
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
-  state.currentUnnatural = null;
   state.bpAdjust         = 0;
   state.disorders        = [];
 }

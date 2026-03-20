@@ -56,7 +56,7 @@ Each task below corresponds to a gap identified in Sections A or B. Tasks are nu
 ---
 
 ### Task 2 — Add In-Play Unnatural Skill Tracking
-- [x] **Status:** Implemented
+- [ ] **Status:** Removed — Unnatural skill manipulation is intentionally not supported
 
 **What to change:**
 - Add `currentUnnatural: null` to `state` (`null` = use the creation value of 0).
