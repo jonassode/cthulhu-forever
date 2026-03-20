@@ -35,6 +35,10 @@ const state = {
   violenceChecked: [false, false, false],     // 3 checkboxes for Violence SAN incidents
   helplessnessChecked: [false, false, false], // 3 checkboxes for Helplessness SAN incidents
 
+  currentHP:  null, // current HP (null = use derived max)
+  currentWP:  null, // current WP (null = use derived max)
+  currentSAN: null, // current SAN (null = use derived value)
+
   identity: {
     name: '',
     profession: '',
@@ -158,6 +162,29 @@ function calculateDerived() {
     MaxSAN:      99 - unnaturalValue,
     RecoverySAN: v.POW * 5,
   };
+}
+
+// ── Effective HP / WP / SAN (current tracking) ─────────────
+
+function getEffectiveHP() {
+  const d = calculateDerived();
+  if (!d) return null;
+  if (state.currentHP === null) return d.HP;
+  return Math.max(0, Math.min(state.currentHP, d.HP));
+}
+
+function getEffectiveWP() {
+  const d = calculateDerived();
+  if (!d) return null;
+  if (state.currentWP === null) return d.WP;
+  return Math.max(0, Math.min(state.currentWP, d.WP));
+}
+
+function getEffectiveSAN() {
+  const d = calculateDerived();
+  if (!d) return null;
+  if (state.currentSAN === null) return d.SAN;
+  return Math.max(0, Math.min(state.currentSAN, d.MaxSAN));
 }
 
 const DISTINGUISHING_FEATURES = {
@@ -1460,10 +1487,24 @@ function renderStep6() {
         <div class="derived-stats-col">
           <div class="derived-row">
             <div class="derived-box" data-tooltip="⌈(STR + CON) ÷ 2⌉">
-              <span class="db-name">HP</span><span class="db-val">${derived ? derived.HP : '—'}</span>
+              <span class="db-name">HP</span>
+              ${derived ? `<div class="db-val-group">
+                <button class="stat-btn" onclick="adjustHP(-1)" title="Decrease HP" aria-label="Decrease HP">−</button>
+                <span class="db-current-val" id="hp-current-val" ondblclick="startEditStat('HP')" title="Double-click to edit">${getEffectiveHP()}</span>
+                <span class="db-separator">/</span>
+                <span class="db-max-val">${derived.HP}</span>
+                <button class="stat-btn" onclick="adjustHP(1)" title="Increase HP" aria-label="Increase HP">+</button>
+              </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="Equal to POW">
-              <span class="db-name">WP</span><span class="db-val">${derived ? derived.WP : '—'}</span>
+              <span class="db-name">WP</span>
+              ${derived ? `<div class="db-val-group">
+                <button class="stat-btn" onclick="adjustWP(-1)" title="Decrease WP" aria-label="Decrease WP">−</button>
+                <span class="db-current-val" id="wp-current-val" ondblclick="startEditStat('WP')" title="Double-click to edit">${getEffectiveWP()}</span>
+                <span class="db-separator">/</span>
+                <span class="db-max-val">${derived.WP}</span>
+                <button class="stat-btn" onclick="adjustWP(1)" title="Increase WP" aria-label="Increase WP">+</button>
+              </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
               <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
@@ -1473,7 +1514,12 @@ function renderStep6() {
         <div class="derived-stats-col">
           <div class="derived-row">
             <div class="derived-box" data-tooltip="${(state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4 (Harsh/Very Harsh upbringing)' : 'POW × 5 (Normal upbringing)'}">
-              <span class="db-name">SAN</span><span class="db-val">${derived ? derived.SAN : '—'}</span>
+              <span class="db-name">SAN</span>
+              ${derived ? `<div class="db-val-group">
+                <button class="stat-btn" onclick="adjustSAN(-1)" title="Decrease SAN" aria-label="Decrease SAN">−</button>
+                <span class="db-current-val" id="san-current-val" ondblclick="startEditStat('SAN')" title="Double-click to edit">${getEffectiveSAN()}</span>
+                <button class="stat-btn" onclick="adjustSAN(1)" title="Increase SAN" aria-label="Increase SAN">+</button>
+              </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="Breaking Point = SAN − POW">
               <span class="db-name">BP</span><span class="db-val">${derived ? derived.BP : '—'}</span>
@@ -1700,6 +1746,107 @@ function toggleHelplessnessCheck(idx) {
   state.helplessnessChecked[idx] = !state.helplessnessChecked[idx];
 }
 
+// ── HP / WP / SAN Adjustment ────────────────────────────────
+
+function adjustHP(delta) {
+  const d = calculateDerived();
+  if (!d) return;
+  state.currentHP = Math.max(0, Math.min(getEffectiveHP() + delta, d.HP));
+  const el = document.getElementById('hp-current-val');
+  if (el) el.textContent = state.currentHP;
+}
+
+function adjustWP(delta) {
+  const d = calculateDerived();
+  if (!d) return;
+  state.currentWP = Math.max(0, Math.min(getEffectiveWP() + delta, d.WP));
+  const el = document.getElementById('wp-current-val');
+  if (el) el.textContent = state.currentWP;
+}
+
+function adjustSAN(delta) {
+  const d = calculateDerived();
+  if (!d) return;
+  state.currentSAN = Math.max(0, Math.min(getEffectiveSAN() + delta, d.MaxSAN));
+  const el = document.getElementById('san-current-val');
+  if (el) el.textContent = state.currentSAN;
+}
+
+// ── Inline stat editing (double-click) ──────────────────────
+
+function makeStatSpan(elemId, statKey, value) {
+  const span = document.createElement('span');
+  span.className = 'db-current-val';
+  span.id = elemId;
+  span.textContent = value;
+  span.title = 'Double-click to edit';
+  span.addEventListener('dblclick', () => startEditStat(statKey));
+  return span;
+}
+
+function startEditStat(statKey) {
+  const idMap = { HP: 'hp-current-val', WP: 'wp-current-val', SAN: 'san-current-val' };
+  const elemId = idMap[statKey];
+  const span = document.getElementById(elemId);
+  if (!span || span.tagName === 'INPUT') return;
+
+  const current = parseInt(span.textContent, 10);
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.value = current;
+  input.min = '0';
+  input.className = 'db-edit-input';
+
+  let finished = false;
+
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    finishEditStat(statKey, elemId, input);
+  };
+
+  const cancel = () => {
+    if (finished) return;
+    finished = true;
+    const restored = makeStatSpan(elemId, statKey, current);
+    input.replaceWith(restored);
+  };
+
+  input.addEventListener('blur', finish);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+}
+
+function finishEditStat(statKey, elemId, input) {
+  const d = calculateDerived();
+  let newVal;
+  if (d) {
+    const parsed = parseInt(input.value, 10);
+    const safeVal = isNaN(parsed) ? 0 : parsed;
+    if (statKey === 'HP') {
+      newVal = Math.max(0, Math.min(safeVal, d.HP));
+      state.currentHP = newVal;
+    } else if (statKey === 'WP') {
+      newVal = Math.max(0, Math.min(safeVal, d.WP));
+      state.currentWP = newVal;
+    } else if (statKey === 'SAN') {
+      newVal = Math.max(0, Math.min(safeVal, d.MaxSAN));
+      state.currentSAN = newVal;
+    }
+  } else {
+    newVal = parseInt(input.value, 10) || 0;
+  }
+
+  const span = makeStatSpan(elemId, statKey, newVal);
+  input.replaceWith(span);
+}
+
 function toggleShowAllSkills() {
   state.showAllSkills = !state.showAllSkills;
   render();
@@ -1740,6 +1887,9 @@ function resetState() {
   state.resourceChecked  = [];
   state.skillChecked     = {};
   state.identity         = { name: '', profession: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
+  state.currentHP        = null;
+  state.currentWP        = null;
+  state.currentSAN       = null;
 }
 
 // ── RENDER: Nav Buttons ─────────────────────────────────────

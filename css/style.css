@@ -1175,6 +1175,74 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   font-weight: 900;
   color: var(--accent-gold);
 }
+/* ── Interactive stat value group (HP / WP / SAN) ── */
+.db-val-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.db-current-val {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  cursor: pointer;
+  min-width: 1.2em;
+  text-align: center;
+}
+.db-current-val:hover {
+  text-decoration: underline dotted;
+}
+.db-separator {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-family: var(--font-head);
+  padding: 0 1px;
+}
+.db-max-val {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.stat-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.stat-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(201,168,76,0.12);
+}
+.db-edit-input {
+  width: 3.2em;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+  padding: 0;
+}
+.db-edit-input::-webkit-inner-spin-button,
+.db-edit-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.db-edit-input[type=number] { -moz-appearance: textfield; }
 .resource-checkbox {
   appearance: none;
   -webkit-appearance: none;
