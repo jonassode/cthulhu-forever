@@ -2024,22 +2024,10 @@ function renderPlayMode() {
   return `
   <div class="play-mode-view">
     <div class="play-mode-bar no-print">
-      <div class="play-mode-title">
-        <span class="play-mode-heading">Cthulhu Eternal</span>
-        <span class="play-mode-label">Play Mode</span>
-      </div>
-      <div class="play-mode-actions">
-        <button class="btn btn-gold" onclick="window.print()">
-          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24">
-            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
-          </svg>
-          Print
-        </button>
-        <button class="btn btn-outline" onclick="exitPlayMode()">
-          ← Back to Builder
-        </button>
-      </div>
+      <span class="play-mode-heading">Cthulhu Eternal</span>
+      <button class="btn btn-outline" onclick="exitPlayMode()">
+        ← Back to Builder
+      </button>
     </div>
     <div class="play-mode-sheet">
       ${charSheetHtml}

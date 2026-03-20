@@ -1685,17 +1685,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   padding: 0.75rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-primary);
-  position: sticky;
-  top: 0;
-  z-index: 100;
   gap: 1rem;
   flex-wrap: wrap;
-}
-
-.play-mode-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
 }
 
 .play-mode-heading {
@@ -1706,20 +1697,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   text-transform: uppercase;
   color: var(--accent-gold);
   text-shadow: 0 0 16px rgba(201,168,76,0.3);
-}
-
-.play-mode-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.play-mode-actions {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  align-items: center;
 }
 
 .play-mode-sheet {
