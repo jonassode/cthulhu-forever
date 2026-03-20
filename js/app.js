@@ -1584,7 +1584,7 @@ function renderStep6() {
           <div class="skill-row-sheet">
             <span class="sr-name ${s.boosted ? 'boosted' : ''}">${s.displayName}</span>
             <span class="sr-val">${s.final}%</span>
-            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)">
+            <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)" ${s.name === 'Unnatural' ? 'style="visibility:hidden" aria-hidden="true" disabled' : ''}>
           </div>`).join('')}
       </div>
     </div>
