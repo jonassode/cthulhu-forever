@@ -388,6 +388,35 @@ function adjustSkillInEditMode(skillName, delta) {
   render();
 }
 
+// Adjusts a custom skill value in edit mode (no bonus-pick restriction).
+function adjustCustomSkillInEditMode(id, delta) {
+  const cs = state.customSkills.find(s => s.id === id);
+  if (!cs) return;
+  const key = `custom_${id}`;
+  const base = getFinalCustomSkillValue(cs);
+  const current = state.skillEditAdjust[key] || 0;
+  const newAdj = current + delta;
+  if (base + newAdj < 0) return;
+  if (base + newAdj > 99) return;
+  state.skillEditAdjust[key] = newAdj;
+  render();
+}
+
+// Clones a (Type) skill in edit mode, using the current displayed value as base.
+function cloneSkillInEditMode(skillName) {
+  const base = getDisplayedSkillValue(skillName);
+  state.customSkills.push({
+    id: ++_customSkillIdCounter,
+    isClone: true,
+    baseName: skillName,
+    baseValue: base,
+    type: '',
+    customName: null,
+    points: 0,
+  });
+  render();
+}
+
 // ── Disorders ───────────────────────────────────────────────
 
 function addDisorder() {
@@ -1517,9 +1546,9 @@ function buildCharSheetHtml() {
         const final   = getFinalSkillValue(s);
         return { name: s, displayName: getSkillDisplayName(s), base, archBon, final, boosted: archBon > 0 };
       })
-      .filter(s => state.showAllSkills || s.final > 0 || s.name === 'Unnatural'),
+      .filter(s => state.showAllSkills || state.editMode || s.final > 0 || s.name === 'Unnatural'),
     ...(state.customSkills || [])
-      .filter(cs => cs.isClone || (cs.customName || '').trim() !== '')
+      .filter(cs => state.editMode || cs.isClone || (cs.customName || '').trim() !== '')
       .map(cs => ({
         name: `custom_${cs.id}`,
         displayName: getCustomSkillDisplayName(cs),
@@ -1528,7 +1557,7 @@ function buildCharSheetHtml() {
         final: getFinalCustomSkillValue(cs),
         boosted: false,
       }))
-      .filter(s => state.showAllSkills || s.final > 0),
+      .filter(s => state.showAllSkills || state.editMode || s.final > 0),
   ].sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   return `
@@ -1695,13 +1724,38 @@ function buildCharSheetHtml() {
       <div class="sheet-section-title">Skills</div>
       <div class="skills-grid-sheet">
         ${skillsForSheet.map(s => {
-          const displayVal = s.name.startsWith('custom_')
-            ? s.final
-            : getDisplayedSkillValue(s.name);
+          const isCustom = s.name.startsWith('custom_');
           const editAdj = state.skillEditAdjust[s.name] || 0;
+          const displayVal = isCustom
+            ? Math.min(99, Math.max(0, s.final + editAdj))
+            : getDisplayedSkillValue(s.name);
           const isUnnatural = s.name === 'Unnatural';
-          if (state.editMode && !isUnnatural) {
+          if (state.editMode) {
             const isTyped = s.name.includes('(Type)');
+            if (isCustom) {
+              const csId = parseInt(s.name.replace('custom_', ''), 10);
+              const cs = state.customSkills.find(c => c.id === csId);
+              if (!cs) return '';
+              return `
+              <div class="skill-row-sheet${cs.isClone ? ' skill-row-sheet-typed' : ''}">
+                ${cs.isClone ? `<div class="sr-name-wrap">
+                  <span class="sr-name">${escapeHtml(s.displayName)}</span>
+                  <div class="skill-type-input-wrap"><input type="text" class="skill-type-input" placeholder="Enter type…"
+                    value="${escapeHtml(cs.type || '')}"
+                    oninput="updateCustomSkillType(${cs.id},this.value)"
+                    aria-label="Specify type for ${escapeHtml(cs.baseName)}" /></div>
+                </div>` : `<input type="text" class="skill-type-input skill-custom-name-input" placeholder="Skill name…"
+                  value="${escapeHtml(cs.customName || '')}"
+                  oninput="updateCustomSkillName(${cs.id},this.value)"
+                  aria-label="Custom skill name" />`}
+                <span class="sr-val">${displayVal}%</span>
+                <div class="skill-edit-controls no-print">
+                  <button class="stat-btn stat-btn-compact" onclick="adjustCustomSkillInEditMode(${cs.id},-1)" title="Decrease" aria-label="Decrease ${escapeHtml(s.displayName)}">−</button>
+                  <button class="stat-btn stat-btn-compact" onclick="adjustCustomSkillInEditMode(${cs.id},1)" title="Increase" aria-label="Increase ${escapeHtml(s.displayName)}">+</button>
+                  <button class="remove-custom-skill-btn no-print" onclick="removeCustomSkill(${cs.id})" title="Remove skill" aria-label="Remove ${escapeHtml(s.displayName)}">×</button>
+                </div>
+              </div>`;
+            }
             return `
             <div class="skill-row-sheet${isTyped ? ' skill-row-sheet-typed' : ''}">
               ${isTyped ? `<div class="sr-name-wrap">
@@ -1715,6 +1769,7 @@ function buildCharSheetHtml() {
               <div class="skill-edit-controls no-print">
                 <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',-1)" title="Decrease ${s.displayName}" aria-label="Decrease ${s.displayName}">−</button>
                 <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',1)" title="Increase ${s.displayName}" aria-label="Increase ${s.displayName}">+</button>
+                ${isTyped ? `<button class="clone-skill-btn no-print" onclick="cloneSkillInEditMode('${escapeHtml(s.name)}')" title="Clone with different specialisation" aria-label="Clone ${escapeHtml(s.displayName)}">⧉</button>` : ''}
               </div>
             </div>`;
           }
@@ -1726,6 +1781,7 @@ function buildCharSheetHtml() {
           </div>`;
         }).join('')}
       </div>
+      ${state.editMode ? `<div class="no-print" style="margin-top:0.6rem;"><button class="add-custom-skill-btn" onclick="addCustomSkill()" title="Add a new custom skill starting at 0%">＋ Add Skill</button></div>` : ''}
     </div>
 
     <div class="sheet-section">
