@@ -729,6 +729,21 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   max-width: 14rem;
   transition: border-color 0.2s;
 }
+.skill-type-input-wrap {
+  margin-top: 4px;
+}
+.skill-row-sheet-typed {
+  align-items: flex-start;
+}
+.skill-row-sheet-typed .sr-name-wrap {
+  flex: 1;
+}
+/* Custom skill name input on the character sheet (edit mode) */
+.skill-custom-name-input {
+  flex: 1;
+  min-width: 5rem;
+  max-width: none;
+}
 .skill-type-input:focus {
   outline: none;
   border-color: var(--accent-gold);
