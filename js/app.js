@@ -402,9 +402,9 @@ function adjustCustomSkillInEditMode(id, delta) {
   render();
 }
 
-// Clones a (Type) skill in edit mode, using the current displayed value as base.
+// Clones a (Type) skill in edit mode, starting from the skill's base value.
 function cloneSkillInEditMode(skillName) {
-  const base = getDisplayedSkillValue(skillName);
+  const base = getCurrentSkills()[skillName] || 0;
   state.customSkills.push({
     id: ++_customSkillIdCounter,
     isClone: true,
