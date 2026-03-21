@@ -2364,10 +2364,89 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// ── Skill Tooltip ───────────────────────────────────────────
+// Uses a JS-positioned `position:fixed` element so it is never clipped by CSS
+// columns, overflow containers, or section headers.
+
+function initSkillTooltip() {
+  const tip = document.createElement('div');
+  tip.className = 'skill-tooltip-popup';
+  tip.style.display = 'none';
+  document.body.appendChild(tip);
+
+  let active = null;
+
+  function show(target, cx, cy) {
+    tip.textContent = target.dataset.tooltip;
+    tip.style.display = 'block';
+    place(cx, cy);
+  }
+
+  function hide() {
+    active = null;
+    tip.style.display = 'none';
+  }
+
+  function place(cx, cy) {
+    // Reset position so offsetWidth/Height are measured correctly
+    tip.style.left = '0';
+    tip.style.top  = '0';
+
+    const GAP = 14; // px gap between cursor and tooltip edge
+    const tw  = tip.offsetWidth;
+    const th  = tip.offsetHeight;
+    const vw  = window.innerWidth;
+    const vh  = window.innerHeight;
+
+    // Prefer: appear to the right of cursor, above it
+    let x = cx + GAP;
+    let y = cy - th - GAP;
+
+    // Flip left if it would overflow right edge
+    if (x + tw > vw - GAP) x = cx - tw - GAP;
+    // Clamp to left edge
+    if (x < GAP) x = GAP;
+
+    // Flip below cursor if it would overflow top
+    if (y < GAP) y = cy + GAP;
+    // Clamp to bottom edge
+    if (y + th > vh - GAP) y = vh - th - GAP;
+
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  }
+
+  document.addEventListener('mouseover', function (e) {
+    const target = e.target.closest('.skill-tip[data-tooltip]');
+    if (target === active) return;
+    if (!target) {
+      active = null;
+      tip.style.display = 'none';
+      return;
+    }
+    active = target;
+    show(target, e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (!active) return;
+    place(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mouseout', function (e) {
+    if (!active) return;
+    // Only hide when leaving the active target entirely
+    if (!e.relatedTarget || !active.contains(e.relatedTarget)) {
+      hide();
+    }
+  });
+}
+
 // ── Init ────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   render();
+  initSkillTooltip();
   document.addEventListener('click', (e) => {
     const settings = document.getElementById('sheet-settings');
     if (settings && !settings.contains(e.target)) {
