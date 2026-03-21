@@ -112,9 +112,10 @@ function getSkillDisplayName(skillName) {
   return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
-// Returns the description for a skill from SKILL_DESCRIPTIONS, or empty string if none.
+// Returns the description for a skill from the current age-specific description map, or empty string if none.
 function getSkillDescription(skillName) {
-  return SKILL_DESCRIPTIONS[skillName] || '';
+  const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS : MODERN_SKILL_DESCRIPTIONS;
+  return descriptions[skillName] || '';
 }
 
 // Returns a data-tooltip attribute string for a skill name element, or '' if no description.

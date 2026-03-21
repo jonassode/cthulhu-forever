@@ -21,3 +21,11 @@ Open `index.html` in a web browser to launch the character generator.
 ## Contribute
 
 **Found a bug our have a feature request? Raise an [Issue](https://github.com/jonassode/cthulhu-forever/issues)**
+
+## Validation
+
+To verify that Jazz Age and Modern Age base skill lists still match the cheat-sheet baselines, run:
+
+```bash
+node scripts/validate-skill-parity.mjs
+```
