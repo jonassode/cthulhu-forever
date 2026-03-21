@@ -112,6 +112,17 @@ function getSkillDisplayName(skillName) {
   return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
+// Returns the description for a skill from SKILL_DESCRIPTIONS, or empty string if none.
+function getSkillDescription(skillName) {
+  return SKILL_DESCRIPTIONS[skillName] || '';
+}
+
+// Returns a data-tooltip attribute string for a skill name element, or '' if no description.
+function skillTooltipAttr(skillName) {
+  const desc = getSkillDescription(skillName);
+  return desc ? ` data-tooltip="${escapeHtml(desc)}"` : '';
+}
+
 // Returns a fresh bond object with default values.
 function createEmptyBond() {
   return { name: '', type: null, bonusSpent: 0, currentScore: null };
@@ -1102,7 +1113,7 @@ function renderStep4() {
     return `<tr>
       <td class="skill-name ${isBonus ? 'bonus-skill' : ''}" style="width:45%">
         <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
-          <span>${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}</span>
+          <span class="skill-tip"${skillTooltipAttr(skillName)}>${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}</span>
           ${isUnnat ? `<span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
           ${isTyped && state.advancedMode ? `<button class="clone-skill-btn" data-skill="${escapeHtml(skillName)}" onclick="cloneSkill(this.dataset.skill)" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
         </div>
@@ -1204,7 +1215,7 @@ function renderStep4() {
             const isTyped = skillName.includes('(Type)');
             return `<tr>
               <td class="skill-name" style="width:45%">
-                ${skillName}
+                <span class="skill-tip"${skillTooltipAttr(skillName)}>${skillName}</span>
                 ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
                   value="${escapeHtml(state.skillTypes[skillName] || '')}"
                   oninput="updateSkillType('${skillName}',this.value)"
@@ -1759,12 +1770,12 @@ function buildCharSheetHtml() {
             return `
             <div class="skill-row-sheet${isTyped ? ' skill-row-sheet-typed' : ''}">
               ${isTyped ? `<div class="sr-name-wrap">
-                <span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>
+                <span class="sr-name skill-tip ${s.boosted || editAdj > 0 ? 'boosted' : ''}"${skillTooltipAttr(s.name)}>${s.displayName}</span>
                 <div class="skill-type-input-wrap"><input type="text" class="skill-type-input" placeholder="Enter type…"
                   value="${escapeHtml(state.skillTypes[s.name] || '')}"
                   oninput="updateSkillType('${escapeHtml(s.name)}',this.value)"
                   aria-label="Specify type for ${escapeHtml(s.displayName)}" /></div>
-              </div>` : `<span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>`}
+              </div>` : `<span class="sr-name skill-tip ${s.boosted || editAdj > 0 ? 'boosted' : ''}"${skillTooltipAttr(s.name)}>${s.displayName}</span>`}
               <span class="sr-val">${displayVal}%</span>
               <div class="skill-edit-controls no-print">
                 <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',-1)" title="Decrease ${s.displayName}" aria-label="Decrease ${s.displayName}">−</button>
@@ -1774,7 +1785,7 @@ function buildCharSheetHtml() {
           }
           return `
           <div class="skill-row-sheet">
-            <span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>
+            <span class="sr-name skill-tip ${s.boosted || editAdj > 0 ? 'boosted' : ''}"${skillTooltipAttr(s.name)}>${s.displayName}</span>
             <span class="sr-val">${displayVal}%</span>
             <input type="checkbox" class="skill-sheet-cb" data-skill="${escapeHtml(s.name)}" ${state.skillChecked[s.name] ? 'checked' : ''} onchange="toggleSkillCheck(this.dataset.skill)" ${isUnnatural ? 'style="visibility:hidden" aria-hidden="true" disabled' : ''}>
           </div>`;
@@ -2353,10 +2364,89 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// ── Skill Tooltip ───────────────────────────────────────────
+// Uses a JS-positioned `position:fixed` element so it is never clipped by CSS
+// columns, overflow containers, or section headers.
+
+function initSkillTooltip() {
+  const tip = document.createElement('div');
+  tip.className = 'skill-tooltip-popup';
+  tip.style.display = 'none';
+  document.body.appendChild(tip);
+
+  let active = null;
+
+  function show(target, cx, cy) {
+    tip.textContent = target.dataset.tooltip;
+    tip.style.display = 'block';
+    place(cx, cy);
+  }
+
+  function hide() {
+    active = null;
+    tip.style.display = 'none';
+  }
+
+  function place(cx, cy) {
+    // Reset position so offsetWidth/Height are measured correctly
+    tip.style.left = '0';
+    tip.style.top  = '0';
+
+    const GAP = 14; // px gap between cursor and tooltip edge
+    const tw  = tip.offsetWidth;
+    const th  = tip.offsetHeight;
+    const vw  = window.innerWidth;
+    const vh  = window.innerHeight;
+
+    // Prefer: appear to the right of cursor, above it
+    let x = cx + GAP;
+    let y = cy - th - GAP;
+
+    // Flip left if it would overflow right edge
+    if (x + tw > vw - GAP) x = cx - tw - GAP;
+    // Clamp to left edge
+    if (x < GAP) x = GAP;
+
+    // Flip below cursor if it would overflow top
+    if (y < GAP) y = cy + GAP;
+    // Clamp to bottom edge
+    if (y + th > vh - GAP) y = vh - th - GAP;
+
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  }
+
+  document.addEventListener('mouseover', function (e) {
+    const target = e.target.closest('.skill-tip[data-tooltip]');
+    if (target === active) return;
+    if (!target) {
+      active = null;
+      tip.style.display = 'none';
+      return;
+    }
+    active = target;
+    show(target, e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (!active) return;
+    place(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mouseout', function (e) {
+    if (!active) return;
+    // Only hide when leaving the active target entirely
+    if (!e.relatedTarget || !active.contains(e.relatedTarget)) {
+      hide();
+    }
+  });
+}
+
 // ── Init ────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   render();
+  initSkillTooltip();
   document.addEventListener('click', (e) => {
     const settings = document.getElementById('sheet-settings');
     if (settings && !settings.contains(e.target)) {

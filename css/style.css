@@ -1623,6 +1623,26 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 }
 [data-tooltip]:hover::after { opacity: 1; }
 
+/* Skill descriptions use a JS-positioned fixed tooltip — suppress the CSS one */
+.skill-tip[data-tooltip]::after { display: none !important; }
+
+/* JS-controlled floating tooltip for skill descriptions */
+.skill-tooltip-popup {
+  position: fixed;
+  z-index: 9999;
+  background: #0a0e14;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  max-width: 280px;
+  line-height: 1.5;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .archetype-grid { grid-template-columns: repeat(2, 1fr); }

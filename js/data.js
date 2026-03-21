@@ -109,6 +109,60 @@ const MODERN_SKILLS = {
   'Unnatural':                 0,
 };
 
+// ── Skill Descriptions ──────────────────────────────────────
+// Shared descriptions (Jazz Age & Modern Age). Keys match the skill names in
+// JAZZ_SKILLS / MODERN_SKILLS exactly (including "(Type)" placeholders).
+
+const SKILL_DESCRIPTIONS = {
+  'Administration':           'Manage bureaucratic systems, navigate red tape, understand organizational structures, and handle paperwork. Useful for accessing official records or running an organization.',
+  'Alertness':                'Notice things happening around you — sounds, smells, movement, and other environmental cues — without actively searching. Your passive awareness of your surroundings.',
+  'Anthropology':             'Study human cultures, customs, and social structures across time and geography. Helps interpret rituals, taboos, and cultural artifacts.',
+  'Appraise':                 'Estimate the value, authenticity, and quality of objects such as antiques, art, jewelry, or contraband. Also useful for spotting forgeries.',
+  'Archeology':               'Excavate, analyze, and interpret physical remains of past cultures. Identify artifacts, date ruins, and understand ancient sites.',
+  'Art (Type)':               'Create, perform, or critically evaluate a specific art form (e.g., Painting, Music, Writing). Higher skill means finer technique and deeper appreciation.',
+  'Athletics':                'Perform feats of physical exertion — running, jumping, climbing, and throwing. Your general physical coordination and fitness.',
+  'Charm':                    'Win people over through warmth, wit, flattery, or personal magnetism. Use to make a good first impression, seduce, or put someone at ease.',
+  'Craft (Type)':             'Build, repair, or create physical objects using a specific trade skill (e.g., Carpentry, Mechanics, Electronics). Reflects hands-on technical knowledge.',
+  'Disguise':                 'Alter your appearance — clothing, makeup, mannerisms — to pass as someone else or avoid recognition.',
+  'Dodge':                    'React quickly to avoid physical harm — ducking, weaving, rolling out of the way of attacks or environmental hazards.',
+  'Drive':                    'Operate wheeled vehicles under normal or difficult conditions. High skill covers high-speed pursuits, off-road driving, and vehicle control in emergencies.',
+  'Firearms':                 'Aim and fire ranged weapons including handguns, rifles, and shotguns. Covers both shooting accuracy and safe weapon handling.',
+  'First Aid':                'Treat injuries in the field: stop bleeding, stabilize the wounded, and prevent death in the short term. Does not replace Medicine for complex treatment.',
+  'Foreign Language (Type)':  'Read, write, and speak a language other than your native tongue (e.g., French, Mandarin, Arabic). Skill level reflects fluency.',
+  'Forensics':                'Examine crime scenes and physical evidence to reconstruct events. Includes analyzing wounds, collecting trace evidence, and reading autopsy reports.',
+  'Harangue':                 'Persuade or intimidate a group through forceful public speaking — rallying a crowd, delivering a rousing speech, or browbeating an audience.',
+  'Heavy Machinery':          'Operate and maintain large industrial or construction equipment such as cranes, bulldozers, and forklifts.',
+  'History':                  'Recall or research events of the past — dates, figures, causes, and cultural context. Also helps interpret historical documents and artifacts.',
+  'Insight':                  'Read people: detect lies, sense emotional states, and intuit hidden motives. Your ability to understand what others are really thinking.',
+  'Law (Type)':               'Understand the legal system in a specific jurisdiction (e.g., US Federal, English Common Law). Navigate legal proceedings, draft documents, and spot illegal activity.',
+  'Medicine':                 'Diagnose and treat illness, injury, and disease with professional medical knowledge. Covers surgical preparation, prescribing treatment, and long-term care.',
+  'Melee Weapons':            'Fight effectively with hand-held weapons — knives, clubs, swords, and improvised tools — in close combat.',
+  'Military Training (Type)': 'Apply specialist knowledge from military service — tactics, weapons drills, fieldcraft, and unit discipline. Specify a branch or specialization (e.g., Infantry, Artillery).',
+  'Natural World':            'Identify plants, animals, and natural phenomena; understand ecosystems and wilderness environments. Useful for survival, tracking, and interpreting nature.',
+  'Navigate':                 'Find your way using maps, compasses, stars, or landmarks. Covers route planning and orientation in both urban and wilderness settings.',
+  'Occult':                   'Know the history, symbolism, and lore of the occult — magic traditions, secret societies, and esoteric texts. Does not grant actual supernatural power.',
+  'Persuade':                 'Convince someone through reasoned argument, logical appeal, or well-placed negotiation. Less forceful than Harangue; more reasoned than Charm.',
+  'Pharmacy':                 'Compound, identify, and safely dispense drugs and pharmaceuticals. Includes recognizing toxic substances and understanding drug interactions.',
+  'Pilot (Type)':             'Fly or navigate a specific type of vessel or aircraft (e.g., Propeller Plane, Motorboat, Sailing Vessel) under normal or emergency conditions.',
+  'Psychoanalyze':            'Apply psychoanalytic technique to help others process trauma and mental illness. Also useful for understanding psychological disorders and motivations.',
+  'Regional Lore (Type)':     'Deep knowledge of a specific region — its geography, history, factions, notable figures, and hidden secrets (e.g., New England, Arkham, the Congo).',
+  'Research':                 'Find information through libraries, archives, and reference sources. Covers literature searches, following citation trails, and working with historical records.',
+  'Ride':                     'Control and care for riding animals — primarily horses — including mounting, steering, and managing difficult terrain or startled mounts.',
+  'Science (Type)':           'Apply rigorous scientific methodology and specialized knowledge in a discipline (e.g., Biology, Chemistry, Physics, Astronomy) to analyze phenomena and draw conclusions.',
+  'Search':                   'Actively look for hidden or concealed things — secret doors, hidden objects, subtle clues at a crime scene — through careful examination.',
+  'Social Etiquette':         'Navigate formal and high-society social situations with grace: correct forms of address, appropriate behavior, and unspoken rules of polite company.',
+  'Stealth':                  'Move quietly, stay hidden, and avoid detection. Covers sneaking, shadowing a target, and remaining unseen in a crowd or at night.',
+  'Streetwise (Type)':        'Navigate the criminal underworld or street-level culture of a specific city or region — where to buy contraband, who the players are, and how to avoid trouble.',
+  'Surgery':                  'Perform invasive medical procedures to repair internal injuries, remove foreign objects, or treat conditions requiring an operation. Requires tools and a sterile environment.',
+  'Survival (Type)':          'Endure and navigate hostile environments of a specific type (e.g., Arctic, Desert, Jungle) — finding food and water, building shelter, and avoiding natural hazards.',
+  'Swim':                     'Move through water and stay afloat in difficult conditions such as rough seas, strong currents, or while encumbered.',
+  'Technology Use':           'Operate, troubleshoot, and make effective use of modern technology — computers, communications equipment, and electronic devices.',
+  'Track':                    'Follow the physical traces left by people or animals — footprints, disturbed vegetation, scent trails — across varied terrain.',
+  'Unarmed Combat':           'Fight effectively with fists, feet, grappling, or improvised holds. Covers boxing, wrestling, and brawling in close quarters.',
+  'Unnatural':                'Awareness of and exposure to forces beyond human understanding. This skill cannot be improved voluntarily — it only rises through encounters with the Unnatural.',
+  'Use Gadgets':              'Operate unfamiliar mechanical or electrical devices, improvise tools from available components, and jury-rig solutions in the field.',
+};
+
 // ── Archetypes ───────────────────────────────────────────────
 
 const ARCHETYPES = [
