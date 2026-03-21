@@ -1701,9 +1701,16 @@ function buildCharSheetHtml() {
           const editAdj = state.skillEditAdjust[s.name] || 0;
           const isUnnatural = s.name === 'Unnatural';
           if (state.editMode && !isUnnatural) {
+            const isTyped = s.name.includes('(Type)');
             return `
-            <div class="skill-row-sheet">
-              <span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>
+            <div class="skill-row-sheet${isTyped ? ' skill-row-sheet-typed' : ''}">
+              ${isTyped ? `<div class="sr-name-wrap">
+                <span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>
+                <div class="skill-type-input-wrap"><input type="text" class="skill-type-input" placeholder="Enter type…"
+                  value="${escapeHtml(state.skillTypes[s.name] || '')}"
+                  oninput="updateSkillType('${escapeHtml(s.name)}',this.value)"
+                  aria-label="Specify type for ${escapeHtml(s.displayName)}" /></div>
+              </div>` : `<span class="sr-name ${s.boosted || editAdj > 0 ? 'boosted' : ''}">${s.displayName}</span>`}
               <span class="sr-val">${displayVal}%</span>
               <div class="skill-edit-controls no-print">
                 <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',-1)" title="Decrease ${s.displayName}" aria-label="Decrease ${s.displayName}">−</button>
