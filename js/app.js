@@ -1769,7 +1769,6 @@ function buildCharSheetHtml() {
               <div class="skill-edit-controls no-print">
                 <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',-1)" title="Decrease ${s.displayName}" aria-label="Decrease ${s.displayName}">−</button>
                 <button class="stat-btn stat-btn-compact" onclick="adjustSkillInEditMode('${escapeHtml(s.name)}',1)" title="Increase ${s.displayName}" aria-label="Increase ${s.displayName}">+</button>
-                ${isTyped ? `<button class="clone-skill-btn no-print" onclick="cloneSkillInEditMode('${escapeHtml(s.name)}')" title="Clone with different specialisation" aria-label="Clone ${escapeHtml(s.displayName)}">⧉</button>` : ''}
               </div>
             </div>`;
           }
