@@ -512,9 +512,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   margin-top: 0;
 }
 .san-incidents-block {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
   padding: 0.6rem 0.75rem;
 }
 .san-incidents-title {
@@ -1665,7 +1662,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
     border: 1px solid #ccc !important;
   }
   .attr-box .ab-val, .derived-box .db-val { color: #222 !important; }
-  .san-incidents-block { background: #f9f9f9 !important; border: 1px solid #ccc !important; }
   .san-incidents-title, .san-incident-label { color: #555 !important; }
   .skill-row-sheet .sr-val { color: #222 !important; }
   .skill-row-sheet .sr-name { color: #333 !important; }
