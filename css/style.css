@@ -1623,6 +1623,12 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 }
 [data-tooltip]:hover::after { opacity: 1; }
 
+/* Wider tooltip variant for skill descriptions */
+.skill-tip[data-tooltip]::after {
+  max-width: 300px;
+  text-align: left;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .archetype-grid { grid-template-columns: repeat(2, 1fr); }
