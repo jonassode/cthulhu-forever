@@ -18,4 +18,4 @@ The content used in this character creator is derived from the **Cthulhu Eternal
 
 You can find Cthulhu Reborn's full catalogue of published titles on DriveThruRPG:
 
-- 🛒 [Cthulhu Reborn on DriveThruRPG](https://www.drivethrurpg.com/browse/pub/10442/Cthulhu-Reborn)
+- 🛒 [Cthulhu Reborn on DriveThruRPG](https://www.drivethrurpg.com/en/publisher/5143/cthulhu-reborn)
