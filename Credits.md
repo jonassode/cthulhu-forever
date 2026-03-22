@@ -12,7 +12,7 @@ The content used in this character creator is derived from the **Cthulhu Eternal
 
 **Cthulhu Eternal** is a horror tabletop RPG system published by **Cthulhu Reborn**. For official rules, supplements, and more, visit the official website:
 
-- 🌐 [cthulhueternal.com](https://cthulhueternal.com/)
+- 🐙 [cthulhueternal.com](https://cthulhueternal.com/)
 
 ## Cthulhu Reborn on DriveThruRPG
 
