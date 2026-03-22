@@ -6,7 +6,7 @@ This character creation tool is an independent, fan-made project and is **not** 
 
 ## Content License
 
-The content used in this character creator is derived from the **Cthulhu Eternal System Reference Document (SRD)**, which is published under the [Open Game License (OGL)](https://www.cthulhueternal.com/open-eternal-license/).
+The content used in this character creator is derived from the **Cthulhu Eternal System Reference Document (SRD)**, which is published under the [Open Game License (OGL)](https://en.wikipedia.org/wiki/Open_Game_License).
 
 ## Cthulhu Eternal
 
