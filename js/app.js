@@ -25,7 +25,7 @@ const state = {
   skillPoints: {},               // skillName -> bonus pts added (from bonus pool)
   skillTypes: {},                // skillName -> user-entered type string (for "(Type)" skills)
   customSkills: [],              // array of {id, baseValue, customName, points}
-  advancedMode: false,           // show/hide custom skill controls
+  advancedMode: false,           // kept for backwards-compat with saved state; no longer used in UI
   showAllSkills: false,          // show all skills including 0% on character sheet
   bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent, currentScore}
   resources: 0,                  // final resources rating
@@ -1289,11 +1289,8 @@ function renderStep4() {
         <tbody>${skillRows}${customSkillRows}</tbody>
       </table>
     </div>
-    <div style="text-align:right;margin-top:0.5rem;display:flex;align-items:center;justify-content:flex-end;gap:0.75rem;">
-      <button class="advanced-mode-toggle-btn" onclick="toggleAdvancedMode()">
-        ${state.advancedMode ? '▲ Hide Advanced' : '▼ Advanced Mode'}
-      </button>
-      ${state.advancedMode ? `<button class="add-custom-skill-btn" onclick="addCustomSkill()" title="Talk to your Keeper before adding custom skills.">+ Add Custom Skill</button>` : ''}
+    <div style="text-align:right;margin-top:0.5rem;">
+      <button class="add-custom-skill-btn skill-tip" data-tooltip="Talk to your Keeper before adding custom skills." onclick="addCustomSkill()">+ Add Custom Skill</button>
     </div>
 
     ${adversityHtml}
@@ -1363,11 +1360,6 @@ function getCustomSkillDisplayName(cs) {
 
 function getFinalCustomSkillValue(cs) {
   return Math.min(80, cs.baseValue + (cs.points || 0) * 20);
-}
-
-function toggleAdvancedMode() {
-  state.advancedMode = !state.advancedMode;
-  render();
 }
 
 function addCustomSkill() {

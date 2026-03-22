@@ -762,21 +762,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 }
 .remove-custom-skill-btn:hover { color: #e05050; border-color: #e05050; }
 
-/* Advanced Mode toggle button */
-.advanced-mode-toggle-btn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  border-radius: 6px;
-  padding: 5px 14px;
-  font-size: 0.78rem;
-  font-family: var(--font-head);
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-.advanced-mode-toggle-btn:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
-
 /* Add Custom Skill button */
 .add-custom-skill-btn {
   background: transparent;
