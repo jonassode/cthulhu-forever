@@ -24,8 +24,8 @@ const state = {
 
   skillPoints: {},               // skillName -> bonus pts added (from bonus pool)
   skillTypes: {},                // skillName -> user-entered type string (for "(Type)" skills)
-  customSkills: [],              // array of {id, isClone, baseName, baseValue, type, customName, points}
-  advancedMode: false,           // show/hide clone & custom skill controls
+  customSkills: [],              // array of {id, baseValue, customName, points}
+  advancedMode: false,           // kept for backwards-compat with saved state; no longer used in UI
   showAllSkills: false,          // show all skills including 0% on character sheet
   bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent, currentScore}
   resources: 0,                  // final resources rating
@@ -411,21 +411,6 @@ function adjustCustomSkillInEditMode(id, delta) {
   if (base + newAdj < 0) return;
   if (base + newAdj > 99) return;
   state.skillEditAdjust[key] = newAdj;
-  render();
-}
-
-// Clones a (Type) skill in edit mode, starting from the skill's base value.
-function cloneSkillInEditMode(skillName) {
-  const base = getCurrentSkills()[skillName] || 0;
-  state.customSkills.push({
-    id: ++_customSkillIdCounter,
-    isClone: true,
-    baseName: skillName,
-    baseValue: base,
-    type: '',
-    customName: null,
-    points: 0,
-  });
   render();
 }
 
@@ -1116,7 +1101,6 @@ function renderStep4() {
         <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
           <span class="skill-tip"${skillTooltipAttr(skillName)}>${skillName}${isBonus ? ` <span style="font-size:0.65rem;color:var(--accent-greenl);">+${archBon}%</span>` : ''}</span>
           ${isUnnat ? `<span style="font-size:0.62rem;color:var(--text-secondary);font-style:italic;">(cannot boost)</span>` : ''}
-          ${isTyped && state.advancedMode ? `<button class="clone-skill-btn" data-skill="${escapeHtml(skillName)}" onclick="cloneSkill(this.dataset.skill)" title="Clone this skill with a different specialization" aria-label="Clone ${escapeHtml(skillName)}">⧉</button>` : ''}
         </div>
         ${isTyped ? `<div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
           value="${escapeHtml(state.skillTypes[skillName] || '')}"
@@ -1133,7 +1117,7 @@ function renderStep4() {
     </tr>`;
   }).join('');
 
-  // Custom / cloned skill rows
+  // Custom skill rows
   const customSkillRows = (state.customSkills || []).map(cs => {
     const final   = getFinalCustomSkillValue(cs);
     const points  = cs.points || 0;
@@ -1141,48 +1125,25 @@ function renderStep4() {
     const canSub  = points > 0;
     const bonusDisplay = points > 0 ? `+${points * 20}%` : '—';
 
-    if (cs.isClone) {
-      return `<tr class="custom-skill-row">
-        <td class="skill-name" style="width:45%">
-          <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
-            <span class="custom-skill-badge">clone</span>
-            <span>${escapeHtml(cs.baseName)}</span>
-            <button class="remove-custom-skill-btn" onclick="removeCustomSkill(${cs.id})" title="Remove this skill" aria-label="Remove cloned skill">×</button>
-          </div>
-          <div style="margin-top:4px;"><input type="text" class="skill-type-input" placeholder="Enter type…"
-            value="${escapeHtml(cs.type || '')}"
-            oninput="updateCustomSkillType(${cs.id},this.value)"
-            aria-label="Specify type for cloned ${escapeHtml(cs.baseName)}" /></div>
-        </td>
-        <td class="skill-base">${cs.baseValue}%</td>
-        <td style="text-align:center;white-space:nowrap;">
-          <button class="skill-adj-btn" onclick="adjustCustomSkill(${cs.id},-1)" ${canSub ? '' : 'disabled'}>−</button>
-          <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${bonusDisplay}</span>
-          <button class="skill-adj-btn plus" onclick="adjustCustomSkill(${cs.id},1)" ${canAdd ? '' : 'disabled'}>+</button>
-        </td>
-        <td class="skill-final">${final}%</td>
-      </tr>`;
-    } else {
-      return `<tr class="custom-skill-row">
-        <td class="skill-name" style="width:45%">
-          <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
-            <span class="custom-skill-badge">custom</span>
-            <input type="text" class="skill-type-input" placeholder="Skill name…"
-              value="${escapeHtml(cs.customName || '')}"
-              oninput="updateCustomSkillName(${cs.id},this.value)"
-              aria-label="Custom skill name" style="flex:1;min-width:7rem;" />
-            <button class="remove-custom-skill-btn" onclick="removeCustomSkill(${cs.id})" title="Remove this skill" aria-label="Remove custom skill">×</button>
-          </div>
-        </td>
-        <td class="skill-base">0%</td>
-        <td style="text-align:center;white-space:nowrap;">
-          <button class="skill-adj-btn" onclick="adjustCustomSkill(${cs.id},-1)" ${canSub ? '' : 'disabled'}>−</button>
-          <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${bonusDisplay}</span>
-          <button class="skill-adj-btn plus" onclick="adjustCustomSkill(${cs.id},1)" ${canAdd ? '' : 'disabled'}>+</button>
-        </td>
-        <td class="skill-final">${final}%</td>
-      </tr>`;
-    }
+    return `<tr class="custom-skill-row">
+      <td class="skill-name" style="width:45%">
+        <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+          <span class="custom-skill-badge">custom</span>
+          <input type="text" class="skill-type-input" placeholder="Skill name…"
+            value="${escapeHtml(cs.customName || '')}"
+            oninput="updateCustomSkillName(${cs.id},this.value)"
+            aria-label="Custom skill name" style="flex:1;min-width:7rem;" />
+          <button class="remove-custom-skill-btn" onclick="removeCustomSkill(${cs.id})" title="Remove this skill" aria-label="Remove custom skill">×</button>
+        </div>
+      </td>
+      <td class="skill-base">0%</td>
+      <td style="text-align:center;white-space:nowrap;">
+        <button class="skill-adj-btn" onclick="adjustCustomSkill(${cs.id},-1)" ${canSub ? '' : 'disabled'}>−</button>
+        <span class="skill-bonus-added" style="display:inline-block;min-width:40px;text-align:center;">${bonusDisplay}</span>
+        <button class="skill-adj-btn plus" onclick="adjustCustomSkill(${cs.id},1)" ${canAdd ? '' : 'disabled'}>+</button>
+      </td>
+      <td class="skill-final">${final}%</td>
+    </tr>`;
   }).join('');
 
 
@@ -1328,11 +1289,8 @@ function renderStep4() {
         <tbody>${skillRows}${customSkillRows}</tbody>
       </table>
     </div>
-    <div style="text-align:right;margin-top:0.5rem;display:flex;align-items:center;justify-content:flex-end;gap:0.75rem;">
-      <button class="advanced-mode-toggle-btn" onclick="toggleAdvancedMode()">
-        ${state.advancedMode ? '▲ Hide Advanced' : '▼ Advanced Mode'}
-      </button>
-      ${state.advancedMode ? `<button class="add-custom-skill-btn" onclick="addCustomSkill()" title="Talk to your Keeper before adding custom skills.">+ Add Custom Skill</button>` : ''}
+    <div style="text-align:right;margin-top:0.5rem;">
+      <button class="add-custom-skill-btn skill-tip" data-tooltip="Talk to your Keeper before adding custom skills." onclick="addCustomSkill()">+ Add Custom Skill</button>
     </div>
 
     ${adversityHtml}
@@ -1394,45 +1352,20 @@ function adjustAdversity(skillName, delta) {
   render();
 }
 
-// ── Custom / Cloned Skills ───────────────────────────────────
+// ── Custom Skills ───────────────────────────────────
 
 function getCustomSkillDisplayName(cs) {
-  if (!cs.isClone) return (cs.customName || '').trim() || '(unnamed)';
-  const typePart = (cs.type || '').trim();
-  if (!typePart) return cs.baseName;
-  return cs.baseName.replaceAll('(Type)', '(' + typePart + ')');
+  return (cs.customName || '').trim() || '(unnamed)';
 }
 
 function getFinalCustomSkillValue(cs) {
   return Math.min(80, cs.baseValue + (cs.points || 0) * 20);
 }
 
-function toggleAdvancedMode() {
-  state.advancedMode = !state.advancedMode;
-  render();
-}
-
-function cloneSkill(skillName) {
-  const base = getCurrentSkills()[skillName] || 0;
-  state.customSkills.push({
-    id: ++_customSkillIdCounter,
-    isClone: true,
-    baseName: skillName,
-    baseValue: base,
-    type: '',
-    customName: null,
-    points: 0,
-  });
-  render();
-}
-
 function addCustomSkill() {
   state.customSkills.push({
     id: ++_customSkillIdCounter,
-    isClone: false,
-    baseName: null,
     baseValue: 0,
-    type: null,
     customName: '',
     points: 0,
   });
@@ -1455,13 +1388,6 @@ function adjustCustomSkill(id, delta) {
   }
   cs.points = newPicks;
   render();
-}
-
-function updateCustomSkillType(id, value) {
-  const cs = state.customSkills.find(s => s.id === id);
-  if (!cs) return;
-  cs.type = value;
-  // Don't re-render to preserve focus
 }
 
 function updateCustomSkillName(id, value) {
@@ -1560,7 +1486,7 @@ function buildCharSheetHtml() {
       })
       .filter(s => state.showAllSkills || state.editMode || s.final > 0 || s.name === 'Unnatural'),
     ...(state.customSkills || [])
-      .filter(cs => state.editMode || cs.isClone || (cs.customName || '').trim() !== '')
+      .filter(cs => state.editMode || (cs.customName || '').trim() !== '')
       .map(cs => ({
         name: `custom_${cs.id}`,
         displayName: getCustomSkillDisplayName(cs),
@@ -1749,17 +1675,11 @@ function buildCharSheetHtml() {
               const cs = state.customSkills.find(c => c.id === csId);
               if (!cs) return '';
               return `
-              <div class="skill-row-sheet${cs.isClone ? ' skill-row-sheet-typed' : ''}">
-                ${cs.isClone ? `<div class="sr-name-wrap">
-                  <span class="sr-name">${escapeHtml(s.displayName)}</span>
-                  <div class="skill-type-input-wrap"><input type="text" class="skill-type-input" placeholder="Enter type…"
-                    value="${escapeHtml(cs.type || '')}"
-                    oninput="updateCustomSkillType(${cs.id},this.value)"
-                    aria-label="Specify type for ${escapeHtml(cs.baseName)}" /></div>
-                </div>` : `<input type="text" class="skill-type-input skill-custom-name-input" placeholder="Skill name…"
+              <div class="skill-row-sheet">
+                <input type="text" class="skill-type-input skill-custom-name-input" placeholder="Skill name…"
                   value="${escapeHtml(cs.customName || '')}"
                   oninput="updateCustomSkillName(${cs.id},this.value)"
-                  aria-label="Custom skill name" />`}
+                  aria-label="Custom skill name" />
                 <span class="sr-val">${displayVal}%</span>
                 <div class="skill-edit-controls no-print">
                   <button class="stat-btn stat-btn-compact" onclick="adjustCustomSkillInEditMode(${cs.id},-1)" title="Decrease" aria-label="Decrease ${escapeHtml(s.displayName)}">−</button>

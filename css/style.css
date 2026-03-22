@@ -747,21 +747,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   box-shadow: 0 0 6px rgba(201,168,76,0.15);
 }
 
-/* Clone skill button */
-.clone-skill-btn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  line-height: 1.4;
-  transition: color 0.15s, border-color 0.15s;
-  flex-shrink: 0;
-}
-.clone-skill-btn:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
-
 /* Remove custom skill button */
 .remove-custom-skill-btn {
   background: transparent;
@@ -776,21 +761,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   flex-shrink: 0;
 }
 .remove-custom-skill-btn:hover { color: #e05050; border-color: #e05050; }
-
-/* Advanced Mode toggle button */
-.advanced-mode-toggle-btn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  border-radius: 6px;
-  padding: 5px 14px;
-  font-size: 0.78rem;
-  font-family: var(--font-head);
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-.advanced-mode-toggle-btn:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
 
 /* Add Custom Skill button */
 .add-custom-skill-btn {
@@ -810,7 +780,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 /* Custom skill row styling */
 .custom-skill-row td { background: rgba(201,168,76,0.04); }
 
-/* Badge for clone/custom label */
+/* Badge for custom skill label */
 .custom-skill-badge {
   font-size: 0.6rem;
   font-family: var(--font-head);
