@@ -2268,7 +2268,7 @@ function render() {
         </span>
       </div>
       <div class="app-footer__clear-credits">
-        <a href="Credits.md" target="_blank" rel="noopener noreferrer">Clear Credits</a>
+        <a href="https://github.com/jonassode/cthulhu-forever/blob/main/Credits.md" target="_blank" rel="noopener noreferrer">Clear Credits</a>
       </div>
     </footer>`;
 
