@@ -2267,6 +2267,9 @@ function render() {
           <a href="https://github.com/jonassode/cthulhu-forever/issues" target="_blank" rel="noopener noreferrer">Raise a ticket on GitHub</a>
         </span>
       </div>
+      <div class="app-footer__clear-credits">
+        <a href="Credits.md" target="_blank" rel="noopener noreferrer">Clear Credits</a>
+      </div>
     </footer>`;
 
   // Attach drag listeners after DOM is updated
