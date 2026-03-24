@@ -18,3 +18,15 @@ jobs:
           node-version: '24'
       - name: Run skill parity validation
         run: node scripts/validate-skill-parity.mjs
+
+  validate-import-export:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate import/export JSON fixture
+        run: node scripts/validate-import-export.mjs

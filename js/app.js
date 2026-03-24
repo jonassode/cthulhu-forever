@@ -594,6 +594,16 @@ function renderStep1() {
       <strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
+
+    <div class="import-divider">
+      <span>or</span>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn btn-outline" onclick="triggerImport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import Character from JSON
+      </button>
+    </div>
   </div>`;
 }
 
@@ -1529,6 +1539,10 @@ function buildCharSheetHtml() {
                 <input type="checkbox" ${state.showAllSkills ? 'checked' : ''} onchange="toggleShowAllSkills()">
                 <span>Show All Skills</span>
               </label>
+              <button class="sheet-settings-item sheet-settings-action" onclick="exportToJson()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export to JSON</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2124,6 +2138,149 @@ function finishEditBondName(origIdx, input) {
 function toggleShowAllSkills() {
   state.showAllSkills = !state.showAllSkills;
   render();
+}
+
+// ── Import / Export ─────────────────────────────────────────
+
+function exportToJson() {
+  const exportData = {
+    version: 1,
+    age: state.age,
+    rolledSets: state.rolledSets,
+    attrAssign: { ...state.attrAssign },
+    upbringing: state.upbringing,
+    harshStatChoice: state.harshStatChoice,
+    adversityPoints: { ...state.adversityPoints },
+    archetype: state.archetype,
+    selectedOptional: [...(state.selectedOptional || [])],
+    skillPoints: { ...state.skillPoints },
+    skillTypes: { ...state.skillTypes },
+    customSkills: JSON.parse(JSON.stringify(state.customSkills || [])),
+    bonds: JSON.parse(JSON.stringify(state.bonds || [])),
+    resources: state.resources,
+    resourcesBonusSpent: state.resourcesBonusSpent,
+    resourceChecked: [...(state.resourceChecked || [])],
+    skillChecked: { ...state.skillChecked },
+    violenceChecked: [...(state.violenceChecked || [false, false, false])],
+    helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
+    currentHP: state.currentHP,
+    currentWP: state.currentWP,
+    currentSAN: state.currentSAN,
+    bpAdjust: state.bpAdjust || 0,
+    disorders: JSON.parse(JSON.stringify(state.disorders || [])),
+    showAllSkills: state.showAllSkills || false,
+    skillEditAdjust: { ...(state.skillEditAdjust || {}) },
+    resourcesEditAdjust: state.resourcesEditAdjust || 0,
+    identity: { ...state.identity },
+  };
+
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = (state.identity.name || 'character').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  a.href = url;
+  a.download = `${safeName}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Close settings dropdown after export
+  const dropdown = document.getElementById('sheet-settings-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+}
+
+function triggerImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        importFromJson(data);
+      } catch (_err) {
+        console.error('Failed to parse character JSON:', _err);
+        alert('Invalid file. Please select a valid character JSON export.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function importFromJson(data) {
+  if (!data || typeof data !== 'object') {
+    alert('Invalid character data.');
+    return;
+  }
+
+  // Validate minimum required fields
+  if (!data.identity || !data.identity.name || !data.identity.name.trim()) {
+    alert('Invalid character data: missing character name.');
+    return;
+  }
+  if (!data.age || (data.age !== 'jazz' && data.age !== 'modern')) {
+    alert('Invalid character data: missing or unknown era (age).');
+    return;
+  }
+
+  state.age = data.age;
+  state.rolledSets = data.rolledSets || [];
+  ATTRIBUTES.forEach(a => {
+    state.attrAssign[a] = (data.attrAssign && data.attrAssign[a] !== undefined) ? data.attrAssign[a] : null;
+  });
+  state.upbringing = data.upbringing || null;
+  state.harshStatChoice = data.harshStatChoice || null;
+  state.adversityPoints = data.adversityPoints || {};
+  state.archetype = data.archetype || null;
+  state.selectedOptional = data.selectedOptional || [];
+  state.skillPoints = data.skillPoints || {};
+  state.skillTypes = data.skillTypes || {};
+  state.customSkills = data.customSkills || [];
+  state.bonds = data.bonds || [];
+  state.resources = data.resources || 0;
+  state.resourcesBonusSpent = data.resourcesBonusSpent || 0;
+  state.resourceChecked = data.resourceChecked || [];
+  state.skillChecked = data.skillChecked || {};
+  state.violenceChecked = data.violenceChecked || [false, false, false];
+  state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
+  state.currentHP = (data.currentHP !== undefined && data.currentHP !== null) ? data.currentHP : null;
+  state.currentWP = (data.currentWP !== undefined && data.currentWP !== null) ? data.currentWP : null;
+  state.currentSAN = (data.currentSAN !== undefined && data.currentSAN !== null) ? data.currentSAN : null;
+  state.bpAdjust = data.bpAdjust || 0;
+  state.disorders = data.disorders || [];
+  state.showAllSkills = data.showAllSkills || false;
+  state.skillEditAdjust = data.skillEditAdjust || {};
+  state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
+  state.editMode = false;
+  state.playMode = false;
+  state.identity = {
+    name: data.identity.name || '',
+    profession: (data.identity.profession) || '',
+    nationality: (data.identity.nationality) || '',
+    gender: (data.identity.gender) || '',
+    characterAge: (data.identity.characterAge) || 25,
+    backstory: (data.identity.backstory) || '',
+    motivations: (data.identity.motivations) || '',
+    gear: (data.identity.gear) || '',
+  };
+
+  // Sync ID counters so new additions don't collide
+  _customSkillIdCounter = state.customSkills.length > 0
+    ? Math.max(...state.customSkills.map(cs => cs.id)) + 1
+    : 0;
+  _disorderIdCounter = state.disorders.length > 0
+    ? Math.max(...state.disorders.map(d => d.id)) + 1
+    : 0;
+
+  state.currentStep = 6;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function toggleSheetSettings(event) {
