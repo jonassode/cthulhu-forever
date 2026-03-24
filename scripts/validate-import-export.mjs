@@ -2,14 +2,17 @@
 /**
  * validate-import-export.mjs
  *
- * Validates that a character JSON export file:
- *   1. Contains all required top-level fields with correct types.
+ * Validates that a v2 character JSON export file:
+ *   1. Contains the correct version marker (2) and required top-level fields.
  *   2. Contains a complete identity block (name, profession, etc.).
- *   3. Contains valid attribute assignments for all 6 attributes.
- *   4. Contains skill/bond/disorder arrays of the expected shape.
- *   5. Contains play-state fields (currentHP, currentWP, currentSAN, etc.).
+ *   3. Contains final attribute values for all 6 attributes.
+ *   4. Contains final skill percentages, with spot-checks for known values.
+ *   5. Contains bonds as outcome-only objects (name, type, currentScore — no bonusSpent).
+ *   6. Contains play-state fields (currentHP, currentWP, currentSAN, etc.).
+ *   7. Does NOT contain process fields (rolledSets, skillPoints, adversityPoints, etc.).
  *
- * Mirrors the fields read by importFromJson() in js/app.js.
+ * Mirrors the fields produced by exportToJson() and consumed by importFromJsonV2()
+ * in js/app.js.
  */
 
 import fs from 'node:fs';
@@ -49,46 +52,29 @@ function assertField(obj, key, expectedType, label) {
   }
 }
 
+function assertAbsent(obj, key, label) {
+  assert(!(key in obj), `${label}.${key} should NOT be present in v2 export (process field)`);
+}
+
 // ── Validations ───────────────────────────────────────────────
 
 console.log('Validating import/export fixture…');
 
-// 1. Top-level required fields
+// 1. Version and era
 assertField(character, 'version', 'number', 'root');
+assert(character.version === 2, `root.version should be 2, got ${character.version}`);
 assertField(character, 'age', 'string', 'root');
 assert(
   character.age === 'jazz' || character.age === 'modern',
   `root.age must be 'jazz' or 'modern', got '${character.age}'`
 );
-assertField(character, 'rolledSets', 'array', 'root');
-assertField(character, 'attrAssign', 'object', 'root');
-assertField(character, 'upbringing', null, 'root'); // may be null, just check presence
+
+// 2. Character meta (identity / display fields kept in v2)
 assert('upbringing' in character, 'root.upbringing key should be present');
-assert('harshStatChoice' in character, 'root.harshStatChoice key should be present');
-assertField(character, 'adversityPoints', 'object', 'root');
 assert('archetype' in character, 'root.archetype key should be present');
-assertField(character, 'selectedOptional', 'array', 'root');
-assertField(character, 'skillPoints', 'object', 'root');
-assertField(character, 'skillTypes', 'object', 'root');
-assertField(character, 'customSkills', 'array', 'root');
-assertField(character, 'bonds', 'array', 'root');
-assertField(character, 'resources', 'number', 'root');
-assertField(character, 'resourcesBonusSpent', 'number', 'root');
-assertField(character, 'resourceChecked', 'array', 'root');
-assertField(character, 'skillChecked', 'object', 'root');
-assertField(character, 'violenceChecked', 'array', 'root');
-assertField(character, 'helplessnessChecked', 'array', 'root');
-assert('currentHP' in character, 'root.currentHP key should be present');
-assert('currentWP' in character, 'root.currentWP key should be present');
-assert('currentSAN' in character, 'root.currentSAN key should be present');
-assertField(character, 'bpAdjust', 'number', 'root');
-assertField(character, 'disorders', 'array', 'root');
-assertField(character, 'showAllSkills', 'boolean', 'root');
-assertField(character, 'skillEditAdjust', 'object', 'root');
-assertField(character, 'resourcesEditAdjust', 'number', 'root');
 assertField(character, 'identity', 'object', 'root');
 
-// 2. identity block
+// 3. identity block
 const id = character.identity || {};
 assertField(id, 'name', 'string', 'identity');
 assert((id.name || '').trim().length > 0, 'identity.name must not be empty');
@@ -100,23 +86,48 @@ assertField(id, 'backstory', 'string', 'identity');
 assertField(id, 'motivations', 'string', 'identity');
 assertField(id, 'gear', 'string', 'identity');
 
-// 3. Attribute assignments — all 6 must be present
+// 4. Final attribute values — all 6 must be present as numbers
 const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
-const attrAssign = character.attrAssign || {};
+assertField(character, 'attributes', 'object', 'root');
+const attrs = character.attributes || {};
 for (const attr of ATTRIBUTES) {
-  assert(attr in attrAssign, `attrAssign.${attr} key should be present`);
+  assert(attr in attrs, `attributes.${attr} should be present`);
+  assert(typeof attrs[attr] === 'number', `attributes.${attr} should be a number`);
+  assert(attrs[attr] >= 1 && attrs[attr] <= 20, `attributes.${attr} should be 1–20`);
+}
+// Spot-check known values for the sample character
+assert(attrs.STR === 15, `attributes.STR should be 15, got ${attrs.STR}`);
+assert(attrs.INT === 17, `attributes.INT should be 17, got ${attrs.INT}`);
+assert(attrs.POW === 12, `attributes.POW should be 12, got ${attrs.POW}`);
+
+// 5. Final skill percentages
+assertField(character, 'skills', 'object', 'root');
+const skills = character.skills || {};
+assert(Object.keys(skills).length > 0, 'skills should contain at least one entry');
+for (const [name, val] of Object.entries(skills)) {
+  assert(typeof val === 'number', `skills.${name} should be a number`);
+  assert(val >= 0 && val <= 99, `skills.${name} should be 0–99, got ${val}`);
+}
+// Spot-check archetype-boosted and bonus-pick values for the Journalist sample
+assert(skills['Alertness']       === 70, `skills.Alertness should be 70 (archetype 50 + 1 pick), got ${skills['Alertness']}`);
+assert(skills['Insight']         === 80, `skills.Insight should be 80 (archetype 60 + 1 pick), got ${skills['Insight']}`);
+assert(skills['Persuade']        === 60, `skills.Persuade should be 60 (base 20 + 2 picks), got ${skills['Persuade']}`);
+assert(skills['Research']        === 60, `skills.Research should be 60 (archetype), got ${skills['Research']}`);
+assert(skills['Unnatural']       === 0,  `skills.Unnatural should be 0, got ${skills['Unnatural']}`);
+
+// 6. skillTypes (specialisation strings for "(Type)" skills)
+assertField(character, 'skillTypes', 'object', 'root');
+
+// 7. Custom skills shape in v2: { name, value }
+assertField(character, 'customSkills', 'array', 'root');
+for (let i = 0; i < (character.customSkills || []).length; i++) {
+  const cs = character.customSkills[i];
+  assertField(cs, 'name', 'string', `customSkills[${i}]`);
+  assertField(cs, 'value', 'number', `customSkills[${i}]`);
 }
 
-// 4. rolledSets shape — each entry needs id, values, total
-for (let i = 0; i < (character.rolledSets || []).length; i++) {
-  const rs = character.rolledSets[i];
-  assertField(rs, 'id', 'number', `rolledSets[${i}]`);
-  assertField(rs, 'values', 'array', `rolledSets[${i}]`);
-  assertField(rs, 'total', 'number', `rolledSets[${i}]`);
-  assert(rs.values.length === 4, `rolledSets[${i}].values should have 4 dice`);
-}
-
-// 5. bonds shape
+// 8. Bonds: outcome-only shape — name, type, currentScore; no bonusSpent
+assertField(character, 'bonds', 'array', 'root');
 for (let i = 0; i < (character.bonds || []).length; i++) {
   const b = character.bonds[i];
   assertField(b, 'name', 'string', `bonds[${i}]`);
@@ -125,35 +136,45 @@ for (let i = 0; i < (character.bonds || []).length; i++) {
     b.type === 'individual' || b.type === 'community',
     `bonds[${i}].type must be 'individual' or 'community', got '${b.type}'`
   );
-  assertField(b, 'bonusSpent', 'number', `bonds[${i}]`);
   assertField(b, 'currentScore', 'number', `bonds[${i}]`);
+  assertAbsent(b, 'bonusSpent', `bonds[${i}]`);
 }
 
-// 6. disorders shape
+// 9. Resources: a single final number
+assertField(character, 'resources', 'number', 'root');
+assert(character.resources === 4, `resources should be 4 for this Journalist, got ${character.resources}`);
+
+// 10. Play-state and tracking fields
+assertField(character, 'resourceChecked', 'array', 'root');
+assertField(character, 'skillChecked', 'object', 'root');
+assertField(character, 'violenceChecked', 'array', 'root');
+assertField(character, 'helplessnessChecked', 'array', 'root');
+assert((character.violenceChecked || []).length === 3, 'violenceChecked should have 3 entries');
+assert((character.helplessnessChecked || []).length === 3, 'helplessnessChecked should have 3 entries');
+assert('currentHP' in character, 'root.currentHP key should be present');
+assert('currentWP' in character, 'root.currentWP key should be present');
+assert('currentSAN' in character, 'root.currentSAN key should be present');
+assertField(character, 'bpAdjust', 'number', 'root');
+assertField(character, 'disorders', 'array', 'root');
+assertField(character, 'showAllSkills', 'boolean', 'root');
+
+// 11. Disorders shape
 for (let i = 0; i < (character.disorders || []).length; i++) {
   const d = character.disorders[i];
   assertField(d, 'id', 'number', `disorders[${i}]`);
   assertField(d, 'text', 'string', `disorders[${i}]`);
 }
 
-// 7. violenceChecked / helplessnessChecked length
-assert(
-  (character.violenceChecked || []).length === 3,
-  'violenceChecked should have exactly 3 entries'
-);
-assert(
-  (character.helplessnessChecked || []).length === 3,
-  'helplessnessChecked should have exactly 3 entries'
-);
-
-// 8. customSkills shape (if any)
-for (let i = 0; i < (character.customSkills || []).length; i++) {
-  const cs = character.customSkills[i];
-  assertField(cs, 'id', 'number', `customSkills[${i}]`);
-  assertField(cs, 'baseValue', 'number', `customSkills[${i}]`);
-  assertField(cs, 'customName', 'string', `customSkills[${i}]`);
-  assertField(cs, 'points', 'number', `customSkills[${i}]`);
-}
+// 12. Process fields must NOT be present in v2 exports
+assertAbsent(character, 'rolledSets',         'root');
+assertAbsent(character, 'attrAssign',          'root');
+assertAbsent(character, 'harshStatChoice',     'root');
+assertAbsent(character, 'skillPoints',         'root');
+assertAbsent(character, 'adversityPoints',     'root');
+assertAbsent(character, 'resourcesBonusSpent', 'root');
+assertAbsent(character, 'selectedOptional',    'root');
+assertAbsent(character, 'skillEditAdjust',     'root');
+assertAbsent(character, 'resourcesEditAdjust', 'root');
 
 // ── Results ───────────────────────────────────────────────────
 if (failures > 0) {
@@ -161,4 +182,4 @@ if (failures > 0) {
   process.exit(1);
 }
 
-console.log(`Import/export validation passed. All fields are present and correctly typed.`);
+console.log('Import/export validation passed. All fields are present and correctly typed.');

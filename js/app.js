@@ -2143,22 +2143,43 @@ function toggleShowAllSkills() {
 // ── Import / Export ─────────────────────────────────────────
 
 function exportToJson() {
+  // Final attribute values
+  const attributes = {};
+  ATTRIBUTES.forEach(a => { attributes[a] = getAttrValue(a); });
+
+  // Final skill percentages for every skill in the current era
+  const skills = {};
+  const baseSkills = getCurrentSkills();
+  Object.keys(baseSkills).forEach(s => { skills[s] = getDisplayedSkillValue(s); });
+
+  // Custom skills: just name and final displayed value
+  const customSkills = (state.customSkills || [])
+    .filter(cs => (cs.customName || '').trim())
+    .map(cs => {
+      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+      return {
+        name: getCustomSkillDisplayName(cs),
+        value: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
+      };
+    });
+
+  // Bonds: just name, type, and current in-play score (no bonusSpent)
+  const bonds = (state.bonds || [])
+    .filter(b => b && b.name && b.name.trim())
+    .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
+
   const exportData = {
-    version: 1,
+    version: 2,
     age: state.age,
-    rolledSets: state.rolledSets,
-    attrAssign: { ...state.attrAssign },
     upbringing: state.upbringing,
-    harshStatChoice: state.harshStatChoice,
-    adversityPoints: { ...state.adversityPoints },
     archetype: state.archetype,
-    selectedOptional: [...(state.selectedOptional || [])],
-    skillPoints: { ...state.skillPoints },
+    identity: { ...state.identity },
+    attributes,
+    skills,
     skillTypes: { ...state.skillTypes },
-    customSkills: JSON.parse(JSON.stringify(state.customSkills || [])),
-    bonds: JSON.parse(JSON.stringify(state.bonds || [])),
-    resources: state.resources,
-    resourcesBonusSpent: state.resourcesBonusSpent,
+    customSkills,
+    bonds,
+    resources: getDisplayedResources(),
     resourceChecked: [...(state.resourceChecked || [])],
     skillChecked: { ...state.skillChecked },
     violenceChecked: [...(state.violenceChecked || [false, false, false])],
@@ -2169,9 +2190,6 @@ function exportToJson() {
     bpAdjust: state.bpAdjust || 0,
     disorders: JSON.parse(JSON.stringify(state.disorders || [])),
     showAllSkills: state.showAllSkills || false,
-    skillEditAdjust: { ...(state.skillEditAdjust || {}) },
-    resourcesEditAdjust: state.resourcesEditAdjust || 0,
-    identity: { ...state.identity },
   };
 
   const json = JSON.stringify(exportData, null, 2);
@@ -2219,7 +2237,7 @@ function importFromJson(data) {
     return;
   }
 
-  // Validate minimum required fields
+  // Validate minimum required fields (common to all versions)
   if (!data.identity || !data.identity.name || !data.identity.name.trim()) {
     alert('Invalid character data: missing character name.');
     return;
@@ -2229,6 +2247,121 @@ function importFromJson(data) {
     return;
   }
 
+  if ((data.version || 1) >= 2) {
+    importFromJsonV2(data);
+  } else {
+    importFromJsonV1(data);
+  }
+}
+
+// Imports a v2 (outcome-only) character export.
+// Reconstructs the minimal synthetic internal state so all rendering functions
+// return the correct final values without replaying the creation process.
+function importFromJsonV2(data) {
+  // ── Identity & character meta ────────────────────────────
+  state.age = data.age;
+  state.upbringing = data.upbringing || null;
+  // harshStatChoice is not stored in v2; attribute values already include the bonus.
+  // Setting it to null makes getUpbringingBonus() return 0, so synthetic roll totals
+  // can equal the exported attribute values directly.
+  state.harshStatChoice = null;
+  state.archetype = data.archetype || null;
+  // selectedOptional is not stored in v2; the archetype bonus for optional skills is
+  // already baked into the exported final values via skillEditAdjust reconstruction below.
+  state.selectedOptional = [];
+
+  state.identity = {
+    name:         data.identity.name || '',
+    profession:   data.identity.profession || '',
+    nationality:  data.identity.nationality || '',
+    gender:       data.identity.gender || '',
+    characterAge: data.identity.characterAge || 25,
+    backstory:    data.identity.backstory || '',
+    motivations:  data.identity.motivations || '',
+    gear:         data.identity.gear || '',
+  };
+
+  // ── Attributes: synthetic roll sets ─────────────────────
+  // Each roll set has a total equal to the exported final attribute value.
+  // Since harshStatChoice = null, getUpbringingBonus() = 0 for all attrs,
+  // so getAttrValue(a) = rolledSet.total = exported value.
+  const attrs = data.attributes || {};
+  state.rolledSets = ATTRIBUTES.map((a, i) => ({
+    id: i,
+    values: [attrs[a] || 1, 1, 1, 1],
+    total: attrs[a] || 1,
+  }));
+  ATTRIBUTES.forEach((a, i) => { state.attrAssign[a] = i; });
+
+  // ── Skills ───────────────────────────────────────────────
+  // Zero out all pick-based contributions; store the delta between the exported
+  // final value and the archetype-only base in skillEditAdjust so that
+  // getDisplayedSkillValue() returns the correct value.
+  state.skillPoints = {};
+  state.adversityPoints = {};
+  state.skillTypes = data.skillTypes || {};
+
+  // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
+  // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : MODERN_SKILLS;
+  state.skillEditAdjust = {};
+  Object.keys(baseSkills).forEach(s => {
+    const skillData = data.skills || {};
+    const exported = s in skillData ? skillData[s] : getFinalSkillValue(s);
+    const computed = getFinalSkillValue(s);
+    const adj = exported - computed;
+    if (adj !== 0) state.skillEditAdjust[s] = adj;
+  });
+
+  // ── Custom skills ────────────────────────────────────────
+  state.customSkills = (data.customSkills || []).map((cs, i) => ({
+    id: i,
+    // Cap at 80: getFinalCustomSkillValue = min(80, baseValue + points * 20).
+    // With points = 0, setting baseValue = min(80, value) ensures the correct
+    // display value without any edit adjustment needed.
+    baseValue: Math.min(80, cs.value || 0),
+    customName: cs.name || '',
+    points: 0,
+  }));
+  _customSkillIdCounter = state.customSkills.length > 0 ? state.customSkills.length : 0;
+
+  // ── Resources ────────────────────────────────────────────
+  state.resourcesBonusSpent = 0;
+  // getEffectiveResources() = arch.resources (archetype now set, bonusSpent = 0).
+  // Store remaining delta in resourcesEditAdjust so getDisplayedResources() is correct.
+  const effectiveRes = getEffectiveResources();
+  state.resourcesEditAdjust = (data.resources || 0) - effectiveRes;
+
+  // ── Bonds ────────────────────────────────────────────────
+  state.bonds = (data.bonds || []).map(b => ({
+    name: b.name || '',
+    type: b.type || 'individual',
+    bonusSpent: 0,
+    currentScore: (b.currentScore !== undefined && b.currentScore !== null) ? b.currentScore : null,
+  }));
+
+  // ── Play state & tracking ────────────────────────────────
+  state.resourceChecked = data.resourceChecked || [];
+  state.skillChecked = data.skillChecked || {};
+  state.violenceChecked = data.violenceChecked || [false, false, false];
+  state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
+  state.currentHP  = (data.currentHP  !== undefined && data.currentHP  !== null) ? data.currentHP  : null;
+  state.currentWP  = (data.currentWP  !== undefined && data.currentWP  !== null) ? data.currentWP  : null;
+  state.currentSAN = (data.currentSAN !== undefined && data.currentSAN !== null) ? data.currentSAN : null;
+  state.bpAdjust = data.bpAdjust || 0;
+  state.disorders = (data.disorders || []).map((d, i) => ({ id: i, text: d.text || '' }));
+  _disorderIdCounter = state.disorders.length;
+  state.showAllSkills = data.showAllSkills || false;
+
+  state.editMode = false;
+  state.playMode = false;
+  state.currentStep = 6;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Imports a v1 (process-based) character export for backward compatibility.
+function importFromJsonV1(data) {
   state.age = data.age;
   state.rolledSets = data.rolledSets || [];
   ATTRIBUTES.forEach(a => {
@@ -2249,8 +2382,8 @@ function importFromJson(data) {
   state.skillChecked = data.skillChecked || {};
   state.violenceChecked = data.violenceChecked || [false, false, false];
   state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
-  state.currentHP = (data.currentHP !== undefined && data.currentHP !== null) ? data.currentHP : null;
-  state.currentWP = (data.currentWP !== undefined && data.currentWP !== null) ? data.currentWP : null;
+  state.currentHP  = (data.currentHP  !== undefined && data.currentHP  !== null) ? data.currentHP  : null;
+  state.currentWP  = (data.currentWP  !== undefined && data.currentWP  !== null) ? data.currentWP  : null;
   state.currentSAN = (data.currentSAN !== undefined && data.currentSAN !== null) ? data.currentSAN : null;
   state.bpAdjust = data.bpAdjust || 0;
   state.disorders = data.disorders || [];
@@ -2260,17 +2393,16 @@ function importFromJson(data) {
   state.editMode = false;
   state.playMode = false;
   state.identity = {
-    name: data.identity.name || '',
-    profession: (data.identity.profession) || '',
-    nationality: (data.identity.nationality) || '',
-    gender: (data.identity.gender) || '',
-    characterAge: (data.identity.characterAge) || 25,
-    backstory: (data.identity.backstory) || '',
-    motivations: (data.identity.motivations) || '',
-    gear: (data.identity.gear) || '',
+    name:         data.identity.name || '',
+    profession:   data.identity.profession || '',
+    nationality:  data.identity.nationality || '',
+    gender:       data.identity.gender || '',
+    characterAge: data.identity.characterAge || 25,
+    backstory:    data.identity.backstory || '',
+    motivations:  data.identity.motivations || '',
+    gear:         data.identity.gear || '',
   };
 
-  // Sync ID counters so new additions don't collide
   _customSkillIdCounter = state.customSkills.length > 0
     ? Math.max(...state.customSkills.map(cs => cs.id)) + 1
     : 0;

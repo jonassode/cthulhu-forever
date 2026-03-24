@@ -1,31 +1,71 @@
 {
-  "version": 1,
+  "version": 2,
   "age": "jazz",
-  "rolledSets": [
-    { "id": 0, "values": [6, 5, 4, 3], "total": 15 },
-    { "id": 1, "values": [5, 5, 4, 2], "total": 14 },
-    { "id": 2, "values": [4, 4, 4, 1], "total": 12 },
-    { "id": 3, "values": [6, 6, 5, 3], "total": 17 },
-    { "id": 4, "values": [3, 3, 2, 1], "total": 8 },
-    { "id": 5, "values": [5, 4, 3, 3], "total": 12 }
-  ],
-  "attrAssign": {
-    "STR": 0,
-    "CON": 2,
-    "DEX": 1,
-    "INT": 3,
-    "POW": 5,
-    "CHA": 4
-  },
   "upbringing": "normal",
-  "harshStatChoice": null,
-  "adversityPoints": {},
   "archetype": "journalist",
-  "selectedOptional": ["Charm", "Research"],
-  "skillPoints": {
-    "Alertness": 1,
-    "Persuade": 2,
-    "Insight": 1
+  "identity": {
+    "name": "Henry Ashworth",
+    "profession": "Investigative Journalist",
+    "nationality": "American",
+    "gender": "Male",
+    "characterAge": 32,
+    "backstory": "A seasoned reporter for the Arkham Gazette who has seen too much to sleep soundly.",
+    "motivations": "Expose the truth no matter the cost",
+    "gear": "Trusty .38 revolver, press badge, leather notebook"
+  },
+  "attributes": {
+    "STR": 15,
+    "CON": 12,
+    "DEX": 14,
+    "INT": 17,
+    "POW": 12,
+    "CHA": 8
+  },
+  "skills": {
+    "Administration": 10,
+    "Alertness": 70,
+    "Anthropology": 0,
+    "Appraise": 10,
+    "Archeology": 0,
+    "Art (Type)": 50,
+    "Athletics": 30,
+    "Charm": 20,
+    "Craft (Type)": 0,
+    "Disguise": 10,
+    "Dodge": 30,
+    "Drive": 20,
+    "Firearms": 20,
+    "First Aid": 10,
+    "Foreign Language (Type)": 0,
+    "Harangue": 10,
+    "Heavy Machinery": 10,
+    "History": 10,
+    "Insight": 80,
+    "Law (Type)": 0,
+    "Medicine": 0,
+    "Melee Weapons": 30,
+    "Military Training (Type)": 0,
+    "Natural World": 10,
+    "Navigate": 10,
+    "Occult": 10,
+    "Persuade": 60,
+    "Pilot (Type)": 0,
+    "Psychoanalyze": 10,
+    "Regional Lore (Type)": 0,
+    "Research": 60,
+    "Ride": 10,
+    "Science (Type)": 0,
+    "Search": 60,
+    "Social Etiquette": 30,
+    "Stealth": 10,
+    "Streetwise (Type)": 0,
+    "Surgery": 0,
+    "Survival (Type)": 10,
+    "Swim": 20,
+    "Track": 10,
+    "Unarmed Combat": 20,
+    "Unnatural": 0,
+    "Use Gadgets": 0
   },
   "skillTypes": {
     "Foreign Language (Type)": "French",
@@ -33,12 +73,11 @@
   },
   "customSkills": [],
   "bonds": [
-    { "name": "Margaret — beloved sister", "type": "individual", "bonusSpent": 0, "currentScore": 8 },
-    { "name": "The Arkham Gazette (editor)", "type": "individual", "bonusSpent": 0, "currentScore": 8 },
-    { "name": "Miskatonic University Library", "type": "community", "bonusSpent": 0, "currentScore": 2 }
+    { "name": "Margaret — beloved sister", "type": "individual", "currentScore": 8 },
+    { "name": "The Arkham Gazette (editor)", "type": "individual", "currentScore": 8 },
+    { "name": "Miskatonic University Library", "type": "community", "currentScore": 2 }
   ],
   "resources": 4,
-  "resourcesBonusSpent": 0,
   "resourceChecked": [false, false, false, false],
   "skillChecked": {
     "Alertness": false,
@@ -53,17 +92,5 @@
   "disorders": [
     { "id": 0, "text": "Recurring nightmares of deep-sea horrors" }
   ],
-  "showAllSkills": false,
-  "skillEditAdjust": {},
-  "resourcesEditAdjust": 0,
-  "identity": {
-    "name": "Henry Ashworth",
-    "profession": "Investigative Journalist",
-    "nationality": "American",
-    "gender": "Male",
-    "characterAge": 32,
-    "backstory": "A seasoned reporter for the Arkham Gazette who has seen too much to sleep soundly.",
-    "motivations": "Expose the truth no matter the cost",
-    "gear": "Trusty .38 revolver, press badge, leather notebook"
-  }
+  "showAllSkills": false
 }
