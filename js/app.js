@@ -2168,6 +2168,11 @@ function exportToJson() {
     .filter(b => b && b.name && b.name.trim())
     .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
 
+  const derived = calculateDerived();
+  // derived is always non-null here: export is only reachable from the completed
+  // character sheet (step 6) where all attributes are assigned.
+  // The fallbacks below are purely defensive and should never be used.
+
   const exportData = {
     version: 2,
     age: state.age,
@@ -2184,10 +2189,14 @@ function exportToJson() {
     skillChecked: { ...state.skillChecked },
     violenceChecked: [...(state.violenceChecked || [false, false, false])],
     helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
-    currentHP: state.currentHP,
-    currentWP: state.currentWP,
-    currentSAN: state.currentSAN,
-    bpAdjust: state.bpAdjust || 0,
+    maxHP:  derived ? derived.HP       : 0,
+    maxWP:  derived ? derived.WP       : 0,
+    maxSAN: derived ? derived.MaxSAN   : 0,
+    currentHP:  derived ? Math.max(0, Math.min(state.currentHP  !== null ? state.currentHP  : derived.HP,       derived.HP))       : 0,
+    currentWP:  derived ? Math.max(0, Math.min(state.currentWP  !== null ? state.currentWP  : derived.WP,       derived.WP))       : 0,
+    currentSAN: derived ? Math.max(0, Math.min(state.currentSAN !== null ? state.currentSAN : derived.SAN,      derived.MaxSAN))   : 0,
+    breakingPoint: derived ? derived.BP + (state.bpAdjust || 0) : 0,
+    recoverySAN:   derived ? derived.RecoverySAN : 0,
     disorders: JSON.parse(JSON.stringify(state.disorders || [])),
     showAllSkills: state.showAllSkills || false,
   };
@@ -2345,10 +2354,18 @@ function importFromJsonV2(data) {
   state.skillChecked = data.skillChecked || {};
   state.violenceChecked = data.violenceChecked || [false, false, false];
   state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
+  // currentHP/WP/SAN are stored as final numbers in v2; null falls back to derived max.
   state.currentHP  = (data.currentHP  !== undefined && data.currentHP  !== null) ? data.currentHP  : null;
   state.currentWP  = (data.currentWP  !== undefined && data.currentWP  !== null) ? data.currentWP  : null;
   state.currentSAN = (data.currentSAN !== undefined && data.currentSAN !== null) ? data.currentSAN : null;
-  state.bpAdjust = data.bpAdjust || 0;
+  // breakingPoint is the final value; reconstruct bpAdjust as delta from the base BP so
+  // the in-play BP display remains correct even after a re-import.
+  if (data.breakingPoint !== undefined && data.breakingPoint !== null) {
+    const d = calculateDerived();
+    state.bpAdjust = d ? data.breakingPoint - d.BP : 0;
+  } else {
+    state.bpAdjust = data.bpAdjust || 0; // graceful fallback for partial v2 files
+  }
   state.disorders = (data.disorders || []).map((d, i) => ({ id: i, text: d.text || '' }));
   _disorderIdCounter = state.disorders.length;
   state.showAllSkills = data.showAllSkills || false;

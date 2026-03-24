@@ -8,7 +8,7 @@
  *   3. Contains final attribute values for all 6 attributes.
  *   4. Contains final skill percentages, with spot-checks for known values.
  *   5. Contains bonds as outcome-only objects (name, type, currentScore — no bonusSpent).
- *   6. Contains play-state fields (currentHP, currentWP, currentSAN, etc.).
+ *   6. Contains final HP/WP/SAN values plus Breaking Point, Max SAN, and Recovery SAN.
  *   7. Does NOT contain process fields (rolledSets, skillPoints, adversityPoints, etc.).
  *
  * Mirrors the fields produced by exportToJson() and consumed by importFromJsonV2()
@@ -152,9 +152,22 @@ assertField(character, 'helplessnessChecked', 'array', 'root');
 assert((character.violenceChecked || []).length === 3, 'violenceChecked should have 3 entries');
 assert((character.helplessnessChecked || []).length === 3, 'helplessnessChecked should have 3 entries');
 assert('currentHP' in character, 'root.currentHP key should be present');
+assert(typeof character.currentHP === 'number', 'root.currentHP should be a number');
 assert('currentWP' in character, 'root.currentWP key should be present');
+assert(typeof character.currentWP === 'number', 'root.currentWP should be a number');
 assert('currentSAN' in character, 'root.currentSAN key should be present');
-assertField(character, 'bpAdjust', 'number', 'root');
+assert(typeof character.currentSAN === 'number', 'root.currentSAN should be a number');
+assertField(character, 'maxHP',  'number', 'root');
+assertField(character, 'maxWP',  'number', 'root');
+assertField(character, 'maxSAN', 'number', 'root');
+assertField(character, 'breakingPoint', 'number', 'root');
+assertField(character, 'recoverySAN',   'number', 'root');
+// Spot-check derived values for the sample character (STR 15, CON 12, POW 12, normal)
+assert(character.maxHP  === 14, `maxHP should be 14, got ${character.maxHP}`);
+assert(character.maxWP  === 12, `maxWP should be 12, got ${character.maxWP}`);
+assert(character.maxSAN === 99, `maxSAN should be 99 (no Unnatural), got ${character.maxSAN}`);
+assert(character.breakingPoint === 48, `breakingPoint should be 48 (SAN 60 − POW 12), got ${character.breakingPoint}`);
+assert(character.recoverySAN   === 60, `recoverySAN should be 60 (POW 12 × 5), got ${character.recoverySAN}`);
 assertField(character, 'disorders', 'array', 'root');
 assertField(character, 'showAllSkills', 'boolean', 'root');
 
@@ -166,6 +179,7 @@ for (let i = 0; i < (character.disorders || []).length; i++) {
 }
 
 // 12. Process fields must NOT be present in v2 exports
+assertAbsent(character, 'bpAdjust',           'root');
 assertAbsent(character, 'rolledSets',         'root');
 assertAbsent(character, 'attrAssign',          'root');
 assertAbsent(character, 'harshStatChoice',     'root');
