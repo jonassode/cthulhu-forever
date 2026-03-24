@@ -2477,8 +2477,10 @@ function resetState() {
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
+  state.resourcesEditAdjust = 0;
   state.resourceChecked  = [];
   state.skillChecked     = {};
+  state.skillEditAdjust  = {};
   state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
   state.currentHP        = null;
   state.currentWP        = null;
