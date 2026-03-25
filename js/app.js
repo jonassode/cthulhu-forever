@@ -1894,24 +1894,6 @@ function buildCharSheetHtml() {
     </div>
 
     <div class="sheet-section">
-      <div class="sheet-section-title">Disorders / Conditions</div>
-      <div class="disorders-list" id="disorders-list">
-        ${state.disorders.length === 0
-          ? `<span style="font-size:0.78rem;color:var(--text-secondary);font-style:italic;">No active disorders.</span>`
-          : state.disorders.map(d => `
-            <div class="disorder-row" id="disorder-row-${d.id}">
-              <input type="text" class="disorder-input" value="${escapeHtml(d.text)}"
-                     placeholder="Describe the disorder or condition…"
-                     oninput="updateDisorderText(${d.id},this.value)"
-                     aria-label="Disorder description" />
-              <button class="remove-custom-skill-btn" onclick="removeDisorder(${d.id})" title="Remove disorder" aria-label="Remove disorder">×</button>
-            </div>`).join('')
-        }
-      </div>
-      <button class="add-custom-skill-btn" onclick="addDisorder()" style="margin-top:0.5rem;">+ Add Disorder</button>
-    </div>
-
-    <div class="sheet-section">
       <div class="sheet-section-title">Bonds</div>
       <div class="bonds-sheet-list">
         ${state.bonds.map((b, origIdx) => {
@@ -1932,15 +1914,34 @@ function buildCharSheetHtml() {
       </div>
     </div>
 
-
-    <div class="sheet-3col-row">
+    <div class="sheet-2col-row">
       <div class="sheet-section">
-        <div class="sheet-section-title">Backstory</div>
-        <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+        <div class="sheet-section-title">Disorders / Conditions</div>
+        <div class="disorders-list" id="disorders-list">
+          ${state.disorders.length === 0
+            ? `<span style="font-size:0.78rem;color:var(--text-secondary);font-style:italic;">No active disorders.</span>`
+            : state.disorders.map(d => `
+              <div class="disorder-row" id="disorder-row-${d.id}">
+                <input type="text" class="disorder-input" value="${escapeHtml(d.text)}"
+                       placeholder="Describe the disorder or condition…"
+                       oninput="updateDisorderText(${d.id},this.value)"
+                       aria-label="Disorder description" />
+                <button class="remove-custom-skill-btn" onclick="removeDisorder(${d.id})" title="Remove disorder" aria-label="Remove disorder">×</button>
+              </div>`).join('')
+          }
+        </div>
+        <button class="add-custom-skill-btn" onclick="addDisorder()" style="margin-top:0.5rem;" title="Adding a disorder requires you to remove/strike out one of your Motivations">+ Add Disorder</button>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Motivations</div>
         <div class="sheet-backstory" id="sheet-motivations" title="Double-click to edit" ondblclick="startEditText('motivations','sheet-motivations')">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
+      </div>
+    </div>
+
+    <div class="sheet-2col-row">
+      <div class="sheet-section">
+        <div class="sheet-section-title">Backstory</div>
+        <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Gear &amp; Weapons</div>

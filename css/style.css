@@ -1150,6 +1150,18 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 .sheet-3col-row .sheet-section:last-child {
   border-right: none;
 }
+.sheet-2col-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-bottom: 1px solid rgba(42,53,72,0.6);
+}
+.sheet-2col-row .sheet-section {
+  border-bottom: none;
+  border-right: 1px solid rgba(42,53,72,0.6);
+}
+.sheet-2col-row .sheet-section:last-child {
+  border-right: none;
+}
 .sheet-section-title {
   font-family: var(--font-head);
   font-size: 0.7rem;
