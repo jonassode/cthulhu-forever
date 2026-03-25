@@ -2,6 +2,10 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.144 - fix: move minus button to right side of bond status badge in edit mode  
+0.143 - fix: tooltip font/case and badge colour style  
+0.142 - fix: capitalise tooltip text and add trailing periods  
+0.141 - feat: add community bond status badge and tooltip based on rating  
 0.140 - refactor: address code review - use constants, fix color variable  
 0.139 - feat: add points-based attribute allocation mode  
 0.138 - fix: revert checkout to v4 in update-changelog.yml (matches original, consistent with static.yml fix)  
