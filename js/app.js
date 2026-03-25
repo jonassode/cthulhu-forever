@@ -1930,7 +1930,7 @@ function buildCharSheetHtml() {
               </div>`).join('')
           }
         </div>
-        <button class="add-custom-skill-btn" onclick="addDisorder()" style="margin-top:0.5rem;" title="Adding a disorder requires you to remove/strike out one of your Motivations">+ Add Disorder</button>
+        <button class="add-custom-skill-btn" onclick="addDisorder()" style="margin-top:0.5rem;" data-tooltip="Adding a disorder requires you to remove/strike out one of your Motivations">+ Add Disorder</button>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Motivations</div>
