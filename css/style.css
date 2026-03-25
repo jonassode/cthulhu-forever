@@ -1093,6 +1093,33 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   height: 14px;
   flex-shrink: 0;
 }
+.sheet-settings-action {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+.sheet-settings-action:hover {
+  color: var(--accent-gold);
+}
+.import-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+.import-divider::before,
+.import-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
 .sheet-section {
   padding: 1.25rem 1.75rem;
   border-bottom: 1px solid rgba(42,53,72,0.6);

@@ -594,6 +594,16 @@ function renderStep1() {
       <strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
+
+    <div class="import-divider">
+      <span>or</span>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn btn-outline" onclick="triggerImport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import Character from JSON
+      </button>
+    </div>
   </div>`;
 }
 
@@ -1529,6 +1539,10 @@ function buildCharSheetHtml() {
                 <input type="checkbox" ${state.showAllSkills ? 'checked' : ''} onchange="toggleShowAllSkills()">
                 <span>Show All Skills</span>
               </label>
+              <button class="sheet-settings-item sheet-settings-action" onclick="exportToJson()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export to JSON</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2126,6 +2140,298 @@ function toggleShowAllSkills() {
   render();
 }
 
+// ── Import / Export ─────────────────────────────────────────
+
+function exportToJson() {
+  // Final attribute values
+  const attributes = {};
+  ATTRIBUTES.forEach(a => { attributes[a] = getAttrValue(a); });
+
+  // Final skill percentages for every skill in the current era
+  const skills = {};
+  const baseSkills = getCurrentSkills();
+  Object.keys(baseSkills).forEach(s => { skills[s] = getDisplayedSkillValue(s); });
+
+  // Custom skills: just name and final displayed value
+  const customSkills = (state.customSkills || [])
+    .filter(cs => (cs.customName || '').trim())
+    .map(cs => {
+      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+      return {
+        name: getCustomSkillDisplayName(cs),
+        value: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
+      };
+    });
+
+  // Bonds: just name, type, and current in-play score (no bonusSpent)
+  const bonds = (state.bonds || [])
+    .filter(b => b && b.name && b.name.trim())
+    .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
+
+  const derived = calculateDerived();
+  // derived is always non-null here: export is only reachable from the completed
+  // character sheet (step 6) where all attributes are assigned.
+  // The fallbacks below are purely defensive and should never be used.
+
+  const exportData = {
+    version: 2,
+    age: state.age,
+    upbringing: state.upbringing,
+    archetype: state.archetype,
+    identity: { ...state.identity },
+    attributes,
+    skills,
+    skillTypes: { ...state.skillTypes },
+    customSkills,
+    bonds,
+    resources: getDisplayedResources(),
+    resourceChecked: [...(state.resourceChecked || [])],
+    skillChecked: { ...state.skillChecked },
+    violenceChecked: [...(state.violenceChecked || [false, false, false])],
+    helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
+    maxHP:  derived ? derived.HP       : 0,
+    maxWP:  derived ? derived.WP       : 0,
+    maxSAN: derived ? derived.MaxSAN   : 0,
+    currentHP:  derived ? Math.max(0, Math.min(state.currentHP  !== null ? state.currentHP  : derived.HP,       derived.HP))       : 0,
+    currentWP:  derived ? Math.max(0, Math.min(state.currentWP  !== null ? state.currentWP  : derived.WP,       derived.WP))       : 0,
+    currentSAN: derived ? Math.max(0, Math.min(state.currentSAN !== null ? state.currentSAN : derived.SAN,      derived.MaxSAN))   : 0,
+    breakingPoint: derived ? derived.BP + (state.bpAdjust || 0) : 0,
+    recoverySAN:   derived ? derived.RecoverySAN : 0,
+    disorders: JSON.parse(JSON.stringify(state.disorders || [])),
+    showAllSkills: state.showAllSkills || false,
+  };
+
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = (state.identity.name || 'character').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  a.href = url;
+  a.download = `${safeName}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Close settings dropdown after export
+  const dropdown = document.getElementById('sheet-settings-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+}
+
+function triggerImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        importFromJson(data);
+      } catch (_err) {
+        console.error('Failed to parse character JSON:', _err);
+        alert('Invalid file. Please select a valid character JSON export.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function importFromJson(data) {
+  if (!data || typeof data !== 'object') {
+    alert('Invalid character data.');
+    return;
+  }
+
+  // Validate minimum required fields (common to all versions)
+  if (!data.identity || !data.identity.name || !data.identity.name.trim()) {
+    alert('Invalid character data: missing character name.');
+    return;
+  }
+  if (!data.age || (data.age !== 'jazz' && data.age !== 'modern')) {
+    alert('Invalid character data: missing or unknown era (age).');
+    return;
+  }
+
+  if ((data.version || 1) >= 2) {
+    importFromJsonV2(data);
+  } else {
+    importFromJsonV1(data);
+  }
+}
+
+// Imports a v2 (outcome-only) character export.
+// Reconstructs the minimal synthetic internal state so all rendering functions
+// return the correct final values without replaying the creation process.
+function importFromJsonV2(data) {
+  // ── Identity & character meta ────────────────────────────
+  state.age = data.age;
+  state.upbringing = data.upbringing || null;
+  // harshStatChoice is not stored in v2; attribute values already include the bonus.
+  // Setting it to null makes getUpbringingBonus() return 0, so synthetic roll totals
+  // can equal the exported attribute values directly.
+  state.harshStatChoice = null;
+  state.archetype = data.archetype || null;
+  // selectedOptional is not stored in v2; the archetype bonus for optional skills is
+  // already baked into the exported final values via skillEditAdjust reconstruction below.
+  state.selectedOptional = [];
+
+  state.identity = {
+    name:         data.identity.name || '',
+    profession:   data.identity.profession || '',
+    nationality:  data.identity.nationality || '',
+    gender:       data.identity.gender || '',
+    characterAge: data.identity.characterAge || 25,
+    backstory:    data.identity.backstory || '',
+    motivations:  data.identity.motivations || '',
+    gear:         data.identity.gear || '',
+  };
+
+  // ── Attributes: synthetic roll sets ─────────────────────
+  // Each roll set has a total equal to the exported final attribute value.
+  // Since harshStatChoice = null, getUpbringingBonus() = 0 for all attrs,
+  // so getAttrValue(a) = rolledSet.total = exported value.
+  const attrs = data.attributes || {};
+  state.rolledSets = ATTRIBUTES.map((a, i) => ({
+    id: i,
+    values: [attrs[a] || 1, 1, 1, 1],
+    total: attrs[a] || 1,
+  }));
+  ATTRIBUTES.forEach((a, i) => { state.attrAssign[a] = i; });
+
+  // ── Skills ───────────────────────────────────────────────
+  // Zero out all pick-based contributions; store the delta between the exported
+  // final value and the archetype-only base in skillEditAdjust so that
+  // getDisplayedSkillValue() returns the correct value.
+  state.skillPoints = {};
+  state.adversityPoints = {};
+  state.skillTypes = data.skillTypes || {};
+
+  // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
+  // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : MODERN_SKILLS;
+  state.skillEditAdjust = {};
+  Object.keys(baseSkills).forEach(s => {
+    const skillData = data.skills || {};
+    const exported = s in skillData ? skillData[s] : getFinalSkillValue(s);
+    const computed = getFinalSkillValue(s);
+    const adj = exported - computed;
+    if (adj !== 0) state.skillEditAdjust[s] = adj;
+  });
+
+  // ── Custom skills ────────────────────────────────────────
+  state.customSkills = (data.customSkills || []).map((cs, i) => ({
+    id: i,
+    // Cap at 80: getFinalCustomSkillValue = min(80, baseValue + points * 20).
+    // With points = 0, setting baseValue = min(80, value) ensures the correct
+    // display value without any edit adjustment needed.
+    baseValue: Math.min(80, cs.value || 0),
+    customName: cs.name || '',
+    points: 0,
+  }));
+  _customSkillIdCounter = state.customSkills.length > 0 ? state.customSkills.length : 0;
+
+  // ── Resources ────────────────────────────────────────────
+  state.resourcesBonusSpent = 0;
+  // getEffectiveResources() = arch.resources (archetype now set, bonusSpent = 0).
+  // Store remaining delta in resourcesEditAdjust so getDisplayedResources() is correct.
+  const effectiveRes = getEffectiveResources();
+  state.resourcesEditAdjust = (data.resources || 0) - effectiveRes;
+
+  // ── Bonds ────────────────────────────────────────────────
+  state.bonds = (data.bonds || []).map(b => ({
+    name: b.name || '',
+    type: b.type || 'individual',
+    bonusSpent: 0,
+    currentScore: (b.currentScore !== undefined && b.currentScore !== null) ? b.currentScore : null,
+  }));
+
+  // ── Play state & tracking ────────────────────────────────
+  state.resourceChecked = data.resourceChecked || [];
+  state.skillChecked = data.skillChecked || {};
+  state.violenceChecked = data.violenceChecked || [false, false, false];
+  state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
+  // currentHP/WP/SAN are stored as final numbers in v2; null falls back to derived max.
+  state.currentHP  = (data.currentHP  !== undefined && data.currentHP  !== null) ? data.currentHP  : null;
+  state.currentWP  = (data.currentWP  !== undefined && data.currentWP  !== null) ? data.currentWP  : null;
+  state.currentSAN = (data.currentSAN !== undefined && data.currentSAN !== null) ? data.currentSAN : null;
+  // breakingPoint is the final value; reconstruct bpAdjust as delta from the base BP so
+  // the in-play BP display remains correct even after a re-import.
+  if (data.breakingPoint !== undefined && data.breakingPoint !== null) {
+    const d = calculateDerived();
+    state.bpAdjust = d ? data.breakingPoint - d.BP : 0;
+  } else {
+    state.bpAdjust = data.bpAdjust || 0; // graceful fallback for partial v2 files
+  }
+  state.disorders = (data.disorders || []).map((d, i) => ({ id: i, text: d.text || '' }));
+  _disorderIdCounter = state.disorders.length;
+  state.showAllSkills = data.showAllSkills || false;
+
+  state.editMode = false;
+  state.playMode = false;
+  state.currentStep = 6;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Imports a v1 (process-based) character export for backward compatibility.
+function importFromJsonV1(data) {
+  state.age = data.age;
+  state.rolledSets = data.rolledSets || [];
+  ATTRIBUTES.forEach(a => {
+    state.attrAssign[a] = (data.attrAssign && data.attrAssign[a] !== undefined) ? data.attrAssign[a] : null;
+  });
+  state.upbringing = data.upbringing || null;
+  state.harshStatChoice = data.harshStatChoice || null;
+  state.adversityPoints = data.adversityPoints || {};
+  state.archetype = data.archetype || null;
+  state.selectedOptional = data.selectedOptional || [];
+  state.skillPoints = data.skillPoints || {};
+  state.skillTypes = data.skillTypes || {};
+  state.customSkills = data.customSkills || [];
+  state.bonds = data.bonds || [];
+  state.resources = data.resources || 0;
+  state.resourcesBonusSpent = data.resourcesBonusSpent || 0;
+  state.resourceChecked = data.resourceChecked || [];
+  state.skillChecked = data.skillChecked || {};
+  state.violenceChecked = data.violenceChecked || [false, false, false];
+  state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
+  state.currentHP  = (data.currentHP  !== undefined && data.currentHP  !== null) ? data.currentHP  : null;
+  state.currentWP  = (data.currentWP  !== undefined && data.currentWP  !== null) ? data.currentWP  : null;
+  state.currentSAN = (data.currentSAN !== undefined && data.currentSAN !== null) ? data.currentSAN : null;
+  state.bpAdjust = data.bpAdjust || 0;
+  state.disorders = data.disorders || [];
+  state.showAllSkills = data.showAllSkills || false;
+  state.skillEditAdjust = data.skillEditAdjust || {};
+  state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
+  state.editMode = false;
+  state.playMode = false;
+  state.identity = {
+    name:         data.identity.name || '',
+    profession:   data.identity.profession || '',
+    nationality:  data.identity.nationality || '',
+    gender:       data.identity.gender || '',
+    characterAge: data.identity.characterAge || 25,
+    backstory:    data.identity.backstory || '',
+    motivations:  data.identity.motivations || '',
+    gear:         data.identity.gear || '',
+  };
+
+  _customSkillIdCounter = state.customSkills.length > 0
+    ? Math.max(...state.customSkills.map(cs => cs.id)) + 1
+    : 0;
+  _disorderIdCounter = state.disorders.length > 0
+    ? Math.max(...state.disorders.map(d => d.id)) + 1
+    : 0;
+
+  state.currentStep = 6;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function toggleSheetSettings(event) {
   event.stopPropagation();
   const dropdown = document.getElementById('sheet-settings-dropdown');
@@ -2171,8 +2477,10 @@ function resetState() {
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
+  state.resourcesEditAdjust = 0;
   state.resourceChecked  = [];
   state.skillChecked     = {};
+  state.skillEditAdjust  = {};
   state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
   state.currentHP        = null;
   state.currentWP        = null;
