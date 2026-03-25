@@ -164,6 +164,7 @@ const testCode = `
     state.bonds             = [];
     state.resources         = 0;
     state.resourcesBonusSpent = 0;
+    state.resourcesSetToZero  = false;
     state.currentHP         = null;
     state.currentWP         = null;
     state.currentSAN        = null;
@@ -803,6 +804,95 @@ const testCode = `
     // 18+18+12+12+6+3 = 69 — 3 short of 72
     eq(getPointsTotal(),     69, 'Points total = 69 when 3 short');
     eq(getPointsRemaining(),  3, 'Points remaining = 3 when 3 short');
+  }
+
+  // ── Suite 10: Sacrifice Toggles (Resources → 0, Bond → 1) ──────────────────
+
+  console.log('\\n── Suite 10: Sacrifice Toggles (Resources → 0, Bond → 1) ──────────────────');
+
+  // 10.1  Sacrificing Resources sets effective resources to 0 and grants +1 bonus pick
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist'; // base resources = 4
+    state.resourcesSetToZero = false;
+
+    eq(getEffectiveResources(),  4, 'Resources before sacrifice = archetype base (4)');
+    eq(getBonusPointsTotal(),   10, 'Bonus picks total before sacrifice = 10');
+
+    state.resourcesSetToZero = true;
+    eq(getEffectiveResources(),  0, 'Resources after sacrifice = 0');
+    eq(getBonusPointsTotal(),   11, 'Bonus picks total after resource sacrifice = 11');
+    eq(getBonusPointsRemaining(), 11, 'All 11 picks remain when none spent');
+  }
+
+  // 10.2  resourcesBonusSpent is irrelevant when sacrifice toggle is on
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist';
+    state.resourcesBonusSpent = 2; // 2 picks spent before sacrifice
+    state.resourcesSetToZero = true;
+    eq(getEffectiveResources(), 0, 'Resources = 0 even when resourcesBonusSpent > 0 (sacrifice wins)');
+    // Total = 11 (base 10 + 1 sacrifice); spent = 2 (those picks are still counted as spent)
+    // BUT: toggleResourcesZero() refunds resourcesBonusSpent, so in normal usage it would be 0.
+    // Here we test that getEffectiveResources ignores resourcesBonusSpent when sacrifice is on.
+    eq(getBonusPointsTotal(), 11, 'Total = 11 while sacrifice is active');
+  }
+
+  // 10.3  Community bond sacrifice: bond score = 1, grants +1 bonus pick
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+
+    const sacBond = { name: 'The Lodge', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false };
+    // Base community bond = floor(resources/2) = floor(4/2) = 2
+    eq(getBondEffectiveValue(sacBond), 2, 'Community bond before sacrifice = 2');
+
+    sacBond.setToOne = true;
+    eq(getBondEffectiveValue(sacBond), 1, 'Community bond after sacrifice = 1');
+
+    state.bonds = [sacBond];
+    eq(getBonusPointsTotal(), 11, 'Bonus picks total with 1 bond sacrifice = 11');
+    eq(getBonusPointsRemaining(), 11, 'All 11 remaining when no skills spent');
+  }
+
+  // 10.4  Multiple bond sacrifices stack with resource sacrifice
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist';
+    state.resourcesSetToZero = true;
+    state.bonds = [
+      { name: 'Org A', type: 'community', bonusSpent: 0, currentScore: null, setToOne: true },
+      { name: 'Org B', type: 'community', bonusSpent: 0, currentScore: null, setToOne: true },
+      { name: 'Person', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false },
+    ];
+    // Total = 10 (base) + 1 (resources) + 2 (2 bonds) = 13
+    eq(getBonusPointsTotal(), 13, 'Total picks: base(10) + resources(1) + 2 bonds(2) = 13');
+  }
+
+  // 10.5  Individual bonds cannot be sacrificed (setToOne ignored for individual bonds)
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 14 });
+
+    const indBond = { name: 'Alice', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: true };
+    // Individual bond value is always CHA (setToOne on individual bond has no effect on value)
+    eq(getBondEffectiveValue(indBond), 14, 'Individual bond value = CHA even when setToOne=true');
+    // setToOne on individual bond does NOT grant bonus picks
+    state.bonds = [indBond];
+    eq(getBonusPointsTotal(), 10, 'Individual bond setToOne does not increase bonus picks total');
+  }
+
+  // 10.6  Community bond base = 0 when resources sacrificed, even without setToOne
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist'; // base resources = 4
+    state.resourcesSetToZero = true;
+
+    const comBond = { name: 'Church', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false };
+    // Resources is 0, so floor(0/2) = 0
+    eq(getBondEffectiveValue(comBond), 0, 'Community bond base = 0 when resources sacrificed');
   }
 
 })();
