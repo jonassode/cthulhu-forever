@@ -865,6 +865,19 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border: 1px solid rgba(154,141,114,0.35);
   color: var(--text-secondary);
 }
+.bond-status-badge {
+  font-size: 0.65rem;
+  font-family: var(--font-head);
+  letter-spacing: 0.04em;
+  border-radius: 10px;
+  padding: 1px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(154,141,114,0.18);
+  border: 1px solid rgba(154,141,114,0.45);
+  color: var(--text-secondary);
+  cursor: help;
+}
 .bond-sheet-name {
   flex: 1;
   font-size: 0.88rem;
@@ -1608,6 +1621,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-radius: 6px;
   padding: 5px 10px;
   font-size: 0.72rem;
+  font-family: var(--font-body);
+  text-transform: none;
   color: var(--text-primary);
   white-space: normal;   /* allow wrapping for multi-word tooltips */
   pointer-events: none;
