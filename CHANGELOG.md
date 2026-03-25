@@ -2,6 +2,35 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.134 - Fix MaxSAN calculation and clamp SAN/RecoverySAN to MaxSAN  
+0.133 - Initial plan  
+0.132 - Add character creation validation tests and wire into CI  
+0.131 - fix: reset violenceChecked, helplessnessChecked, editMode, showAllSkills on Start Over  
+0.130 - Initial plan  
+0.129 - Initial plan  
+0.128 - Fix: reset resourcesEditAdjust and skillEditAdjust in resetState()  
+0.127 - Export final HP/WP/SAN/BP/MaxSAN/RecoverySAN values in v2 format  
+0.126 - Simplify JSON export to outcome-only v2 format  
+0.125 - Add Import/Export character JSON feature with tests  
+0.124 - Initial plan  
+0.123 - Enhance copilot instructions with new sections  
+0.122 - Add CHANGELOG.md with PR-based version entries from newest to oldest  
+0.121 - Initial plan  
+0.120 - Fix invalid actions/checkout@v5 to v4 in static.yml  
+0.119 - Fix pages workflow: downgrade configure-pages to v5 and deploy-pages to v4  
+0.118 - Initial plan  
+0.117 - fix: update GitHub Actions to Node.js 24 compatible versions  
+0.116 - Initial plan  
+0.115 - Update Credits.md link to use full GitHub URL on main branch  
+0.114 - Initial plan  
+0.113 - Add test workflow to run validate-skill-parity.mjs on PRs and main  
+0.112 - Initial plan  
+0.111 - style: replace globe icon with octopus icon for cthulhueternal.com link  
+0.110 - fix: replace broken OGL link with Wikipedia OGL page in Credits.md  
+0.109 - Move Add Custom Skill out of advanced mode, remove advanced mode, use skill tooltip  
+0.108 - fix: update DriveThruRPG link for Cthulhu Reborn in Credits.md  
+0.107 - Remove clone skill button and functionality from the builder  
+0.106 - feat: add Credits.md and Clear Credits footer link  
 0.105 - Fixed invalid `actions/checkout` version in static workflow  
 0.104 - Fixed GitHub Pages deployment workflow by downgrading actions versions  
 0.100 - Updated GitHub Actions to use Node.js 24 compatible versions  
