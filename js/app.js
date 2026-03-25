@@ -153,9 +153,15 @@ function getUpbringingBonus(attrKey) {
   return 0;
 }
 
+// ── Points-based allocation helpers ─────────────────────────
+
+const POINTS_TOTAL = 72;
+const POINTS_ATTR_MIN = 3;
+const POINTS_ATTR_MAX = 18;
+
 function getAttrValue(attrKey) {
   if (state.attrMode === 'points') {
-    return (state.pointsAttr[attrKey] || 3) + getUpbringingBonus(attrKey);
+    return (state.pointsAttr[attrKey] || POINTS_ATTR_MIN) + getUpbringingBonus(attrKey);
   }
   const id = state.attrAssign[attrKey];
   if (id === null || id === undefined) return null;
@@ -172,7 +178,7 @@ function getAttrValues() {
 
 function allAttributesAssigned() {
   if (state.attrMode === 'points') {
-    return getPointsTotal() === 72;
+    return getPointsTotal() === POINTS_TOTAL;
   }
   return ATTRIBUTES.every(a => state.attrAssign[a] !== null && state.attrAssign[a] !== undefined);
 }
@@ -180,12 +186,6 @@ function allAttributesAssigned() {
 function assignedRollIds() {
   return new Set(Object.values(state.attrAssign).filter(v => v !== null && v !== undefined));
 }
-
-// ── Points-based allocation helpers ─────────────────────────
-
-const POINTS_TOTAL = 72;
-const POINTS_ATTR_MIN = 3;
-const POINTS_ATTR_MAX = 18;
 
 function getPointsTotal() {
   return ATTRIBUTES.reduce((sum, a) => sum + (state.pointsAttr[a] || POINTS_ATTR_MIN), 0);
@@ -765,7 +765,7 @@ function renderStep2() {
         </div>`;
     }).join('');
 
-    const remainingColor = remaining === 0 ? 'var(--accent-gold)' : remaining < 0 ? '#e05' : 'var(--text-secondary)';
+    const remainingColor = remaining === 0 ? 'var(--accent-gold)' : remaining < 0 ? 'var(--danger-light)' : 'var(--text-secondary)';
 
     return `
     <div class="step-content">
@@ -782,7 +782,7 @@ function renderStep2() {
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
         <span style="font-size:0.85rem;font-family:var(--font-head);letter-spacing:0.05em;color:var(--text-secondary);">Points remaining:</span>
         <span style="font-size:1.1rem;font-weight:bold;color:${remainingColor};">${remaining}</span>
-        <span style="font-size:0.75rem;color:var(--text-secondary);">/ 72</span>
+        <span style="font-size:0.75rem;color:var(--text-secondary);">/ ${POINTS_TOTAL}</span>
       </div>
 
       <div class="section-header"><h3>Attribute Points</h3></div>
