@@ -149,6 +149,8 @@ const testCode = `
   // Resets state to a clean, archetype-less baseline.
   function resetState() {
     state.age               = null;
+    state.attrMode          = 'rolling';
+    state.pointsAttr        = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
     state.rolledSets        = [];
     state.attrAssign        = { STR: null, CON: null, DEX: null, INT: null, POW: null, CHA: null };
     state.upbringing        = null;
@@ -711,6 +713,74 @@ const testCode = `
     ];
     eq(getBonusPointsSpent(),      6, 'After 3 skill + 1 resource + 2 bond picks: spent = 6');
     eq(getBonusPointsRemaining(),  4, 'After 6 total picks: remaining = 4');
+  }
+
+  // ── Suite 9: Points-Based Attribute Allocation ───────────────────────────────
+
+  console.log('\\n── Suite 9: Points-Based Attribute Allocation ──────────────────────────────');
+
+  {
+    // 9.1  Default pointsAttr totals to 72 (12 × 6)
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    eq(getPointsTotal(),     72, 'Default points allocation totals 72');
+    eq(getPointsRemaining(),  0, 'Default allocation: 0 points remaining');
+  }
+
+  {
+    // 9.2  getAttrValue returns pointsAttr values in points mode
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 15, CON: 12, DEX: 14, INT: 17, POW: 8, CHA: 6 };
+    eq(getAttrValue('STR'), 15, 'Points mode: getAttrValue(STR) = 15');
+    eq(getAttrValue('INT'), 17, 'Points mode: getAttrValue(INT) = 17');
+    eq(getAttrValue('CHA'),  6, 'Points mode: getAttrValue(CHA) = 6');
+  }
+
+  {
+    // 9.3  allAttributesAssigned returns true only when total == 72
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    eq(allAttributesAssigned(), true, 'Points mode: assigned when total == 72');
+
+    state.pointsAttr.STR = 11;
+    eq(allAttributesAssigned(), false, 'Points mode: not assigned when total != 72 (71)');
+
+    state.pointsAttr.STR = 12;
+    eq(allAttributesAssigned(), true, 'Points mode: assigned when total == 72 again (12×6=72)');
+  }
+
+  {
+    // 9.4  calculateDerived works correctly in points mode
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 15, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 2 };
+    // Total = 72? 15+12+14+17+12+2 = 72. Yes.
+    const d1 = calculateDerived();
+    eq(d1.HP,  14, 'Points mode: HP = ceil((15+12)/2) = 14');
+    eq(d1.WP,  12, 'Points mode: WP = POW = 12');
+    eq(d1.SAN, 60, 'Points mode: SAN = POW(12) × 5 = 60 [normal upbringing]');
+  }
+
+  {
+    // 9.5  Upbringing bonus applies correctly in points mode
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh'; state.harshStatChoice = 'STR';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    eq(getAttrValue('STR'), 13, 'Points mode + harsh (STR): STR = 12 + 1 bonus = 13');
+    eq(getAttrValue('CON'), 12, 'Points mode + harsh (STR): CON unchanged = 12');
+  }
+
+  {
+    // 9.6  getPointsRemaining reflects the unspent budget correctly
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 18, CON: 18, DEX: 12, INT: 12, POW: 6, CHA: 3 };
+    // 18+18+12+12+6+3 = 69 — 3 short of 72
+    eq(getPointsTotal(),     69, 'Points total = 69 when 3 short');
+    eq(getPointsRemaining(),  3, 'Points remaining = 3 when 3 short');
   }
 
 })();

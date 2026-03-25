@@ -9,6 +9,12 @@ const state = {
   playMode: false,    // true = character sheet only view
   age: null,          // 'jazz' | 'modern'
 
+  attrMode: 'rolling',  // 'rolling' | 'points'
+  pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
+    STR: 12, CON: 12, DEX: 12,
+    INT: 12, POW: 12, CHA: 12,
+  },
+
   rolledSets: [],     // [{id:N, values:[d1,d2,d3,d4], total:N}]
   attrAssign: {       // attribute -> rolledSet.id (or null)
     STR: null, CON: null, DEX: null,
@@ -148,6 +154,9 @@ function getUpbringingBonus(attrKey) {
 }
 
 function getAttrValue(attrKey) {
+  if (state.attrMode === 'points') {
+    return (state.pointsAttr[attrKey] || 3) + getUpbringingBonus(attrKey);
+  }
   const id = state.attrAssign[attrKey];
   if (id === null || id === undefined) return null;
   const rs = state.rolledSets.find(r => r.id === id);
@@ -162,11 +171,51 @@ function getAttrValues() {
 }
 
 function allAttributesAssigned() {
+  if (state.attrMode === 'points') {
+    return getPointsTotal() === 72;
+  }
   return ATTRIBUTES.every(a => state.attrAssign[a] !== null && state.attrAssign[a] !== undefined);
 }
 
 function assignedRollIds() {
   return new Set(Object.values(state.attrAssign).filter(v => v !== null && v !== undefined));
+}
+
+// ── Points-based allocation helpers ─────────────────────────
+
+const POINTS_TOTAL = 72;
+const POINTS_ATTR_MIN = 3;
+const POINTS_ATTR_MAX = 18;
+
+function getPointsTotal() {
+  return ATTRIBUTES.reduce((sum, a) => sum + (state.pointsAttr[a] || POINTS_ATTR_MIN), 0);
+}
+
+function getPointsRemaining() {
+  return POINTS_TOTAL - getPointsTotal();
+}
+
+function switchAttrMode(mode) {
+  state.attrMode = mode;
+  if (mode === 'rolling') {
+    // Clear rolls so user gets a fresh start
+    state.rolledSets = [];
+    ATTRIBUTES.forEach(a => { state.attrAssign[a] = null; });
+  } else {
+    // Reset points to default balanced allocation (12 each = 72 total)
+    ATTRIBUTES.forEach(a => { state.pointsAttr[a] = 12; });
+  }
+  render();
+}
+
+function adjustPointsAttr(attrKey, delta) {
+  const current = state.pointsAttr[attrKey] || POINTS_ATTR_MIN;
+  const next = current + delta;
+  if (next < POINTS_ATTR_MIN || next > POINTS_ATTR_MAX) return;
+  const remaining = getPointsRemaining();
+  if (delta > 0 && remaining < delta) return; // not enough points left
+  state.pointsAttr[attrKey] = next;
+  render();
 }
 
 function calculateDerived() {
@@ -628,11 +677,135 @@ function selectAge(val) {
 // ── RENDER: Step 2 — Attributes ─────────────────────────────
 
 function renderStep2() {
+  const isPointsMode = state.attrMode === 'points';
+
+  // ── Shared: derived stats ─────────────────────────────────
+  const allAssigned = allAttributesAssigned();
+  const derived     = allAssigned ? calculateDerived() : null;
+  const sanFormula  = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
+
+  const derivedHtml = derived ? `
+    <div class="derived-stats-columns">
+      <div class="derived-stats-col">
+        <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
+          <div class="ds-label">Hit Points</div>
+          <div class="ds-value">${derived.HP}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="Equal to POW">
+          <div class="ds-label">Willpower</div>
+          <div class="ds-value">${derived.WP}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
+          <div class="ds-label">Dmg Bonus</div>
+          <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
+        </div>
+      </div>
+      <div class="derived-stats-col">
+        <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
+          <div class="ds-label">Sanity</div>
+          <div class="ds-value">${derived.SAN}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
+          <div class="ds-label">Break. Point</div>
+          <div class="ds-value">${derived.BP}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="99 − Unnatural skill">
+          <div class="ds-label">Max SAN</div>
+          <div class="ds-value">${derived.MaxSAN}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="Always POW × 5">
+          <div class="ds-label">Recovery SAN</div>
+          <div class="ds-value">${derived.RecoverySAN}</div>
+        </div>
+      </div>
+    </div>` : '';
+
+  // ── Mode toggle ───────────────────────────────────────────
+  const modeToggleHtml = `
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <button class="btn ${!isPointsMode ? 'btn-gold' : 'btn-outline'}"
+              onclick="switchAttrMode('rolling')"
+              style="font-size:0.78rem;padding:6px 16px;"
+              title="Roll 4d6 (drop lowest) and assign results to attributes">
+        <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px;" viewBox="0 0 24 24">
+          <rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+          <circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/>
+        </svg>
+        Rolling
+      </button>
+      <button class="btn ${isPointsMode ? 'btn-gold' : 'btn-outline'}"
+              onclick="switchAttrMode('points')"
+              style="font-size:0.78rem;padding:6px 16px;"
+              title="Distribute 72 points freely across attributes (min 3, max 18 per stat)">
+        ✦ Points Based
+      </button>
+    </div>`;
+
+  // ── Points-based UI ───────────────────────────────────────
+  if (isPointsMode) {
+    const remaining = getPointsRemaining();
+    const pointsGrid = ATTRIBUTES.map(attr => {
+      const val = state.pointsAttr[attr] || POINTS_ATTR_MIN;
+      const canIncrease = remaining > 0 && val < POINTS_ATTR_MAX;
+      const canDecrease = val > POINTS_ATTR_MIN;
+      const feature = getDistinguishingFeature(attr, val);
+      return `
+        <div class="attr-slot assigned" style="cursor:default;">
+          <div class="attr-fullname">${ATTRIBUTE_FULL[attr]}</div>
+          <div class="attr-name">${attr}</div>
+          <div class="attr-value">${val}</div>
+          ${feature ? `<div style="font-size:0.62rem;color:var(--accent-gold);margin-top:2px;font-style:italic;">${feature}</div>` : ''}
+          <div style="display:flex;gap:0.25rem;margin-top:0.4rem;justify-content:center;">
+            <button class="btn btn-outline" style="padding:1px 8px;font-size:0.8rem;min-width:26px;"
+                    onclick="adjustPointsAttr('${attr}',-1)" ${canDecrease ? '' : 'disabled'} aria-label="Decrease ${attr}">−</button>
+            <button class="btn btn-outline" style="padding:1px 8px;font-size:0.8rem;min-width:26px;"
+                    onclick="adjustPointsAttr('${attr}',1)" ${canIncrease ? '' : 'disabled'} aria-label="Increase ${attr}">+</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const remainingColor = remaining === 0 ? 'var(--accent-gold)' : remaining < 0 ? '#e05' : 'var(--text-secondary)';
+
+    return `
+    <div class="step-content">
+      <h2 class="step-title">Assign Your Attributes</h2>
+      <p class="step-subtitle">Choose how to allocate your six core attributes.</p>
+
+      ${modeToggleHtml}
+
+      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
+        Distribute <strong>72 points</strong> across your six attributes.
+        Each stat must be at least <strong>3</strong> and no higher than <strong>18</strong>.
+      </p>
+
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <span style="font-size:0.85rem;font-family:var(--font-head);letter-spacing:0.05em;color:var(--text-secondary);">Points remaining:</span>
+        <span style="font-size:1.1rem;font-weight:bold;color:${remainingColor};">${remaining}</span>
+        <span style="font-size:0.75rem;color:var(--text-secondary);">/ 72</span>
+      </div>
+
+      <div class="section-header"><h3>Attribute Points</h3></div>
+      <div class="attr-grid" id="attr-grid">${pointsGrid}</div>
+
+      ${remaining === 0 ? `<div class="notice" style="margin-top:-0.5rem;margin-bottom:1rem;">
+        <strong>All 72 points spent!</strong> Derived statistics calculated below.
+      </div>` : ''}
+
+      ${derivedHtml}
+
+      ${remaining !== 0 ? `<p class="validation-msg">Spend all 72 points to continue (${remaining > 0 ? remaining + ' remaining' : Math.abs(remaining) + ' over budget'}).</p>` : ''}
+
+      ${allAssigned ? renderUpbringing() : ''}
+
+      ${allAssigned && !canProceed(2) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
+    </div>`;
+  }
+
+  // ── Rolling UI ────────────────────────────────────────────
   const poolRollIds = assignedRollIds();
   const unassigned  = state.rolledSets.filter(r => !poolRollIds.has(r.id));
   const hasRolled   = state.rolledSets.length > 0;
-  const allAssigned = allAttributesAssigned();
-  const derived     = allAssigned ? calculateDerived() : null;
 
   // Build roll pool chips
   const poolHtml = hasRolled ? unassigned.map(rs => {
@@ -700,47 +873,14 @@ function renderStep2() {
     </div>`;
   }).join('') : '';
 
-  const sanFormula = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
-  const derivedHtml = derived ? `
-    <div class="derived-stats-columns">
-      <div class="derived-stats-col">
-        <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
-          <div class="ds-label">Hit Points</div>
-          <div class="ds-value">${derived.HP}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="Equal to POW">
-          <div class="ds-label">Willpower</div>
-          <div class="ds-value">${derived.WP}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
-          <div class="ds-label">Dmg Bonus</div>
-          <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
-        </div>
-      </div>
-      <div class="derived-stats-col">
-        <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
-          <div class="ds-label">Sanity</div>
-          <div class="ds-value">${derived.SAN}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
-          <div class="ds-label">Break. Point</div>
-          <div class="ds-value">${derived.BP}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="99 − Unnatural skill">
-          <div class="ds-label">Max SAN</div>
-          <div class="ds-value">${derived.MaxSAN}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="Always POW × 5">
-          <div class="ds-label">Recovery SAN</div>
-          <div class="ds-value">${derived.RecoverySAN}</div>
-        </div>
-      </div>
-    </div>` : '';
-
   return `
   <div class="step-content">
-    <h2 class="step-title">Roll Your Attributes</h2>
-    <p class="step-subtitle">Roll 4d6 six times, keeping the highest three dice each time. Assign each result to an attribute by dragging or using the dropdowns below.</p>
+    <h2 class="step-title">Assign Your Attributes</h2>
+    <p class="step-subtitle">Choose how to allocate your six core attributes.</p>
+
+    ${modeToggleHtml}
+
+    <p class="step-subtitle" style="margin-top:-0.5rem;">Roll 4d6 six times, keeping the highest three dice each time. Assign each result to an attribute by dragging or using the dropdowns below.</p>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
       <span style="font-size:0.8rem;color:var(--text-secondary);">
@@ -2469,6 +2609,8 @@ function resetState() {
   state.currentStep = 1;
   state.playMode    = false;
   state.age         = null;
+  state.attrMode    = 'rolling';
+  ATTRIBUTES.forEach(a => { state.pointsAttr[a] = 12; });
   state.rolledSets  = [];
   ATTRIBUTES.forEach(a => { state.attrAssign[a] = null; });
   state.upbringing       = null;

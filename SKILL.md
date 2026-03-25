@@ -19,6 +19,8 @@ Protagonists have six core statistics.
 
 **Generation:** Roll 4D6 (drop lowest) for each stat.
 
+**Alternative — Points-Based Allocation:** Instead of rolling, distribute **72 points** freely across the six stats. Each stat must be at least **3** and no higher than **18**.
+
 ### Distinguishing Features
 
 A stat of 8 or below, or 13 or above (i.e., outside the average range of 9–12), is exceptional and grants a **Distinguishing Feature** — a descriptor that reflects how that stat manifests physically or mentally. Features in the average range (9–12 inclusive) are not listed on the character sheet.
