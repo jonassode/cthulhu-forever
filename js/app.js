@@ -413,13 +413,13 @@ function getBondPlayScore(bond) {
 
 // Returns the status label and tooltip for a community bond based on its score.
 function getCommunityBondStatus(score) {
-  if (score <= 1)  return { label: 'Disgraced member',             tooltip: 'on the verge of being banished from the society.' };
-  if (score <= 4)  return { label: 'Shunned member',               tooltip: 'someone who is actively looked down on by most' };
-  if (score <= 8)  return { label: 'Standard member',              tooltip: 'one of the pack, whose opinion is unlikely to matter' };
-  if (score <= 12) return { label: 'Well-regarded member',         tooltip: 'favourably viewed by many other members' };
-  if (score <= 16) return { label: 'Important member',             tooltip: 'respected by most other members' };
-  if (score <= 18) return { label: 'Influential member',           tooltip: 'involved in most decision-making; liked by most' };
-  if (score <= 19) return { label: 'Extremely influential member', tooltip: 'of the community, looked up to by virtually everyone' };
+  if (score <= 1)  return { label: 'Disgraced member',             tooltip: 'On the verge of being banished from the society.' };
+  if (score <= 4)  return { label: 'Shunned member',               tooltip: 'Someone who is actively looked down on by most.' };
+  if (score <= 8)  return { label: 'Standard member',              tooltip: 'One of the pack, whose opinion is unlikely to matter.' };
+  if (score <= 12) return { label: 'Well-regarded member',         tooltip: 'Favourably viewed by many other members.' };
+  if (score <= 16) return { label: 'Important member',             tooltip: 'Respected by most other members.' };
+  if (score <= 18) return { label: 'Influential member',           tooltip: 'Involved in most decision-making; liked by most.' };
+  if (score <= 19) return { label: 'Extremely influential member', tooltip: 'Of the community, looked up to by virtually everyone.' };
   return                  { label: 'Top-tier member',              tooltip: 'Top of leadership in the community; the head honcho.' };
 }
 
