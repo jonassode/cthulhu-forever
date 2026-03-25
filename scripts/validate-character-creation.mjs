@@ -275,24 +275,25 @@ const testCode = `
     eq(calculateDerived().BP, 30, 'BP = SAN(40) − POW(10) = 30 [harsh upbringing]');
   }
 
-  // 1.7  RecoverySAN = POW × 5 (always — even with harsh upbringing)
+  // 1.7  RecoverySAN = POW × 5 (capped at MaxSAN)
   {
+    // No Unnatural → MaxSAN=99 → RecoverySAN = POW×5 unconstrained
     resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
     setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
-    eq(calculateDerived().RecoverySAN, 50, 'RecoverySAN = POW(10) × 5 = 50 [very harsh upbringing]');
+    eq(calculateDerived().RecoverySAN, 50, 'RecoverySAN = min(POW(10)×5, MaxSAN(99)) = 50 [very harsh, no Unnatural]');
   }
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'harsh'; state.harshStatChoice = 'STR';
     setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
-    eq(calculateDerived().RecoverySAN, 50, 'RecoverySAN = POW(10) × 5 = 50 [harsh upbringing]');
+    eq(calculateDerived().RecoverySAN, 50, 'RecoverySAN = min(POW(10)×5, MaxSAN(99)) = 50 [harsh, no Unnatural]');
   }
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
     setAttributes({ STR: 15, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
-    eq(calculateDerived().RecoverySAN, 60, 'RecoverySAN = POW(12) × 5 = 60 [sample character]');
+    eq(calculateDerived().RecoverySAN, 60, 'RecoverySAN = min(POW(12)×5, MaxSAN(99)) = 60 [sample character]');
   }
 
-  // 1.8  MaxSAN = 99 − Unnatural skill
+  // 1.8  MaxSAN = 99 − Unnatural skill (uses getDisplayedSkillValue, including play-mode edits)
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal'; state.archetype = 'journalist';
     state.selectedOptional = []; state.skillPoints = {};
@@ -300,19 +301,84 @@ const testCode = `
     eq(calculateDerived().MaxSAN, 99, 'MaxSAN = 99 − Unnatural(0) = 99');
   }
   {
-    // BUG: When Unnatural is raised during play via skillEditAdjust,
-    // calculateDerived() still calls getFinalSkillValue('Unnatural') which
-    // ignores skillEditAdjust.  It should call getDisplayedSkillValue() so
-    // that MaxSAN decreases correctly.  This assertion FAILS intentionally to
-    // expose the bug — do not fix without review.
+    // Unnatural raised during play via skillEditAdjust — MaxSAN must update
     resetState(); state.age = 'jazz'; state.upbringing = 'normal'; state.archetype = 'journalist';
     state.selectedOptional = []; state.skillPoints = {};
-    state.skillEditAdjust  = { 'Unnatural': 10 }; // 10 % gained during play
+    state.skillEditAdjust = { 'Unnatural': 10 }; // 10 % gained during play
     setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
-    eq(calculateDerived().MaxSAN, 89, 'MaxSAN = 99 − Unnatural(10) = 89');
+    eq(calculateDerived().MaxSAN, 89, 'MaxSAN = 99 − Unnatural(10) = 89 [play-mode edit]');
   }
 
-  // 1.9  Damage bonus based on STR
+  // 1.9  SAN clamped to MaxSAN when Unnatural is high
+  {
+    // POW=10, normal → baseSAN=50; Unnatural=10 → MaxSAN=89; min(50,89)=50 (no clamp needed)
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal'; state.archetype = 'journalist';
+    state.selectedOptional = []; state.skillPoints = {};
+    state.skillEditAdjust = { 'Unnatural': 10 };
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    eq(calculateDerived().SAN, 50, 'SAN not clamped: baseSAN(50) ≤ MaxSAN(89)');
+  }
+  {
+    // POW=10, normal → baseSAN=50; Unnatural=55 → MaxSAN=44; min(50,44)=44 (clamped)
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal'; state.archetype = 'journalist';
+    state.selectedOptional = []; state.skillPoints = {};
+    state.skillEditAdjust = { 'Unnatural': 55 };
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    eq(calculateDerived().SAN,    44, 'SAN clamped to MaxSAN(44) when baseSAN(50) > MaxSAN(44)');
+    eq(calculateDerived().MaxSAN, 44, 'MaxSAN = 99 − Unnatural(55) = 44');
+    eq(calculateDerived().BP,     34, 'BP = SAN(44) − POW(10) = 34 [clamped SAN]');
+  }
+  {
+    // Harsh upbringing + high Unnatural: baseSAN=POW×4, still clamped to MaxSAN
+    // POW=10, harsh → baseSAN=40; Unnatural=65 → MaxSAN=34; min(40,34)=34 (clamped)
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh'; state.harshStatChoice = 'STR';
+    state.archetype = 'journalist'; state.selectedOptional = []; state.skillPoints = {};
+    state.skillEditAdjust = { 'Unnatural': 65 };
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    eq(calculateDerived().SAN,    34, 'SAN clamped to MaxSAN(34) [harsh upbringing, high Unnatural]');
+    eq(calculateDerived().MaxSAN, 34, 'MaxSAN = 99 − Unnatural(65) = 34');
+    eq(calculateDerived().BP,     24, 'BP = SAN(34) − POW(10) = 24 [clamped SAN, harsh]');
+  }
+
+  // 1.10  RecoverySAN clamped to MaxSAN when Unnatural is high
+  {
+    // POW=10 → POW×5=50; Unnatural=55 → MaxSAN=44; min(50,44)=44 (clamped)
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal'; state.archetype = 'journalist';
+    state.selectedOptional = []; state.skillPoints = {};
+    state.skillEditAdjust = { 'Unnatural': 55 };
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    eq(calculateDerived().RecoverySAN, 44,
+      'RecoverySAN clamped to MaxSAN(44) when POW×5(50) > MaxSAN(44)');
+  }
+  {
+    // Upbringing doesn't affect RecoverySAN clamping (RecoverySAN is always POW×5 before cap)
+    // POW=10, very harsh → SAN=40; Unnatural=55 → MaxSAN=44; RecoverySAN=min(50,44)=44
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.archetype = 'journalist'; state.selectedOptional = []; state.skillPoints = {};
+    state.skillEditAdjust = { 'Unnatural': 55 };
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    eq(calculateDerived().RecoverySAN, 44,
+      'RecoverySAN clamped to MaxSAN(44) [very harsh + high Unnatural]');
+  }
+
+  // 1.11  getEffectiveSAN() clamps current SAN to MaxSAN at runtime
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal'; state.archetype = 'journalist';
+    state.selectedOptional = []; state.skillPoints = {};
+    state.skillEditAdjust = { 'Unnatural': 55 }; // MaxSAN=44
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    // currentSAN null → returns d.SAN which is already clamped to MaxSAN(44)
+    state.currentSAN = null;
+    eq(getEffectiveSAN(), 44, 'getEffectiveSAN() = clamped SAN(44) when currentSAN is null');
+    // currentSAN above MaxSAN → clamped to MaxSAN
+    state.currentSAN = 80;
+    eq(getEffectiveSAN(), 44, 'getEffectiveSAN() clamps currentSAN(80) to MaxSAN(44)');
+    // currentSAN within range → returned as-is
+    state.currentSAN = 30;
+    eq(getEffectiveSAN(), 30, 'getEffectiveSAN() = currentSAN(30) when within MaxSAN(44)');
+  }
+
+  // 1.12  Damage bonus based on STR
   {
     const dmgCases = [
       [3, -2], [4, -2],

@@ -172,7 +172,7 @@ function assignedRollIds() {
 function calculateDerived() {
   const v = getAttrValues();
   if (!v.STR || !v.CON || !v.POW) return null;
-  const SAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
+  const baseSAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
     ? v.POW * 4
     : v.POW * 5;
   let DMG;
@@ -181,15 +181,20 @@ function calculateDerived() {
   else if (v.STR <= 12) DMG =  0;
   else if (v.STR <= 16) DMG = +1;
   else                  DMG = +2;
-  const unnaturalValue = getFinalSkillValue('Unnatural');
+  // Use getDisplayedSkillValue so that Unnatural gains tracked via skillEditAdjust
+  // (during play) are reflected in MaxSAN immediately.
+  const unnaturalValue = getDisplayedSkillValue('Unnatural');
+  const MaxSAN = 99 - unnaturalValue;
+  // SAN and RecoverySAN can never exceed MaxSAN.
+  const SAN = Math.min(baseSAN, MaxSAN);
   return {
     HP:          Math.ceil((v.STR + v.CON) / 2),
     WP:          v.POW,
     SAN:         SAN,
     BP:          SAN - v.POW,
     DMG:         DMG,
-    MaxSAN:      99 - unnaturalValue,
-    RecoverySAN: v.POW * 5,
+    MaxSAN:      MaxSAN,
+    RecoverySAN: Math.min(v.POW * 5, MaxSAN),
   };
 }
 
