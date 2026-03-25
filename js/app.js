@@ -411,6 +411,25 @@ function getBondPlayScore(bond) {
   return getBondEffectiveValue(bond);
 }
 
+// Returns the status label and tooltip for a community bond based on its score.
+function getCommunityBondStatus(score) {
+  if (score <= 1)  return { label: 'Disgraced member',             tooltip: 'on the verge of being banished from the society.' };
+  if (score <= 4)  return { label: 'Shunned member',               tooltip: 'someone who is actively looked down on by most' };
+  if (score <= 8)  return { label: 'Standard member',              tooltip: 'one of the pack, whose opinion is unlikely to matter' };
+  if (score <= 12) return { label: 'Well-regarded member',         tooltip: 'favourably viewed by many other members' };
+  if (score <= 16) return { label: 'Important member',             tooltip: 'respected by most other members' };
+  if (score <= 18) return { label: 'Influential member',           tooltip: 'involved in most decision-making; liked by most' };
+  if (score <= 19) return { label: 'Extremely influential member', tooltip: 'of the community, looked up to by virtually everyone' };
+  return                  { label: 'Top-tier member',              tooltip: 'Top of leadership in the community; the head honcho.' };
+}
+
+// Returns the HTML for a community bond status badge, or '' for non-community bonds.
+function renderBondStatusBadge(bond, playScore) {
+  if (bond.type !== 'community' || playScore === null) return '';
+  const s = getCommunityBondStatus(playScore);
+  return `<span class="bond-status-badge" data-tooltip="${escapeHtml(s.tooltip)}">${escapeHtml(s.label)}</span>`;
+}
+
 // Adjusts the in-play bond score by delta (clamped to 0).
 function adjustBondPlayScore(idx, delta) {
   const bond = state.bonds[idx];
@@ -1904,6 +1923,7 @@ function buildCharSheetHtml() {
             <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
             <span class="bond-score-group">
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>` : ''}
+              ${renderBondStatusBadge(b, playScore)}
               <span class="bond-sheet-val" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>` : ''}
             </span>

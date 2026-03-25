@@ -684,6 +684,28 @@ const testCode = `
       'Community bond: floor(Resources(9)/2) = 4 after 1 resource pick');
   }
 
+  // ── Suite 7b: Community Bond Status Labels ───────────────────────────────────
+
+  console.log('\\n── Suite 7b: Community Bond Status Labels ───────────────────────────────────');
+
+  {
+    function statusLabel(score) { return getCommunityBondStatus(score).label; }
+
+    eq(statusLabel(1),  'Disgraced member',             'Score 1  → Disgraced member');
+    eq(statusLabel(2),  'Shunned member',               'Score 2  → Shunned member');
+    eq(statusLabel(4),  'Shunned member',               'Score 4  → Shunned member');
+    eq(statusLabel(5),  'Standard member',              'Score 5  → Standard member');
+    eq(statusLabel(8),  'Standard member',              'Score 8  → Standard member');
+    eq(statusLabel(9),  'Well-regarded member',         'Score 9  → Well-regarded member');
+    eq(statusLabel(12), 'Well-regarded member',         'Score 12 → Well-regarded member');
+    eq(statusLabel(13), 'Important member',             'Score 13 → Important member');
+    eq(statusLabel(16), 'Important member',             'Score 16 → Important member');
+    eq(statusLabel(17), 'Influential member',           'Score 17 → Influential member');
+    eq(statusLabel(18), 'Influential member',           'Score 18 → Influential member');
+    eq(statusLabel(19), 'Extremely influential member', 'Score 19 → Extremely influential member');
+    eq(statusLabel(20), 'Top-tier member',              'Score 20 → Top-tier member');
+  }
+
   // ── Suite 8: Bonus-Point Pool Accounting ────────────────────────────────────
 
   console.log('\\n── Suite 8: Bonus-Point Pool Accounting ────────────────────────────────────');

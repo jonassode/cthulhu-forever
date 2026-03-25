@@ -865,6 +865,19 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border: 1px solid rgba(154,141,114,0.35);
   color: var(--text-secondary);
 }
+.bond-status-badge {
+  font-size: 0.65rem;
+  font-family: var(--font-head);
+  letter-spacing: 0.04em;
+  border-radius: 10px;
+  padding: 1px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(80,120,160,0.12);
+  border: 1px solid rgba(80,120,160,0.35);
+  color: #7aaac8;
+  cursor: help;
+}
 .bond-sheet-name {
   flex: 1;
   font-size: 0.88rem;
