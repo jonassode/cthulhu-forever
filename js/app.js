@@ -1398,7 +1398,7 @@ function renderStep4() {
         const isSetToOne   = isCommunity && !!b.setToOne;
         const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
         const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0;
-        const canSub = isCommunity && !isSetToOne && (b.bonusSpent || 0) > 0;
+        const canSub = isCommunity && !isSetToOne && b.bonusSpent > 0;
         return `<div class="bond-row">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
@@ -1654,7 +1654,7 @@ function toggleResourcesZero() {
 // Refunds any bonus picks previously spent on that bond.
 function toggleBondSetToOne(index) {
   const bond = state.bonds[index];
-  if (!bond || bond.type !== 'community') return;
+  if (!bond || typeof bond !== 'object' || bond.type !== 'community') return;
   if (bond.setToOne) {
     bond.setToOne = false;
   } else {

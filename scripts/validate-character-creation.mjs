@@ -833,8 +833,9 @@ const testCode = `
     state.resourcesSetToZero = true;
     eq(getEffectiveResources(), 0, 'Resources = 0 even when resourcesBonusSpent > 0 (sacrifice wins)');
     // Total = 11 (base 10 + 1 sacrifice); spent = 2 (those picks are still counted as spent)
-    // BUT: toggleResourcesZero() refunds resourcesBonusSpent, so in normal usage it would be 0.
-    // Here we test that getEffectiveResources ignores resourcesBonusSpent when sacrifice is on.
+    // Note: In normal usage, toggleResourcesZero() refunds resourcesBonusSpent to 0.
+    // This test verifies that getEffectiveResources() returns 0 regardless of
+    // resourcesBonusSpent when the sacrifice toggle is active.
     eq(getBonusPointsTotal(), 11, 'Total = 11 while sacrifice is active');
   }
 
