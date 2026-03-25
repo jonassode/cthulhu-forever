@@ -2478,15 +2478,19 @@ function resetState() {
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
   state.resourcesEditAdjust = 0;
-  state.resourceChecked  = [];
-  state.skillChecked     = {};
-  state.skillEditAdjust  = {};
+  state.resourceChecked       = [];
+  state.skillChecked          = {};
+  state.violenceChecked       = [false, false, false];
+  state.helplessnessChecked   = [false, false, false];
+  state.skillEditAdjust       = {};
   state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
   state.bpAdjust         = 0;
   state.disorders        = [];
+  state.editMode         = false;
+  state.showAllSkills    = false;
 }
 
 // ── RENDER: Play Mode ────────────────────────────────────────
