@@ -2,6 +2,8 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.140 - refactor: address code review - use constants, fix color variable  
+0.139 - feat: add points-based attribute allocation mode  
 0.138 - fix: revert checkout to v4 in update-changelog.yml (matches original, consistent with static.yml fix)  
 0.137 - fix: revert checkout to v4 in static.yml (v5 previously broke Pages deploy)  
 0.136 - fix: update GitHub Actions to resolve Node.js 20 deprecation warnings  
