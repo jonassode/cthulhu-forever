@@ -2,6 +2,9 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.138 - fix: revert checkout to v4 in update-changelog.yml (matches original, consistent with static.yml fix)  
+0.137 - fix: revert checkout to v4 in static.yml (v5 previously broke Pages deploy)  
+0.136 - fix: update GitHub Actions to resolve Node.js 20 deprecation warnings  
 0.135 - Delete plan.md  
 0.134 - Fix MaxSAN calculation and clamp SAN/RecoverySAN to MaxSAN  
 0.133 - Initial plan  
