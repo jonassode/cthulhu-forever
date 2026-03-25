@@ -168,6 +168,15 @@ assert(character.maxWP  === 12, `maxWP should be 12, got ${character.maxWP}`);
 assert(character.maxSAN === 99, `maxSAN should be 99 (no Unnatural), got ${character.maxSAN}`);
 assert(character.breakingPoint === 48, `breakingPoint should be 48 (SAN 60 − POW 12), got ${character.breakingPoint}`);
 assert(character.recoverySAN   === 60, `recoverySAN should be 60 (POW 12 × 5), got ${character.recoverySAN}`);
+// recoverySAN and currentSAN must never exceed maxSAN
+assert(
+  character.recoverySAN <= character.maxSAN,
+  `recoverySAN (${character.recoverySAN}) must not exceed maxSAN (${character.maxSAN})`
+);
+assert(
+  character.currentSAN <= character.maxSAN,
+  `currentSAN (${character.currentSAN}) must not exceed maxSAN (${character.maxSAN})`
+);
 assertField(character, 'disorders', 'array', 'root');
 assertField(character, 'showAllSkills', 'boolean', 'root');
 
