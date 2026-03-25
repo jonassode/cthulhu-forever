@@ -1,0 +1,36 @@
+name: Update Changelog and Version
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full history is needed so the script can inspect recent commits
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Scan commits and update changelog / version
+        run: node scripts/update-changelog-version.mjs
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md js/data.js
+          git diff --staged --quiet && echo "Nothing to commit — changelog and version are already up to date." && exit 0
+          git commit -m "chore: update changelog and version [skip ci]"
+          git push

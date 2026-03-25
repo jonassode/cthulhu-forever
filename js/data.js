@@ -3,6 +3,8 @@
    Skills, Archetypes, Edges
    ============================================================ */
 
+const APP_VERSION = '0.105';
+
 const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
 const ATTRIBUTE_FULL = {
   STR: 'Strength',
