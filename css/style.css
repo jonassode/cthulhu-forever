@@ -1641,6 +1641,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   opacity: 0;
   transition: opacity 0.2s;
   z-index: 100;
+  min-width: 260px;
   max-width: 440px;
   text-align: center;
   line-height: 1.4;
