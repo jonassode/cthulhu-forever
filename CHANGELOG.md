@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.135 - Delete plan.md  
 0.134 - Fix MaxSAN calculation and clamp SAN/RecoverySAN to MaxSAN  
 0.133 - Initial plan  
 0.132 - Add character creation validation tests and wire into CI  
