@@ -896,6 +896,39 @@ const testCode = `
     eq(getBondEffectiveValue(comBond), 0, 'Community bond base = 0 when resources sacrificed');
   }
 
+  // 10.7  Sacrificing resources clears any active community bond sacrifices
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist';
+    state.bonds = [
+      { name: 'Org A', type: 'community', bonusSpent: 0, currentScore: null, setToOne: true },
+      { name: 'Org B', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false },
+    ];
+    // Sanity-check: two bonds, one sacrificed → total = 11
+    eq(getBonusPointsTotal(), 11, 'Before resource sacrifice: total = 11 (1 bond sacrificed)');
+
+    // Now sacrifice resources — should clear the bond sacrifice
+    toggleResourcesZero();
+    eq(state.resourcesSetToZero, true, 'resourcesSetToZero = true after toggle');
+    eq(state.bonds[0].setToOne, false, 'Bond sacrifice cleared when resources sacrificed');
+    eq(state.bonds[1].setToOne, false, 'Non-sacrificed bond unchanged');
+    // Total = 10 (base) + 1 (resources sacrifice) — bond sacrifice was cleared
+    eq(getBonusPointsTotal(), 11, 'After resource sacrifice: total = 11 (resources only, bond cleared)');
+  }
+
+  // 10.8  toggleBondSetToOne is a no-op when resources are sacrificed
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    state.archetype = 'journalist';
+    state.resourcesSetToZero = true;
+    state.bonds = [
+      { name: 'Lodge', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false },
+    ];
+    toggleBondSetToOne(0);
+    eq(state.bonds[0].setToOne, false, 'toggleBondSetToOne is no-op when resources are sacrificed');
+    eq(getBonusPointsTotal(), 11, 'Bonus total unchanged (only resource sacrifice counts)');
+  }
+
 })();
 `;
 

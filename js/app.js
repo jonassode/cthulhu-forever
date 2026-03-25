@@ -1399,6 +1399,9 @@ function renderStep4() {
         const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
         const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0;
         const canSub = isCommunity && !isSetToOne && b.bonusSpent > 0;
+        // Cannot sacrifice a community bond when Resources is already 0 (bond base = 0,
+        // so setting to 1 would be an increase, not a sacrifice).
+        const canSacrifice = isCommunity && !state.resourcesSetToZero;
         return `<div class="bond-row">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
@@ -1415,12 +1418,14 @@ function renderStep4() {
                   <span style="font-size:0.72rem;color:var(--text-secondary);">+${nextPickGain}</span>
                   <button class="skill-adj-btn plus" onclick="adjustBond(${i},1)" ${canAdd ? '' : 'disabled'}>+</button>
                 `}
-                <button class="toggle-sacrifice-btn${isSetToOne ? ' active' : ''}"
-                        onclick="toggleBondSetToOne(${i})"
-                        title="${isSetToOne ? 'Undo: restore bond score' : 'Sacrifice bond (set to 1) for +1 Bonus Pick'}"
-                        aria-label="${isSetToOne ? 'Undo bond sacrifice' : 'Sacrifice bond for bonus pick'}">
-                  ${isSetToOne ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
-                </button>
+                ${canSacrifice ? `
+                  <button class="toggle-sacrifice-btn${isSetToOne ? ' active' : ''}"
+                          onclick="toggleBondSetToOne(${i})"
+                          title="${isSetToOne ? 'Undo: restore bond score' : 'Sacrifice bond (set to 1) for +1 Bonus Pick'}"
+                          aria-label="${isSetToOne ? 'Undo bond sacrifice' : 'Sacrifice bond for bonus pick'}">
+                    ${isSetToOne ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
+                  </button>
+                ` : ''}
               ` : ''}
             ` : ''}
           </div>
@@ -1639,25 +1644,37 @@ function adjustBond(index, delta) {
 }
 
 // Toggles Resources to 0, granting +1 bonus pick when enabled.
-// Refunds any bonus picks previously spent on Resources.
+// Refunds any bonus picks previously spent on Resources, and clears any
+// community bond sacrifices (since their base becomes 0, setting them to 1
+// would increase rather than decrease the score).
 function toggleResourcesZero() {
   if (state.resourcesSetToZero) {
     state.resourcesSetToZero = false;
   } else {
     state.resourcesSetToZero = true;
     state.resourcesBonusSpent = 0; // refund any picks spent on resources
+    // Clear bond sacrifices: with Resources=0 the bond base is 0, so setting
+    // a bond to 1 would be an increase, not a sacrifice.
+    state.bonds.forEach(b => {
+      if (b && typeof b === 'object' && b.type === 'community' && b.setToOne) {
+        b.setToOne = false;
+      }
+    });
   }
   render();
 }
 
 // Toggles a community bond score to 1, granting +1 bonus pick when enabled.
 // Refunds any bonus picks previously spent on that bond.
+// Not allowed when Resources has been sacrificed to 0 (bond base would be 0,
+// so setting to 1 would be an increase, not a sacrifice).
 function toggleBondSetToOne(index) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object' || bond.type !== 'community') return;
   if (bond.setToOne) {
     bond.setToOne = false;
   } else {
+    if (state.resourcesSetToZero) return; // cannot sacrifice a bond that starts at 0
     bond.setToOne = true;
     bond.bonusSpent = 0; // refund any picks spent on this bond
   }
