@@ -1238,6 +1238,16 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   margin-top: 0.15rem;
   line-height: 1.2;
 }
+.attr-edit-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.attr-edit-controls .ab-val {
+  min-width: 1.6rem;
+  text-align: center;
+}
 .derived-row {
   display: flex;
   gap: 0.75rem;
