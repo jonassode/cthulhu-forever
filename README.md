@@ -1,6 +1,10 @@
 # Cthulhu Forever
 A Cthulhu Eternal Character Generator
 
+## Access
+
+**Check it out at https://jonassode.github.io/cthulhu-forever/**
+
 ## Getting Started
 
 Open `index.html` in a web browser to launch the character generator.
@@ -13,10 +17,6 @@ Open `index.html` in a web browser to launch the character generator.
 - **Archetypes** with bonus skills and optional skill selection
 - **Printable character sheet** with parchment-style styling
 - **Lovecraftian dark theme** using Cinzel/Lato fonts and custom CSS
-
-## Access
-
-**Check it out at https://jonassode.github.io/cthulhu-forever/**
 
 ## Contribute
 
