@@ -2,6 +2,9 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.154 - Disallow community bond sacrifice when resources are sacrificed to 0  
+0.153 - Address code review: add typeof check, simplify bonusSpent condition, clarify test comment  
+0.152 - Add sacrifice toggles for Resources (set to 0) and community bonds (set to 1) for extra bonus picks  
 0.151 - Add min-width: 260px to CSS tooltip so it actually renders wider  
 0.150 - Double tooltip max-width from 220px to 440px  
 0.149 - Fix Add Disorder tooltip: use data-tooltip instead of title attribute  
