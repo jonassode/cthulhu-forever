@@ -2,6 +2,9 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.147 - Add 'What Else?' section to ROADMAP.md  
+0.146 - Revise roadmap with new features and clarifications  
+0.145 - Add ROADMAP.md with high level roadmap for Character Builder  
 0.144 - fix: move minus button to right side of bond status badge in edit mode  
 0.143 - fix: tooltip font/case and badge colour style  
 0.142 - fix: capitalise tooltip text and add trailing periods  
