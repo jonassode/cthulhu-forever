@@ -2,6 +2,10 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.151 - Add min-width: 260px to CSS tooltip so it actually renders wider  
+0.150 - Double tooltip max-width from 220px to 440px  
+0.149 - Fix Add Disorder tooltip: use data-tooltip instead of title attribute  
+0.148 - Reorder character sheet sections: Bonds first, 2-col Disorders/Motivations and Backstory/Gear  
 0.147 - Add 'What Else?' section to ROADMAP.md  
 0.146 - Revise roadmap with new features and clarifications  
 0.145 - Add ROADMAP.md with high level roadmap for Character Builder  
