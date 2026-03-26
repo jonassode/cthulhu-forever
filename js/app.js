@@ -33,9 +33,10 @@ const state = {
   customSkills: [],              // array of {id, baseValue, customName, points}
   advancedMode: false,           // kept for backwards-compat with saved state; no longer used in UI
   showAllSkills: false,          // show all skills including 0% on character sheet
-  bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent, currentScore}
+  bonds: [],                     // array of {name, type ('individual'|'community'), bonusSpent, currentScore, setToOne}
   resources: 0,                  // final resources rating
   resourcesBonusSpent: 0,        // bonus pts spent on +resource
+  resourcesSetToZero: false,     // toggle: sacrifice resources (set to 0) for +1 bonus pick
 
   resourceChecked: [],           // array of booleans for resource checkboxes
   skillChecked: {},              // skillName -> boolean (checked state on sheet)
@@ -132,7 +133,7 @@ function skillTooltipAttr(skillName) {
 
 // Returns a fresh bond object with default values.
 function createEmptyBond() {
-  return { name: '', type: null, bonusSpent: 0, currentScore: null };
+  return { name: '', type: null, bonusSpent: 0, currentScore: null, setToOne: false };
 }
 
 // Ensure state.bonds array has the correct length
@@ -336,15 +337,21 @@ function initSkills() {
   state.skillTypes = {};
   state.customSkills = [];
   state.resourcesBonusSpent = 0;
+  state.resourcesSetToZero = false;
   state.adversityPoints = {};
   ADVERSITY_SKILLS.forEach(s => { state.adversityPoints[s] = 0; });
-  // Reset community bond bonus picks
-  state.bonds.forEach(b => { if (b && typeof b === 'object') b.bonusSpent = 0; });
+  // Reset community bond bonus picks and setToOne toggles
+  state.bonds.forEach(b => { if (b && typeof b === 'object') { b.bonusSpent = 0; b.setToOne = false; } });
 }
 
 function getBonusPointsTotal() {
   // Fixed at 10 per SKILL.md: "Every Protagonist starts with 10 Bonus Picks"
-  return 10;
+  // +1 pick for sacrificing Resources (setting to 0)
+  // +1 pick per Community Bond sacrificed (set to score of 1)
+  let total = 10;
+  if (state.resourcesSetToZero) total += 1;
+  total += (state.bonds || []).filter(b => b && b.type === 'community' && b.setToOne).length;
+  return total;
 }
 
 function getBonusPointsSpent() {
@@ -367,6 +374,8 @@ function getEffectiveBondsCount() {
 function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
+  // If resources are sacrificed for a bonus pick, resources = 0
+  if (state.resourcesSetToZero) return 0;
   const base = arch.resources;
   // Per SKILL.md: first Bonus Pick on Resources adds +5; each subsequent pick adds +2
   let bonus = 0;
@@ -397,6 +406,8 @@ function getBondEffectiveValue(bond) {
   if (bond.type === 'individual') {
     return getAttrValue('CHA');
   }
+  // Community bond sacrificed for a bonus pick: score is fixed at 1
+  if (bond.setToOne) return 1;
   // Community bond: base is Resources÷2, bonus per SKILL.md
   const base = Math.floor(getEffectiveResources() / 2);
   const n = bond.bonusSpent || 0;
@@ -1384,9 +1395,13 @@ function renderStep4() {
         const val = getBondEffectiveValue(b);
         const isIndividual = b.type === 'individual';
         const isCommunity  = b.type === 'community';
+        const isSetToOne   = isCommunity && !!b.setToOne;
         const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
-        const canAdd = isCommunity && getBonusPointsRemaining() > 0;
-        const canSub = isCommunity && (b.bonusSpent || 0) > 0;
+        const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0;
+        const canSub = isCommunity && !isSetToOne && b.bonusSpent > 0;
+        // Cannot sacrifice a community bond when Resources is already 0 (bond base = 0,
+        // so setting to 1 would be an increase, not a sacrifice).
+        const canSacrifice = isCommunity && !state.resourcesSetToZero;
         return `<div class="bond-row">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
@@ -1396,11 +1411,21 @@ function renderStep4() {
               <input class="bond-input" type="text" placeholder="${isIndividual ? 'Name a person…' : 'Name an organization, church, or neighborhood…'}"
                      value="${escapeHtml(b.name)}"
                      oninput="updateBond(${i},this.value)" style="flex:1;min-width:10rem;" />
-              <span style="font-size:1rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2rem;text-align:right;">${val !== null ? val : '—'}</span>
+              <span style="font-size:1rem;font-family:var(--font-head);color:${isSetToOne ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2rem;text-align:right;">${val !== null ? val : '—'}</span>
               ${isCommunity ? `
-                <button class="skill-adj-btn" onclick="adjustBond(${i},-1)" ${canSub ? '' : 'disabled'}>−</button>
-                <span style="font-size:0.72rem;color:var(--text-secondary);">+${nextPickGain}</span>
-                <button class="skill-adj-btn plus" onclick="adjustBond(${i},1)" ${canAdd ? '' : 'disabled'}>+</button>
+                ${isSetToOne ? '' : `
+                  <button class="skill-adj-btn" onclick="adjustBond(${i},-1)" ${canSub ? '' : 'disabled'}>−</button>
+                  <span style="font-size:0.72rem;color:var(--text-secondary);">+${nextPickGain}</span>
+                  <button class="skill-adj-btn plus" onclick="adjustBond(${i},1)" ${canAdd ? '' : 'disabled'}>+</button>
+                `}
+                ${canSacrifice ? `
+                  <button class="toggle-sacrifice-btn${isSetToOne ? ' active' : ''}"
+                          onclick="toggleBondSetToOne(${i})"
+                          title="${isSetToOne ? 'Undo: restore bond score' : 'Sacrifice bond (set to 1) for +1 Bonus Pick'}"
+                          aria-label="${isSetToOne ? 'Undo bond sacrifice' : 'Sacrifice bond for bonus pick'}">
+                    ${isSetToOne ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
+                  </button>
+                ` : ''}
               ` : ''}
             ` : ''}
           </div>
@@ -1413,16 +1438,25 @@ function renderStep4() {
   const resourcesHtml = `
     <div class="section-header" style="margin-top:2rem;"><h3>Resources (0–20 scale)</h3></div>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-      <span style="font-size:1.5rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2.5rem;text-align:center;">${effectiveResources}</span>
+      <span style="font-size:1.5rem;font-family:var(--font-head);color:${state.resourcesSetToZero ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2.5rem;text-align:center;">${effectiveResources}</span>
       <span style="font-size:0.82rem;color:var(--text-secondary);">
         / 20 &nbsp;|&nbsp; base: ${arch ? arch.resources : 0}
-        ${state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
+        ${!state.resourcesSetToZero && state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
+        ${state.resourcesSetToZero ? ' <em>(sacrificed for +1 Bonus Pick)</em>' : ''}
       </span>
-      <button class="skill-adj-btn" onclick="adjustResources(-1)"
-              ${state.resourcesBonusSpent > 0 ? '' : 'disabled'}>−</button>
-      <span style="font-size:0.78rem;color:var(--text-secondary);">1 pick → +${nextPickGain}</span>
-      <button class="skill-adj-btn plus" onclick="adjustResources(1)"
-              ${bpLeft >= 1 && effectiveResources < 20 ? '' : 'disabled'}>+</button>
+      ${state.resourcesSetToZero ? '' : `
+        <button class="skill-adj-btn" onclick="adjustResources(-1)"
+                ${state.resourcesBonusSpent > 0 ? '' : 'disabled'}>−</button>
+        <span style="font-size:0.78rem;color:var(--text-secondary);">1 pick → +${nextPickGain}</span>
+        <button class="skill-adj-btn plus" onclick="adjustResources(1)"
+                ${bpLeft >= 1 && effectiveResources < 20 ? '' : 'disabled'}>+</button>
+      `}
+      <button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
+              onclick="toggleResourcesZero()"
+              title="${state.resourcesSetToZero ? 'Undo: restore Resources to base value' : 'Sacrifice Resources (set to 0) for +1 Bonus Pick'}"
+              aria-label="${state.resourcesSetToZero ? 'Undo resource sacrifice' : 'Sacrifice resources for bonus pick'}">
+        ${state.resourcesSetToZero ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
+      </button>
     </div>`;
 
   const bpClass = bpLeft === 0 ? 'good' : bpLeft < 0 ? 'warn' : '';
@@ -1587,9 +1621,10 @@ function updateSkillType(skillName, value) {
 function updateBondType(index, type) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object') return;
-  // If switching away from community, refund bonus picks
+  // If switching away from community, refund bonus picks and clear setToOne
   if (bond.type === 'community' && type !== 'community') {
     bond.bonusSpent = 0;
+    bond.setToOne = false;
   }
   bond.type = type;
   render();
@@ -1604,6 +1639,44 @@ function adjustBond(index, delta) {
   } else {
     if ((bond.bonusSpent || 0) <= 0) return;
     bond.bonusSpent--;
+  }
+  render();
+}
+
+// Toggles Resources to 0, granting +1 bonus pick when enabled.
+// Refunds any bonus picks previously spent on Resources, and clears any
+// community bond sacrifices (since their base becomes 0, setting them to 1
+// would increase rather than decrease the score).
+function toggleResourcesZero() {
+  if (state.resourcesSetToZero) {
+    state.resourcesSetToZero = false;
+  } else {
+    state.resourcesSetToZero = true;
+    state.resourcesBonusSpent = 0; // refund any picks spent on resources
+    // Clear bond sacrifices: with Resources=0 the bond base is 0, so setting
+    // a bond to 1 would be an increase, not a sacrifice.
+    state.bonds.forEach(b => {
+      if (b && typeof b === 'object' && b.type === 'community' && b.setToOne) {
+        b.setToOne = false;
+      }
+    });
+  }
+  render();
+}
+
+// Toggles a community bond score to 1, granting +1 bonus pick when enabled.
+// Refunds any bonus picks previously spent on that bond.
+// Not allowed when Resources has been sacrificed to 0 (bond base would be 0,
+// so setting to 1 would be an increase, not a sacrifice).
+function toggleBondSetToOne(index) {
+  const bond = state.bonds[index];
+  if (!bond || typeof bond !== 'object' || bond.type !== 'community') return;
+  if (bond.setToOne) {
+    bond.setToOne = false;
+  } else {
+    if (state.resourcesSetToZero) return; // cannot sacrifice a bond that starts at 0
+    bond.setToOne = true;
+    bond.bonusSpent = 0; // refund any picks spent on this bond
   }
   render();
 }
@@ -2502,6 +2575,7 @@ function importFromJsonV2(data) {
 
   // ── Resources ────────────────────────────────────────────
   state.resourcesBonusSpent = 0;
+  state.resourcesSetToZero  = false;
   // getEffectiveResources() = arch.resources (archetype now set, bonusSpent = 0).
   // Store remaining delta in resourcesEditAdjust so getDisplayedResources() is correct.
   const effectiveRes = getEffectiveResources();
@@ -2513,6 +2587,7 @@ function importFromJsonV2(data) {
     type: b.type || 'individual',
     bonusSpent: 0,
     currentScore: (b.currentScore !== undefined && b.currentScore !== null) ? b.currentScore : null,
+    setToOne: false,
   }));
 
   // ── Play state & tracking ────────────────────────────────
@@ -2558,9 +2633,16 @@ function importFromJsonV1(data) {
   state.skillPoints = data.skillPoints || {};
   state.skillTypes = data.skillTypes || {};
   state.customSkills = data.customSkills || [];
-  state.bonds = data.bonds || [];
+  state.bonds = (data.bonds || []).map(b => ({
+    name: b.name || '',
+    type: b.type || null,
+    bonusSpent: b.bonusSpent || 0,
+    currentScore: b.currentScore !== undefined ? b.currentScore : null,
+    setToOne: b.setToOne || false,
+  }));
   state.resources = data.resources || 0;
   state.resourcesBonusSpent = data.resourcesBonusSpent || 0;
+  state.resourcesSetToZero  = data.resourcesSetToZero  || false;
   state.resourceChecked = data.resourceChecked || [];
   state.skillChecked = data.skillChecked || {};
   state.violenceChecked = data.violenceChecked || [false, false, false];
@@ -2645,6 +2727,7 @@ function resetState() {
   state.bonds            = [];
   state.resources        = 0;
   state.resourcesBonusSpent = 0;
+  state.resourcesSetToZero  = false;
   state.resourcesEditAdjust = 0;
   state.resourceChecked       = [];
   state.skillChecked          = {};

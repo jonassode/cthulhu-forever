@@ -831,6 +831,34 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   padding: 0.6rem 0.8rem;
 }
 
+/* Sacrifice toggle button (Resources / Community Bond) */
+.toggle-sacrifice-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 14px;
+  padding: 3px 12px;
+  font-size: 0.75rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.toggle-sacrifice-btn:hover {
+  border-color: var(--danger-light);
+  color: var(--danger-light);
+}
+.toggle-sacrifice-btn.active {
+  background: rgba(122,28,28,0.18);
+  border-color: var(--danger-light);
+  color: var(--danger-light);
+}
+.toggle-sacrifice-btn.active:hover {
+  background: rgba(163,48,48,0.22);
+  border-color: var(--danger-light);
+}
+
 /* Character sheet bond display */
 .bonds-sheet-list {
   display: flex;
