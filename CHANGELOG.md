@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.155 - Reorganize README to highlight project access  
 0.154 - Disallow community bond sacrifice when resources are sacrificed to 0  
 0.153 - Address code review: add typeof check, simplify bonusSpent condition, clarify test comment  
 0.152 - Add sacrifice toggles for Resources (set to 0) and community bonds (set to 1) for extra bonus picks  
