@@ -43,6 +43,20 @@ const state = {
   violenceChecked: [false, false, false],     // 3 checkboxes for Violence SAN incidents
   helplessnessChecked: [false, false, false], // 3 checkboxes for Helplessness SAN incidents
 
+  // ── Upbringing Effects step (4.5) ──────────────────────────
+  // Harsh upbringing bond effects
+  harshD4Rolls: null,       // [d4_1, d4_2] — two separate d4 rolls
+  harshBondChoice1: null,   // bond index for first d4 deduction
+  harshBondChoice2: null,   // bond index for second d4 deduction
+  // Very Harsh upbringing effects
+  vhPowTestRoll: null,      // d100 roll result for POW × 4 test
+  vhPowDisorderId: null,    // id of disorder auto-added on POW test failure
+  vhAdaptedTo: null,        // 'violence' | 'helplessness' | null
+  vhAdaptRoll: null,        // 1d6 roll result for adaptation effect
+  // Attribute reductions from Very Harsh adaptation
+  upbringingChaReduction: 0, // CHA reduced by this amount (adapted to violence)
+  upbringingPowReduction: 0, // POW reduced by this amount (adapted to helplessness)
+
   currentHP:  null, // current HP (null = use derived max)
   currentWP:  null, // current WP (null = use derived max)
   currentSAN: null, // current SAN (null = use derived value)
@@ -78,6 +92,8 @@ let _disorderIdCounter = 0;
 // ── Utility ────────────────────────────────────────────────
 
 function rollD6() { return Math.floor(Math.random() * 6) + 1; }
+function rollD4()  { return Math.floor(Math.random() * 4) + 1; }
+function rollD100() { return Math.floor(Math.random() * 100) + 1; }
 
 function rollDice4d6() {
   return [rollD6(), rollD6(), rollD6(), rollD6()];
@@ -133,7 +149,7 @@ function skillTooltipAttr(skillName) {
 
 // Returns a fresh bond object with default values.
 function createEmptyBond() {
-  return { name: '', type: null, bonusSpent: 0, currentScore: null, setToOne: false };
+  return { name: '', type: null, bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 };
 }
 
 // Ensure state.bonds array has the correct length
@@ -161,14 +177,29 @@ const POINTS_ATTR_MIN = 3;
 const POINTS_ATTR_MAX = 18;
 
 function getAttrValue(attrKey) {
+  let base;
   if (state.attrMode === 'points') {
-    return (state.pointsAttr[attrKey] || POINTS_ATTR_MIN) + getUpbringingBonus(attrKey);
+    base = (state.pointsAttr[attrKey] || POINTS_ATTR_MIN) + getUpbringingBonus(attrKey);
+  } else {
+    const id = state.attrAssign[attrKey];
+    if (id === null || id === undefined) return null;
+    const rs = state.rolledSets.find(r => r.id === id);
+    if (!rs) return null;
+    base = rs.total + getUpbringingBonus(attrKey);
   }
-  const id = state.attrAssign[attrKey];
-  if (id === null || id === undefined) return null;
-  const rs = state.rolledSets.find(r => r.id === id);
-  if (!rs) return null;
-  return rs.total + getUpbringingBonus(attrKey);
+  if (attrKey === 'CHA') base -= (state.upbringingChaReduction || 0);
+  if (attrKey === 'POW') base -= (state.upbringingPowReduction || 0);
+  return base;
+}
+
+// Returns the attribute value before any upbringing-effects-step reductions are applied.
+// Used by canProceed and the upbringing effects render to check original CHA/POW thresholds.
+function getOrigAttrValue(attrKey) {
+  const current = getAttrValue(attrKey);
+  if (current === null) return null;
+  if (attrKey === 'CHA') return current + (state.upbringingChaReduction || 0);
+  if (attrKey === 'POW') return current + (state.upbringingPowReduction || 0);
+  return current;
 }
 
 function getAttrValues() {
@@ -403,16 +434,22 @@ function getResourcesCapacity(rating) {
 // Individual bonds are tied to CHA; Community bonds are Resources÷2 plus bonus from picks.
 function getBondEffectiveValue(bond) {
   if (!bond || !bond.type) return null;
+  let value;
   if (bond.type === 'individual') {
-    return getAttrValue('CHA');
+    value = getAttrValue('CHA');
+  } else {
+    // Community bond sacrificed for a bonus pick: score is fixed at 1
+    if (bond.setToOne) {
+      value = 1;
+    } else {
+      // Community bond: base is Resources÷2, bonus per SKILL.md
+      const base = Math.floor(getEffectiveResources() / 2);
+      const n = bond.bonusSpent || 0;
+      const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
+      value = base + bonus;
+    }
   }
-  // Community bond sacrificed for a bonus pick: score is fixed at 1
-  if (bond.setToOne) return 1;
-  // Community bond: base is Resources÷2, bonus per SKILL.md
-  const base = Math.floor(getEffectiveResources() / 2);
-  const n = bond.bonusSpent || 0;
-  const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
-  return base + bonus;
+  return Math.max(0, value - (bond.upbringingReduction || 0));
 }
 
 // Returns the current in-play bond score (respects damage tracked via currentScore).
@@ -515,6 +552,96 @@ function updateDisorderText(id, value) {
   if (d) d.text = value;
 }
 
+// ── Upbringing Effects (Step 4.5) ──────────────────────────
+
+// Resets all upbringing-effects-step state (called when navigating back to step 4).
+function resetUpbringingEffectsState() {
+  state.harshD4Rolls    = null;
+  state.harshBondChoice1 = null;
+  state.harshBondChoice2 = null;
+  if (state.vhPowDisorderId !== null) {
+    state.disorders = state.disorders.filter(d => d.id !== state.vhPowDisorderId);
+  }
+  state.vhPowTestRoll   = null;
+  state.vhPowDisorderId = null;
+  state.vhAdaptedTo     = null;
+  state.vhAdaptRoll     = null;
+  state.upbringingChaReduction = 0;
+  state.upbringingPowReduction = 0;
+  state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
+  state.violenceChecked     = [false, false, false];
+  state.helplessnessChecked = [false, false, false];
+}
+
+// Rolls two d4s for Harsh upbringing bond deductions.
+function rollHarshD4s() {
+  state.harshD4Rolls    = [rollD4(), rollD4()];
+  state.harshBondChoice1 = null;
+  state.harshBondChoice2 = null;
+  state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
+  render();
+}
+
+// Selects which bond to apply a Harsh d4 deduction to (rollIndex = 0 or 1).
+function selectHarshBondChoice(rollIndex, bondIndex) {
+  if (!state.harshD4Rolls) return;
+  const roll = state.harshD4Rolls[rollIndex];
+  const prevChoice = rollIndex === 0 ? state.harshBondChoice1 : state.harshBondChoice2;
+  if (prevChoice !== null && prevChoice !== undefined && state.bonds[prevChoice]) {
+    state.bonds[prevChoice].upbringingReduction = Math.max(0, (state.bonds[prevChoice].upbringingReduction || 0) - roll);
+  }
+  if (state.bonds[bondIndex]) {
+    state.bonds[bondIndex].upbringingReduction = (state.bonds[bondIndex].upbringingReduction || 0) + roll;
+  }
+  if (rollIndex === 0) state.harshBondChoice1 = bondIndex;
+  else                 state.harshBondChoice2 = bondIndex;
+  render();
+}
+
+// Rolls d100 for the Very Harsh POW × 4 test.
+function rollVhPowTest() {
+  const origPow = getOrigAttrValue('POW') || 0;
+  state.vhPowTestRoll = rollD100();
+  if (state.vhPowTestRoll > origPow * 4) {
+    const newDisorder = { id: ++_disorderIdCounter, text: '' };
+    state.disorders.push(newDisorder);
+    state.vhPowDisorderId = newDisorder.id;
+  } else {
+    state.vhPowDisorderId = null;
+  }
+  render();
+}
+
+// Selects the adaptation type for Very Harsh Part 2.
+function selectVhAdaptation(adaptationType) {
+  if (state.vhAdaptedTo === adaptationType) return;
+  if (state.vhAdaptRoll !== null) {
+    state.upbringingChaReduction = 0;
+    state.upbringingPowReduction = 0;
+    state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
+    state.violenceChecked     = [false, false, false];
+    state.helplessnessChecked = [false, false, false];
+    state.vhAdaptRoll = null;
+  }
+  state.vhAdaptedTo = adaptationType;
+  render();
+}
+
+// Rolls 1d6 for the Very Harsh adaptation effect and applies the result.
+function rollVhAdaptDice() {
+  const roll = rollD6();
+  state.vhAdaptRoll = roll;
+  if (state.vhAdaptedTo === 'violence') {
+    state.upbringingChaReduction = roll;
+    state.bonds.forEach(b => { if (b) b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
+    state.violenceChecked = [true, true, true];
+  } else if (state.vhAdaptedTo === 'helplessness') {
+    state.upbringingPowReduction = roll;
+    state.helplessnessChecked = [true, true, true];
+  }
+  render();
+}
+
 // ── Adversity Picks ─────────────────────────────────────────
 
 const ADVERSITY_SKILLS = ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
@@ -555,6 +682,32 @@ function canProceed(step) {
       const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.type !== null && b.name.trim() !== '');
       return bpOk && advOk && bondsOk;
     }
+    case 4.5: {
+      if (state.upbringing === 'harsh') {
+        // Use original CHA/POW (before any reductions) to decide if the effect applies
+        const origCha = getOrigAttrValue('CHA') || 0;
+        const origPow = getOrigAttrValue('POW') || 0;
+        if (origCha < 7 || origPow < 7) {
+          return (
+            state.harshD4Rolls !== null &&
+            state.harshBondChoice1 !== null &&
+            state.harshBondChoice2 !== null
+          );
+        }
+        return true;
+      }
+      if (state.upbringing === 'very_harsh') {
+        if (state.vhPowTestRoll === null) return false;
+        // Part 2: check original CHA/POW
+        const origCha = getOrigAttrValue('CHA') || 0;
+        const origPow = getOrigAttrValue('POW') || 0;
+        if (origCha < 10 || origPow < 10) {
+          return state.vhAdaptedTo !== null && state.vhAdaptRoll !== null;
+        }
+        return true;
+      }
+      return true;
+    }
     case 5: return true; // motivations & gear are optional
     case 6: return state.identity.name.trim() !== '';
     default: return false;
@@ -578,11 +731,32 @@ function nextStep() {
       ensureBondsCount();
       state.resources = getEffectiveResources();
     }
+    // Route through upbringing effects step for Harsh / Very Harsh
+    if (state.currentStep === 4 && (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')) {
+      resetUpbringingEffectsState();
+      goToStep(4.5);
+      return;
+    }
+    if (state.currentStep === 4.5) {
+      goToStep(5);
+      return;
+    }
     goToStep(state.currentStep + 1);
   }
 }
 
 function prevStep() {
+  // Leaving step 4.5 going backwards — reset all upbringing effects
+  if (state.currentStep === 4.5) {
+    resetUpbringingEffectsState();
+    goToStep(4);
+    return;
+  }
+  // Going back from step 5 — route through 4.5 for Harsh / Very Harsh
+  if (state.currentStep === 5 && (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')) {
+    goToStep(4.5);
+    return;
+  }
   if (state.currentStep > 1) {
     goToStep(state.currentStep - 1);
   }
@@ -1681,6 +1855,194 @@ function toggleBondSetToOne(index) {
   render();
 }
 
+// ── RENDER: Step 4.5 — Upbringing Effects ───────────────────
+
+function renderUpbringingEffects() {
+  const upbringing = state.upbringing;
+
+  // Original attribute values (before any reductions applied in this step)
+  const origCha = getOrigAttrValue('CHA') || 0;
+  const origPow = getOrigAttrValue('POW') || 0;
+
+  let html = `
+  <div class="step-content">
+    <h2 class="step-title">Upbringing Effects</h2>
+    <p class="step-subtitle">Your ${upbringing === 'harsh' ? 'harsh' : 'very harsh'} upbringing has left its mark — resolve any lasting consequences before continuing.</p>`;
+
+  // ── Harsh ──────────────────────────────────────────────────
+  if (upbringing === 'harsh') {
+    const effectApplies = origCha < 7 || origPow < 7;
+
+    if (!effectApplies) {
+      html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <p style="color:var(--text-secondary);line-height:1.7;">
+        Your CHA (${origCha}) and POW (${origPow}) are both 7 or above — your harsh upbringing left no lasting bond damage. You may continue.
+      </p>
+    </div>`;
+    } else {
+      html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <p style="color:var(--text-secondary);line-height:1.7;">
+        Your ${origCha < 7 ? `CHA (${origCha})` : ''}${origCha < 7 && origPow < 7 ? ' and ' : ''}${origPow < 7 ? `POW (${origPow})` : ''} ${(origCha < 7 && origPow < 7) ? 'are' : 'is'} below 7.
+        Your harsh upbringing has strained some of your bonds. Roll two d4 dice, then choose which bond each roll deducts from.
+      </p>`;
+
+      if (!state.harshD4Rolls) {
+        html += `
+      <button class="btn btn-gold" style="margin-top:0.75rem;" onclick="rollHarshD4s()">Roll 2d4</button>`;
+      } else {
+        html += `
+      <div style="margin-top:1rem;display:flex;flex-direction:column;gap:1rem;">`;
+
+        state.harshD4Rolls.forEach((roll, i) => {
+          const choice = i === 0 ? state.harshBondChoice1 : state.harshBondChoice2;
+          html += `
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <span style="font-size:1rem;min-width:80px;">Die ${i + 1}: <strong>${roll}</strong></span>
+          <select class="form-select" style="max-width:260px;"
+                  onchange="selectHarshBondChoice(${i}, parseInt(this.value))">
+            <option value="" ${choice === null || choice === undefined ? 'selected' : ''}>— Select a bond —</option>
+            ${state.bonds.map((b, idx) => `
+            <option value="${idx}" ${choice === idx ? 'selected' : ''}>${escapeHtml(b.name || 'Unnamed bond')} (current: ${getBondEffectiveValue(b) !== null ? getBondEffectiveValue(b) : '—'})</option>`).join('')}
+          </select>
+        </div>`;
+        });
+
+        html += `
+      </div>`;
+
+        if (state.harshBondChoice1 !== null && state.harshBondChoice2 !== null) {
+          html += `
+      <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--ct-surface);border-radius:8px;border:1px solid var(--border);">
+        <strong>Applied reductions:</strong>
+        <ul style="margin:0.5rem 0 0 1.25rem;line-height:1.8;">
+          ${state.bonds.map((b, idx) => {
+            const red = b.upbringingReduction || 0;
+            return red > 0 ? `<li>${escapeHtml(b.name || 'Unnamed bond')}: −${red} (new value: ${getBondEffectiveValue(b)})</li>` : '';
+          }).join('')}
+        </ul>
+      </div>`;
+        }
+      }
+
+      html += `
+    </div>`;
+    }
+  }
+
+  // ── Very Harsh ─────────────────────────────────────────────
+  if (upbringing === 'very_harsh') {
+    const powTarget = origPow * 4;
+
+    // Part 1: POW × 4 Test
+    html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <div class="sheet-section-title">Part 1 — POW × 4 Test</div>
+      <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:0.75rem;">
+        Roll d100 and compare to your POW × 4 target (<strong>${powTarget}%</strong>). Rolling equal to or under is a success.
+      </p>`;
+
+    if (state.vhPowTestRoll === null) {
+      html += `
+      <button class="btn btn-gold" onclick="rollVhPowTest()">Roll d100</button>`;
+    } else {
+      const passed = state.vhPowTestRoll <= powTarget;
+      html += `
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <span style="font-size:1.1rem;">You rolled: <strong>${state.vhPowTestRoll}</strong></span>
+        <span class="bond-status-badge" style="background:${passed ? 'rgba(126,255,160,0.15);color:#7effa0;border:1px solid #7effa0' : 'rgba(255,80,80,0.15);color:#ff8080;border:1px solid #ff8080'};">
+          ${passed ? '✓ Success' : '✗ Failure'}
+        </span>
+      </div>
+      ${passed
+        ? `<p style="color:var(--text-secondary);">Your mind holds firm against the darkness of your past.</p>`
+        : `<p style="color:var(--text-secondary);">The weight of your past breaks through — a mental disorder has been added to your character sheet. You can name it on the final page.</p>`
+      }`;
+    }
+
+    html += `
+    </div>`;
+
+    // Part 2: Adaptation (only if CHA < 10 or POW < 10)
+    const part2Applies = origCha < 10 || origPow < 10;
+
+    if (part2Applies) {
+      html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <div class="sheet-section-title">Part 2 — Adaptation</div>
+      <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:0.75rem;">
+        Your ${origCha < 10 ? `CHA (${origCha})` : ''}${origCha < 10 && origPow < 10 ? ' and ' : ''}${origPow < 10 ? `POW (${origPow})` : ''} ${(origCha < 10 && origPow < 10) ? 'are' : 'is'} below 10.
+        Your very harsh upbringing has left you adapted to extreme conditions. Choose your adaptation:
+      </p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <div class="sel-card ${state.vhAdaptedTo === 'violence' ? 'selected' : ''}"
+             style="flex:1;min-width:200px;${state.vhAdaptRoll === null ? 'cursor:pointer;' : 'opacity:0.7;cursor:default;'}"
+             ${state.vhAdaptRoll === null ? "onclick=\"selectVhAdaptation('violence')\"" : ''} role="button"
+             ${state.vhAdaptRoll !== null ? 'aria-disabled="true"' : ''}>
+          <div style="font-weight:600;margin-bottom:0.4rem;">⚔ Adapted to Violence</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce CHA by 1d6, and reduce every bond by the same amount.</div>
+        </div>
+        <div class="sel-card ${state.vhAdaptedTo === 'helplessness' ? 'selected' : ''}"
+             style="flex:1;min-width:200px;${state.vhAdaptRoll === null ? 'cursor:pointer;' : 'opacity:0.7;cursor:default;'}"
+             ${state.vhAdaptRoll === null ? "onclick=\"selectVhAdaptation('helplessness')\"" : ''} role="button"
+             ${state.vhAdaptRoll !== null ? 'aria-disabled="true"' : ''}>
+          <div style="font-weight:600;margin-bottom:0.4rem;">🔗 Adapted to Helplessness</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce POW by 1d6 (affects SAN, Recovery SAN, and Breaking Point).</div>
+        </div>
+      </div>`;
+
+      if (state.vhAdaptedTo && state.vhAdaptRoll === null) {
+        html += `
+      <button class="btn btn-gold" onclick="rollVhAdaptDice()">Roll 1d6</button>`;
+      }
+
+      if (state.vhAdaptRoll !== null) {
+        const roll = state.vhAdaptRoll;
+        html += `
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+        <span style="font-size:1.1rem;">You rolled: <strong>${roll}</strong></span>
+      </div>`;
+        if (state.vhAdaptedTo === 'violence') {
+          html += `
+      <div style="padding:0.75rem 1rem;background:var(--ct-surface);border-radius:8px;border:1px solid var(--border);line-height:1.8;">
+        <strong>Effects applied:</strong>
+        <ul style="margin:0.5rem 0 0 1.25rem;">
+          <li>CHA reduced by ${roll} (new value: ${getAttrValue('CHA')})</li>
+          ${state.bonds.map(b => `<li>${escapeHtml(b.name || 'Unnamed bond')}: −${roll} (new value: ${getBondEffectiveValue(b)})</li>`).join('')}
+        </ul>
+        <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-secondary);">All violence incidents are pre-checked — you are already adapted to violence.</p>
+      </div>`;
+        } else {
+          html += `
+      <div style="padding:0.75rem 1rem;background:var(--ct-surface);border-radius:8px;border:1px solid var(--border);line-height:1.8;">
+        <strong>Effects applied:</strong>
+        <ul style="margin:0.5rem 0 0 1.25rem;">
+          <li>POW reduced by ${roll} (new value: ${getAttrValue('POW')}) — SAN, Recovery SAN, and Breaking Point will be recalculated.</li>
+        </ul>
+        <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-secondary);">All helplessness incidents are pre-checked — you are already adapted to helplessness.</p>
+      </div>`;
+        }
+      }
+
+      html += `
+    </div>`;
+    } else {
+      html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <div class="sheet-section-title">Part 2 — Adaptation</div>
+      <p style="color:var(--text-secondary);">
+        Your CHA (${origCha}) and POW (${origPow}) are both 10 or above — no adaptation effect applies.
+      </p>
+    </div>`;
+    }
+  }
+
+  html += `
+  </div>`;
+  return html;
+}
+
 // ── RENDER: Step 5 — Motivations & Gear ─────────────────────
 
 function renderStep5() {
@@ -2742,6 +3104,16 @@ function resetState() {
   state.disorders        = [];
   state.editMode         = false;
   state.showAllSkills    = false;
+  // Upbringing effects step
+  state.harshD4Rolls         = null;
+  state.harshBondChoice1     = null;
+  state.harshBondChoice2     = null;
+  state.vhPowTestRoll        = null;
+  state.vhPowDisorderId      = null;
+  state.vhAdaptedTo          = null;
+  state.vhAdaptRoll          = null;
+  state.upbringingChaReduction = 0;
+  state.upbringingPowReduction = 0;
 }
 
 // ── RENDER: Play Mode ────────────────────────────────────────
@@ -2768,6 +3140,9 @@ function renderNavButtons() {
   const isFirst = state.currentStep === 1;
   const isLast  = state.currentStep === 6;
   const proceed = canProceed(state.currentStep);
+  const stepLabel = state.currentStep === 4.5
+    ? 'Upbringing Effects'
+    : `Step ${state.currentStep} of 6`;
 
   return `
   <div class="nav-row no-print">
@@ -2775,7 +3150,7 @@ function renderNavButtons() {
       ← Previous
     </button>
     <span style="font-size:0.78rem;color:var(--text-secondary);">
-      Step ${state.currentStep} of 6
+      ${stepLabel}
     </span>
     ${isLast
       ? `<button class="btn btn-gold" onclick="confirmReset()">✦ Start Over</button>`
@@ -2790,13 +3165,14 @@ function renderNavButtons() {
 
 function renderCurrentStep() {
   switch (state.currentStep) {
-    case 1: return renderStep1();
-    case 2: return renderStep2();
-    case 3: return renderStep3();
-    case 4: return renderStep4();
-    case 5: return renderStep5();
-    case 6: return renderStep6();
-    default: return '<p>Unknown step.</p>';
+    case 1:   return renderStep1();
+    case 2:   return renderStep2();
+    case 3:   return renderStep3();
+    case 4:   return renderStep4();
+    case 4.5: return renderUpbringingEffects();
+    case 5:   return renderStep5();
+    case 6:   return renderStep6();
+    default:  return '<p>Unknown step.</p>';
   }
 }
 
