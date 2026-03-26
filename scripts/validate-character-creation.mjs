@@ -1001,24 +1001,24 @@ const testCode = `
     eq(getDisplayedAttrValue('STR'), 15, 'displayed STR = 15 after back to base');
   }
 
-  // 11.8  adjustAttrInEditMode does not go below 1
+  // 11.8  adjustAttrInEditMode does not go below 3
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
-    setAttributes({ STR: 3, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    setAttributes({ STR: 5, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
     adjustAttrInEditMode('STR', -1);
     adjustAttrInEditMode('STR', -1);
-    adjustAttrInEditMode('STR', -1); // this one should be blocked (would go to 0)
-    eq(getDisplayedAttrValue('STR'), 1, 'displayed STR stays at 1 (cannot go below 1)');
+    adjustAttrInEditMode('STR', -1); // this one should be blocked (would go to 2)
+    eq(getDisplayedAttrValue('STR'), 3, 'displayed STR stays at 3 (cannot go below 3)');
   }
 
-  // 11.9  adjustAttrInEditMode does not go above 20
+  // 11.9  adjustAttrInEditMode does not go above 18
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
-    setAttributes({ STR: 18, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    setAttributes({ STR: 16, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
     adjustAttrInEditMode('STR', 1);
     adjustAttrInEditMode('STR', 1);
-    adjustAttrInEditMode('STR', 1); // this one should be blocked (would go to 21)
-    eq(getDisplayedAttrValue('STR'), 20, 'displayed STR stays at 20 (cannot go above 20)');
+    adjustAttrInEditMode('STR', 1); // this one should be blocked (would go to 19)
+    eq(getDisplayedAttrValue('STR'), 18, 'displayed STR stays at 18 (cannot go above 18)');
   }
 
 })();

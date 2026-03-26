@@ -515,13 +515,13 @@ function adjustCustomSkillInEditMode(id, delta) {
   render();
 }
 
-// Adjusts an attribute value in edit mode (clamped to 1–20).
+// Adjusts an attribute value in edit mode (clamped to 3–18).
 function adjustAttrInEditMode(attrKey, delta) {
   const base = getAttrValue(attrKey);
   if (base === null) return;
   const current = (state.attrEditAdjust[attrKey] || 0);
   const newVal = base + current + delta;
-  if (newVal < 1 || newVal > 20) return;
+  if (newVal < 3 || newVal > 18) return;
   state.attrEditAdjust[attrKey] = current + delta;
   render();
 }
