@@ -178,6 +178,18 @@ const testCode = `
       name: '', profession: '', nationality: '', characterAge: 25,
       backstory: '', motivations: '', gear: '',
     };
+    // Upbringing effects
+    state.harshD4Rolls           = null;
+    state.harshBondChoice1       = null;
+    state.harshBondChoice2       = null;
+    state.vhPowTestRoll          = null;
+    state.vhPowDisorderId        = null;
+    state.vhAdaptedTo            = null;
+    state.vhAdaptRoll            = null;
+    state.upbringingChaReduction = 0;
+    state.upbringingPowReduction = 0;
+    state.violenceChecked        = [false, false, false];
+    state.helplessnessChecked    = [false, false, false];
   }
 
   // Populates rolledSets so that getAttrValue(key) returns exactly \`total\`
@@ -1023,6 +1035,168 @@ const testCode = `
     adjustAttrInEditMode('STR', 1);
     adjustAttrInEditMode('STR', 1); // this one should be blocked (would go to 19)
     eq(getDisplayedAttrValue('STR'), 18, 'displayed STR stays at 18 (cannot go above 18)');
+
+  // ── Suite 12: Upbringing Effects (Step 4.5) ──────────────────────────────────
+
+  console.log('\\n── Suite 12: Upbringing Effects (Step 4.5) ─────────────────────────────────');
+
+  // 12.1  canProceed(4.5) returns true for Harsh when CHA/POW >= 7 (no effect applies)
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 8, CHA: 8 };
+    eq(canProceed(4.5), true, 'Harsh: canProceed(4.5) = true when CHA=8, POW=8 (both >= 7)');
+  }
+
+  // 12.2  canProceed(4.5) returns false for Harsh when CHA < 7 and no rolls done
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 8, CHA: 5 };
+    state.harshD4Rolls = null;
+    eq(canProceed(4.5), false, 'Harsh: canProceed(4.5) = false when CHA < 7 and no rolls');
+  }
+
+  // 12.3  canProceed(4.5) returns false for Harsh when rolls done but no bond choices
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 8, CHA: 5 };
+    state.harshD4Rolls = [2, 3];
+    state.harshBondChoice1 = null;
+    state.harshBondChoice2 = null;
+    eq(canProceed(4.5), false, 'Harsh: canProceed(4.5) = false when rolls done but bond choices missing');
+  }
+
+  // 12.4  canProceed(4.5) returns true for Harsh when rolls done and both bond choices made
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 8, CHA: 5 };
+    state.bonds = [
+      { name: 'Alice', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 },
+    ];
+    state.harshD4Rolls = [2, 3];
+    state.harshBondChoice1 = 0;
+    state.harshBondChoice2 = 0;
+    eq(canProceed(4.5), true, 'Harsh: canProceed(4.5) = true when rolls + bond choices made');
+  }
+
+  // 12.5  Harsh bond deduction applies via getBondEffectiveValue
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 12 };
+    const bond = { name: 'Alice', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 3 };
+    // CHA=12, upbringingReduction=3 → effective = max(0, 12-3) = 9
+    eq(getBondEffectiveValue(bond), 9, 'Bond effective value = CHA - upbringingReduction = 12 - 3 = 9');
+  }
+
+  // 12.6  upbringingReduction is clamped to 0 (bond can't go below 0)
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 4 };
+    const bond = { name: 'Alice', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 10 };
+    // CHA=4, upbringingReduction=10 → max(0, 4-10) = 0
+    eq(getBondEffectiveValue(bond), 0, 'Bond effective value clamped to 0 when reduction > base');
+  }
+
+  // 12.7  Very Harsh: canProceed(4.5) = false before rolling d100
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.vhPowTestRoll = null;
+    eq(canProceed(4.5), false, 'Very Harsh: canProceed(4.5) = false before POW test roll');
+  }
+
+  // 12.8  Very Harsh: canProceed(4.5) = true after rolling d100 when CHA/POW >= 10
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 10 };
+    state.vhPowTestRoll = 50; // some roll
+    eq(canProceed(4.5), true, 'Very Harsh: canProceed(4.5) = true after POW test when CHA/POW >= 10');
+  }
+
+  // 12.9  Very Harsh: canProceed(4.5) = false when CHA < 10 and no adaptation chosen
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 8 };
+    state.vhPowTestRoll = 50;
+    state.vhAdaptedTo = null;
+    state.vhAdaptRoll = null;
+    eq(canProceed(4.5), false, 'Very Harsh: canProceed(4.5) = false when CHA < 10 and no adaptation');
+  }
+
+  // 12.10  Very Harsh: canProceed(4.5) = true after full adaptation for CHA < 10
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 8 };
+    state.vhPowTestRoll = 50;
+    state.vhAdaptedTo = 'violence';
+    state.vhAdaptRoll = 3;
+    state.upbringingChaReduction = 3;
+    eq(canProceed(4.5), true, 'Very Harsh: canProceed(4.5) = true after adaptation roll for CHA < 10');
+  }
+
+  // 12.11  upbringingChaReduction reduces CHA in getAttrValue
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 12 };
+    state.upbringingChaReduction = 4;
+    eq(getAttrValue('CHA'), 8, 'CHA = pointsAttr.CHA - upbringingChaReduction = 12 - 4 = 8');
+  }
+
+  // 12.12  upbringingPowReduction reduces POW in getAttrValue and affects derived stats
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.upbringingPowReduction = 3;
+    eq(getAttrValue('POW'), 9, 'POW = pointsAttr.POW - upbringingPowReduction = 12 - 3 = 9');
+    const d = calculateDerived();
+    eq(d.WP, 9, 'WP = reduced POW = 9');
+    // SAN = POW * 4 (very_harsh) = 9 * 4 = 36
+    eq(d.SAN, 36, 'SAN = reduced POW * 4 (very harsh) = 36');
+  }
+
+  // 12.13  resetUpbringingEffectsState clears all upbringing effects state
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 8 };
+    state.harshD4Rolls = [2, 3];
+    state.harshBondChoice1 = 0;
+    state.harshBondChoice2 = 0;
+    state.vhPowTestRoll = 55;
+    state.vhAdaptedTo = 'violence';
+    state.vhAdaptRoll = 4;
+    state.upbringingChaReduction = 4;
+    state.upbringingPowReduction = 2;
+    state.bonds = [
+      { name: 'Alice', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 4 },
+    ];
+    state.violenceChecked = [true, true, true];
+    state.disorders = [{ id: 1, text: '' }];
+    state.vhPowDisorderId = 1;
+
+    resetUpbringingEffectsState();
+
+    eq(state.harshD4Rolls, null, 'resetUpbringingEffectsState clears harshD4Rolls');
+    eq(state.vhPowTestRoll, null, 'resetUpbringingEffectsState clears vhPowTestRoll');
+    eq(state.vhAdaptedTo, null, 'resetUpbringingEffectsState clears vhAdaptedTo');
+    eq(state.vhAdaptRoll, null, 'resetUpbringingEffectsState clears vhAdaptRoll');
+    eq(state.upbringingChaReduction, 0, 'resetUpbringingEffectsState clears upbringingChaReduction');
+    eq(state.upbringingPowReduction, 0, 'resetUpbringingEffectsState clears upbringingPowReduction');
+    eq(state.bonds[0].upbringingReduction, 0, 'resetUpbringingEffectsState clears bond upbringingReduction');
+    eq(state.violenceChecked[0], false, 'resetUpbringingEffectsState resets violenceChecked');
+    // Disorder added by the POW test should be removed
+    eq(state.disorders.length, 0, 'resetUpbringingEffectsState removes the auto-added disorder');
   }
 
 })();
