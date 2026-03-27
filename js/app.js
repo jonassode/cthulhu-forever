@@ -1951,7 +1951,7 @@ function renderUpbringingEffects() {
         <ul style="margin:0.5rem 0 0 1.25rem;line-height:1.8;">
           ${state.bonds.map((b, idx) => {
             const red = b.upbringingReduction || 0;
-            return red > 0 ? `<li>${escapeHtml(b.name || 'Unnamed bond')}: −${red} (new value: ${getBondEffectiveValue(b)})</li>` : '';
+            return red > 0 ? `<li>${escapeHtml(b.name || 'Unnamed bond')}: reduced by ${red} (new value: ${getBondEffectiveValue(b)})</li>` : '';
           }).join('')}
         </ul>
       </div>`;
@@ -2041,7 +2041,7 @@ function renderUpbringingEffects() {
         <strong>Effects applied:</strong>
         <ul style="margin:0.5rem 0 0 1.25rem;">
           <li>CHA reduced by ${roll} (new value: ${getAttrValue('CHA')})</li>
-          ${state.bonds.map(b => `<li>${escapeHtml(b.name || 'Unnamed bond')}: −${roll} (new value: ${getBondEffectiveValue(b)})</li>`).join('')}
+          ${state.bonds.map(b => `<li>${escapeHtml(b.name || 'Unnamed bond')}: reduced by ${roll} (new value: ${getBondEffectiveValue(b)})</li>`).join('')}
         </ul>
         <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-secondary);">All violence incidents are pre-checked — you are already adapted to violence.</p>
       </div>`;
