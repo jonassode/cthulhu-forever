@@ -2027,6 +2027,10 @@ function buildCharSheetHtml() {
 
     <div class="sheet-2col-row">
       <div class="sheet-section">
+        <div class="sheet-section-title">Motivations</div>
+        <div class="sheet-backstory" id="sheet-motivations" title="Double-click to edit" ondblclick="startEditText('motivations','sheet-motivations')">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
+      </div>
+      <div class="sheet-section">
         <div class="sheet-section-title">Disorders / Conditions</div>
         <div class="disorders-list" id="disorders-list">
           ${state.disorders.length === 0
@@ -2042,10 +2046,6 @@ function buildCharSheetHtml() {
           }
         </div>
         <button class="add-custom-skill-btn" onclick="addDisorder()" style="margin-top:0.5rem;" data-tooltip="Adding a disorder requires you to remove/strike out one of your Motivations">+ Add Disorder</button>
-      </div>
-      <div class="sheet-section">
-        <div class="sheet-section-title">Motivations</div>
-        <div class="sheet-backstory" id="sheet-motivations" title="Double-click to edit" ondblclick="startEditText('motivations','sheet-motivations')">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
       </div>
     </div>
 
