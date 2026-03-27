@@ -173,6 +173,7 @@ const testCode = `
     state.editMode          = false;
     state.resourcesEditAdjust = 0;
     state.skillEditAdjust   = {};
+    state.attrEditAdjust    = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
     state.identity          = {
       name: '', profession: '', nationality: '', characterAge: 25,
       backstory: '', motivations: '', gear: '',
@@ -927,6 +928,101 @@ const testCode = `
     toggleBondSetToOne(0);
     eq(state.bonds[0].setToOne, false, 'toggleBondSetToOne is no-op when resources are sacrificed');
     eq(getBonusPointsTotal(), 11, 'Bonus total unchanged (only resource sacrifice counts)');
+  }
+
+  // ── Suite 11: Attribute Edit Mode ────────────────────────────────────────────
+
+  console.log('\\n── Suite 11: Attribute Edit Mode ────────────────────────────────────────────');
+
+  // 11.1  getDisplayedAttrValue returns base value when attrEditAdjust is zero
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 15, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    eq(getDisplayedAttrValue('STR'), 15, 'getDisplayedAttrValue STR = 15 (no adjustment)');
+    eq(getDisplayedAttrValue('POW'), 12, 'getDisplayedAttrValue POW = 12 (no adjustment)');
+  }
+
+  // 11.2  getDisplayedAttrValue applies attrEditAdjust offset
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 15, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    state.attrEditAdjust = { STR: 2, CON: -1, DEX: 0, INT: 0, POW: 3, CHA: 0 };
+    eq(getDisplayedAttrValue('STR'), 17, 'getDisplayedAttrValue STR = 17 (base 15 + adj 2)');
+    eq(getDisplayedAttrValue('CON'), 11, 'getDisplayedAttrValue CON = 11 (base 12 + adj -1)');
+    eq(getDisplayedAttrValue('POW'), 15, 'getDisplayedAttrValue POW = 15 (base 12 + adj 3)');
+  }
+
+  // 11.3  getDisplayedAttrValue clamps to maximum of 18
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 18, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    state.attrEditAdjust = { STR: 5, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
+    eq(getDisplayedAttrValue('STR'), 18, 'getDisplayedAttrValue STR clamped to 18 (base 18 + adj 5)');
+  }
+
+  // 11.4  getDisplayedAttrValue clamps to minimum of 3
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 3, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    state.attrEditAdjust = { STR: -5, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
+    eq(getDisplayedAttrValue('STR'), 3, 'getDisplayedAttrValue STR clamped to 3 (base 3 + adj -5)');
+  }
+
+  // 11.5  calculateDerived uses displayed attribute values (edit mode adjustments propagate)
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 15, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    // Raise STR by 1: HP = ceil((16+12)/2) = 14 — no change (14 still)
+    state.attrEditAdjust = { STR: 1, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
+    eq(calculateDerived().HP, 14, 'HP = ceil((16+12)/2) = 14 after STR +1');
+    // Raise CON by 2: HP = ceil((16+14)/2) = 15
+    state.attrEditAdjust = { STR: 1, CON: 2, DEX: 0, INT: 0, POW: 0, CHA: 0 };
+    eq(calculateDerived().HP, 15, 'HP = ceil((16+14)/2) = 15 after STR+1 CON+2');
+  }
+
+  // 11.6  WP and RecoverySAN reflect POW edit adjustment; SAN and BP do NOT change
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 12, CHA: 10 });
+    const baseSAN = calculateDerived().SAN; // SAN = 12×5 = 60 (base, no edit)
+    const baseBP  = calculateDerived().BP;  // BP  = 60 − 12 = 48 (base, no edit)
+    state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 3, CHA: 0 };
+    eq(calculateDerived().WP,          15,      'WP = POW(12+3) = 15 after edit');
+    eq(calculateDerived().RecoverySAN, 75,      'RecoverySAN = POW(15)×5 = 75 after edit');
+    eq(calculateDerived().SAN,         baseSAN, 'SAN unchanged when POW is edited');
+    eq(calculateDerived().BP,          baseBP,  'BP unchanged when POW is edited');
+  }
+
+  // 11.7  adjustAttrInEditMode modifies attrEditAdjust correctly
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 15, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    adjustAttrInEditMode('STR', 1);
+    eq(state.attrEditAdjust.STR, 1,  'attrEditAdjust.STR = 1 after +1');
+    eq(getDisplayedAttrValue('STR'), 16, 'displayed STR = 16 after +1');
+    adjustAttrInEditMode('STR', -1);
+    eq(state.attrEditAdjust.STR, 0,  'attrEditAdjust.STR = 0 after -1');
+    eq(getDisplayedAttrValue('STR'), 15, 'displayed STR = 15 after back to base');
+  }
+
+  // 11.8  adjustAttrInEditMode does not go below 3
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 5, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    adjustAttrInEditMode('STR', -1);
+    adjustAttrInEditMode('STR', -1);
+    adjustAttrInEditMode('STR', -1); // this one should be blocked (would go to 2)
+    eq(getDisplayedAttrValue('STR'), 3, 'displayed STR stays at 3 (cannot go below 3)');
+  }
+
+  // 11.9  adjustAttrInEditMode does not go above 18
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'normal';
+    setAttributes({ STR: 16, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
+    adjustAttrInEditMode('STR', 1);
+    adjustAttrInEditMode('STR', 1);
+    adjustAttrInEditMode('STR', 1); // this one should be blocked (would go to 19)
+    eq(getDisplayedAttrValue('STR'), 18, 'displayed STR stays at 18 (cannot go above 18)');
   }
 
 })();

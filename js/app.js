@@ -53,6 +53,9 @@ const state = {
   editMode: false,        // true = character sheet edit mode (pen icon toggled)
   resourcesEditAdjust: 0, // integer offset to Resources rating applied in edit mode
   skillEditAdjust: {},    // skillName -> integer offset applied to skill values in edit mode
+  attrEditAdjust: {       // integer offset per attribute applied in edit mode
+    STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0,
+  },
 
   identity: {
     name: '',
@@ -177,6 +180,20 @@ function getAttrValues() {
   return out;
 }
 
+// Returns the attribute value including any edit-mode adjustment (clamped to 3–18).
+function getDisplayedAttrValue(attrKey) {
+  const base = getAttrValue(attrKey);
+  if (base === null) return null;
+  const adj = (state.attrEditAdjust && state.attrEditAdjust[attrKey]) || 0;
+  return Math.min(POINTS_ATTR_MAX, Math.max(POINTS_ATTR_MIN, base + adj));
+}
+
+function getDisplayedAttrValues() {
+  const out = {};
+  ATTRIBUTES.forEach(a => { out[a] = getDisplayedAttrValue(a); });
+  return out;
+}
+
 function allAttributesAssigned() {
   if (state.attrMode === 'points') {
     return getPointsTotal() === POINTS_TOTAL;
@@ -220,11 +237,14 @@ function adjustPointsAttr(attrKey, delta) {
 }
 
 function calculateDerived() {
-  const v = getAttrValues();
+  const v = getDisplayedAttrValues();
   if (!v.STR || !v.CON || !v.POW) return null;
+  // SAN and BP use the base (un-edited) POW so that editing POW in attribute
+  // edit mode does not alter SAN or the breaking point.
+  const basePOW = getAttrValue('POW') || v.POW;
   const baseSAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
-    ? v.POW * 4
-    : v.POW * 5;
+    ? basePOW * 4
+    : basePOW * 5;
   let DMG;
   if      (v.STR <= 4)  DMG = -2;
   else if (v.STR <= 8)  DMG = -1;
@@ -237,11 +257,12 @@ function calculateDerived() {
   const MaxSAN = 99 - unnaturalValue;
   // SAN and RecoverySAN can never exceed MaxSAN.
   const SAN = Math.min(baseSAN, MaxSAN);
+  const BP = SAN - basePOW;
   return {
     HP:          Math.ceil((v.STR + v.CON) / 2),
     WP:          v.POW,
     SAN:         SAN,
-    BP:          SAN - v.POW,
+    BP:          BP,
     DMG:         DMG,
     MaxSAN:      MaxSAN,
     RecoverySAN: Math.min(v.POW * 5, MaxSAN),
@@ -495,6 +516,17 @@ function adjustCustomSkillInEditMode(id, delta) {
   if (base + newAdj < 0) return;
   if (base + newAdj > 99) return;
   state.skillEditAdjust[key] = newAdj;
+  render();
+}
+
+// Adjusts an attribute value in edit mode (clamped to 3–18).
+function adjustAttrInEditMode(attrKey, delta) {
+  const base = getAttrValue(attrKey);
+  if (base === null) return;
+  const current = (state.attrEditAdjust[attrKey] || 0);
+  const newVal = base + current + delta;
+  if (newVal < 3 || newVal > 18) return;
+  state.attrEditAdjust[attrKey] = current + delta;
   render();
 }
 
@@ -1790,11 +1822,17 @@ function buildCharSheetHtml() {
       <div class="sheet-section-title">Attributes</div>
       <div class="attrs-row">
         ${ATTRIBUTES.map(a => {
-          const v = getAttrValue(a);
+          const v = getDisplayedAttrValue(a);
           const feature = getDistinguishingFeature(a, v);
           return `<div class="attr-box">
             <div class="ab-name">${a}</div>
-            <div class="ab-val">${v}</div>
+            ${state.editMode ? `
+            <div class="attr-edit-controls no-print">
+              <button class="stat-btn stat-btn-compact" onclick="adjustAttrInEditMode('${a}',-1)" title="Decrease ${a}" aria-label="Decrease ${a}">−</button>
+              <span class="ab-val">${v}</span>
+              <button class="stat-btn stat-btn-compact" onclick="adjustAttrInEditMode('${a}',1)" title="Increase ${a}" aria-label="Increase ${a}">+</button>
+            </div>
+            ` : `<div class="ab-val">${v}</div>`}
             <div class="ab-x5">${v * 5}%</div>
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
@@ -2382,9 +2420,9 @@ function toggleShowAllSkills() {
 // ── Import / Export ─────────────────────────────────────────
 
 function exportToJson() {
-  // Final attribute values
+  // Final attribute values (including any edit-mode adjustments)
   const attributes = {};
-  ATTRIBUTES.forEach(a => { attributes[a] = getAttrValue(a); });
+  ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
 
   // Final skill percentages for every skill in the current era
   const skills = {};
@@ -2611,6 +2649,9 @@ function importFromJsonV2(data) {
   _disorderIdCounter = state.disorders.length;
   state.showAllSkills = data.showAllSkills || false;
 
+  // attrEditAdjust is zeroed on import: attribute values are already baked into roll sets.
+  state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
+
   state.editMode = false;
   state.playMode = false;
   state.currentStep = 6;
@@ -2655,6 +2696,7 @@ function importFromJsonV1(data) {
   state.showAllSkills = data.showAllSkills || false;
   state.skillEditAdjust = data.skillEditAdjust || {};
   state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
+  state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
   state.editMode = false;
   state.playMode = false;
   state.identity = {
@@ -2734,6 +2776,7 @@ function resetState() {
   state.violenceChecked       = [false, false, false];
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
+  state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
   state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
   state.currentHP        = null;
   state.currentWP        = null;
