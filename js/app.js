@@ -453,7 +453,8 @@ function getResourcesCapacity(rating) {
 
 // Returns the effective numeric value of a bond object.
 // Individual bonds are tied to CHA; Community bonds are Resources÷2 plus bonus from picks.
-function getBondEffectiveValue(bond) {
+// Returns the bond value before any upbringing reductions are applied.
+function getBondPreReductionValue(bond) {
   if (!bond || !bond.type) return null;
   let value;
   if (bond.type === 'individual') {
@@ -470,7 +471,13 @@ function getBondEffectiveValue(bond) {
       value = base + bonus;
     }
   }
-  return Math.max(0, value - (bond.upbringingReduction || 0));
+  return Math.max(0, value);
+}
+
+function getBondEffectiveValue(bond) {
+  const base = getBondPreReductionValue(bond);
+  if (base === null) return null;
+  return Math.max(0, base - (bond.upbringingReduction || 0));
 }
 
 // Returns the current in-play bond score (respects damage tracked via currentScore).
@@ -1936,7 +1943,7 @@ function renderUpbringingEffects() {
                   onchange="selectHarshBondChoice(${i}, parseInt(this.value))">
             <option value="" ${choice === null || choice === undefined ? 'selected' : ''}>— Select a bond —</option>
             ${state.bonds.map((b, idx) => `
-            <option value="${idx}" ${choice === idx ? 'selected' : ''}>${escapeHtml(b.name || 'Unnamed bond')} (current: ${getBondEffectiveValue(b) !== null ? getBondEffectiveValue(b) : '—'})</option>`).join('')}
+            <option value="${idx}" ${choice === idx ? 'selected' : ''}>${escapeHtml(b.name || 'Unnamed bond')} (current: ${getBondPreReductionValue(b) !== null ? getBondPreReductionValue(b) : '—'})</option>`).join('')}
           </select>
         </div>`;
         });
