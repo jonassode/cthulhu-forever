@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.163 - Improve Copilot workspace instructions  
 0.162 - Update README.md  
 0.161 - Fix: clamp displayed attribute values to min 3 / max 18 (was 1–20)  
 0.160 - Fix: RecoverySAN should use displayed (edited) POW, not base POW  
