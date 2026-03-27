@@ -2,6 +2,16 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.165 - Remove screenshots from PR  
+0.164 - Swap motivations and disorders layout on character sheet  
+0.163 - Improve Copilot workspace instructions  
+0.162 - Update README.md  
+0.161 - Fix: clamp displayed attribute values to min 3 / max 18 (was 1–20)  
+0.160 - Fix: RecoverySAN should use displayed (edited) POW, not base POW  
+0.159 - Fix: SAN and BP should not change when POW is edited in attribute edit mode  
+0.158 - Fix: BP should not change when POW is edited in attribute edit mode  
+0.157 - Fix attribute edit bounds: clamp to min 3, max 18  
+0.156 - Changes before error encountered  
 0.155 - Reorganize README to highlight project access  
 0.154 - Disallow community bond sacrifice when resources are sacrificed to 0  
 0.153 - Address code review: add typeof check, simplify bonusSpent condition, clarify test comment  
