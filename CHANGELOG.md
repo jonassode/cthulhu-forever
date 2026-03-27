@@ -2,6 +2,8 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.170 - Enhance Cloudflare Web Analytics script section  
+0.169 - feat: add Cloudflare Web Analytics snippet to index.html  
 0.168 - fix: add .form-select CSS to style bond dropdowns on Upbringing Effects step  
 0.167 - fix: resolve suite numbering conflict and add missing closing brace in validate-character-creation.mjs  
 0.166 - feat: add mental disorders step for Harsh and Very Harsh upbringing  
