@@ -5,10 +5,6 @@ A Cthulhu Eternal Character Generator
 
 **Check it out at https://jonassode.github.io/cthulhu-forever/**
 
-## Getting Started
-
-Open `index.html` in a web browser to launch the character generator.
-
 ## Features
 
 - **Multi step character creation wizard** with stepper navigation
@@ -21,6 +17,10 @@ Open `index.html` in a web browser to launch the character generator.
 ## Contribute
 
 **Found a bug our have a feature request? Raise an [Issue](https://github.com/jonassode/cthulhu-forever/issues)**
+
+## Getting Started
+
+Open `index.html` in a web browser to launch the character generator.
 
 ## Validation
 
