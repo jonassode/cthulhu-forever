@@ -1035,6 +1035,7 @@ const testCode = `
     adjustAttrInEditMode('STR', 1);
     adjustAttrInEditMode('STR', 1); // this one should be blocked (would go to 19)
     eq(getDisplayedAttrValue('STR'), 18, 'displayed STR stays at 18 (cannot go above 18)');
+  }
 
   // ── Suite 12: Upbringing Effects (Step 4.5) ──────────────────────────────────
 
