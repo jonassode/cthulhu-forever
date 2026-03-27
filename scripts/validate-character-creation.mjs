@@ -952,20 +952,20 @@ const testCode = `
     eq(getDisplayedAttrValue('POW'), 15, 'getDisplayedAttrValue POW = 15 (base 12 + adj 3)');
   }
 
-  // 11.3  getDisplayedAttrValue clamps to maximum of 20
+  // 11.3  getDisplayedAttrValue clamps to maximum of 18
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
     setAttributes({ STR: 18, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
     state.attrEditAdjust = { STR: 5, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-    eq(getDisplayedAttrValue('STR'), 20, 'getDisplayedAttrValue STR clamped to 20 (base 18 + adj 5)');
+    eq(getDisplayedAttrValue('STR'), 18, 'getDisplayedAttrValue STR clamped to 18 (base 18 + adj 5)');
   }
 
-  // 11.4  getDisplayedAttrValue clamps to minimum of 1
+  // 11.4  getDisplayedAttrValue clamps to minimum of 3
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
     setAttributes({ STR: 3, CON: 12, DEX: 14, INT: 17, POW: 12, CHA: 8 });
     state.attrEditAdjust = { STR: -5, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-    eq(getDisplayedAttrValue('STR'), 1, 'getDisplayedAttrValue STR clamped to 1 (base 3 + adj -5)');
+    eq(getDisplayedAttrValue('STR'), 3, 'getDisplayedAttrValue STR clamped to 3 (base 3 + adj -5)');
   }
 
   // 11.5  calculateDerived uses displayed attribute values (edit mode adjustments propagate)

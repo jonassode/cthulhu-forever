@@ -180,12 +180,12 @@ function getAttrValues() {
   return out;
 }
 
-// Returns the attribute value including any edit-mode adjustment (clamped to 1–20).
+// Returns the attribute value including any edit-mode adjustment (clamped to 3–18).
 function getDisplayedAttrValue(attrKey) {
   const base = getAttrValue(attrKey);
   if (base === null) return null;
   const adj = (state.attrEditAdjust && state.attrEditAdjust[attrKey]) || 0;
-  return Math.min(20, Math.max(1, base + adj));
+  return Math.min(POINTS_ATTR_MAX, Math.max(POINTS_ATTR_MIN, base + adj));
 }
 
 function getDisplayedAttrValues() {
