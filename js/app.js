@@ -265,7 +265,7 @@ function calculateDerived() {
     BP:          BP,
     DMG:         DMG,
     MaxSAN:      MaxSAN,
-    RecoverySAN: Math.min(basePOW * 5, MaxSAN),
+    RecoverySAN: Math.min(v.POW * 5, MaxSAN),
   };
 }
 
