@@ -2,6 +2,8 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.165 - Remove screenshots from PR  
+0.164 - Swap motivations and disorders layout on character sheet  
 0.163 - Improve Copilot workspace instructions  
 0.162 - Update README.md  
 0.161 - Fix: clamp displayed attribute values to min 3 / max 18 (was 1–20)  
