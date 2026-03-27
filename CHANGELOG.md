@@ -2,6 +2,8 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.167 - fix: resolve suite numbering conflict and add missing closing brace in validate-character-creation.mjs  
+0.166 - feat: add mental disorders step for Harsh and Very Harsh upbringing  
 0.165 - Remove screenshots from PR  
 0.164 - Swap motivations and disorders layout on character sheet  
 0.163 - Improve Copilot workspace instructions  
