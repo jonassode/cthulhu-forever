@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.171 - Change bond reduction display from −n to 'reduced by n' in step 4.5  
 0.170 - Enhance Cloudflare Web Analytics script section  
 0.169 - feat: add Cloudflare Web Analytics snippet to index.html  
 0.168 - fix: add .form-select CSS to style bond dropdowns on Upbringing Effects step  
