@@ -980,15 +980,16 @@ const testCode = `
     eq(calculateDerived().HP, 15, 'HP = ceil((16+14)/2) = 15 after STR+1 CON+2');
   }
 
-  // 11.6  calculateDerived WP/SAN reflects POW edit adjustment; BP does NOT change
+  // 11.6  WP reflects POW edit adjustment; SAN and BP do NOT change
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
     setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 12, CHA: 10 });
-    const baseBP = calculateDerived().BP; // BP = 12×5 − 12 = 48 (base, no edit)
+    const baseSAN = calculateDerived().SAN; // SAN = 12×5 = 60 (base, no edit)
+    const baseBP  = calculateDerived().BP;  // BP  = 60 − 12 = 48 (base, no edit)
     state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 3, CHA: 0 };
-    eq(calculateDerived().WP,  15,     'WP = POW(12+3) = 15 after edit');
-    eq(calculateDerived().SAN, 75,     'SAN = POW(15)×5 = 75 after edit');
-    eq(calculateDerived().BP,  baseBP, 'BP unchanged when POW is edited');
+    eq(calculateDerived().WP,  15,      'WP = POW(12+3) = 15 after edit');
+    eq(calculateDerived().SAN, baseSAN, 'SAN unchanged when POW is edited');
+    eq(calculateDerived().BP,  baseBP,  'BP unchanged when POW is edited');
   }
 
   // 11.7  adjustAttrInEditMode modifies attrEditAdjust correctly

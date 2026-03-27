@@ -239,9 +239,12 @@ function adjustPointsAttr(attrKey, delta) {
 function calculateDerived() {
   const v = getDisplayedAttrValues();
   if (!v.STR || !v.CON || !v.POW) return null;
+  // SAN and BP use the base (un-edited) POW so that editing POW in attribute
+  // edit mode does not alter SAN or the breaking point.
+  const basePOW = getAttrValue('POW') || v.POW;
   const baseSAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
-    ? v.POW * 4
-    : v.POW * 5;
+    ? basePOW * 4
+    : basePOW * 5;
   let DMG;
   if      (v.STR <= 4)  DMG = -2;
   else if (v.STR <= 8)  DMG = -1;
@@ -254,13 +257,7 @@ function calculateDerived() {
   const MaxSAN = 99 - unnaturalValue;
   // SAN and RecoverySAN can never exceed MaxSAN.
   const SAN = Math.min(baseSAN, MaxSAN);
-  // BP uses the base (un-edited) POW so that editing POW in edit mode does not
-  // change the breaking point.
-  const basePOW = getAttrValue('POW') || v.POW;
-  const bpBaseSAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
-    ? basePOW * 4
-    : basePOW * 5;
-  const BP = Math.min(bpBaseSAN, MaxSAN) - basePOW;
+  const BP = SAN - basePOW;
   return {
     HP:          Math.ceil((v.STR + v.CON) / 2),
     WP:          v.POW,
@@ -268,7 +265,7 @@ function calculateDerived() {
     BP:          BP,
     DMG:         DMG,
     MaxSAN:      MaxSAN,
-    RecoverySAN: Math.min(v.POW * 5, MaxSAN),
+    RecoverySAN: Math.min(basePOW * 5, MaxSAN),
   };
 }
 
