@@ -624,16 +624,21 @@ function rollHarshD4s() {
 // Selects which bond to apply a Harsh d4 deduction to (rollIndex = 0 or 1).
 function selectHarshBondChoice(rollIndex, bondIndex) {
   if (!state.harshD4Rolls) return;
+  const isDeselect = isNaN(bondIndex) || bondIndex === '' || bondIndex === null;
+  // Prevent selecting the same bond for both dice when multiple bonds exist.
+  const otherChoice = rollIndex === 0 ? state.harshBondChoice2 : state.harshBondChoice1;
+  if (!isDeselect && otherChoice != null && otherChoice === bondIndex && state.bonds.length > 1) return;
   const roll = state.harshD4Rolls[rollIndex];
   const prevChoice = rollIndex === 0 ? state.harshBondChoice1 : state.harshBondChoice2;
   if (prevChoice !== null && prevChoice !== undefined && state.bonds[prevChoice]) {
     state.bonds[prevChoice].upbringingReduction = Math.max(0, (state.bonds[prevChoice].upbringingReduction || 0) - roll);
   }
-  if (state.bonds[bondIndex]) {
+  if (!isDeselect && state.bonds[bondIndex]) {
     state.bonds[bondIndex].upbringingReduction = (state.bonds[bondIndex].upbringingReduction || 0) + roll;
   }
-  if (rollIndex === 0) state.harshBondChoice1 = bondIndex;
-  else                 state.harshBondChoice2 = bondIndex;
+  const newChoice = isDeselect ? null : bondIndex;
+  if (rollIndex === 0) state.harshBondChoice1 = newChoice;
+  else                 state.harshBondChoice2 = newChoice;
   render();
 }
 
@@ -1936,6 +1941,16 @@ function renderUpbringingEffects() {
 
         state.harshD4Rolls.forEach((roll, i) => {
           const choice = i === 0 ? state.harshBondChoice1 : state.harshBondChoice2;
+          const otherChoice = i === 0 ? state.harshBondChoice2 : state.harshBondChoice1;
+          // If only one bond exists, the second die cannot be applied to any bond.
+          if (i === 1 && state.bonds.length === 1) {
+            html += `
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <span style="font-size:1rem;min-width:80px;">Die ${i + 1}: <strong>${roll}</strong></span>
+          <span style="color:var(--text-secondary);font-size:0.9rem;">(Not used — only one bond available)</span>
+        </div>`;
+            return;
+          }
           html += `
         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
           <span style="font-size:1rem;min-width:80px;">Die ${i + 1}: <strong>${roll}</strong></span>
@@ -1943,7 +1958,7 @@ function renderUpbringingEffects() {
                   onchange="selectHarshBondChoice(${i}, parseInt(this.value))">
             <option value="" ${choice === null || choice === undefined ? 'selected' : ''}>— Select a bond —</option>
             ${state.bonds.map((b, idx) => `
-            <option value="${idx}" ${choice === idx ? 'selected' : ''}>${escapeHtml(b.name || 'Unnamed bond')} (current: ${getBondPreReductionValue(b) !== null ? getBondPreReductionValue(b) : '—'})</option>`).join('')}
+            <option value="${idx}" ${choice === idx ? 'selected' : ''} ${otherChoice === idx ? 'disabled' : ''}>${escapeHtml(b.name || 'Unnamed bond')} (current: ${getBondPreReductionValue(b) !== null ? getBondPreReductionValue(b) : '—'})</option>`).join('')}
           </select>
         </div>`;
         });
@@ -1951,7 +1966,9 @@ function renderUpbringingEffects() {
         html += `
       </div>`;
 
-        if (state.harshBondChoice1 !== null && state.harshBondChoice2 !== null) {
+        // Show reductions once all usable dice are assigned: both choices made, or only
+        // one bond exists so the second die is unused (harshBondChoice2 stays null).
+        if (state.harshBondChoice1 !== null && (state.bonds.length === 1 || state.harshBondChoice2 !== null)) {
           html += `
       <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--ct-surface);border-radius:8px;border:1px solid var(--border);">
         <strong>Applied reductions:</strong>
