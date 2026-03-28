@@ -73,18 +73,43 @@
   },
   "customSkills": [],
   "bonds": [
-    { "name": "Margaret — beloved sister", "type": "individual", "currentScore": 8 },
-    { "name": "The Arkham Gazette (editor)", "type": "individual", "currentScore": 8 },
-    { "name": "Miskatonic University Library", "type": "community", "currentScore": 2 }
+    {
+      "name": "Margaret \u2014 beloved sister",
+      "type": "individual",
+      "currentScore": 8
+    },
+    {
+      "name": "The Arkham Gazette (editor)",
+      "type": "individual",
+      "currentScore": 8
+    },
+    {
+      "name": "Miskatonic University Library",
+      "type": "community",
+      "currentScore": 2
+    }
   ],
   "resources": 4,
-  "resourceChecked": [false, false, false, false],
+  "resourceChecked": [
+    false,
+    false,
+    false,
+    false
+  ],
   "skillChecked": {
     "Alertness": false,
     "Persuade": true
   },
-  "violenceChecked": [true, false, false],
-  "helplessnessChecked": [false, false, false],
+  "violenceChecked": [
+    true,
+    false,
+    false
+  ],
+  "helplessnessChecked": [
+    false,
+    false,
+    false
+  ],
   "maxHP": 14,
   "maxWP": 12,
   "maxSAN": 99,
@@ -94,7 +119,11 @@
   "breakingPoint": 48,
   "recoverySAN": 60,
   "disorders": [
-    { "id": 0, "text": "Recurring nightmares of deep-sea horrors" }
+    {
+      "id": 0,
+      "text": "Recurring nightmares of deep-sea horrors"
+    }
   ],
-  "showAllSkills": false
+  "showAllSkills": false,
+  "bodyArmour": 0
 }

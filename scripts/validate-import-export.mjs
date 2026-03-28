@@ -179,6 +179,8 @@ assert(
 );
 assertField(character, 'disorders', 'array', 'root');
 assertField(character, 'showAllSkills', 'boolean', 'root');
+assertField(character, 'bodyArmour', 'number', 'root');
+assert(character.bodyArmour >= 0, `bodyArmour must be >= 0, got ${character.bodyArmour}`);
 
 // 11. Disorders shape
 for (let i = 0; i < (character.disorders || []).length; i++) {
