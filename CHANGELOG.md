@@ -2,6 +2,8 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.178 - Fix: deselecting a bond in harsh upbringing step no longer keeps continue active  
+0.177 - Fix: prevent selecting the same bond twice in Harsh Upbringing step 4.5  
 0.176 - fix: show original bond value in stage 4.5 reduction dropdown  
 0.175 - Add screenshots section to README  
 0.174 - Fix formatting issues in README.md  
