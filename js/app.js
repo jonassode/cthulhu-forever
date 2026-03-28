@@ -471,13 +471,13 @@ function getBondPreReductionValue(bond) {
       value = base + bonus;
     }
   }
-  return Math.max(0, value);
+  return Math.min(20, Math.max(0, value));
 }
 
 function getBondEffectiveValue(bond) {
   const base = getBondPreReductionValue(bond);
   if (base === null) return null;
-  return Math.max(0, base - (bond.upbringingReduction || 0));
+  return Math.min(20, Math.max(0, base - (bond.upbringingReduction || 0)));
 }
 
 // Returns the current in-play bond score (respects damage tracked via currentScore).
@@ -512,7 +512,7 @@ function adjustBondPlayScore(idx, delta) {
   if (!bond) return;
   const current = getBondPlayScore(bond);
   if (current === null) return;
-  bond.currentScore = Math.max(0, current + delta);
+  bond.currentScore = Math.min(20, Math.max(0, current + delta));
   render();
 }
 
@@ -1615,7 +1615,7 @@ function renderStep4() {
         const isCommunity  = b.type === 'community';
         const isSetToOne   = isCommunity && !!b.setToOne;
         const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
-        const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0;
+        const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0 && (val === null || val < 20);
         const canSub = isCommunity && !isSetToOne && b.bonusSpent > 0;
         // Cannot sacrifice a community bond when Resources is already 0 (bond base = 0,
         // so setting to 1 would be an increase, not a sacrifice).
@@ -1853,6 +1853,7 @@ function adjustBond(index, delta) {
   if (!bond || bond.type !== 'community') return;
   if (delta > 0) {
     if (getBonusPointsRemaining() < 1) return;
+    if (getBondPreReductionValue(bond) >= 20) return;
     bond.bonusSpent = (bond.bonusSpent || 0) + 1;
   } else {
     if ((bond.bonusSpent || 0) <= 0) return;
