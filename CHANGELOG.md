@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.176 - fix: show original bond value in stage 4.5 reduction dropdown  
 0.175 - Add screenshots section to README  
 0.174 - Fix formatting issues in README.md  
 0.173 - Enhance character sheet export options  
