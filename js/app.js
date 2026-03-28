@@ -624,19 +624,21 @@ function rollHarshD4s() {
 // Selects which bond to apply a Harsh d4 deduction to (rollIndex = 0 or 1).
 function selectHarshBondChoice(rollIndex, bondIndex) {
   if (!state.harshD4Rolls) return;
+  const isDeselect = isNaN(bondIndex) || bondIndex === '' || bondIndex === null;
   // Prevent selecting the same bond for both dice when multiple bonds exist.
   const otherChoice = rollIndex === 0 ? state.harshBondChoice2 : state.harshBondChoice1;
-  if (otherChoice != null && otherChoice === bondIndex && state.bonds.length > 1) return;
+  if (!isDeselect && otherChoice != null && otherChoice === bondIndex && state.bonds.length > 1) return;
   const roll = state.harshD4Rolls[rollIndex];
   const prevChoice = rollIndex === 0 ? state.harshBondChoice1 : state.harshBondChoice2;
   if (prevChoice !== null && prevChoice !== undefined && state.bonds[prevChoice]) {
     state.bonds[prevChoice].upbringingReduction = Math.max(0, (state.bonds[prevChoice].upbringingReduction || 0) - roll);
   }
-  if (state.bonds[bondIndex]) {
+  if (!isDeselect && state.bonds[bondIndex]) {
     state.bonds[bondIndex].upbringingReduction = (state.bonds[bondIndex].upbringingReduction || 0) + roll;
   }
-  if (rollIndex === 0) state.harshBondChoice1 = bondIndex;
-  else                 state.harshBondChoice2 = bondIndex;
+  const newChoice = isDeselect ? null : bondIndex;
+  if (rollIndex === 0) state.harshBondChoice1 = newChoice;
+  else                 state.harshBondChoice2 = newChoice;
   render();
 }
 
