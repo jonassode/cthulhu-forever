@@ -757,7 +757,7 @@ function goToStep(n) {
 
 function nextStep() {
   if (canProceed(state.currentStep)) {
-    location.hash = 'clicked-continue';
+    location.hash = 'clicked-continue-step-' + String(state.currentStep).replace('.', '-');
     // Side effects on transition
     if (state.currentStep === 3) {
       // Entering step 4 — init skills & bonds
