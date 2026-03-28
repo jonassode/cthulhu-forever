@@ -30,3 +30,7 @@ To verify that Jazz Age and Modern Age base skill lists still match the cheat-sh
 ```bash
 node scripts/validate-skill-parity.mjs
 ```
+
+## Screenshots
+
+<img width="674" height="1208" alt="image" src="https://github.com/user-attachments/assets/54eb27e3-e2be-4c68-b2d6-e05a55f7ad6f" />
