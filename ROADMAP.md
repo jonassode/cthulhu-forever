@@ -12,8 +12,8 @@ This is the high level roadmap for the Character Builder
 - Rollable Elements
 
 # Improved Export and Character Sheet
-- Being able to Export to a Character Sheet format that looks more like the originals
-- Export to text
+- Being able to Export to a Character Sheet format that looks more like the sheets from the books
+- Export to text, to make it easy to include in google docs and play by forum sheets
 
 # Additional Tools
 - Adding custom Archetypes
