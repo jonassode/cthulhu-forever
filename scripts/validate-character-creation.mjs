@@ -705,6 +705,7 @@ const testCode = `
   {
     function statusLabel(score) { return getCommunityBondStatus(score).label; }
 
+    eq(statusLabel(0),  'Broken',                         'Score 0  → Broken');
     eq(statusLabel(1),  'Disgraced member',             'Score 1  → Disgraced member');
     eq(statusLabel(2),  'Shunned member',               'Score 2  → Shunned member');
     eq(statusLabel(4),  'Shunned member',               'Score 4  → Shunned member');

@@ -906,6 +906,15 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--text-secondary);
   cursor: help;
 }
+.bond-status-badge.bond-broken {
+  background: rgba(220,60,60,0.15);
+  border: 1px solid rgba(220,60,60,0.5);
+  color: #e07070;
+}
+.bond-sheet-row.bond-broken .bond-sheet-name {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
 .bond-sheet-name {
   flex: 1;
   font-size: 0.88rem;
