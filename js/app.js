@@ -753,7 +753,7 @@ function canProceed(step) {
       return true;
     }
     case 5: return true; // motivations & gear are optional
-    case 6: return state.identity.name.trim() !== '';
+    case 6: return true;
     default: return false;
   }
 }
@@ -2134,8 +2134,6 @@ function renderStep5() {
 // ── RENDER: Step 6 — Identity & Export ──────────────────────
 
 function buildCharSheetHtml() {
-  if (!state.identity.name.trim()) return '';
-
   const arch    = getArchetype();
   const derived = calculateDerived();
   const skills  = getCurrentSkills();
@@ -2449,7 +2447,6 @@ function buildCharSheetHtml() {
 }
 
 function renderStep6() {
-  const canShow = state.identity.name.trim() !== '';
   const charSheetHtml = buildCharSheetHtml();
 
   return `
@@ -2460,7 +2457,7 @@ function renderStep6() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="sm:grid-cols-1 no-print">
       <div>
         <div class="form-group">
-          <label class="form-label">Character Name <span style="color:var(--danger-light);">*</span></label>
+          <label class="form-label">Character Name</label>
           <input class="form-input" type="text" id="char-name"
                  placeholder="Full name of your investigator"
                  value="${escapeHtml(state.identity.name)}"
@@ -2505,11 +2502,8 @@ function renderStep6() {
       </div>
     </div>
 
-    ${!canProceed(6) ? `<p class="validation-msg no-print">A character name is required.</p>` : ''}
-
     <div class="ornament-divider no-print">✦</div>
 
-    ${canShow ? `
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;" class="no-print">
       <button class="btn btn-gold" onclick="window.print()">
         <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24">
@@ -2526,39 +2520,16 @@ function renderStep6() {
       </button>
     </div>
     ${charSheetHtml}
-    ` : `<div class="notice">Enter a character name above to reveal the complete character sheet.</div>`}
   </div>`;
 }
 
 function updateIdentity(field, value) {
-  const prevName = state.identity.name;
   state.identity[field] = value;
 
   if (field === 'name') {
-    const wasEmpty = prevName.trim() === '';
-    const isEmpty  = value.trim() === '';
-
-    if (wasEmpty !== isEmpty) {
-      // Transitioning between empty/non-empty: need full re-render to show/hide sheet
-      render();
-      const el = document.getElementById('char-name');
-      if (el) {
-        const pos = value.length;
-        el.focus();
-        el.setSelectionRange(pos, pos);
-      }
-    } else {
-      // Just update next button and the name display inside the sheet header
-      const nextBtn = document.getElementById('next-btn');
-      if (nextBtn) nextBtn.disabled = !canProceed(state.currentStep);
-      const nameEl = document.querySelector('.sheet-name');
-      if (nameEl) nameEl.textContent = value;
-    }
+    const nameEl = document.querySelector('.sheet-name');
+    if (nameEl) nameEl.textContent = value;
   } else {
-    // Just update next button
-    const nextBtn = document.getElementById('next-btn');
-    if (nextBtn) nextBtn.disabled = !canProceed(state.currentStep);
-
     if (field === 'profession') {
       const profEl = document.getElementById('sheet-profession');
       if (profEl) profEl.textContent = value.trim() ? value : '—';
