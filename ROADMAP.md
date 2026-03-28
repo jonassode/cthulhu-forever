@@ -18,6 +18,9 @@ This is the high level roadmap for the Character Builder
 # Additional Tools
 - Adding custom Archetypes
 
+# Mobile
+- Responsive so it looks better on mobile browsers
+
 # What Else?
 Anything else you'd like to see in the tool? Raise an issue or send a message.
 
