@@ -524,6 +524,7 @@ function adjustBP(delta) {
 
 // Toggles Edit Mode on/off.
 function toggleEditMode() {
+  location.hash = state.editMode ? 'clicked-edit-mode-off' : 'clicked-edit-mode-on';
   state.editMode = !state.editMode;
   render();
 }
@@ -763,6 +764,7 @@ function goToStep(n) {
 
 function nextStep() {
   if (canProceed(state.currentStep)) {
+    location.hash = 'clicked-continue-step-' + String(state.currentStep).replace('.', '-');
     // Side effects on transition
     if (state.currentStep === 3) {
       // Entering step 4 — init skills & bonds
@@ -2789,6 +2791,7 @@ function toggleShowAllSkills() {
 // ── Import / Export ─────────────────────────────────────────
 
 function exportToJson() {
+  location.hash = 'clicked-export';
   // Final attribute values (including any edit-mode adjustments)
   const attributes = {};
   ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
@@ -2865,6 +2868,7 @@ function exportToJson() {
 }
 
 function triggerImport() {
+  location.hash = 'clicked-import';
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
@@ -3102,12 +3106,14 @@ function toggleSheetSettings(event) {
 
 function confirmReset() {
   if (confirm('Start over? All character data will be lost.')) {
+    location.hash = 'clicked-start-over';
     resetState();
     render();
   }
 }
 
 function enterPlayMode() {
+  location.hash = 'clicked-play-mode';
   state.playMode = true;
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
