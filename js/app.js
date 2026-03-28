@@ -489,6 +489,7 @@ function getBondPlayScore(bond) {
 
 // Returns the status label and tooltip for a community bond based on its score.
 function getCommunityBondStatus(score) {
+  if (score <= 0)  return { label: 'Broken',                       tooltip: 'This bond has been broken, the relationship is damaged beyond repair.' };
   if (score <= 1)  return { label: 'Disgraced member',             tooltip: 'On the verge of being banished from the society.' };
   if (score <= 4)  return { label: 'Shunned member',               tooltip: 'Someone who is actively looked down on by most.' };
   if (score <= 8)  return { label: 'Standard member',              tooltip: 'One of the pack, whose opinion is unlikely to matter.' };
@@ -501,7 +502,11 @@ function getCommunityBondStatus(score) {
 
 // Returns the HTML for a community bond status badge, or '' for non-community bonds.
 function renderBondStatusBadge(bond, playScore) {
-  if (bond.type !== 'community' || playScore === null) return '';
+  if (playScore === null) return '';
+  if (playScore === 0) {
+    return `<span class="bond-status-badge bond-broken" data-tooltip="This bond has been broken, the relationship is damaged beyond repair.">Broken</span>`;
+  }
+  if (bond.type !== 'community') return '';
   const s = getCommunityBondStatus(playScore);
   return `<span class="bond-status-badge" data-tooltip="${escapeHtml(s.tooltip)}">${escapeHtml(s.label)}</span>`;
 }
@@ -2396,7 +2401,7 @@ function buildCharSheetHtml() {
           if (!b.name || !b.name.trim()) return '';
           const playScore = getBondPlayScore(b);
           const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
-          return `<div class="bond-sheet-row">
+          return `<div class="bond-sheet-row${playScore === 0 ? ' bond-broken' : ''}">
             <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
             <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
             <span class="bond-score-group">
