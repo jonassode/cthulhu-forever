@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.175 - Add screenshots section to README  
 0.174 - Fix formatting issues in README.md  
 0.173 - Enhance character sheet export options  
 0.172 - Add mobile responsiveness to roadmap  
