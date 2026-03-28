@@ -1,9 +1,10 @@
 # Cthulhu Forever
+
 A Cthulhu Eternal Character Generator
 
 ## Access
 
-**Check it out at https://jonassode.github.io/cthulhu-forever/**
+Check it out at https://jonassode.github.io/cthulhu-forever/
 
 ## Features
 
@@ -16,7 +17,7 @@ A Cthulhu Eternal Character Generator
 
 ## Contribute
 
-**Found a bug our have a feature request? Raise an [Issue](https://github.com/jonassode/cthulhu-forever/issues)**
+Found a bug our have a feature request? Raise an [Issue](https://github.com/jonassode/cthulhu-forever/issues)
 
 ## Getting Started
 
