@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.183 - Change nationality to Birthplace on character sheet and export  
 0.182 - Add Broken bond status for score of 0 with light red badge and strikethrough  
 0.181 - Add Body Armour field to character sheet with edit mode +/- controls and export/import support  
 0.180 - Cap bond values at maximum of 20  
