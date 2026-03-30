@@ -75,7 +75,7 @@ const state = {
   identity: {
     name: '',
     profession: '',
-    nationality: '',
+    birthplace: '',
     characterAge: 25,
     backstory: '',
     motivations: '',
@@ -2186,7 +2186,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta" style="margin-top:3px;">
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
-          <span>Nationality <strong id="sheet-nationality">${state.identity.nationality ? escapeHtml(state.identity.nationality) : '—'}</strong></span>
+          <span>Birthplace <strong id="sheet-birthplace">${state.identity.birthplace ? escapeHtml(state.identity.birthplace) : '—'}</strong></span>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
@@ -2503,11 +2503,11 @@ function renderStep6() {
                  oninput="updateIdentity('gender',this.value)" />
         </div>
         <div class="form-group">
-          <label class="form-label">Nationality / Birthplace</label>
-          <input class="form-input" type="text" id="char-nationality"
+          <label class="form-label">Birthplace</label>
+          <input class="form-input" type="text" id="char-birthplace"
                  placeholder="Where are you from?"
-                 value="${escapeHtml(state.identity.nationality)}"
-                 oninput="updateIdentity('nationality',this.value)" />
+                 value="${escapeHtml(state.identity.birthplace)}"
+                 oninput="updateIdentity('birthplace',this.value)" />
         </div>
       </div>
       <div>
@@ -2561,8 +2561,8 @@ function updateIdentity(field, value) {
     } else if (field === 'gender') {
       const genderEl = document.getElementById('sheet-gender');
       if (genderEl) genderEl.textContent = value.trim() ? value : '—';
-    } else if (field === 'nationality') {
-      const natEl = document.getElementById('sheet-nationality');
+    } else if (field === 'birthplace') {
+      const natEl = document.getElementById('sheet-birthplace');
       if (natEl) natEl.textContent = value.trim() ? value : '—';
     } else if (field === 'backstory') {
       const backstoryEl = document.getElementById('sheet-backstory');
@@ -2942,7 +2942,7 @@ function importFromJsonV2(data) {
   state.identity = {
     name:         data.identity.name || '',
     profession:   data.identity.profession || '',
-    nationality:  data.identity.nationality || '',
+    birthplace:   data.identity.birthplace || data.identity.nationality || '',
     gender:       data.identity.gender || '',
     characterAge: data.identity.characterAge || 25,
     backstory:    data.identity.backstory || '',
@@ -3087,7 +3087,7 @@ function importFromJsonV1(data) {
   state.identity = {
     name:         data.identity.name || '',
     profession:   data.identity.profession || '',
-    nationality:  data.identity.nationality || '',
+    birthplace:   data.identity.birthplace || data.identity.nationality || '',
     gender:       data.identity.gender || '',
     characterAge: data.identity.characterAge || 25,
     backstory:    data.identity.backstory || '',
@@ -3162,7 +3162,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;

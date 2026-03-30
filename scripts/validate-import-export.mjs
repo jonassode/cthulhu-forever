@@ -79,7 +79,7 @@ const id = character.identity || {};
 assertField(id, 'name', 'string', 'identity');
 assert((id.name || '').trim().length > 0, 'identity.name must not be empty');
 assertField(id, 'profession', 'string', 'identity');
-assertField(id, 'nationality', 'string', 'identity');
+assertField(id, 'birthplace', 'string', 'identity');
 assertField(id, 'gender', 'string', 'identity');
 assertField(id, 'characterAge', 'number', 'identity');
 assertField(id, 'backstory', 'string', 'identity');

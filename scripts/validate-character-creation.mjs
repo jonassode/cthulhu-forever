@@ -175,7 +175,7 @@ const testCode = `
     state.skillEditAdjust   = {};
     state.attrEditAdjust    = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
     state.identity          = {
-      name: '', profession: '', nationality: '', characterAge: 25,
+      name: '', profession: '', birthplace: '', characterAge: 25,
       backstory: '', motivations: '', gear: '',
     };
     // Upbringing effects
