@@ -75,7 +75,7 @@ const state = {
   identity: {
     name: '',
     profession: '',
-    nationality: '',
+    birthplace: '',
     characterAge: 25,
     backstory: '',
     motivations: '',
@@ -2187,7 +2187,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta" style="margin-top:3px;">
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
-          <span>Nationality <strong id="sheet-nationality">${state.identity.nationality ? escapeHtml(state.identity.nationality) : '—'}</strong></span>
+          <span>Birthplace <strong id="sheet-birthplace">${state.identity.birthplace ? escapeHtml(state.identity.birthplace) : '—'}</strong></span>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
@@ -2422,7 +2422,23 @@ function buildCharSheetHtml() {
       <div class="sheet-section-title">Bonds</div>
       <div class="bonds-sheet-list">
         ${state.bonds.map((b, origIdx) => {
-          if (!b.name || !b.name.trim()) return '';
+          const isIncomplete = !b.name || !b.name.trim() || !b.type;
+          if (isIncomplete && !state.editMode) return '';
+          if (isIncomplete && state.editMode) {
+            const isIndividual = b.type === 'individual';
+            const isCommunity = b.type === 'community';
+            return `<div class="bond-row no-print" style="margin-bottom:0.4rem;">
+              <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                <button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateSheetBondType(${origIdx},'individual')">Personal</button>
+                <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateSheetBondType(${origIdx},'community')">Community</button>
+                ${b.type
+                  ? `<input class="bond-input" type="text" placeholder="${isIndividual ? 'Name a person\u2026' : 'Name an organization\u2026'}" value="${escapeHtml(b.name)}" oninput="updateSheetBondName(${origIdx},this.value)" onblur="render()" style="flex:1;min-width:10rem;" aria-label="Bond name" />`
+                  : `<input class="bond-input" type="text" placeholder="Select a type first\u2026" disabled style="flex:1;min-width:10rem;opacity:0.4;" aria-hidden="true" />`}
+                <span style="font-size:1rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2rem;text-align:right;">1</span>
+                <button class="remove-custom-skill-btn no-print" onclick="removeSheetBond(${origIdx})" title="Remove bond" aria-label="Remove bond">×</button>
+              </div>
+            </div>`;
+          }
           const playScore = getBondPlayScore(b);
           const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
           return `<div class="bond-sheet-row${playScore === 0 ? ' bond-broken' : ''}">
@@ -2433,10 +2449,12 @@ function buildCharSheetHtml() {
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>` : ''}
               <span class="bond-sheet-val" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>` : ''}
+              ${state.editMode ? `<button class="remove-custom-skill-btn no-print" onclick="removeSheetBond(${origIdx})" title="Remove bond" aria-label="Remove bond">×</button>` : ''}
             </span>
           </div>`;
         }).join('')}
       </div>
+      ${state.editMode ? `<div class="no-print" style="margin-top:0.5rem;"><button class="add-custom-skill-btn" onclick="addSheetBond()">＋ Add Bond</button></div>` : ''}
     </div>
 
     <div class="sheet-2col-row">
@@ -2508,11 +2526,11 @@ function renderStep6() {
                  oninput="updateIdentity('gender',this.value)" />
         </div>
         <div class="form-group">
-          <label class="form-label">Nationality / Birthplace</label>
-          <input class="form-input" type="text" id="char-nationality"
+          <label class="form-label">Birthplace</label>
+          <input class="form-input" type="text" id="char-birthplace"
                  placeholder="Where are you from?"
-                 value="${escapeHtml(state.identity.nationality)}"
-                 oninput="updateIdentity('nationality',this.value)" />
+                 value="${escapeHtml(state.identity.birthplace)}"
+                 oninput="updateIdentity('birthplace',this.value)" />
         </div>
       </div>
       <div>
@@ -2566,8 +2584,8 @@ function updateIdentity(field, value) {
     } else if (field === 'gender') {
       const genderEl = document.getElementById('sheet-gender');
       if (genderEl) genderEl.textContent = value.trim() ? value : '—';
-    } else if (field === 'nationality') {
-      const natEl = document.getElementById('sheet-nationality');
+    } else if (field === 'birthplace') {
+      const natEl = document.getElementById('sheet-birthplace');
       if (natEl) natEl.textContent = value.trim() ? value : '—';
     } else if (field === 'backstory') {
       const backstoryEl = document.getElementById('sheet-backstory');
@@ -2799,6 +2817,27 @@ function finishEditBondName(origIdx, input) {
   input.replaceWith(span);
 }
 
+// ── Sheet-mode bond management (edit mode on the character sheet) ─────────────
+
+function addSheetBond() {
+  state.bonds.push({ name: '', type: null, bonusSpent: 0, currentScore: 1, setToOne: false, upbringingReduction: 0 });
+  render();
+}
+
+function removeSheetBond(idx) {
+  state.bonds.splice(idx, 1);
+  render();
+}
+
+function updateSheetBondName(idx, value) {
+  if (state.bonds[idx]) state.bonds[idx].name = value;
+}
+
+function updateSheetBondType(idx, type) {
+  if (state.bonds[idx]) state.bonds[idx].type = type;
+  render();
+}
+
 function toggleShowAllSkills() {
   state.showAllSkills = !state.showAllSkills;
   render();
@@ -2947,7 +2986,7 @@ function importFromJsonV2(data) {
   state.identity = {
     name:              data.identity.name || '',
     profession:        data.identity.profession || '',
-    nationality:       data.identity.nationality || '',
+    birthplace:        data.identity.birthplace || data.identity.nationality || '',
     gender:            data.identity.gender || '',
     characterAge:      data.identity.characterAge || 25,
     backstory:         data.identity.backstory || '',
@@ -3093,7 +3132,7 @@ function importFromJsonV1(data) {
   state.identity = {
     name:              data.identity.name || '',
     profession:        data.identity.profession || '',
-    nationality:       data.identity.nationality || '',
+    birthplace:        data.identity.birthplace || data.identity.nationality || '',
     gender:            data.identity.gender || '',
     characterAge:      data.identity.characterAge || 25,
     backstory:         data.identity.backstory || '',
@@ -3169,7 +3208,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '', permanentInjuries: '' };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '', permanentInjuries: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
