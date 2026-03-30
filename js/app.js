@@ -62,6 +62,7 @@ const state = {
   currentSAN: null, // current SAN (null = use derived value)
 
   bpAdjust: 0,            // manual offset applied to the calculated Breaking Point during play
+  bodyArmour: 0,          // body armour value (default 0, adjustable in edit mode)
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
   editMode: false,        // true = character sheet edit mode (pen icon toggled)
@@ -522,6 +523,12 @@ function adjustBP(delta) {
   render();
 }
 
+// Adjusts the Body Armour value in edit mode (clamped to 0–20).
+function adjustBodyArmour(delta) {
+  state.bodyArmour = Math.min(20, Math.max(0, (state.bodyArmour || 0) + delta));
+  render();
+}
+
 // Toggles Edit Mode on/off.
 function toggleEditMode() {
   state.editMode = !state.editMode;
@@ -946,6 +953,10 @@ function renderStep2() {
         <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
           <div class="ds-label">Dmg Bonus</div>
           <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
+        </div>
+        <div class="derived-stat" data-tooltip="Armour points that reduce incoming damage">
+          <div class="ds-label">Body Armour</div>
+          <div class="ds-value">${state.bodyArmour || 0}</div>
         </div>
       </div>
       <div class="derived-stats-col">
@@ -2253,6 +2264,14 @@ function buildCharSheetHtml() {
             <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
               <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
             </div>
+            <div class="derived-box" data-tooltip="Armour points that reduce incoming damage">
+              <span class="db-name">Body Armour</span>
+              <div class="db-val-group">
+                ${state.editMode ? `<button class="stat-btn no-print" onclick="adjustBodyArmour(-1)" title="Decrease Body Armour" aria-label="Decrease Body Armour">−</button>` : ''}
+                <span class="db-val">${state.bodyArmour || 0}</span>
+                ${state.editMode ? `<button class="stat-btn no-print" onclick="adjustBodyArmour(1)" title="Increase Body Armour" aria-label="Increase Body Armour">+</button>` : ''}
+              </div>
+            </div>
           </div>
         </div>
         <div class="derived-stats-col">
@@ -2834,6 +2853,7 @@ function exportToJson() {
     recoverySAN:   derived ? derived.RecoverySAN : 0,
     disorders: JSON.parse(JSON.stringify(state.disorders || [])),
     showAllSkills: state.showAllSkills || false,
+    bodyArmour: state.bodyArmour || 0,
   };
 
   const json = JSON.stringify(exportData, null, 2);
@@ -3006,6 +3026,7 @@ function importFromJsonV2(data) {
   state.disorders = (data.disorders || []).map((d, i) => ({ id: i, text: d.text || '' }));
   _disorderIdCounter = state.disorders.length;
   state.showAllSkills = data.showAllSkills || false;
+  state.bodyArmour = data.bodyArmour || 0;
 
   // attrEditAdjust is zeroed on import: attribute values are already baked into roll sets.
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
@@ -3052,6 +3073,7 @@ function importFromJsonV1(data) {
   state.bpAdjust = data.bpAdjust || 0;
   state.disorders = data.disorders || [];
   state.showAllSkills = data.showAllSkills || false;
+  state.bodyArmour = data.bodyArmour || 0;
   state.skillEditAdjust = data.skillEditAdjust || {};
   state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
