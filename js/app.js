@@ -80,6 +80,7 @@ const state = {
     backstory: '',
     motivations: '',
     gear: '',
+    permanentInjuries: '',
   },
 };
 
@@ -2330,6 +2331,11 @@ function buildCharSheetHtml() {
     </div>
 
       <div class="sheet-section">
+      <div class="sheet-section-title">Permanent Injuries</div>
+      <div class="sheet-backstory" id="sheet-permanent-injuries" title="Double-click to edit" ondblclick="startEditText('permanentInjuries','sheet-permanent-injuries')">${state.identity.permanentInjuries.trim() ? escapeHtml(state.identity.permanentInjuries) : ''}</div>
+    </div>
+
+      <div class="sheet-section">
       <div class="sheet-section-title">Resources</div>
       ${(() => {
         const resRating = getDisplayedResources();
@@ -2940,14 +2946,15 @@ function importFromJsonV2(data) {
   state.selectedOptional = [];
 
   state.identity = {
-    name:         data.identity.name || '',
-    profession:   data.identity.profession || '',
-    nationality:  data.identity.nationality || '',
-    gender:       data.identity.gender || '',
-    characterAge: data.identity.characterAge || 25,
-    backstory:    data.identity.backstory || '',
-    motivations:  data.identity.motivations || '',
-    gear:         data.identity.gear || '',
+    name:              data.identity.name || '',
+    profession:        data.identity.profession || '',
+    nationality:       data.identity.nationality || '',
+    gender:            data.identity.gender || '',
+    characterAge:      data.identity.characterAge || 25,
+    backstory:         data.identity.backstory || '',
+    motivations:       data.identity.motivations || '',
+    gear:              data.identity.gear || '',
+    permanentInjuries: data.identity.permanentInjuries || '',
   };
 
   // ── Attributes: synthetic roll sets ─────────────────────
@@ -3085,14 +3092,15 @@ function importFromJsonV1(data) {
   state.editMode = false;
   state.playMode = false;
   state.identity = {
-    name:         data.identity.name || '',
-    profession:   data.identity.profession || '',
-    nationality:  data.identity.nationality || '',
-    gender:       data.identity.gender || '',
-    characterAge: data.identity.characterAge || 25,
-    backstory:    data.identity.backstory || '',
-    motivations:  data.identity.motivations || '',
-    gear:         data.identity.gear || '',
+    name:              data.identity.name || '',
+    profession:        data.identity.profession || '',
+    nationality:       data.identity.nationality || '',
+    gender:            data.identity.gender || '',
+    characterAge:      data.identity.characterAge || 25,
+    backstory:         data.identity.backstory || '',
+    motivations:       data.identity.motivations || '',
+    gear:              data.identity.gear || '',
+    permanentInjuries: data.identity.permanentInjuries || '',
   };
 
   _customSkillIdCounter = state.customSkills.length > 0
@@ -3162,7 +3170,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '' };
+  state.identity         = { name: '', profession: '', nationality: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '', permanentInjuries: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;

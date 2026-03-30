@@ -11,7 +11,8 @@
     "characterAge": 32,
     "backstory": "A seasoned reporter for the Arkham Gazette who has seen too much to sleep soundly.",
     "motivations": "Expose the truth no matter the cost",
-    "gear": "Trusty .38 revolver, press badge, leather notebook"
+    "gear": "Trusty .38 revolver, press badge, leather notebook",
+    "permanentInjuries": ""
   },
   "attributes": {
     "STR": 15,
