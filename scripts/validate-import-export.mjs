@@ -85,6 +85,7 @@ assertField(id, 'characterAge', 'number', 'identity');
 assertField(id, 'backstory', 'string', 'identity');
 assertField(id, 'motivations', 'string', 'identity');
 assertField(id, 'gear', 'string', 'identity');
+assertField(id, 'permanentInjuries', 'string', 'identity');
 
 // 4. Final attribute values — all 6 must be present as numbers
 const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
