@@ -2279,6 +2279,10 @@ function buildCharSheetHtml() {
               </div>
             </div>
           </div>
+          <div class="perm-injuries-block">
+            <div class="san-incidents-title">Permanent Injuries</div>
+            <div class="sheet-backstory sheet-backstory-compact" id="sheet-permanent-injuries" title="Double-click to edit" ondblclick="startEditText('permanentInjuries','sheet-permanent-injuries')">${state.identity.permanentInjuries.trim() ? escapeHtml(state.identity.permanentInjuries) : ''}</div>
+          </div>
         </div>
         <div class="derived-stats-col">
           <div class="derived-row">
@@ -2328,11 +2332,6 @@ function buildCharSheetHtml() {
           </div>
         </div>
       </div>
-    </div>
-
-      <div class="sheet-section">
-      <div class="sheet-section-title">Permanent Injuries</div>
-      <div class="sheet-backstory" id="sheet-permanent-injuries" title="Double-click to edit" ondblclick="startEditText('permanentInjuries','sheet-permanent-injuries')">${state.identity.permanentInjuries.trim() ? escapeHtml(state.identity.permanentInjuries) : ''}</div>
     </div>
 
       <div class="sheet-section">

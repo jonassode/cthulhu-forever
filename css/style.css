@@ -514,6 +514,12 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 .san-incidents-block {
   padding: 0.6rem 0.75rem;
 }
+.perm-injuries-block {
+  padding: 0.6rem 0.75rem;
+}
+.sheet-backstory-compact {
+  min-height: 2rem;
+}
 .san-incidents-title {
   font-size: 0.7rem;
   text-transform: uppercase;
