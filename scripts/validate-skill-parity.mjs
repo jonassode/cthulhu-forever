@@ -148,6 +148,55 @@ const EXPECTED_COLD_WAR = {
   'Use Gadgets':                 0,
 };
 
+const EXPECTED_VICTORIAN = {
+  'Administration':            10,
+  'Alertness':                 20,
+  'Anthropology':               0,
+  'Appraise':                  10,
+  'Archeology':                 0,
+  'Art (Type)':                 0,
+  'Athletics':                 30,
+  'Charm':                     20,
+  'Craft (Type)':               0,
+  'Disguise':                  10,
+  'Dodge':                     30,
+  'Drive':                     20,
+  'Empire Lore (Type)':         0,
+  'Firearms':                  20,
+  'First Aid':                 10,
+  'Foreign Language (Type)':    0,
+  'Harangue':                  10,
+  'Heavy Machinery':           10,
+  'History':                   10,
+  'Insight':                   10,
+  'Law (Type)':                 0,
+  'Mechanical Knack':           0,
+  'Medicine':                   0,
+  'Melee Weapons':             30,
+  'Military Training (Type)':   0,
+  'Navigate':                  10,
+  'Occult':                    10,
+  'Persuade':                  20,
+  'Pilot (Type)':               0,
+  'Reassure':                  10,
+  'Regional Lore (Type)':       0,
+  'Research':                  10,
+  'Ride':                      10,
+  'Scavenge':                  10,
+  'Science (Type)':             0,
+  'Search':                    20,
+  'Social Etiquette':          10,
+  'Stealth':                   10,
+  'Streetwise (Type)':          0,
+  'Surgery':                    0,
+  'Survival (Type)':           10,
+  'Swim':                      20,
+  'Theology':                  10,
+  'Unarmed Combat':            20,
+  'Unnatural':                  0,
+  'Spirit Affinity':            0,
+};
+
 
 function extractObject(name) {
   const blockPattern = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`);
@@ -209,12 +258,14 @@ function compareTables(label, expected, actual) {
 const jazzActual = extractObject('JAZZ_SKILLS');
 const modernActual = extractObject('MODERN_SKILLS');
 const coldWarActual = extractObject('COLD_WAR_SKILLS');
+const victorianActual = extractObject('VICTORIAN_SKILLS');
 
 const jazzOk = compareTables('Jazz skills', EXPECTED_JAZZ, jazzActual);
 const modernOk = compareTables('Modern skills', EXPECTED_MODERN, modernActual);
 const coldWarOk = compareTables('Cold War skills', EXPECTED_COLD_WAR, coldWarActual);
+const victorianOk = compareTables('Victorian skills', EXPECTED_VICTORIAN, victorianActual);
 
-if (!jazzOk || !modernOk || !coldWarOk) {
+if (!jazzOk || !modernOk || !coldWarOk || !victorianOk) {
   process.exit(1);
 }
 
