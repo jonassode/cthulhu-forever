@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.181 - Add Body Armour field to character sheet with edit mode +/- controls and export/import support  
 0.180 - Cap bond values at maximum of 20  
 0.179 - Show character sheet on step 6 without requiring a name  
 0.178 - Fix: deselecting a bond in harsh upbringing step no longer keeps continue active  
