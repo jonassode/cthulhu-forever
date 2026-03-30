@@ -2236,11 +2236,11 @@ function buildCharSheetHtml() {
               <button class="stat-btn stat-btn-compact" onclick="adjustAttrInEditMode('${a}',1)" title="Increase ${a}" aria-label="Increase ${a}">+</button>
             </div>
             ` : `<div class="ab-val">${v}</div>`}
-            <div class="ab-x5">${v * 5}%</div>
+            <div class="ab-x5${state.exhausted ? ' ab-x5-exhausted' : ''}">${state.exhausted ? Math.max(0, v * 5 - 20) : v * 5}%</div>
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
-        <label class="exhausted-label">
+        <label class="exhausted-label" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
           <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
           <span>Exhausted</span>
         </label>
@@ -2291,7 +2291,7 @@ function buildCharSheetHtml() {
               <span class="db-name">SAN</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustSAN(-1)" title="Decrease SAN" aria-label="Decrease SAN">−</button>
-                <span class="db-current-val" id="san-current-val" ondblclick="startEditStat('SAN')" title="Double-click to edit">${getEffectiveSAN()}</span>
+                <span class="db-current-val" id="san-current-val" ondblclick="startEditStat('SAN')" title="Double-click to edit">${getEffectiveSAN()}${state.exhausted ? `<span class="exhausted-san-penalty">(${Math.max(0, getEffectiveSAN() - 20)})</span>` : ''}</span>
                 <button class="stat-btn" onclick="adjustSAN(1)" title="Increase SAN" aria-label="Increase SAN">+</button>
               </div>` : `<span class="db-val">—</span>`}
             </div>
