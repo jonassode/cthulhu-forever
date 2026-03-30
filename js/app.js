@@ -42,6 +42,7 @@ const state = {
   skillChecked: {},              // skillName -> boolean (checked state on sheet)
   violenceChecked: [false, false, false],     // 3 checkboxes for Violence SAN incidents
   helplessnessChecked: [false, false, false], // 3 checkboxes for Helplessness SAN incidents
+  exhausted: false,              // true = all skills shown at -20% in light blue
 
   // ── Upbringing Effects step (4.5) ──────────────────────────
   // Harsh upbringing bond effects
@@ -375,11 +376,12 @@ function getFinalSkillValue(skillName) {
   return Math.min(80, base + archBonus + (bpPicks + advPicks) * 20);
 }
 
-// Returns the displayed skill value including any edit-mode adjustment.
+// Returns the displayed skill value including any edit-mode adjustment and exhaustion penalty.
 function getDisplayedSkillValue(skillName) {
   const base = getFinalSkillValue(skillName);
   const editAdj = state.skillEditAdjust[skillName] || 0;
-  return Math.min(99, Math.max(0, base + editAdj));
+  const exhaustPenalty = state.exhausted ? -20 : 0;
+  return Math.min(99, Math.max(0, base + editAdj + exhaustPenalty));
 }
 
 function initSkills() {
@@ -2238,6 +2240,10 @@ function buildCharSheetHtml() {
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
+        <label class="exhausted-label">
+          <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
+          <span>Exhausted</span>
+        </label>
       </div>
     </div>
 
@@ -2358,12 +2364,13 @@ function buildCharSheetHtml() {
 
     <div class="sheet-section">
       <div class="sheet-section-title">Skills</div>
-      <div class="skills-grid-sheet">
+      <div class="skills-grid-sheet${state.exhausted ? ' skills-exhausted' : ''}">
         ${skillsForSheet.map(s => {
           const isCustom = s.name.startsWith('custom_');
           const editAdj = state.skillEditAdjust[s.name] || 0;
+          const exhaustPenalty = state.exhausted ? -20 : 0;
           const displayVal = isCustom
-            ? Math.min(99, Math.max(0, s.final + editAdj))
+            ? Math.min(99, Math.max(0, s.final + editAdj + exhaustPenalty))
             : getDisplayedSkillValue(s.name);
           const isUnnatural = s.name === 'Unnatural';
           if (state.editMode) {
@@ -2606,6 +2613,11 @@ function toggleViolenceCheck(idx) {
 function toggleHelplessnessCheck(idx) {
   state.helplessnessChecked[idx] = !state.helplessnessChecked[idx];
   // Re-render to show/hide the Adapted badge
+  render();
+}
+
+function toggleExhausted() {
+  state.exhausted = !state.exhausted;
   render();
 }
 
@@ -2898,6 +2910,7 @@ function exportToJson() {
     disorders: JSON.parse(JSON.stringify(state.disorders || [])),
     showAllSkills: state.showAllSkills || false,
     bodyArmour: state.bodyArmour || 0,
+    exhausted: state.exhausted || false,
   };
 
   const json = JSON.stringify(exportData, null, 2);
@@ -3071,6 +3084,7 @@ function importFromJsonV2(data) {
   _disorderIdCounter = state.disorders.length;
   state.showAllSkills = data.showAllSkills || false;
   state.bodyArmour = data.bodyArmour || 0;
+  state.exhausted = data.exhausted || false;
 
   // attrEditAdjust is zeroed on import: attribute values are already baked into roll sets.
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
@@ -3118,6 +3132,7 @@ function importFromJsonV1(data) {
   state.disorders = data.disorders || [];
   state.showAllSkills = data.showAllSkills || false;
   state.bodyArmour = data.bodyArmour || 0;
+  state.exhausted = data.exhausted || false;
   state.skillEditAdjust = data.skillEditAdjust || {};
   state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
@@ -3209,6 +3224,7 @@ function resetState() {
   state.disorders        = [];
   state.editMode         = false;
   state.showAllSkills    = false;
+  state.exhausted        = false;
   // Upbringing effects step
   state.harshD4Rolls         = null;
   state.harshBondChoice1     = null;

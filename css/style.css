@@ -1877,6 +1877,30 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   flex-shrink: 0;
 }
 
+/* ── Exhausted checkbox/label in attributes row ── */
+.exhausted-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-left: 0.25rem;
+  align-self: center;
+}
+.exhausted-label input[type="checkbox"] {
+  flex-shrink: 0;
+}
+
+/* ── Exhausted skill coloring ── */
+.skills-exhausted .sr-name,
+.skills-exhausted .sr-val {
+  color: #7ec8e3;
+}
+
 /* ── Compact stat button (smaller +/- used inside skill rows and bond rows) ── */
 .stat-btn-compact {
   width: 18px;
@@ -1925,6 +1949,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 /* ── Print overrides for new elements ── */
 @media print {
   .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
+  .skills-exhausted .sr-name,
+  .skills-exhausted .sr-val { color: #4a90b0 !important; }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
   .bond-score-group button { display: none !important; }
