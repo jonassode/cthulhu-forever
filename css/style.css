@@ -1898,9 +1898,12 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 .exhausted-label input[type="checkbox"] {
   flex-shrink: 0;
 }
+.exhausted-label.exhausted-active {
+  color: var(--exhausted-blue);
+}
 
 /* ── Exhausted attr ×5 value ── */
-.attr-box .ab-x5-exhausted {
+.attr-box .ab-x5.ab-x5-exhausted {
   color: var(--exhausted-blue);
 }
 
@@ -1966,8 +1969,9 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
   .skills-exhausted .sr-name,
   .skills-exhausted .sr-val,
-  .attr-box .ab-x5-exhausted,
+  .attr-box .ab-x5.ab-x5-exhausted,
   .exhausted-san-penalty { color: #4a90b0 !important; }
+  .exhausted-label.exhausted-active { color: #4a90b0 !important; }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
   .bond-score-group button { display: none !important; }

@@ -2240,7 +2240,7 @@ function buildCharSheetHtml() {
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
-        <label class="exhausted-label" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
+        <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
           <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
           <span>Exhausted</span>
         </label>
@@ -2857,10 +2857,14 @@ function exportToJson() {
   const attributes = {};
   ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
 
-  // Final skill percentages for every skill in the current era
+  // Final skill percentages for every skill in the current era (always base values, exhausted penalty is display-only)
   const skills = {};
   const baseSkills = getCurrentSkills();
-  Object.keys(baseSkills).forEach(s => { skills[s] = getDisplayedSkillValue(s); });
+  Object.keys(baseSkills).forEach(s => {
+    const base = getFinalSkillValue(s);
+    const editAdj = state.skillEditAdjust[s] || 0;
+    skills[s] = Math.min(99, Math.max(0, base + editAdj));
+  });
 
   // Custom skills: just name and final displayed value
   const customSkills = (state.customSkills || [])
