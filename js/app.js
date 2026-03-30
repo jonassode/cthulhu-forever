@@ -7,7 +7,7 @@
 const state = {
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern'
+  age: null,          // 'jazz' | 'modern' | 'coldwar'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -141,7 +141,9 @@ function getSkillDisplayName(skillName) {
 
 // Returns the description for a skill from the current age-specific description map, or empty string if none.
 function getSkillDescription(skillName) {
-  const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS : MODERN_SKILL_DESCRIPTIONS;
+  const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS
+    : state.age === 'coldwar' ? COLD_WAR_SKILL_DESCRIPTIONS
+    : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
 
@@ -345,7 +347,7 @@ function getDistinguishingFeature(attrKey, value) {
 }
 
 function getCurrentSkills() {
-  return state.age === 'jazz' ? JAZZ_SKILLS : MODERN_SKILLS;
+  return state.age === 'jazz' ? JAZZ_SKILLS : state.age === 'coldwar' ? COLD_WAR_SKILLS : MODERN_SKILLS;
 }
 
 function getArchetype() {
@@ -863,7 +865,7 @@ function renderStep1() {
     <h2 class="step-title">Choose Your Era</h2>
     <p class="step-subtitle">The age in which your story unfolds shapes every skill, contact, and shadow that will haunt you.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;" class="sm:grid-cols-1">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;" class="sm:grid-cols-1">
 
       <div class="sel-card ${state.age === 'jazz' ? 'selected' : ''}"
            onclick="selectAge('jazz')" role="button" tabindex="0"
@@ -881,6 +883,25 @@ function renderStep1() {
           <li>Technology: Motor cars, telegraphs, early radio</li>
           <li>Tone: Gothic mystery, colonial horror</li>
           <li>Archetypes: 11 classic occupations available</li>
+        </ul>
+      </div>
+
+      <div class="sel-card ${state.age === 'coldwar' ? 'selected' : ''}"
+           onclick="selectAge('coldwar')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('coldwar')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-tag">Cold War</div>
+        <div class="card-title">The Cold War Era</div>
+        <div class="card-desc">
+          Espionage, nuclear dread, and ideological shadows define the mid-twentieth century. 
+          Investigators navigate a world of spies, codebreakers, and covert ops as they uncover 
+          conspiracies that predate the superpowers themselves.
+        </div>
+        <ul class="card-detail-list mt-3">
+          <li>Setting: 1950s–1980s</li>
+          <li>Technology: Early computers, surveillance, Cold War arms</li>
+          <li>Tone: Espionage, paranoia, ideological horror</li>
+          <li>Archetypes: 11 Cold War occupations available</li>
         </ul>
       </div>
 
@@ -905,7 +926,7 @@ function renderStep1() {
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -2193,7 +2214,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong>${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -2950,7 +2971,7 @@ function importFromJson(data) {
     alert('Invalid character data: missing character name.');
     return;
   }
-  if (!data.age || (data.age !== 'jazz' && data.age !== 'modern')) {
+  if (!data.age || (data.age !== 'jazz' && data.age !== 'modern' && data.age !== 'coldwar')) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
   }
@@ -3011,7 +3032,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};

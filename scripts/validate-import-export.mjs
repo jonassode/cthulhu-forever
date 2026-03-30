@@ -65,8 +65,8 @@ assertField(character, 'version', 'number', 'root');
 assert(character.version === 2, `root.version should be 2, got ${character.version}`);
 assertField(character, 'age', 'string', 'root');
 assert(
-  character.age === 'jazz' || character.age === 'modern',
-  `root.age must be 'jazz' or 'modern', got '${character.age}'`
+  character.age === 'jazz' || character.age === 'modern' || character.age === 'coldwar',
+  `root.age must be 'jazz', 'modern', or 'coldwar', got '${character.age}'`
 );
 
 // 2. Character meta (identity / display fields kept in v2)
