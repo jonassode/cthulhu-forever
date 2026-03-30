@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.187 - Add Cold War era skills, archetypes, and descriptions  
 0.186 - Move Permanent Injuries into Derived Statistics section as compact field  
 0.185 - Add Permanent Injuries text field to character sheet  
 0.184 - feat: add ability to establish a new bond on character sheet in edit mode  
