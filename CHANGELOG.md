@@ -2,6 +2,8 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.186 - Move Permanent Injuries into Derived Statistics section as compact field  
+0.185 - Add Permanent Injuries text field to character sheet  
 0.184 - feat: add ability to establish a new bond on character sheet in edit mode  
 0.183 - Change nationality to Birthplace on character sheet and export  
 0.182 - Add Broken bond status for score of 0 with light red badge and strikethrough  
