@@ -987,6 +987,10 @@ function renderStep2() {
           <div class="ds-label">Body Armour</div>
           <div class="ds-value">${state.bodyArmour || 0}</div>
         </div>
+        <div class="derived-stat" data-tooltip="Always 50">
+          <div class="ds-label">Luck</div>
+          <div class="ds-value">50</div>
+        </div>
       </div>
       <div class="derived-stats-col">
         <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
@@ -2304,6 +2308,10 @@ function buildCharSheetHtml() {
                 <span class="db-val">${state.bodyArmour || 0}</span>
                 ${state.editMode ? `<button class="stat-btn no-print" onclick="adjustBodyArmour(1)" title="Increase Body Armour" aria-label="Increase Body Armour">+</button>` : ''}
               </div>
+            </div>
+            <div class="derived-box" data-tooltip="Always 50">
+              <span class="db-name">Luck</span>
+              <span class="db-val">50</span>
             </div>
           </div>
           <div class="perm-injuries-block">
