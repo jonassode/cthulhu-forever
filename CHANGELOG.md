@@ -2,6 +2,10 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.191 - fix: exhausted attr % colour, label colour, and base-value exports  
+0.190 - fix: use .attr-box .ab-x5-exhausted for correct CSS specificity  
+0.189 - Exhausted: tooltip, SAN parenthetical penalty, attr x5 blue, CSS variable  
+0.188 - Add Exhausted tick box to character sheet with -20% skill display and light blue coloring  
 0.187 - Add Cold War era skills, archetypes, and descriptions  
 0.186 - Move Permanent Injuries into Derived Statistics section as compact field  
 0.185 - Add Permanent Injuries text field to character sheet  
