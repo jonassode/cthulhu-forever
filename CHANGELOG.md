@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.193 - feat: add Victorian Age era with skills, archetypes, and adversity picks  
 0.192 - Add Luck static value (50) to Derived Statistics section  
 0.191 - fix: exhausted attr % colour, label colour, and base-value exports  
 0.190 - fix: use .attr-box .ab-x5-exhausted for correct CSS specificity  
