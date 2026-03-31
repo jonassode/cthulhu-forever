@@ -42,6 +42,7 @@ const state = {
   skillChecked: {},              // skillName -> boolean (checked state on sheet)
   violenceChecked: [false, false, false],     // 3 checkboxes for Violence SAN incidents
   helplessnessChecked: [false, false, false], // 3 checkboxes for Helplessness SAN incidents
+  exhausted: false,              // true = all skills shown at -20% in light blue
 
   // ── Upbringing Effects step (4.5) ──────────────────────────
   // Harsh upbringing bond effects
@@ -378,11 +379,12 @@ function getFinalSkillValue(skillName) {
   return Math.min(80, base + archBonus + (bpPicks + advPicks) * 20);
 }
 
-// Returns the displayed skill value including any edit-mode adjustment.
+// Returns the displayed skill value including any edit-mode adjustment and exhaustion penalty.
 function getDisplayedSkillValue(skillName) {
   const base = getFinalSkillValue(skillName);
   const editAdj = state.skillEditAdjust[skillName] || 0;
-  return Math.min(99, Math.max(0, base + editAdj));
+  const exhaustPenalty = state.exhausted ? -20 : 0;
+  return Math.min(99, Math.max(0, base + editAdj + exhaustPenalty));
 }
 
 function initSkills() {
@@ -2256,10 +2258,14 @@ function buildCharSheetHtml() {
               <button class="stat-btn stat-btn-compact" onclick="adjustAttrInEditMode('${a}',1)" title="Increase ${a}" aria-label="Increase ${a}">+</button>
             </div>
             ` : `<div class="ab-val">${v}</div>`}
-            <div class="ab-x5">${v * 5}%</div>
+            <div class="ab-x5${state.exhausted ? ' ab-x5-exhausted' : ''}">${state.exhausted ? Math.max(0, v * 5 - 20) : v * 5}%</div>
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
+        <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
+          <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
+          <span>Exhausted</span>
+        </label>
       </div>
     </div>
 
@@ -2311,7 +2317,7 @@ function buildCharSheetHtml() {
               <span class="db-name">SAN</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustSAN(-1)" title="Decrease SAN" aria-label="Decrease SAN">−</button>
-                <span class="db-current-val" id="san-current-val" ondblclick="startEditStat('SAN')" title="Double-click to edit">${getEffectiveSAN()}</span>
+                <span class="db-current-val" id="san-current-val" ondblclick="startEditStat('SAN')" title="Double-click to edit">${getEffectiveSAN()}${state.exhausted ? `<span class="exhausted-san-penalty">(${Math.max(0, getEffectiveSAN() - 20)})</span>` : ''}</span>
                 <button class="stat-btn" onclick="adjustSAN(1)" title="Increase SAN" aria-label="Increase SAN">+</button>
               </div>` : `<span class="db-val">—</span>`}
             </div>
@@ -2384,12 +2390,13 @@ function buildCharSheetHtml() {
 
     <div class="sheet-section">
       <div class="sheet-section-title">Skills</div>
-      <div class="skills-grid-sheet">
+      <div class="skills-grid-sheet${state.exhausted ? ' skills-exhausted' : ''}">
         ${skillsForSheet.map(s => {
           const isCustom = s.name.startsWith('custom_');
           const editAdj = state.skillEditAdjust[s.name] || 0;
+          const exhaustPenalty = state.exhausted ? -20 : 0;
           const displayVal = isCustom
-            ? Math.min(99, Math.max(0, s.final + editAdj))
+            ? Math.min(99, Math.max(0, s.final + editAdj + exhaustPenalty))
             : getDisplayedSkillValue(s.name);
           const isUnnatural = s.name === 'Unnatural';
           if (state.editMode) {
@@ -2635,6 +2642,11 @@ function toggleHelplessnessCheck(idx) {
   render();
 }
 
+function toggleExhausted() {
+  state.exhausted = !state.exhausted;
+  render();
+}
+
 // ── HP / WP / SAN Adjustment ────────────────────────────────
 
 function adjustHP(delta) {
@@ -2871,10 +2883,14 @@ function exportToJson() {
   const attributes = {};
   ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
 
-  // Final skill percentages for every skill in the current era
+  // Final skill percentages for every skill in the current era (always base values, exhausted penalty is display-only)
   const skills = {};
   const baseSkills = getCurrentSkills();
-  Object.keys(baseSkills).forEach(s => { skills[s] = getDisplayedSkillValue(s); });
+  Object.keys(baseSkills).forEach(s => {
+    const base = getFinalSkillValue(s);
+    const editAdj = state.skillEditAdjust[s] || 0;
+    skills[s] = Math.min(99, Math.max(0, base + editAdj));
+  });
 
   // Custom skills: just name and final displayed value
   const customSkills = (state.customSkills || [])
@@ -2924,6 +2940,7 @@ function exportToJson() {
     disorders: JSON.parse(JSON.stringify(state.disorders || [])),
     showAllSkills: state.showAllSkills || false,
     bodyArmour: state.bodyArmour || 0,
+    exhausted: state.exhausted || false,
   };
 
   const json = JSON.stringify(exportData, null, 2);
@@ -3098,6 +3115,7 @@ function importFromJsonV2(data) {
   _disorderIdCounter = state.disorders.length;
   state.showAllSkills = data.showAllSkills || false;
   state.bodyArmour = data.bodyArmour || 0;
+  state.exhausted = data.exhausted || false;
 
   // attrEditAdjust is zeroed on import: attribute values are already baked into roll sets.
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
@@ -3145,6 +3163,7 @@ function importFromJsonV1(data) {
   state.disorders = data.disorders || [];
   state.showAllSkills = data.showAllSkills || false;
   state.bodyArmour = data.bodyArmour || 0;
+  state.exhausted = data.exhausted || false;
   state.skillEditAdjust = data.skillEditAdjust || {};
   state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
@@ -3237,6 +3256,7 @@ function resetState() {
   state.disorders        = [];
   state.editMode         = false;
   state.showAllSkills    = false;
+  state.exhausted        = false;
   // Upbringing effects step
   state.harshD4Rolls         = null;
   state.harshBondChoice1     = null;

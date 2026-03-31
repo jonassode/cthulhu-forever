@@ -21,6 +21,8 @@
   --step-inactive: #2a3548;
   --font-head:     'Cinzel', serif;
   --font-body:     'Lato', sans-serif;
+  --exhausted-blue: #7ec8e3;
+  --exhausted-blue-print: #4a90b0;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -1883,6 +1885,46 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   flex-shrink: 0;
 }
 
+/* ── Exhausted checkbox/label in attributes row ── */
+.exhausted-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-left: 0.25rem;
+  align-self: center;
+}
+/* Keep pointer cursor even though data-tooltip sets cursor:help */
+.exhausted-label[data-tooltip] { cursor: pointer; }
+.exhausted-label input[type="checkbox"] {
+  flex-shrink: 0;
+}
+.exhausted-label.exhausted-active {
+  color: var(--exhausted-blue);
+}
+
+/* ── Exhausted attr ×5 value ── */
+.attr-box .ab-x5.ab-x5-exhausted {
+  color: var(--exhausted-blue);
+}
+
+/* ── Exhausted SAN parenthetical penalty ── */
+.exhausted-san-penalty {
+  color: var(--exhausted-blue);
+  margin-left: 2px;
+}
+
+/* ── Exhausted skill coloring ── */
+.skills-exhausted .sr-name,
+.skills-exhausted .sr-val {
+  color: var(--exhausted-blue);
+}
+
 /* ── Compact stat button (smaller +/- used inside skill rows and bond rows) ── */
 .stat-btn-compact {
   width: 18px;
@@ -1931,6 +1973,11 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 /* ── Print overrides for new elements ── */
 @media print {
   .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
+  .skills-exhausted .sr-name,
+  .skills-exhausted .sr-val,
+  .attr-box .ab-x5.ab-x5-exhausted,
+  .exhausted-san-penalty { color: #4a90b0 !important; }
+  .exhausted-label.exhausted-active { color: #4a90b0 !important; }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
   .bond-score-group button { display: none !important; }
