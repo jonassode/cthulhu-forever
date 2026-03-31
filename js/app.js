@@ -7,7 +7,7 @@
 const state = {
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern' | 'coldwar'
+  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -145,6 +145,7 @@ function getSkillDisplayName(skillName) {
 function getSkillDescription(skillName) {
   const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS
     : state.age === 'coldwar' ? COLD_WAR_SKILL_DESCRIPTIONS
+    : state.age === 'victorian' ? VICTORIAN_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -349,7 +350,10 @@ function getDistinguishingFeature(attrKey, value) {
 }
 
 function getCurrentSkills() {
-  return state.age === 'jazz' ? JAZZ_SKILLS : state.age === 'coldwar' ? COLD_WAR_SKILLS : MODERN_SKILLS;
+  if (state.age === 'jazz')      return JAZZ_SKILLS;
+  if (state.age === 'coldwar')   return COLD_WAR_SKILLS;
+  if (state.age === 'victorian') return VICTORIAN_SKILLS;
+  return MODERN_SKILLS;
 }
 
 function getArchetype() {
@@ -397,7 +401,7 @@ function initSkills() {
   state.resourcesBonusSpent = 0;
   state.resourcesSetToZero = false;
   state.adversityPoints = {};
-  ADVERSITY_SKILLS.forEach(s => { state.adversityPoints[s] = 0; });
+  getAdversitySkills().forEach(s => { state.adversityPoints[s] = 0; });
   // Reset community bond bonus picks and setToOne toggles
   state.bonds.forEach(b => { if (b && typeof b === 'object') { b.bonusSpent = 0; b.setToOne = false; } });
 }
@@ -705,7 +709,12 @@ function rollVhAdaptDice() {
 
 // ── Adversity Picks ─────────────────────────────────────────
 
-const ADVERSITY_SKILLS = ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
+function getAdversitySkills() {
+  if (state.age === 'victorian') {
+    return ['First Aid', 'Scavenge', 'Streetwise (Type)', 'Survival (Type)'];
+  }
+  return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
+}
 
 function getAdversityTotal() {
   if (state.upbringing === 'harsh')      return 1;
@@ -868,7 +877,7 @@ function renderStep1() {
     <h2 class="step-title">Choose Your Era</h2>
     <p class="step-subtitle">The age in which your story unfolds shapes every skill, contact, and shadow that will haunt you.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;" class="sm:grid-cols-1">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;" class="sm:grid-cols-1">
 
       <div class="sel-card ${state.age === 'jazz' ? 'selected' : ''}"
            onclick="selectAge('jazz')" role="button" tabindex="0"
@@ -926,10 +935,29 @@ function renderStep1() {
           <li>Archetypes: 11 contemporary occupations available</li>
         </ul>
       </div>
+
+      <div class="sel-card ${state.age === 'victorian' ? 'selected' : ''}"
+           onclick="selectAge('victorian')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('victorian')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-tag">Victorian Age</div>
+        <div class="card-title">The Victorian Era</div>
+        <div class="card-desc">
+          Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors 
+          lurking beneath the veneer of progress. Investigators armed with magnifying glasses, revolvers, 
+          and grim determination confront secrets that polite Victorian society refuses to acknowledge.
+        </div>
+        <ul class="card-detail-list mt-3">
+          <li>Setting: 1837–1901</li>
+          <li>Technology: Steam engines, telegraphs, early photography</li>
+          <li>Tone: Gothic mystery, imperial horror, spiritualism</li>
+          <li>Archetypes: 11 Victorian occupations available</li>
+        </ul>
+      </div>
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -1613,7 +1641,7 @@ function renderStep4() {
           </tr>
         </thead>
         <tbody>
-          ${ADVERSITY_SKILLS.map(skillName => {
+          ${getAdversitySkills().map(skillName => {
             const base     = skills[skillName] || 0;
             const archBon  = getArchetypeSkillBonus(skillName);
             const advPicks = state.adversityPoints[skillName] || 0;
@@ -1807,7 +1835,7 @@ function adjustResources(delta) {
 }
 
 function adjustAdversity(skillName, delta) {
-  if (!ADVERSITY_SKILLS.includes(skillName)) return;
+  if (!getAdversitySkills().includes(skillName)) return;
   const base     = getCurrentSkills()[skillName] || 0;
   const archBon  = getArchetypeSkillBonus(skillName);
   const current  = state.adversityPoints[skillName] || 0;
@@ -2221,7 +2249,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong>${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -3001,7 +3029,7 @@ function importFromJson(data) {
     alert('Invalid character data: missing character name.');
     return;
   }
-  if (!data.age || (data.age !== 'jazz' && data.age !== 'modern' && data.age !== 'coldwar')) {
+  if (!data.age || (data.age !== 'jazz' && data.age !== 'modern' && data.age !== 'coldwar' && data.age !== 'victorian')) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
   }
@@ -3063,7 +3091,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};
