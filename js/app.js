@@ -322,6 +322,30 @@ function getEffectiveWP() {
   return Math.max(0, Math.min(state.currentWP, d.WP));
 }
 
+function getHPStatusClass(hp) {
+  if (hp <= 0) return ' val-critical';
+  if (hp <= 2) return ' val-low';
+  return '';
+}
+
+function getHPBadgeContent(hp) {
+  if (hp <= 0) return '<span class="stat-status-badge stat-status-critical">Dead</span>';
+  if (hp <= 2) return '<span class="stat-status-badge stat-status-low">Unconscious</span>';
+  return '';
+}
+
+function getWPStatusClass(wp) {
+  if (wp <= 0) return ' val-critical';
+  if (wp <= 2) return ' val-low';
+  return '';
+}
+
+function getWPBadgeContent(wp) {
+  if (wp <= 0) return '<span class="stat-status-badge stat-status-critical">Unconscious</span>';
+  if (wp <= 2) return '<span class="stat-status-badge stat-status-low">Temp. Emotional Collapse</span>';
+  return '';
+}
+
 function getEffectiveSAN() {
   const d = calculateDerived();
   if (!d) return null;
@@ -2310,21 +2334,21 @@ function buildCharSheetHtml() {
               <span class="db-name">HP</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustHP(-1)" title="Decrease HP" aria-label="Decrease HP">−</button>
-                <span class="db-current-val" id="hp-current-val" ondblclick="startEditStat('HP')" title="Double-click to edit">${getEffectiveHP()}</span>
+                <span class="db-current-val${getHPStatusClass(getEffectiveHP())}" id="hp-current-val" ondblclick="startEditStat('HP')" title="Double-click to edit">${getEffectiveHP()}</span>
                 <span class="db-separator">/</span>
                 <span class="db-max-val">${derived.HP}</span>
                 <button class="stat-btn" onclick="adjustHP(1)" title="Increase HP" aria-label="Increase HP">+</button>
-              </div>` : `<span class="db-val">—</span>`}
+              </div><span id="hp-status-badge">${getHPBadgeContent(getEffectiveHP())}</span>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="Equal to POW">
               <span class="db-name">WP</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustWP(-1)" title="Decrease WP" aria-label="Decrease WP">−</button>
-                <span class="db-current-val" id="wp-current-val" ondblclick="startEditStat('WP')" title="Double-click to edit">${getEffectiveWP()}</span>
+                <span class="db-current-val${getWPStatusClass(getEffectiveWP())}" id="wp-current-val" ondblclick="startEditStat('WP')" title="Double-click to edit">${getEffectiveWP()}</span>
                 <span class="db-separator">/</span>
                 <span class="db-max-val">${derived.WP}</span>
                 <button class="stat-btn" onclick="adjustWP(1)" title="Increase WP" aria-label="Increase WP">+</button>
-              </div>` : `<span class="db-val">—</span>`}
+              </div><span id="wp-status-badge">${getWPBadgeContent(getEffectiveWP())}</span>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
               <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>
@@ -2690,7 +2714,12 @@ function adjustHP(delta) {
   if (!d) return;
   state.currentHP = Math.max(0, Math.min(getEffectiveHP() + delta, d.HP));
   const el = document.getElementById('hp-current-val');
-  if (el) el.textContent = state.currentHP;
+  if (el) {
+    el.textContent = state.currentHP;
+    el.className = 'db-current-val' + getHPStatusClass(state.currentHP);
+  }
+  const badgeEl = document.getElementById('hp-status-badge');
+  if (badgeEl) badgeEl.innerHTML = getHPBadgeContent(state.currentHP);
 }
 
 function adjustWP(delta) {
@@ -2698,7 +2727,12 @@ function adjustWP(delta) {
   if (!d) return;
   state.currentWP = Math.max(0, Math.min(getEffectiveWP() + delta, d.WP));
   const el = document.getElementById('wp-current-val');
-  if (el) el.textContent = state.currentWP;
+  if (el) {
+    el.textContent = state.currentWP;
+    el.className = 'db-current-val' + getWPStatusClass(state.currentWP);
+  }
+  const badgeEl = document.getElementById('wp-status-badge');
+  if (badgeEl) badgeEl.innerHTML = getWPBadgeContent(state.currentWP);
 }
 
 function adjustSAN(delta) {
