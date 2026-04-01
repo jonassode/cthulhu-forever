@@ -971,15 +971,12 @@ function renderStep1() {
         <div class="card-tag">Jazz Age</div>
         <div class="card-title">The Roaring Twenties</div>
         <div class="card-desc">
-          Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come. 
-          Investigators work with telegrams, motorcar chases, and revolvers as they peel back the gilded surface 
-          of the 1920s to expose the ancient horrors lurking beneath.
+          Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come.
         </div>
         <ul class="card-detail-list mt-3">
           <li>Setting: 1920–1939</li>
           <li>Technology: Motor cars, telegraphs, early radio</li>
           <li>Tone: Gothic mystery, colonial horror</li>
-          <li>Archetypes: 11 classic occupations available</li>
         </ul>
       </div>
 
@@ -990,15 +987,12 @@ function renderStep1() {
         <div class="card-tag">Cold War</div>
         <div class="card-title">The Cold War Era</div>
         <div class="card-desc">
-          Espionage, nuclear dread, and ideological shadows define the mid-twentieth century. 
-          Investigators navigate a world of spies, codebreakers, and covert ops as they uncover 
-          conspiracies that predate the superpowers themselves.
+          Espionage, nuclear dread, and ideological shadows define the mid-twentieth century.
         </div>
         <ul class="card-detail-list mt-3">
           <li>Setting: 1950s–1980s</li>
           <li>Technology: Early computers, surveillance, Cold War arms</li>
           <li>Tone: Espionage, paranoia, ideological horror</li>
-          <li>Archetypes: 11 Cold War occupations available</li>
         </ul>
       </div>
 
@@ -1009,15 +1003,12 @@ function renderStep1() {
         <div class="card-tag">Modern Age</div>
         <div class="card-title">Present Day</div>
         <div class="card-desc">
-          The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil 
-          that has always watched from the dark. Investigators use smartphones, forensic labs, and the internet 
-          to chase shadows that predate recorded history.
+          The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil that has always watched from the dark.
         </div>
         <ul class="card-detail-list mt-3">
           <li>Setting: Present Day</li>
           <li>Technology: Computers, the internet, forensics</li>
           <li>Tone: Conspiracy, urban dread, digital horror</li>
-          <li>Archetypes: 11 contemporary occupations available</li>
         </ul>
       </div>
 
@@ -1028,15 +1019,12 @@ function renderStep1() {
         <div class="card-tag">Victorian Age</div>
         <div class="card-title">The Victorian Era</div>
         <div class="card-desc">
-          Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors 
-          lurking beneath the veneer of progress. Investigators armed with magnifying glasses, revolvers, 
-          and grim determination confront secrets that polite Victorian society refuses to acknowledge.
+          Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors lurking beneath the veneer of progress.
         </div>
         <ul class="card-detail-list mt-3">
           <li>Setting: 1837–1901</li>
           <li>Technology: Steam engines, telegraphs, early photography</li>
           <li>Tone: Gothic mystery, imperial horror, spiritualism</li>
-          <li>Archetypes: 11 Victorian occupations available</li>
         </ul>
       </div>
     </div>
