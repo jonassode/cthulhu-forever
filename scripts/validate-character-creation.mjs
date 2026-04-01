@@ -613,6 +613,68 @@ const testCode = `
     eq(getFinalSkillValue('Survival (Type)'),   30, 'Survival (Type): base(10)+1 adversity pick=30');
   }
 
+  // ── Suite 5b: Adversity Skills by Era ───────────────────────────────────────
+
+  console.log('\\n── Suite 5b: Adversity Skills by Era ───────────────────────────────────────');
+
+  // Helper: compare two arrays by value and report a single pass/fail.
+  function arrEq(actual, expected, message) {
+    const same =
+      Array.isArray(actual) &&
+      actual.length === expected.length &&
+      expected.every((v, i) => actual[i] === v);
+    if (same) {
+      pass(message);
+    } else {
+      fail(
+        message +
+          ' — expected [' + expected.join(', ') + ']' +
+          ', got [' + (Array.isArray(actual) ? actual.join(', ') : String(actual)) + ']'
+      );
+    }
+  }
+
+  const NON_VICTORIAN_ADVERSITY = [
+    'First Aid',
+    'Military Training (Type)',
+    'Regional Lore (Type)',
+    'Survival (Type)',
+  ];
+  const VICTORIAN_ADVERSITY = [
+    'First Aid',
+    'Scavenge',
+    'Streetwise (Type)',
+    'Survival (Type)',
+  ];
+
+  // 5b.1  Modern era
+  {
+    resetState(); state.age = 'modern';
+    arrEq(getAdversitySkills(), NON_VICTORIAN_ADVERSITY,
+      'Modern adversity skills: First Aid, Military Training (Type), Regional Lore (Type), Survival (Type)');
+  }
+
+  // 5b.2  Jazz era
+  {
+    resetState(); state.age = 'jazz';
+    arrEq(getAdversitySkills(), NON_VICTORIAN_ADVERSITY,
+      'Jazz adversity skills: First Aid, Military Training (Type), Regional Lore (Type), Survival (Type)');
+  }
+
+  // 5b.3  Cold War era
+  {
+    resetState(); state.age = 'coldwar';
+    arrEq(getAdversitySkills(), NON_VICTORIAN_ADVERSITY,
+      'Cold War adversity skills: First Aid, Military Training (Type), Regional Lore (Type), Survival (Type)');
+  }
+
+  // 5b.4  Victorian era
+  {
+    resetState(); state.age = 'victorian';
+    arrEq(getAdversitySkills(), VICTORIAN_ADVERSITY,
+      'Victorian adversity skills: First Aid, Scavenge, Streetwise (Type), Survival (Type)');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');
