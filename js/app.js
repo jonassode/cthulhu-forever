@@ -2318,10 +2318,16 @@ function buildCharSheetHtml() {
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
-        <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
-          <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
-          <span>Exhausted</span>
-        </label>
+        <div class="exhausted-col">
+          <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
+            <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
+            <span>Exhausted</span>
+          </label>
+          <div class="stat-status-badges">
+            <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
+            <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2338,7 +2344,7 @@ function buildCharSheetHtml() {
                 <span class="db-separator">/</span>
                 <span class="db-max-val">${derived.HP}</span>
                 <button class="stat-btn" onclick="adjustHP(1)" title="Increase HP" aria-label="Increase HP">+</button>
-              </div><span id="hp-status-badge">${getHPBadgeContent(getEffectiveHP())}</span>` : `<span class="db-val">—</span>`}
+              </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="Equal to POW">
               <span class="db-name">WP</span>
@@ -2348,7 +2354,7 @@ function buildCharSheetHtml() {
                 <span class="db-separator">/</span>
                 <span class="db-max-val">${derived.WP}</span>
                 <button class="stat-btn" onclick="adjustWP(1)" title="Increase WP" aria-label="Increase WP">+</button>
-              </div><span id="wp-status-badge">${getWPBadgeContent(getEffectiveWP())}</span>` : `<span class="db-val">—</span>`}
+              </div>` : `<span class="db-val">—</span>`}
             </div>
             <div class="derived-box" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
               <span class="db-name">Dmg Bonus</span><span class="db-val">${derived ? (derived.DMG > 0 ? '+' + derived.DMG : derived.DMG) : '—'}</span>

@@ -1917,6 +1917,17 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 }
 
 /* ── Exhausted checkbox/label in attributes row ── */
+.exhausted-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-self: center;
+}
+.stat-status-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
 .exhausted-label {
   display: inline-flex;
   align-items: center;
@@ -1928,7 +1939,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--text-secondary);
   cursor: pointer;
   margin-left: 0.25rem;
-  align-self: center;
 }
 /* Keep pointer cursor even though data-tooltip sets cursor:help */
 .exhausted-label[data-tooltip] { cursor: pointer; }
