@@ -2,13 +2,17 @@
 /**
  * update-changelog-version.mjs
  *
- * Scans recent git commits (non-merge, non-bot) and adds any that are
- * missing from CHANGELOG.md as new versioned entries.
- * Then syncs the APP_VERSION constant in js/data.js to the latest
- * version found in the changelog.
+ * When changes are merged into main:
+ *  1. Reads the current MAJOR.MINOR.PATCH version from js/data.js.
+ *  2. Collects all commits since the last bot changelog-update commit.
+ *  3. Summarises them into a single statement using the GitHub Models AI API
+ *     (falls back to joining commit subjects when the API is unavailable).
+ *  4. Increments the PATCH number.
+ *  5. Prepends a single new entry to CHANGELOG.md.
+ *  6. Updates APP_VERSION in js/data.js.
  *
  * Expected changelog line format:
- *   0.NNN - Description  (trailing two spaces are a markdown line-break)
+ *   MAJOR.MINOR.PATCH - Description  (trailing two spaces = markdown line-break)
  */
 
 import { readFileSync, writeFileSync } from 'fs';
@@ -16,48 +20,29 @@ import { execSync } from 'child_process';
 
 const CHANGELOG_PATH = 'CHANGELOG.md';
 const DATA_JS_PATH = 'js/data.js';
-/** How far back in git history to look for undocumented commits. */
-const MAX_COMMITS_TO_SCAN = 30;
+/** Matches the start of a versioned changelog entry, e.g. "0.1.194 - " */
+const VERSION_LINE_PATTERN = /^\d+\.\d+\.\d+\s+-\s+/m;
 
 // ── Helpers ────────────────────────────────────────────────────
 
-/** Parse all versioned entries from the changelog. */
-function parseEntries(content) {
-  const entries = [];
-  for (const line of content.split('\n')) {
-    const m = line.match(/^0\.(\d+)\s+-\s+(.+)/);
-    if (m) {
-      entries.push({ minor: parseInt(m[1], 10), description: m[2].trimEnd() });
-    }
-  }
-  return entries;
+/** Read the current APP_VERSION string from data.js. */
+function readCurrentVersion() {
+  const dataJs = readFileSync(DATA_JS_PATH, 'utf8');
+  const m = dataJs.match(/const APP_VERSION\s*=\s*['"]([^'"]+)['"]/);
+  if (!m) throw new Error('APP_VERSION not found in data.js');
+  return m[1];
 }
 
-/** Normalise a string for fuzzy comparison. */
-function normalise(s) {
-  return s.toLowerCase().replace(/[`'"]/g, '').replace(/\s+/g, ' ').trim();
+/** Increment the PATCH component of a MAJOR.MINOR.PATCH version string. */
+function incrementPatch(version) {
+  const parts = version.split('.');
+  if (parts.length !== 3) throw new Error(`Expected MAJOR.MINOR.PATCH, got: ${version}`);
+  const [major, minor, patch] = parts;
+  return `${major}.${minor}.${parseInt(patch, 10) + 1}`;
 }
 
-/** Return true if the commit subject is already captured in the changelog. */
-function alreadyDocumented(subject, entries) {
-  const ns = normalise(subject);
-  return entries.some(e => normalise(e.description) === ns);
-}
-
-// ── Read changelog ─────────────────────────────────────────────
-
-let changelog = readFileSync(CHANGELOG_PATH, 'utf8');
-let entries = parseEntries(changelog);
-let latestMinor = entries.length ? Math.max(...entries.map(e => e.minor)) : 0;
-
-// ── Get recent commits ─────────────────────────────────────────
-// --no-merges excludes "Merge pull request / Merge branch" commits.
-// Limit to MAX_COMMITS_TO_SCAN so we catch any backlog without going too far.
-
-const logLines = execSync(`git log --no-merges --format=%s -${MAX_COMMITS_TO_SCAN}`, { encoding: 'utf8' })
-  .trim()
-  .split('\n')
-  .filter(Boolean);
+/** Prefixes that mark standard GitHub merge commits — never interesting entries. */
+const MERGE_PREFIXES = ['Merge pull request ', 'Merge branch '];
 
 const BOT_PATTERNS = [
   'chore: update changelog',
@@ -66,69 +51,136 @@ const BOT_PATTERNS = [
   'skip ci',
 ];
 
-/** Prefixes that mark standard GitHub merge commits — these are never interesting entries. */
-const MERGE_PREFIXES = ['Merge pull request ', 'Merge branch '];
-
-/** True if this commit should be excluded from the changelog. */
+/** True if this commit subject should be excluded from the changelog. */
 function shouldSkip(subject) {
   if (MERGE_PREFIXES.some(p => subject.startsWith(p))) return true;
   const lower = subject.toLowerCase();
   return BOT_PATTERNS.some(p => lower.includes(p.toLowerCase()));
 }
 
-const newCommits = logLines
-  .filter(s => !shouldSkip(s))
-  .filter(s => !alreadyDocumented(s, entries))
-  .reverse(); // oldest-first so version numbers increment chronologically
-
-// ── Update changelog ───────────────────────────────────────────
-
-if (newCommits.length === 0) {
-  console.log('Changelog is already up to date — no missing entries.');
-} else {
-  console.log(`Adding ${newCommits.length} missing changelog entr${newCommits.length === 1 ? 'y' : 'ies'}:`);
-
-  // Build new lines (oldest → newest as we increment)
-  const newLines = [];
-  for (const subject of newCommits) {
-    latestMinor += 1;
-    const line = `0.${latestMinor} - ${subject}  `;
-    console.log(`  + ${line.trimEnd()}`);
-    newLines.push(line);
+/**
+ * Collect all non-bot, non-merge commit subjects since the most recent
+ * bot changelog-update commit.  Falls back to the last 30 commits when no
+ * such anchor commit exists.
+ */
+function getNewCommits() {
+  let anchor = '';
+  try {
+    anchor = execSync(
+      `git log --format=%H --grep="chore: update changelog" -1`,
+      { encoding: 'utf8' },
+    ).trim();
+  } catch {
+    // no anchor — will fall back to HEAD~30
   }
 
-  // Newest entries go at the TOP of the version list.
-  // Find the first existing version line and insert before it.
-  const firstEntryMatch = changelog.match(/^0\.\d+\s+-\s+/m);
-  if (firstEntryMatch && firstEntryMatch.index !== undefined) {
-    const block = newLines.reverse().join('\n') + '\n';
+  const cmd = anchor
+    ? `git log --no-merges --format=%s ${anchor}..HEAD`
+    : `git log --no-merges --format=%s -30`;
+
+  const lines = execSync(cmd, { encoding: 'utf8' })
+    .trim()
+    .split('\n')
+    .filter(Boolean);
+
+  return lines.filter(s => !shouldSkip(s));
+}
+
+/**
+ * Ask the GitHub Models AI API to summarise the commit list into one
+ * concise sentence.  Returns null when the API is unavailable or errors.
+ */
+async function summariseWithAI(commits) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+
+  try {
+    const response = await fetch(
+      'https://models.inference.ai.azure.com/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are a changelog writer. Summarise the following git commit messages into a single concise sentence (under 120 characters) that describes what was added or changed. Return only the summary sentence with no extra punctuation or quotes.',
+            },
+            { role: 'user', content: commits.join('\n') },
+          ],
+          max_tokens: 80,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      console.warn(`GitHub Models API returned ${response.status} — using fallback.`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content?.trim() || null;
+  } catch (err) {
+    console.warn(`GitHub Models API error: ${err.message} — using fallback.`);
+    return null;
+  }
+}
+
+// ── Main ───────────────────────────────────────────────────────
+
+const currentVersion = readCurrentVersion();
+const newVersion = incrementPatch(currentVersion);
+
+const commits = getNewCommits();
+
+if (commits.length === 0) {
+  console.log('No new commits to document — skipping changelog update.');
+} else {
+  console.log(`Found ${commits.length} commit(s) since last changelog update:`);
+  for (const c of commits) console.log(`  • ${c}`);
+
+  let summary = await summariseWithAI(commits);
+  if (summary) {
+    console.log(`AI summary: ${summary}`);
+  } else {
+    // Fallback: use the single commit message, or join multiple with "; "
+    summary = commits.length === 1 ? commits[0] : commits.join('; ');
+    console.log(`Fallback summary: ${summary}`);
+  }
+
+  // Prepend new entry at the top of the version list
+  let changelog = readFileSync(CHANGELOG_PATH, 'utf8');
+  const newLine = `${newVersion} - ${summary}  `;
+  const firstEntryMatch = changelog.match(VERSION_LINE_PATTERN);
+  if (firstEntryMatch?.index !== undefined) {
     changelog =
       changelog.substring(0, firstEntryMatch.index) +
-      block +
+      newLine + '\n' +
       changelog.substring(firstEntryMatch.index);
   } else {
-    // No existing entries — append at the end
-    changelog += newLines.reverse().join('\n') + '\n';
+    changelog += '\n' + newLine + '\n';
   }
 
   writeFileSync(CHANGELOG_PATH, changelog, 'utf8');
-  entries = parseEntries(changelog);
+  console.log(`Added changelog entry: ${newLine.trimEnd()}`);
 }
 
 // ── Sync APP_VERSION in data.js ────────────────────────────────
 
-const maxMinor = entries.length ? Math.max(...entries.map(e => e.minor)) : latestMinor;
-const versionStr = `0.${maxMinor}`;
-
 const dataJs = readFileSync(DATA_JS_PATH, 'utf8');
 const updatedDataJs = dataJs.replace(
   /const APP_VERSION\s*=\s*['"][^'"]*['"];/,
-  `const APP_VERSION = '${versionStr}';`,
+  `const APP_VERSION = '${newVersion}';`,
 );
 
 if (updatedDataJs !== dataJs) {
   writeFileSync(DATA_JS_PATH, updatedDataJs, 'utf8');
-  console.log(`Updated APP_VERSION → '${versionStr}' in ${DATA_JS_PATH}`);
+  console.log(`Updated APP_VERSION → '${newVersion}' in ${DATA_JS_PATH}`);
 } else {
-  console.log(`APP_VERSION is already '${versionStr}' — no data.js change needed.`);
+  console.log(`APP_VERSION is already '${newVersion}' — no data.js change needed.`);
 }
