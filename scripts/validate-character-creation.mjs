@@ -699,10 +699,10 @@ const testCode = `
     state.resourcesBonusSpent = 3;
     eq(getEffectiveResources(), 13, 'Resources: base(4)+1st(+5)+2nd(+2)+3rd(+2) = 13');
 
-    // 6.5  Resources capped at 20
+    // 6.5  Resources are no longer capped at 20
     state.resourcesBonusSpent = 10;
-    // uncapped would be: 4 + 5 + 9×2 = 27
-    eq(getEffectiveResources(), 20, 'Resources: capped at 20 (would be 27 without cap)');
+    // uncapped: 4 + 5 + 9×2 = 27
+    eq(getEffectiveResources(), 27, 'Resources: no cap — base(4)+1st(+5)+9×2nd(+2) = 27');
   }
 
   // 6.6  A different archetype (private_eye: base=4) behaves identically
