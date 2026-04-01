@@ -329,8 +329,8 @@ function getHPStatusClass(hp) {
 }
 
 function getHPBadgeContent(hp) {
-  if (hp <= 0) return '<span class="stat-status-badge stat-status-critical">Dead</span>';
-  if (hp <= 2) return '<span class="stat-status-badge stat-status-low">Unconscious</span>';
+  if (hp <= 0) return '<span class="stat-status-badge stat-status-critical" data-tooltip="The protagonist is dead, may they rest in peace.">Dead</span>';
+  if (hp <= 2) return '<span class="stat-status-badge stat-status-low" data-tooltip="At 2 HP, your Protagonist falls unconscious.">Unconscious</span>';
   return '';
 }
 
@@ -341,8 +341,8 @@ function getWPStatusClass(wp) {
 }
 
 function getWPBadgeContent(wp) {
-  if (wp <= 0) return '<span class="stat-status-badge stat-status-critical">Unconscious</span>';
-  if (wp <= 2) return '<span class="stat-status-badge stat-status-low">Temp. Emotional Collapse</span>';
+  if (wp <= 0) return '<span class="stat-status-badge stat-status-critical" data-tooltip="A Protagonist at 0 WP loses all control. This can look different for every Protagonist and every situation. The Protagonist might collapse in wracking sobs, or lash out wildly, or simply pass out. The Game Moderator controls your Protagonist until WP returns to 1 or higher and describes the reaction. A Protagonist with 0 WP cannot succeed at any tests, including SAN tests. Sooner or later the Protagonist falls asleep, regardless of any disorders or stimulants, long enough to regain WP.">Lose Control</span>';
+  if (wp <= 2) return '<span class="stat-status-badge stat-status-low" data-tooltip="A Protagonist whose WP hits 1 or 2 has an emotional breakdown. The Protagonist suffers a −20% penalty to all actions until their WP rises above 2.">Temp. Emotional Collapse</span>';
   return '';
 }
 
