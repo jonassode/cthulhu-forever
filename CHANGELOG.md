@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.3 - Add Suite 5b: Adversity Skills by Era verification tests; Initial plan  
 0.2.2 - feat: change versioning to MAJOR.MINOR.PATCH (0.2.1); Initial plan  
 0.1.194 - Update era selection in features list  
 0.1.193 - feat: add Victorian Age era with skills, archetypes, and adversity picks  
