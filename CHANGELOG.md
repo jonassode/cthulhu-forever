@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.5 - Trim era card descriptions to 1 sentence and remove Archetypes bullet; Initial plan  
 0.2.4 - feat: double-click to edit motivation text on character sheet; feat: replace motivations textarea with 5 individual fields + cross-out feature; Initial plan  
 0.2.3 - Add Suite 5b: Adversity Skills by Era verification tests; Initial plan  
 0.2.2 - feat: change versioning to MAJOR.MINOR.PATCH (0.2.1); Initial plan  
