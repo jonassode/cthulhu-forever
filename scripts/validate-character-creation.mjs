@@ -715,6 +715,21 @@ const testCode = `
     eq(getEffectiveResources(), 9, 'Private Eye: base(4)+1 pick(+5)=9');
   }
 
+  // 6.7  Capacity table caps inStorage at 8 for ratings above 20
+  {
+    const cap20 = getResourcesCapacity(20);
+    eq(cap20.atHand,    6, 'Capacity rating=20: atHand=6');
+    eq(cap20.stowed,    6, 'Capacity rating=20: stowed=6');
+    eq(cap20.inStorage, 8, 'Capacity rating=20: inStorage=8');
+    eq(cap20.checkboxes,3, 'Capacity rating=20: checkboxes=3');
+
+    const cap34 = getResourcesCapacity(34);
+    eq(cap34.atHand,    6, 'Capacity rating=34: atHand=6 (capped)');
+    eq(cap34.stowed,    6, 'Capacity rating=34: stowed=6 (capped)');
+    eq(cap34.inStorage, 8, 'Capacity rating=34: inStorage=8 (capped at 8)');
+    eq(cap34.checkboxes,3, 'Capacity rating=34: checkboxes=3');
+  }
+
   // ── Suite 7: Bond Values ─────────────────────────────────────────────────────
 
   console.log('\\n── Suite 7: Bond Values ─────────────────────────────────────────────────────');

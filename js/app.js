@@ -458,7 +458,7 @@ function getResourcesCapacity(rating) {
   if (rating <= 0)  return { atHand: 0, stowed: 0, inStorage: 0, checkboxes: 0 };
   if (rating <= 6)  return { atHand: rating, stowed: 0, inStorage: 0, checkboxes: 1 };
   if (rating <= 12) return { atHand: 6, stowed: rating - 6, inStorage: 0, checkboxes: 2 };
-  return { atHand: 6, stowed: 6, inStorage: rating - 12, checkboxes: 3 };
+  return { atHand: 6, stowed: 6, inStorage: Math.min(8, rating - 12), checkboxes: 3 };
 }
 
 // Returns the effective numeric value of a bond object.
