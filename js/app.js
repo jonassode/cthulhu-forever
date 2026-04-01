@@ -616,6 +616,70 @@ function toggleMotivationCrossed(index) {
   }
 }
 
+function startEditMotivation(index) {
+  const elemId = 'motivation-text-' + index;
+  const span = document.getElementById(elemId);
+  if (!span || span.tagName === 'INPUT') return;
+
+  const motivations = state.identity.motivations;
+  const current = (Array.isArray(motivations) && motivations[index]) ? motivations[index].text : '';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = current;
+  input.className = 'motivation-edit-input';
+  input.placeholder = 'Describe a motivation…';
+
+  let finished = false;
+
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    finishEditMotivation(index, input);
+  };
+
+  const cancel = () => {
+    if (finished) return;
+    finished = true;
+    input.replaceWith(createMotivationSpan(index, current));
+  };
+
+  input.addEventListener('blur', finish);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+}
+
+function finishEditMotivation(index, input) {
+  const newVal = input.value;
+  if (Array.isArray(state.identity.motivations) && state.identity.motivations[index]) {
+    state.identity.motivations[index].text = newVal;
+  }
+  input.replaceWith(createMotivationSpan(index, newVal));
+}
+
+function createMotivationSpan(index, text) {
+  const span = document.createElement('span');
+  span.className = 'motivation-text';
+  span.id = 'motivation-text-' + index;
+  span.title = 'Double-click to edit';
+  if (text) {
+    span.textContent = text;
+  } else {
+    const em = document.createElement('span');
+    em.className = 'motivation-empty';
+    em.textContent = '—';
+    span.appendChild(em);
+  }
+  span.addEventListener('dblclick', () => startEditMotivation(index));
+  return span;
+}
+
 // ── Disorders ───────────────────────────────────────────────
 
 function addDisorder() {
@@ -2578,7 +2642,7 @@ function buildCharSheetHtml() {
                 <button class="motivation-cross-btn no-print" onclick="toggleMotivationCrossed(${i})"
                         title="${m.crossed ? 'Restore motivation' : 'Cross out motivation'}"
                         aria-label="${m.crossed ? 'Restore motivation' : 'Cross out motivation'}">${m.crossed ? '↩' : '✕'}</button>
-                <span class="motivation-text" id="motivation-text-${i}">${m.text ? escapeHtml(m.text) : '<span class="motivation-empty">—</span>'}</span>
+                <span class="motivation-text" id="motivation-text-${i}" title="Double-click to edit" ondblclick="startEditMotivation(${i})">${m.text ? escapeHtml(m.text) : '<span class="motivation-empty">—</span>'}</span>
               </div>`).join('');
           })()}
         </div>

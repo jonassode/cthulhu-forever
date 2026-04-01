@@ -2054,6 +2054,25 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-color: var(--accent-red, #c0392b);
   color: var(--accent-red, #c0392b);
 }
+.motivation-text {
+  cursor: pointer;
+}
+.motivation-text:hover {
+  text-decoration: underline dotted var(--accent-gold);
+}
+.motivation-edit-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--accent-gold);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-style: italic;
+  font-family: inherit;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+}
 
 
 @media print {
