@@ -79,7 +79,7 @@ const state = {
     birthplace: '',
     characterAge: 25,
     backstory: '',
-    motivations: '',
+    motivations: [{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false}],
     gear: '',
     permanentInjuries: '',
   },
@@ -593,6 +593,91 @@ function adjustAttrInEditMode(attrKey, delta) {
   if (newVal < 3 || newVal > 18) return;
   state.attrEditAdjust[attrKey] = current + delta;
   render();
+}
+
+// ── Motivations ─────────────────────────────────────────────
+
+function makeDefaultMotivations() {
+  return [{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false}];
+}
+
+function updateMotivation(index, value) {
+  if (!Array.isArray(state.identity.motivations)) return;
+  if (state.identity.motivations[index]) {
+    state.identity.motivations[index].text = value;
+  }
+}
+
+function toggleMotivationCrossed(index) {
+  if (!Array.isArray(state.identity.motivations)) return;
+  if (state.identity.motivations[index]) {
+    state.identity.motivations[index].crossed = !state.identity.motivations[index].crossed;
+    render();
+  }
+}
+
+function startEditMotivation(index) {
+  const elemId = 'motivation-text-' + index;
+  const span = document.getElementById(elemId);
+  if (!span || span.tagName === 'INPUT') return;
+
+  const motivations = state.identity.motivations;
+  const current = (Array.isArray(motivations) && motivations[index]) ? motivations[index].text : '';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = current;
+  input.className = 'motivation-edit-input';
+  input.placeholder = 'Describe a motivation…';
+
+  let finished = false;
+
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    finishEditMotivation(index, input);
+  };
+
+  const cancel = () => {
+    if (finished) return;
+    finished = true;
+    input.replaceWith(createMotivationSpan(index, current));
+  };
+
+  input.addEventListener('blur', finish);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+}
+
+function finishEditMotivation(index, input) {
+  const newVal = input.value;
+  if (Array.isArray(state.identity.motivations) && state.identity.motivations[index]) {
+    state.identity.motivations[index].text = newVal;
+  }
+  input.replaceWith(createMotivationSpan(index, newVal));
+}
+
+function createMotivationSpan(index, text) {
+  const span = document.createElement('span');
+  span.className = 'motivation-text';
+  span.id = 'motivation-text-' + index;
+  span.title = 'Double-click to edit';
+  if (text) {
+    span.textContent = text;
+  } else {
+    const em = document.createElement('span');
+    em.className = 'motivation-empty';
+    em.textContent = '—';
+    span.appendChild(em);
+  }
+  span.addEventListener('dblclick', () => startEditMotivation(index));
+  return span;
 }
 
 // ── Disorders ───────────────────────────────────────────────
@@ -2175,6 +2260,30 @@ function renderUpbringingEffects() {
 // ── RENDER: Step 5 — Motivations & Gear ─────────────────────
 
 function renderStep5() {
+  // If the character started with a disorder from a very harsh upbringing + failed POW test,
+  // they only have 4 motivation slots (one is already consumed by the starting disorder).
+  const startedWithDisorder = state.vhPowDisorderId !== null;
+  const motivationCount = startedWithDisorder ? 4 : 5;
+  const motivations = Array.isArray(state.identity.motivations)
+    ? state.identity.motivations
+    : makeDefaultMotivations();
+
+  const motivationFields = Array.from({ length: motivationCount }, (_, i) => {
+    const m = motivations[i] || { text: '', crossed: false };
+    return `<div class="motivation-builder-row">
+      <span class="motivation-number">${i + 1}.</span>
+      <input class="motivation-input" type="text"
+             placeholder="Describe a motivation…"
+             value="${escapeHtml(m.text)}"
+             oninput="updateMotivation(${i},this.value)"
+             aria-label="Motivation ${i + 1}" />
+    </div>`;
+  }).join('');
+
+  const disorderNote = startedWithDisorder
+    ? `<p class="motivation-disorder-note">⚠ Your character started with a disorder due to a very harsh upbringing and a failed POW roll. Only 4 motivation slots are available.</p>`
+    : '';
+
   return `
   <div class="step-content">
     <h2 class="step-title">Motivations &amp; Gear</h2>
@@ -2183,12 +2292,11 @@ function renderStep5() {
     <div class="form-group">
       <label class="form-label">Motivations</label>
       <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.5rem;line-height:1.6;">
-        Describe up to five things your investigator finds meaningful — people, beliefs, causes, or ideals they would risk their sanity to protect.
+        Describe up to ${motivationCount} things your investigator finds meaningful — people, beliefs, causes, or ideals they would risk their sanity to protect.
         Examples: <em>protecting my younger sister</em>, <em>uncovering the truth no matter the cost</em>, <em>preserving ancient knowledge</em>, <em>loyalty to my colleagues</em>, <em>faith in a higher power</em>.
       </p>
-      <textarea class="form-textarea" id="char-motivations" rows="5"
-                placeholder="List up to five motivations, one per line…"
-                oninput="updateIdentity('motivations',this.value)">${escapeHtml(state.identity.motivations)}</textarea>
+      ${disorderNote}
+      <div class="motivation-fields">${motivationFields}</div>
     </div>
 
     <div class="form-group" style="margin-top:1.5rem;">
@@ -2524,7 +2632,20 @@ function buildCharSheetHtml() {
     <div class="sheet-2col-row">
       <div class="sheet-section">
         <div class="sheet-section-title">Motivations</div>
-        <div class="sheet-backstory" id="sheet-motivations" title="Double-click to edit" ondblclick="startEditText('motivations','sheet-motivations')">${state.identity.motivations.trim() ? escapeHtml(state.identity.motivations) : ''}</div>
+        <div class="motivation-list" id="sheet-motivations">
+          ${(() => {
+            const motivations = Array.isArray(state.identity.motivations)
+              ? state.identity.motivations
+              : makeDefaultMotivations();
+            return motivations.map((m, i) => `
+              <div class="motivation-row${m.crossed ? ' motivation-crossed' : ''}" id="motivation-row-${i}">
+                <button class="motivation-cross-btn no-print" onclick="toggleMotivationCrossed(${i})"
+                        title="${m.crossed ? 'Restore motivation' : 'Cross out motivation'}"
+                        aria-label="${m.crossed ? 'Restore motivation' : 'Cross out motivation'}">${m.crossed ? '↩' : '✕'}</button>
+                <span class="motivation-text" id="motivation-text-${i}" title="Double-click to edit" ondblclick="startEditMotivation(${i})">${m.text ? escapeHtml(m.text) : '<span class="motivation-empty">—</span>'}</span>
+              </div>`).join('');
+          })()}
+        </div>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Disorders / Conditions</div>
@@ -3018,6 +3139,33 @@ function triggerImport() {
   input.click();
 }
 
+// Converts a motivations value from any format to the canonical array format.
+// Handles: array of {text,crossed}, plain string (legacy), undefined/null.
+function importMotivations(raw) {
+  if (Array.isArray(raw)) {
+    // Ensure all 5 slots exist and each has the correct shape
+    const arr = makeDefaultMotivations();
+    raw.forEach((item, i) => {
+      if (i < 5) {
+        arr[i] = {
+          text:    (item && typeof item.text    === 'string') ? item.text    : '',
+          crossed: (item && typeof item.crossed === 'boolean') ? item.crossed : false,
+        };
+      }
+    });
+    return arr;
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    // Legacy: one string per line → fill first slots
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    const arr = makeDefaultMotivations();
+    lines.forEach((line, i) => { if (i < 5) arr[i] = { text: line, crossed: false }; });
+    return arr;
+  }
+  return makeDefaultMotivations();
+}
+
+
 function importFromJson(data) {
   if (!data || typeof data !== 'object') {
     alert('Invalid character data.');
@@ -3064,7 +3212,7 @@ function importFromJsonV2(data) {
     gender:            data.identity.gender || '',
     characterAge:      data.identity.characterAge || 25,
     backstory:         data.identity.backstory || '',
-    motivations:       data.identity.motivations || '',
+    motivations:       importMotivations(data.identity.motivations),
     gear:              data.identity.gear || '',
     permanentInjuries: data.identity.permanentInjuries || '',
   };
@@ -3212,7 +3360,7 @@ function importFromJsonV1(data) {
     gender:            data.identity.gender || '',
     characterAge:      data.identity.characterAge || 25,
     backstory:         data.identity.backstory || '',
-    motivations:       data.identity.motivations || '',
+    motivations:       importMotivations(data.identity.motivations),
     gear:              data.identity.gear || '',
     permanentInjuries: data.identity.permanentInjuries || '',
   };
@@ -3284,7 +3432,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: '', gear: '', permanentInjuries: '' };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', permanentInjuries: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;

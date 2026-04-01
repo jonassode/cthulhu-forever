@@ -83,7 +83,13 @@ assertField(id, 'birthplace', 'string', 'identity');
 assertField(id, 'gender', 'string', 'identity');
 assertField(id, 'characterAge', 'number', 'identity');
 assertField(id, 'backstory', 'string', 'identity');
-assertField(id, 'motivations', 'string', 'identity');
+assertField(id, 'motivations', 'array', 'identity');
+for (let i = 0; i < (id.motivations || []).length; i++) {
+  const m = id.motivations[i];
+  assertField(m, 'text',    'string',  `identity.motivations[${i}]`);
+  assertField(m, 'crossed', 'boolean', `identity.motivations[${i}]`);
+}
+assert((id.motivations || []).length === 5, `identity.motivations should have 5 entries, got ${(id.motivations || []).length}`);
 assertField(id, 'gear', 'string', 'identity');
 assertField(id, 'permanentInjuries', 'string', 'identity');
 

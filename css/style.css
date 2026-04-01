@@ -1970,7 +1970,111 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-color: var(--accent-gold);
 }
 
-/* ── Print overrides for new elements ── */
+/* ── Motivations ── */
+.motivation-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.motivation-builder-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.motivation-number {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  min-width: 1.2rem;
+}
+.motivation-input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.motivation-input:focus {
+  border-color: var(--accent-gold);
+}
+.motivation-disorder-note {
+  font-size: 0.82rem;
+  color: var(--accent-red, #c0392b);
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+/* Sheet motivations list */
+.motivation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.motivation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.6rem;
+}
+.motivation-text {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  flex: 1;
+}
+.motivation-empty {
+  opacity: 0.35;
+}
+.motivation-cross-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  line-height: 1.4;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.motivation-cross-btn:hover {
+  border-color: var(--accent-red, #c0392b);
+  color: var(--accent-red, #c0392b);
+}
+.motivation-crossed .motivation-text {
+  text-decoration: line-through;
+  color: var(--accent-red, #c0392b);
+  opacity: 0.75;
+}
+.motivation-crossed .motivation-cross-btn {
+  border-color: var(--accent-red, #c0392b);
+  color: var(--accent-red, #c0392b);
+}
+.motivation-text {
+  cursor: pointer;
+}
+.motivation-text:hover {
+  text-decoration: underline dotted var(--accent-gold);
+}
+.motivation-edit-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--accent-gold);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-style: italic;
+  font-family: inherit;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+}
+
+
 @media print {
   .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
   .skills-exhausted .sr-name,
@@ -1980,6 +2084,9 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .exhausted-label.exhausted-active { color: #4a90b0 !important; }
   .disorder-input { border: none !important; background: transparent !important; color: #222 !important; }
   .disorder-row button, .add-custom-skill-btn { display: none !important; }
+  .motivation-cross-btn { display: none !important; }
+  .motivation-crossed .motivation-text { color: #c0392b !important; }
+  .motivation-input { border: none !important; background: transparent !important; color: #222 !important; }
   .bond-score-group button { display: none !important; }
   .skill-adj-btn { display: none !important; }
   .stat-btn { display: none !important; }
