@@ -102,7 +102,7 @@ Starting value is defined by the Archetype:
 
 - **First Pick:** +5 to Resources.
 - **Subsequent Picks:** +2 to Resources.
-- **Hard Cap:** Resources cannot exceed 20 at character creation.
+- **Capacity Cap:** Regardless of rating, the maximum breakdown is 6 / 6 / 8 (At Hand / Stowed / In Storage).
 
 #### Resources Capacity Table
 

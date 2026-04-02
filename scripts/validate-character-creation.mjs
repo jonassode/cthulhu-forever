@@ -699,10 +699,10 @@ const testCode = `
     state.resourcesBonusSpent = 3;
     eq(getEffectiveResources(), 13, 'Resources: base(4)+1st(+5)+2nd(+2)+3rd(+2) = 13');
 
-    // 6.5  Resources capped at 20
+    // 6.5  Resources are no longer capped at 20
     state.resourcesBonusSpent = 10;
-    // uncapped would be: 4 + 5 + 9×2 = 27
-    eq(getEffectiveResources(), 20, 'Resources: capped at 20 (would be 27 without cap)');
+    // uncapped: 4 + 5 + 9×2 = 27
+    eq(getEffectiveResources(), 27, 'Resources: no cap — base(4)+1st(+5)+9×2nd(+2) = 27');
   }
 
   // 6.6  A different archetype (private_eye: base=4) behaves identically
@@ -713,6 +713,21 @@ const testCode = `
 
     state.resourcesBonusSpent = 1;
     eq(getEffectiveResources(), 9, 'Private Eye: base(4)+1 pick(+5)=9');
+  }
+
+  // 6.7  Capacity table caps inStorage at 8 for ratings above 20
+  {
+    const cap20 = getResourcesCapacity(20);
+    eq(cap20.atHand,    6, 'Capacity rating=20: atHand=6');
+    eq(cap20.stowed,    6, 'Capacity rating=20: stowed=6');
+    eq(cap20.inStorage, 8, 'Capacity rating=20: inStorage=8');
+    eq(cap20.checkboxes,3, 'Capacity rating=20: checkboxes=3');
+
+    const cap34 = getResourcesCapacity(34);
+    eq(cap34.atHand,    6, 'Capacity rating=34: atHand=6 (capped)');
+    eq(cap34.stowed,    6, 'Capacity rating=34: stowed=6 (capped)');
+    eq(cap34.inStorage, 8, 'Capacity rating=34: inStorage=8 (capped at 8)');
+    eq(cap34.checkboxes,3, 'Capacity rating=34: checkboxes=3');
   }
 
   // ── Suite 7: Bond Values ─────────────────────────────────────────────────────

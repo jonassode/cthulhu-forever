@@ -444,13 +444,13 @@ function getEffectiveResources() {
   if (state.resourcesBonusSpent > 0) {
     bonus = 5 + (state.resourcesBonusSpent - 1) * 2;
   }
-  return Math.min(20, base + bonus);
+  return base + bonus;
 }
 
 // Returns the displayed Resources rating, including any edit-mode adjustment.
 function getDisplayedResources() {
   const base = getEffectiveResources();
-  return Math.min(20, Math.max(0, base + (state.resourcesEditAdjust || 0)));
+  return Math.max(0, base + (state.resourcesEditAdjust || 0));
 }
 
 // Returns the Resources capacity for a given rating per SKILL.md table.
@@ -458,7 +458,7 @@ function getResourcesCapacity(rating) {
   if (rating <= 0)  return { atHand: 0, stowed: 0, inStorage: 0, checkboxes: 0 };
   if (rating <= 6)  return { atHand: rating, stowed: 0, inStorage: 0, checkboxes: 1 };
   if (rating <= 12) return { atHand: 6, stowed: rating - 6, inStorage: 0, checkboxes: 2 };
-  return { atHand: 6, stowed: 6, inStorage: rating - 12, checkboxes: 3 };
+  return { atHand: 6, stowed: 6, inStorage: Math.min(8, rating - 12), checkboxes: 3 };
 }
 
 // Returns the effective numeric value of a bond object.
@@ -553,7 +553,7 @@ function toggleEditMode() {
 function adjustResourcesInEditMode(delta) {
   const base = getEffectiveResources();
   const current = base + (state.resourcesEditAdjust || 0);
-  const newVal = Math.min(20, Math.max(0, current + delta));
+  const newVal = Math.max(0, current + delta);
   state.resourcesEditAdjust = newVal - base;
   render();
 }
@@ -1556,7 +1556,7 @@ function renderStep3() {
 
       <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:0.8rem;color:var(--text-secondary);">
         <span>Bonds: <strong style="color:var(--text-primary);">${selected.bonds}</strong></span>
-        <span>Starting Resources: <strong style="color:var(--text-primary);">${selected.resources}</strong> / 20</span>
+        <span>Starting Resources: <strong style="color:var(--text-primary);">${selected.resources}</strong></span>
       </div>
 
       ${!optDone ? `<p class="validation-msg">Select exactly ${selected.optionalCount} optional skill${selected.optionalCount > 1 ? 's' : ''} to continue.</p>` : ''}
@@ -1796,14 +1796,14 @@ function renderStep4() {
       }).join('')}
     </div>`;
 
-  // Resources: show 0-20 value; display what the next pick adds
+  // Resources: display current value and what the next pick adds
   const nextPickGain = state.resourcesBonusSpent === 0 ? 5 : 2;
   const resourcesHtml = `
-    <div class="section-header" style="margin-top:2rem;"><h3>Resources (0–20 scale)</h3></div>
+    <div class="section-header" style="margin-top:2rem;"><h3>Resources</h3></div>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
       <span style="font-size:1.5rem;font-family:var(--font-head);color:${state.resourcesSetToZero ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2.5rem;text-align:center;">${effectiveResources}</span>
       <span style="font-size:0.82rem;color:var(--text-secondary);">
-        / 20 &nbsp;|&nbsp; base: ${arch ? arch.resources : 0}
+        base: ${arch ? arch.resources : 0}
         ${!state.resourcesSetToZero && state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
         ${state.resourcesSetToZero ? ' <em>(sacrificed for +1 Bonus Pick)</em>' : ''}
       </span>
@@ -1812,7 +1812,7 @@ function renderStep4() {
                 ${state.resourcesBonusSpent > 0 ? '' : 'disabled'}>−</button>
         <span style="font-size:0.78rem;color:var(--text-secondary);">1 pick → +${nextPickGain}</span>
         <button class="skill-adj-btn plus" onclick="adjustResources(1)"
-                ${bpLeft >= 1 && effectiveResources < 20 ? '' : 'disabled'}>+</button>
+                ${bpLeft >= 1 ? '' : 'disabled'}>+</button>
       `}
       <button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
               onclick="toggleResourcesZero()"
@@ -1898,7 +1898,6 @@ function adjustResources(delta) {
   if (!arch) return;
   if (delta > 0) {
     if (getBonusPointsRemaining() < 1) return;
-    if (getEffectiveResources() >= 20) return;
     state.resourcesBonusSpent++;
   } else {
     if (state.resourcesBonusSpent <= 0) return;
