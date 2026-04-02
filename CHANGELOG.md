@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.11 - refactor: make notification system generic (showNotification/closeNotification); feat: add floating notification when raising personal bond above CHA; Cap personal bond score at CHA in adjustBondPlayScore; Initial plan  
 0.2.10 - Update titles and descriptions for age cards  
 0.2.9 - Remove era card badges and reduce card padding/grid gap; Initial plan  
 0.2.8 - Fix WP-0 badge label to Lose Control and add tooltips to all status badges; Move HP/WP status badges under Exhausted label; Add HP/WP status colour change and badges at ≤2 and 0; Initial plan  
