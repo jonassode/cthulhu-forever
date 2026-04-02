@@ -551,7 +551,8 @@ function adjustBondPlayScore(idx, delta) {
   if (!bond) return;
   const current = getBondPlayScore(bond);
   if (current === null) return;
-  bond.currentScore = Math.min(20, Math.max(0, current + delta));
+  const maxScore = bond.type === 'individual' ? (getAttrValue('CHA') ?? 20) : 20;
+  bond.currentScore = Math.min(maxScore, Math.max(0, current + delta));
   render();
 }
 
