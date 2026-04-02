@@ -1,0 +1,44 @@
+name: Generate Release ZIP
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from data.js
+        id: version
+        run: |
+          VERSION=$(grep -oP "(?<=APP_VERSION = ')[^']*" js/data.js)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Remove previous release ZIPs
+        run: |
+          rm -f releases/*.zip
+
+      - name: Create release ZIP
+        run: |
+          zip -r "releases/Release ${{ steps.version.outputs.version }}.zip" . \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "scripts/*" \
+            --exclude "ROADMAP.md" \
+            --exclude "releases/*"
+
+      - name: Commit and push release ZIP
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add releases/
+          git diff --staged --quiet && echo "Nothing to commit." && exit 0
+          git commit -m "release: add Release ${{ steps.version.outputs.version }}.zip [skip ci]"
+          git push
