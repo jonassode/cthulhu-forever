@@ -890,6 +890,8 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   padding: 1px 8px;
   white-space: nowrap;
   flex-shrink: 0;
+  min-width: 6rem;
+  text-align: center;
 }
 .bond-type-badge.bond-type-individual {
   background: rgba(201,168,76,0.12);
