@@ -2775,7 +2775,7 @@ function renderStep6() {
     <div class="ornament-divider no-print">✦</div>
 
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;" class="no-print">
-      <button class="btn btn-gold" onclick="window.print()">
+      <button class="btn btn-gold" onclick="printCharacter()">
         <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24">
           <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
           <rect x="6" y="14" width="12" height="8"/>
@@ -3162,6 +3162,19 @@ function exportToJson() {
   // Close settings dropdown after export
   const dropdown = document.getElementById('sheet-settings-dropdown');
   if (dropdown) dropdown.classList.remove('open');
+}
+
+function printCharacter() {
+  const characterName = (state.identity && state.identity.name) ? state.identity.name.trim() : '';
+  const originalTitle = document.title;
+  if (characterName) {
+    document.title = characterName;
+  }
+  try {
+    window.print();
+  } finally {
+    document.title = originalTitle;
+  }
 }
 
 function triggerImport() {
