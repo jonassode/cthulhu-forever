@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.7 - Cap Resources capacity breakdown at 6/6/8 for ratings above 20; Remove max-20 cap from Resources rating; Initial plan  
 0.2.6 - align bond type badges: add min-width and text-align: center to .bond-type-badge; Initial plan  
 0.2.5 - Trim era card descriptions to 1 sentence and remove Archetypes bullet; Initial plan  
 0.2.4 - feat: double-click to edit motivation text on character sheet; feat: replace motivations textarea with 5 individual fields + cross-out feature; Initial plan  
