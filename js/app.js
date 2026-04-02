@@ -66,6 +66,8 @@ const state = {
   bodyArmour: 0,          // body armour value (default 0, adjustable in edit mode)
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
+  bondChaWarning: false,  // true = show floating "can't raise bond above CHA" notification
+
   editMode: false,        // true = character sheet edit mode (pen icon toggled)
   resourcesEditAdjust: 0, // integer offset to Resources rating applied in edit mode
   skillEditAdjust: {},    // skillName -> integer offset applied to skill values in edit mode
@@ -552,8 +554,25 @@ function adjustBondPlayScore(idx, delta) {
   const current = getBondPlayScore(bond);
   if (current === null) return;
   const maxScore = bond.type === 'individual' ? (getAttrValue('CHA') ?? 20) : 20;
+  if (delta > 0 && bond.type === 'individual' && current >= maxScore) {
+    state.bondChaWarning = true;
+    render();
+    return;
+  }
   bond.currentScore = Math.min(maxScore, Math.max(0, current + delta));
   render();
+}
+
+function closeBondChaWarning() {
+  state.bondChaWarning = false;
+  render();
+}
+
+function renderBondChaWarning() {
+  return `<div class="floating-notification" role="alert">
+    <span>You can't raise a personal bond more than CHA.</span>
+    <button class="floating-notification-close" onclick="closeBondChaWarning()" aria-label="Close notification">✕</button>
+  </div>`;
 }
 
 // Adjusts the Breaking Point by a manual offset.
@@ -3486,6 +3505,7 @@ function resetState() {
 function renderPlayMode() {
   const charSheetHtml = buildCharSheetHtml();
   return `
+  ${state.bondChaWarning ? renderBondChaWarning() : ''}
   <div class="play-mode-view">
     <div class="play-mode-bar no-print">
       <span class="play-mode-heading">Cthulhu Eternal</span>
@@ -3551,6 +3571,7 @@ function render() {
   }
 
   app.innerHTML = `
+    ${state.bondChaWarning ? renderBondChaWarning() : ''}
     <div class="app-header no-print">
       <h1>Cthulhu Eternal</h1>
       <div class="subtitle">Character Generator</div>
