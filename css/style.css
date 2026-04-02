@@ -1951,6 +1951,11 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--exhausted-blue);
 }
 
+/* ── Temporary Insanity label ── */
+.temp-insanity-label.temp-insanity-active {
+  color: #e09040;
+}
+
 /* ── Exhausted attr ×5 value ── */
 .attr-box .ab-x5.ab-x5-exhausted {
   color: var(--exhausted-blue);
