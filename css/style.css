@@ -179,7 +179,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   background: var(--bg-card);
   border: 2px solid var(--border-color);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.1rem;
   cursor: pointer;
   transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
   position: relative;
