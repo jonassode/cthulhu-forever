@@ -992,7 +992,7 @@ function renderStep1() {
            onclick="selectAge('jazz')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('jazz')">
         <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">The Roaring Twenties</div>
+        <div class="card-title">Jazz Age - The Roaring Twenties</div>
         <div class="card-desc">
           Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come.
         </div>
@@ -1022,12 +1022,12 @@ function renderStep1() {
            onclick="selectAge('modern')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('modern')">
         <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">Present Day</div>
+        <div class="card-title">Modern Era</div>
         <div class="card-desc">
           The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil that has always watched from the dark.
         </div>
         <ul class="card-detail-list mt-3">
-          <li>Setting: Present Day</li>
+          <li>Setting: Present Day - Give or Take a Decade</li>
           <li>Technology: Computers, the internet, forensics</li>
           <li>Tone: Conspiracy, urban dread, digital horror</li>
         </ul>
