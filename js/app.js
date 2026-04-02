@@ -68,6 +68,7 @@ const state = {
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
   notification: null,     // string message for the floating notification, or null when hidden
+  lastRemovedBond: null,  // { bond, idx } for undo after removeSheetBond, or null
 
   editMode: false,        // true = character sheet edit mode (pen icon toggled)
   resourcesEditAdjust: 0, // integer offset to Resources rating applied in edit mode
@@ -570,12 +571,17 @@ function showNotification(message) {
 
 function closeNotification() {
   state.notification = null;
+  state.lastRemovedBond = null;
   render();
 }
 
 function renderNotification() {
+  const undoBtn = state.lastRemovedBond
+    ? `<button class="floating-notification-undo" onclick="undoRemoveBond()" aria-label="Undo remove bond">UNDO</button>`
+    : '';
   return `<div class="floating-notification" role="alert">
     <span>${escapeHtml(state.notification)}</span>
+    ${undoBtn}
     <button class="floating-notification-close" onclick="closeNotification()" aria-label="Close notification">✕</button>
   </div>`;
 }
@@ -2649,7 +2655,7 @@ function buildCharSheetHtml() {
                   ? `<input class="bond-input" type="text" placeholder="${isIndividual ? 'Name a person\u2026' : 'Name an organization\u2026'}" value="${escapeHtml(b.name)}" oninput="updateSheetBondName(${origIdx},this.value)" onblur="render()" style="flex:1;min-width:10rem;" aria-label="Bond name" />`
                   : `<input class="bond-input" type="text" placeholder="Select a type first\u2026" disabled style="flex:1;min-width:10rem;opacity:0.4;" aria-hidden="true" />`}
                 <span style="font-size:1rem;font-family:var(--font-head);color:var(--accent-gold);min-width:2rem;text-align:right;">1</span>
-                <button class="remove-custom-skill-btn no-print" onclick="removeSheetBond(${origIdx})" title="Remove bond" aria-label="Remove bond">×</button>
+                <button class="remove-custom-skill-btn no-print" onclick="removeSheetBond(${origIdx})" title="Bonds shouldn&#39;t be removed. If a bond is broken, lower its score to 0 instead." aria-label="Remove bond">×</button>
               </div>
             </div>`;
           }
@@ -2663,7 +2669,7 @@ function buildCharSheetHtml() {
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>` : ''}
               <span class="bond-sheet-val" id="bond-score-${origIdx}">${playScore !== null ? playScore : '—'}</span>
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},1)" title="Restore bond" aria-label="Increase bond score">+</button>` : ''}
-              ${state.editMode ? `<button class="remove-custom-skill-btn no-print" onclick="removeSheetBond(${origIdx})" title="Remove bond" aria-label="Remove bond">×</button>` : ''}
+              ${state.editMode ? `<button class="remove-custom-skill-btn no-print" onclick="removeSheetBond(${origIdx})" title="Bonds shouldn&#39;t be removed. If a bond is broken, lower its score to 0 instead." aria-label="Remove bond">×</button>` : ''}
             </span>
           </div>`;
         }).join('')}
@@ -3072,7 +3078,19 @@ function addSheetBond() {
 }
 
 function removeSheetBond(idx) {
+  const removed = state.bonds[idx];
+  state.lastRemovedBond = { bond: { ...removed }, idx };
   state.bonds.splice(idx, 1);
+  showNotification('Bond removed.');
+}
+
+function undoRemoveBond() {
+  if (!state.lastRemovedBond) return;
+  const { bond, idx } = state.lastRemovedBond;
+  const insertAt = Math.min(idx, state.bonds.length);
+  state.bonds.splice(insertAt, 0, bond);
+  state.lastRemovedBond = null;
+  state.notification = null;
   render();
 }
 

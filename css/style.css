@@ -1718,6 +1718,20 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   flex-shrink: 0;
 }
 .floating-notification-close:hover { opacity: 1; }
+.floating-notification-undo {
+  background: none;
+  border: 1px solid rgba(248,113,113,0.6);
+  border-radius: 4px;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.floating-notification-undo:hover { background: rgba(248,113,113,0.15); }
 
 .notice {
   background: rgba(201,168,76,0.07);
