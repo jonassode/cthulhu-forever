@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.13 - feat: add Temporary Insanity checkbox below Exhausted on character sheet; Initial plan  
 0.2.12 - Set document.title to character name during print for correct PDF filename; Initial plan  
 0.2.11 - refactor: make notification system generic (showNotification/closeNotification); feat: add floating notification when raising personal bond above CHA; Cap personal bond score at CHA in adjustBondPlayScore; Initial plan  
 0.2.10 - Update titles and descriptions for age cards  
