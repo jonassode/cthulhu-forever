@@ -1767,35 +1767,9 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 }
 
 /* ── Tooltip ── */
-[data-tooltip] { position: relative; cursor: help; }
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #0a0e14;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 0.72rem;
-  font-family: var(--font-body);
-  text-transform: none;
-  color: var(--text-primary);
-  white-space: normal;   /* allow wrapping for multi-word tooltips */
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 100;
-  min-width: 260px;
-  max-width: 440px;
-  text-align: center;
-  line-height: 1.4;
-}
-[data-tooltip]:hover::after { opacity: 1; }
-
-/* Skill descriptions use a JS-positioned fixed tooltip — suppress the CSS one */
-.skill-tip[data-tooltip]::after { display: none !important; }
+/* All [data-tooltip] elements use the JS-positioned fixed tooltip (initTooltip)
+   so they are never clipped by overflow:hidden on parent containers. */
+[data-tooltip] { cursor: help; }
 
 /* JS-controlled floating tooltip for skill descriptions */
 .skill-tooltip-popup {
