@@ -3639,11 +3639,12 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// ── Skill Tooltip ───────────────────────────────────────────
-// Uses a JS-positioned `position:fixed` element so it is never clipped by CSS
-// columns, overflow containers, or section headers.
+// ── Tooltip ─────────────────────────────────────────────────
+// Handles all [data-tooltip] elements with a JS-positioned `position:fixed`
+// element so tooltips are never clipped by CSS overflow containers or section
+// headers (e.g. the character sheet's overflow:hidden border).
 
-function initSkillTooltip() {
+function initTooltip() {
   const tip = document.createElement('div');
   tip.className = 'skill-tooltip-popup';
   tip.style.display = 'none';
@@ -3692,7 +3693,7 @@ function initSkillTooltip() {
   }
 
   document.addEventListener('mouseover', function (e) {
-    const target = e.target.closest('.skill-tip[data-tooltip]');
+    const target = e.target.closest('[data-tooltip]');
     if (target === active) return;
     if (!target) {
       active = null;
@@ -3721,7 +3722,7 @@ function initSkillTooltip() {
 
 document.addEventListener('DOMContentLoaded', () => {
   render();
-  initSkillTooltip();
+  initTooltip();
   document.addEventListener('click', (e) => {
     const settings = document.getElementById('sheet-settings');
     if (settings && !settings.contains(e.target)) {
