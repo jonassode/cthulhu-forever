@@ -43,6 +43,7 @@ const state = {
   violenceChecked: [false, false, false],     // 3 checkboxes for Violence SAN incidents
   helplessnessChecked: [false, false, false], // 3 checkboxes for Helplessness SAN incidents
   exhausted: false,              // true = all skills shown at -20% in light blue
+  temporaryInsanity: false,      // true = protagonist is temporarily insane
 
   // ── Upbringing Effects step (4.5) ──────────────────────────
   // Harsh upbringing bond effects
@@ -2438,6 +2439,10 @@ function buildCharSheetHtml() {
             <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
             <span>Exhausted</span>
           </label>
+          <label class="exhausted-label temp-insanity-label${state.temporaryInsanity ? ' temp-insanity-active' : ''}" data-tooltip="For a short time, you cannot control your Protagonist's actions. Your Protagonist's primitive brain switches to pure panic, with one of three possible responses: Flee, Struggle, or Submit. Work with the Game Moderator to determine which stance your Protagonist takes. Each is more likely in some circumstances than others. If the circumstances are calm, it may be possible to talk your Protagonist down from temporary insanity. Such attempts are tests of the Psychoanalyze skill. In the absence of anything like that, your Protagonist loses control until the insanity runs its course.">
+            <input type="checkbox" class="san-checkbox" ${state.temporaryInsanity ? 'checked' : ''} onchange="toggleTemporaryInsanity()">
+            <span>Temp. Insanity</span>
+          </label>
           <div class="stat-status-badges">
             <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
             <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
@@ -2841,6 +2846,11 @@ function toggleExhausted() {
   render();
 }
 
+function toggleTemporaryInsanity() {
+  state.temporaryInsanity = !state.temporaryInsanity;
+  render();
+}
+
 // ── HP / WP / SAN Adjustment ────────────────────────────────
 
 function adjustHP(delta) {
@@ -3145,6 +3155,7 @@ function exportToJson() {
     showAllSkills: state.showAllSkills || false,
     bodyArmour: state.bodyArmour || 0,
     exhausted: state.exhausted || false,
+    temporaryInsanity: state.temporaryInsanity || false,
   };
 
   const json = JSON.stringify(exportData, null, 2);
@@ -3360,7 +3371,7 @@ function importFromJsonV2(data) {
   state.showAllSkills = data.showAllSkills || false;
   state.bodyArmour = data.bodyArmour || 0;
   state.exhausted = data.exhausted || false;
-
+  state.temporaryInsanity = data.temporaryInsanity || false;
   // attrEditAdjust is zeroed on import: attribute values are already baked into roll sets.
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
 
@@ -3408,6 +3419,7 @@ function importFromJsonV1(data) {
   state.showAllSkills = data.showAllSkills || false;
   state.bodyArmour = data.bodyArmour || 0;
   state.exhausted = data.exhausted || false;
+  state.temporaryInsanity = data.temporaryInsanity || false;
   state.skillEditAdjust = data.skillEditAdjust || {};
   state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
@@ -3501,6 +3513,7 @@ function resetState() {
   state.editMode         = false;
   state.showAllSkills    = false;
   state.exhausted        = false;
+  state.temporaryInsanity = false;
   // Upbringing effects step
   state.harshD4Rolls         = null;
   state.harshBondChoice1     = null;
