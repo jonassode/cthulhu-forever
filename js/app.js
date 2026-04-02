@@ -986,13 +986,12 @@ function renderStep1() {
     <h2 class="step-title">Choose Your Era</h2>
     <p class="step-subtitle">The age in which your story unfolds shapes every skill, contact, and shadow that will haunt you.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;" class="sm:grid-cols-1">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;" class="sm:grid-cols-1">
 
       <div class="sel-card ${state.age === 'jazz' ? 'selected' : ''}"
            onclick="selectAge('jazz')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('jazz')">
         <div class="card-check">${checkIcon()}</div>
-        <div class="card-tag">Jazz Age</div>
         <div class="card-title">The Roaring Twenties</div>
         <div class="card-desc">
           Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come.
@@ -1008,7 +1007,6 @@ function renderStep1() {
            onclick="selectAge('coldwar')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('coldwar')">
         <div class="card-check">${checkIcon()}</div>
-        <div class="card-tag">Cold War</div>
         <div class="card-title">The Cold War Era</div>
         <div class="card-desc">
           Espionage, nuclear dread, and ideological shadows define the mid-twentieth century.
@@ -1024,7 +1022,6 @@ function renderStep1() {
            onclick="selectAge('modern')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('modern')">
         <div class="card-check">${checkIcon()}</div>
-        <div class="card-tag">Modern Age</div>
         <div class="card-title">Present Day</div>
         <div class="card-desc">
           The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil that has always watched from the dark.
@@ -1040,7 +1037,6 @@ function renderStep1() {
            onclick="selectAge('victorian')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('victorian')">
         <div class="card-check">${checkIcon()}</div>
-        <div class="card-tag">Victorian Age</div>
         <div class="card-title">The Victorian Era</div>
         <div class="card-desc">
           Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors lurking beneath the veneer of progress.
