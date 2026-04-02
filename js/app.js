@@ -66,6 +66,8 @@ const state = {
   bodyArmour: 0,          // body armour value (default 0, adjustable in edit mode)
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
+  notification: null,     // string message for the floating notification, or null when hidden
+
   editMode: false,        // true = character sheet edit mode (pen icon toggled)
   resourcesEditAdjust: 0, // integer offset to Resources rating applied in edit mode
   skillEditAdjust: {},    // skillName -> integer offset applied to skill values in edit mode
@@ -551,8 +553,30 @@ function adjustBondPlayScore(idx, delta) {
   if (!bond) return;
   const current = getBondPlayScore(bond);
   if (current === null) return;
-  bond.currentScore = Math.min(20, Math.max(0, current + delta));
+  const maxScore = bond.type === 'individual' ? (getAttrValue('CHA') ?? 20) : 20;
+  if (delta > 0 && bond.type === 'individual' && current >= maxScore) {
+    showNotification("You can't raise a personal bond more than CHA.");
+    return;
+  }
+  bond.currentScore = Math.min(maxScore, Math.max(0, current + delta));
   render();
+}
+
+function showNotification(message) {
+  state.notification = message;
+  render();
+}
+
+function closeNotification() {
+  state.notification = null;
+  render();
+}
+
+function renderNotification() {
+  return `<div class="floating-notification" role="alert">
+    <span>${escapeHtml(state.notification)}</span>
+    <button class="floating-notification-close" onclick="closeNotification()" aria-label="Close notification">✕</button>
+  </div>`;
 }
 
 // Adjusts the Breaking Point by a manual offset.
@@ -3481,6 +3505,7 @@ function resetState() {
 function renderPlayMode() {
   const charSheetHtml = buildCharSheetHtml();
   return `
+  ${state.notification ? renderNotification() : ''}
   <div class="play-mode-view">
     <div class="play-mode-bar no-print">
       <span class="play-mode-heading">Cthulhu Eternal</span>
@@ -3546,6 +3571,7 @@ function render() {
   }
 
   app.innerHTML = `
+    ${state.notification ? renderNotification() : ''}
     <div class="app-header no-print">
       <h1>Cthulhu Eternal</h1>
       <div class="subtitle">Character Generator</div>
