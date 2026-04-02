@@ -23,6 +23,8 @@
   --font-body:     'Lato', sans-serif;
   --exhausted-blue: #7ec8e3;
   --exhausted-blue-print: #4a90b0;
+  --hp-low: #e07070;
+  --hp-critical: #cc3333;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -1372,6 +1374,35 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--accent-gold);
   background: rgba(201,168,76,0.12);
 }
+/* ── HP / WP low/critical value colour ── */
+.db-current-val.val-low {
+  color: var(--hp-low);
+}
+.db-current-val.val-critical {
+  color: var(--hp-critical);
+}
+/* ── HP / WP status badges ── */
+.stat-status-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-radius: 10px;
+  padding: 1px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.stat-status-badge.stat-status-low {
+  background: rgba(224,112,112,0.15);
+  border: 1px solid rgba(224,112,112,0.45);
+  color: var(--hp-low);
+}
+.stat-status-badge.stat-status-critical {
+  background: rgba(204,51,51,0.18);
+  border: 1px solid rgba(204,51,51,0.55);
+  color: var(--hp-critical);
+}
 .db-edit-input {
   width: 3.2em;
   background: transparent;
@@ -1888,6 +1919,17 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 }
 
 /* ── Exhausted checkbox/label in attributes row ── */
+.exhausted-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-self: center;
+}
+.stat-status-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
 .exhausted-label {
   display: inline-flex;
   align-items: center;
@@ -1899,7 +1941,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   color: var(--text-secondary);
   cursor: pointer;
   margin-left: 0.25rem;
-  align-self: center;
 }
 /* Keep pointer cursor even though data-tooltip sets cursor:help */
 .exhausted-label[data-tooltip] { cursor: pointer; }

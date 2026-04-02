@@ -322,6 +322,30 @@ function getEffectiveWP() {
   return Math.max(0, Math.min(state.currentWP, d.WP));
 }
 
+function getHPStatusClass(hp) {
+  if (hp <= 0) return ' val-critical';
+  if (hp <= 2) return ' val-low';
+  return '';
+}
+
+function getHPBadgeContent(hp) {
+  if (hp <= 0) return '<span class="stat-status-badge stat-status-critical" data-tooltip="The protagonist is dead, may they rest in peace.">Dead</span>';
+  if (hp <= 2) return '<span class="stat-status-badge stat-status-low" data-tooltip="At 2 HP, your Protagonist falls unconscious.">Unconscious</span>';
+  return '';
+}
+
+function getWPStatusClass(wp) {
+  if (wp <= 0) return ' val-critical';
+  if (wp <= 2) return ' val-low';
+  return '';
+}
+
+function getWPBadgeContent(wp) {
+  if (wp <= 0) return '<span class="stat-status-badge stat-status-critical" data-tooltip="A Protagonist at 0 WP loses all control. This can look different for every Protagonist and every situation. The Protagonist might collapse in wracking sobs, or lash out wildly, or simply pass out. The Game Moderator controls your Protagonist until WP returns to 1 or higher and describes the reaction. A Protagonist with 0 WP cannot succeed at any tests, including SAN tests. Sooner or later the Protagonist falls asleep, regardless of any disorders or stimulants, long enough to regain WP.">Lose Control</span>';
+  if (wp <= 2) return '<span class="stat-status-badge stat-status-low" data-tooltip="A Protagonist whose WP hits 1 or 2 has an emotional breakdown. The Protagonist suffers a −20% penalty to all actions until their WP rises above 2.">Temp. Emotional Collapse</span>';
+  return '';
+}
+
 function getEffectiveSAN() {
   const d = calculateDerived();
   if (!d) return null;
@@ -2389,10 +2413,16 @@ function buildCharSheetHtml() {
             ${feature ? `<div class="ab-feature">${feature}</div>` : ''}
           </div>`;
         }).join('')}
-        <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
-          <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
-          <span>Exhausted</span>
-        </label>
+        <div class="exhausted-col">
+          <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
+            <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
+            <span>Exhausted</span>
+          </label>
+          <div class="stat-status-badges">
+            <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
+            <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2405,7 +2435,7 @@ function buildCharSheetHtml() {
               <span class="db-name">HP</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustHP(-1)" title="Decrease HP" aria-label="Decrease HP">−</button>
-                <span class="db-current-val" id="hp-current-val" ondblclick="startEditStat('HP')" title="Double-click to edit">${getEffectiveHP()}</span>
+                <span class="db-current-val${getHPStatusClass(getEffectiveHP())}" id="hp-current-val" ondblclick="startEditStat('HP')" title="Double-click to edit">${getEffectiveHP()}</span>
                 <span class="db-separator">/</span>
                 <span class="db-max-val">${derived.HP}</span>
                 <button class="stat-btn" onclick="adjustHP(1)" title="Increase HP" aria-label="Increase HP">+</button>
@@ -2415,7 +2445,7 @@ function buildCharSheetHtml() {
               <span class="db-name">WP</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustWP(-1)" title="Decrease WP" aria-label="Decrease WP">−</button>
-                <span class="db-current-val" id="wp-current-val" ondblclick="startEditStat('WP')" title="Double-click to edit">${getEffectiveWP()}</span>
+                <span class="db-current-val${getWPStatusClass(getEffectiveWP())}" id="wp-current-val" ondblclick="startEditStat('WP')" title="Double-click to edit">${getEffectiveWP()}</span>
                 <span class="db-separator">/</span>
                 <span class="db-max-val">${derived.WP}</span>
                 <button class="stat-btn" onclick="adjustWP(1)" title="Increase WP" aria-label="Increase WP">+</button>
@@ -2798,7 +2828,12 @@ function adjustHP(delta) {
   if (!d) return;
   state.currentHP = Math.max(0, Math.min(getEffectiveHP() + delta, d.HP));
   const el = document.getElementById('hp-current-val');
-  if (el) el.textContent = state.currentHP;
+  if (el) {
+    el.textContent = state.currentHP;
+    el.className = 'db-current-val' + getHPStatusClass(state.currentHP);
+  }
+  const badgeEl = document.getElementById('hp-status-badge');
+  if (badgeEl) badgeEl.innerHTML = getHPBadgeContent(state.currentHP);
 }
 
 function adjustWP(delta) {
@@ -2806,7 +2841,12 @@ function adjustWP(delta) {
   if (!d) return;
   state.currentWP = Math.max(0, Math.min(getEffectiveWP() + delta, d.WP));
   const el = document.getElementById('wp-current-val');
-  if (el) el.textContent = state.currentWP;
+  if (el) {
+    el.textContent = state.currentWP;
+    el.className = 'db-current-val' + getWPStatusClass(state.currentWP);
+  }
+  const badgeEl = document.getElementById('wp-status-badge');
+  if (badgeEl) badgeEl.innerHTML = getWPBadgeContent(state.currentWP);
 }
 
 function adjustSAN(delta) {
