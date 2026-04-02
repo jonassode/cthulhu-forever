@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.9 - Remove era card badges and reduce card padding/grid gap; Initial plan  
 0.2.8 - Fix WP-0 badge label to Lose Control and add tooltips to all status badges; Move HP/WP status badges under Exhausted label; Add HP/WP status colour change and badges at ≤2 and 0; Initial plan  
 0.2.7 - Cap Resources capacity breakdown at 6/6/8 for ratings above 20; Remove max-20 cap from Resources rating; Initial plan  
 0.2.6 - align bond type badges: add min-width and text-align: center to .bond-type-badge; Initial plan  
