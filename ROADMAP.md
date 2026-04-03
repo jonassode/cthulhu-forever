@@ -1,4 +1,4 @@
-This is the high level roadmap for the Character Builder
+This is the high level roadmap for Cthulhu Forever
 
 # Character Creation
 - Supporting all Character Creation Options from the SRD ✅
