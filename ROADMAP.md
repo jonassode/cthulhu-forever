@@ -15,9 +15,10 @@ This is the high level roadmap for the Character Builder
   - Classical
   - Age of Sails
 
-
-# Extend Play Mode
+# Playing
 - Editing for all fields that can be modified during play or downtime activities ✅
+
+## Dice Rolling
 - Dice Roller
 - Rollable Elements
 
