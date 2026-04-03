@@ -3552,7 +3552,7 @@ function renderPlayMode() {
   ${state.notification ? renderNotification() : ''}
   <div class="play-mode-view">
     <div class="play-mode-bar no-print">
-      <span class="play-mode-heading">Cthulhu Eternal</span>
+      <span class="play-mode-heading">Cthulhu Forever</span>
       <button class="btn btn-outline" onclick="exitPlayMode()">
         ← Back to Builder
       </button>
@@ -3617,8 +3617,8 @@ function render() {
   app.innerHTML = `
     ${state.notification ? renderNotification() : ''}
     <div class="app-header no-print">
-      <h1>Cthulhu Eternal</h1>
-      <div class="subtitle">Character Generator</div>
+      <h1>Cthulhu Forever</h1>
+      <div class="subtitle">Cthulhu Eternal Character Generator</div>
     </div>
     ${renderStepper()}
     <div id="main-content">
