@@ -3629,15 +3629,14 @@ function render() {
       <div class="app-footer__credits">
         <span><strong>Cthulhu Eternal</strong> is a horror TTRPG published by
           <a href="https://cthulhueternal.com/" target="_blank" rel="noopener noreferrer">Cthulhu Reborn</a>
+           - <a href="https://github.com/jonassode/cthulhu-forever/blob/main/Credits.md" target="_blank" rel="noopener noreferrer">Clear Credits</a>
         </span>
       </div>
       <div class="app-footer__issues">
         <span>Found a bug or have a suggestion?
           <a href="https://github.com/jonassode/cthulhu-forever/issues" target="_blank" rel="noopener noreferrer">Raise a ticket on GitHub</a>
+           or <a href="https://jonassoderstrom.itch.io/cthulhu-forever" target="_blank" rel="noopener noreferrer">Check out the project on Itch</a>
         </span>
-      </div>
-      <div class="app-footer__clear-credits">
-        <a href="https://github.com/jonassode/cthulhu-forever/blob/main/Credits.md" target="_blank" rel="noopener noreferrer">Clear Credits</a>
       </div>
     </footer>`;
 
