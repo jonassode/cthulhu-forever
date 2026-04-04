@@ -25,7 +25,7 @@ This is the high level roadmap for Cthulhu Forever
 - Dice Roller
 - Rollable Elements
 
-## Quality of Life Improvem
+## Quality of Life Improvements
 - Improved Tooltips
 
 # Improved Export and Character Sheet
