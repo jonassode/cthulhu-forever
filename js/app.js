@@ -1586,7 +1586,7 @@ function renderStep3() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;" class="sm:grid-cols-1">
         <div>
           <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);font-family:var(--font-head);margin-bottom:6px;">Archetypal Skills</div>
-          <div>${selected.archetypeSkills.map(s => `<span class="skill-pill">${s.name} <strong>${s.value}%</strong></span>`).join('')}</div>
+          <div>${selected.archetypeSkills.map(s => `<span class="skill-pill"${skillTooltipAttr(s.name)}>${s.name} <strong>${s.value}%</strong></span>`).join('')}</div>
         </div>
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
@@ -1598,7 +1598,7 @@ function renderStep3() {
               const checked = state.selectedOptional.includes(s.name);
               return `<label class="optional-checkbox-label ${checked ? 'checked' : ''}" onclick="toggleOptional('${s.name}',${selected.optionalCount})">
                 <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); event.preventDefault();" style="pointer-events:none;"/>
-                ${s.name} <strong>${s.value}%</strong>
+                <span${skillTooltipAttr(s.name)}>${s.name}</span> <strong>${s.value}%</strong>
               </label>`;
             }).join('')}
           </div>
