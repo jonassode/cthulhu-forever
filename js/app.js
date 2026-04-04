@@ -2394,7 +2394,7 @@ function buildCharSheetHtml() {
       <div style="display:flex;align-items:flex-start;gap:1rem;">
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
-          <span>Age <strong>${state.identity.characterAge}</strong></span>
+          <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
           <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
@@ -2823,6 +2823,9 @@ function updateIdentity(field, value) {
     } else if (field === 'backstory') {
       const backstoryEl = document.getElementById('sheet-backstory');
       if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
+    } else if (field === 'characterAge') {
+      const ageEl = document.getElementById('sheet-age');
+      if (ageEl) ageEl.textContent = value;
     }
   }
 }
