@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.21 - Mark WWI as completed in the roadmap  
 0.2.20 - fix: correct Alertness skill description typo in WWI_SKILL_DESCRIPTIONS; feat: Add World War I era with skills, archetypes, adversity skills, and 3+2 era grid layout  
 0.2.19 - fix: age not updated in character sheet preview  
 0.2.18 - Add skill tooltips to Step 3 Archetypal and Optional Skills  
