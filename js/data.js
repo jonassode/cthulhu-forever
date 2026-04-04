@@ -451,7 +451,7 @@ const VICTORIAN_SKILL_DESCRIPTIONS = {
 };
 
 const WWI_SKILL_DESCRIPTIONS = {
-  'Alertness': 'Alertness detects danger. Use it to hear a safety being weapon being readied, to understand the mumbling on the other side of a wall, to spot a concealed item hidden under a jacket, or to catch someone who is trying to escape notice using Stealth.',
+  'Alertness': 'Alertness detects danger. Use it to hear a weapon being readied, to understand the mumbling on the other side of a wall, to spot a concealed item hidden under a jacket, or to catch someone who is trying to escape notice using Stealth.',
   'Anthropology': 'The study of living human cultures. Use it to understand morals, religious beliefs, customs, and mores, and to identify (but not translate) obscure languages. Where History is about the distant past and Archeology studies physical artifacts, Anthropology is about the behaviors of living cultures and how they relate to each other and the past.',
   'Appraise': 'The ability to quickly determine the true (intrinsic) value of an item. This is an important skill in ensuring that bartering exchange deals are favorable to you. It is also helpful in knowing what items or resources others might be willing to trade to obtain.',
   'Archeology': 'The study of physical remains of human cultures. Use it to analyze a ruined structure to determine useful information about its purpose long ago or the circumstances of its destruction. Where Anthropology is about living cultures and History is a broad study of the past, Archeology discerns meaning from the artifacts left behind.',
