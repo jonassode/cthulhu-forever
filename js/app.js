@@ -7,7 +7,7 @@
 const state = {
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1'
+  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -151,6 +151,7 @@ function getSkillDescription(skillName) {
     : state.age === 'coldwar' ? COLD_WAR_SKILL_DESCRIPTIONS
     : state.age === 'victorian' ? VICTORIAN_SKILL_DESCRIPTIONS
     : state.age === 'ww1' ? WWI_SKILL_DESCRIPTIONS
+    : state.age === 'ww2' ? WWII_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -383,6 +384,7 @@ function getCurrentSkills() {
   if (state.age === 'coldwar')   return COLD_WAR_SKILLS;
   if (state.age === 'victorian') return VICTORIAN_SKILLS;
   if (state.age === 'ww1')       return WWI_SKILLS;
+  if (state.age === 'ww2')       return WWII_SKILLS;
   return MODERN_SKILLS;
 }
 
@@ -855,7 +857,7 @@ function getAdversitySkills() {
   if (state.age === 'victorian') {
     return ['First Aid', 'Scavenge', 'Streetwise (Type)', 'Survival (Type)'];
   }
-  if (state.age === 'ww1') {
+  if (state.age === 'ww1' || state.age === 'ww2') {
     return ['First Aid', 'Regional Lore (Type)', 'Scavenge', 'Survival (Type)'];
   }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
@@ -1072,8 +1074,24 @@ function renderStep1() {
         </ul>
       </div>
 
+      <div class="sel-card ${state.age === 'ww2' ? 'selected' : ''}"
+           style="grid-column:span 2"
+           onclick="selectAge('ww2')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('ww2')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-title">World War II</div>
+        <div class="card-desc">
+          Blitzkrieg, resistance, and global conflict — beneath the carnage of the deadliest war in history lurk horrors older than any ideology.
+        </div>
+        <ul class="card-detail-list mt-3">
+          <li>Setting: 1939–1945</li>
+          <li>Technology: Tanks, radar, bombers, early jet aircraft</li>
+          <li>Tone: Military horror, espionage, cosmic dread</li>
+        </ul>
+      </div>
+
       <div class="sel-card ${state.age === 'coldwar' ? 'selected' : ''}"
-           style="grid-column:2/span 2"
+           style="grid-column:span 2"
            onclick="selectAge('coldwar')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('coldwar')">
         <div class="card-check">${checkIcon()}</div>
@@ -1089,7 +1107,7 @@ function renderStep1() {
       </div>
 
       <div class="sel-card ${state.age === 'modern' ? 'selected' : ''}"
-           style="grid-column:4/span 2"
+           style="grid-column:span 2"
            onclick="selectAge('modern')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('modern')">
         <div class="card-check">${checkIcon()}</div>
@@ -1107,7 +1125,7 @@ function renderStep1() {
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -2421,7 +2439,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
