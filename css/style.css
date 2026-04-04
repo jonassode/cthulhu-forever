@@ -321,13 +321,6 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   background: var(--accent-gold);
 }
 
-.era-icon {
-  flex-shrink: 0;
-  font-size: 1.35rem;
-  line-height: 1;
-  width: 32px;
-  text-align: center;
-}
 
 .era-header-content {
   flex: 1;
