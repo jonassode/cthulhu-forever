@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.25 - Update roadmap with new game additions  
 0.2.24 - Mark WWII as completed in the roadmap  
 0.2.23 - Add World War II era with skills, archetypes, and 3+3 layout  
 0.2.22 - Update ROADMAP with temporary values for Attributes  
