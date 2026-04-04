@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.27 - Fix typo in Quality of Life Improvements section  
 0.2.26 - Update ROADMAP with new game themes  
 0.2.25 - Update roadmap with new game additions  
 0.2.24 - Mark WWII as completed in the roadmap  
