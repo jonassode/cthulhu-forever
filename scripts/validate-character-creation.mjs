@@ -675,6 +675,14 @@ const testCode = `
       'Victorian adversity skills: First Aid, Scavenge, Streetwise (Type), Survival (Type)');
   }
 
+  // 5b.5  WWI era
+  {
+    const WWI_ADVERSITY = ['First Aid', 'Regional Lore (Type)', 'Scavenge', 'Survival (Type)'];
+    resetState(); state.age = 'ww1';
+    arrEq(getAdversitySkills(), WWI_ADVERSITY,
+      'WWI adversity skills: First Aid, Regional Lore (Type), Scavenge, Survival (Type)');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');
