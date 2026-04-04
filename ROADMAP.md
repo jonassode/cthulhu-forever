@@ -17,6 +17,7 @@ This is the high level roadmap for Cthulhu Forever
 
 # Playing
 - Editing for all fields that can be modified during play or downtime activities ✅
+- Temporary values for Attributes
 
 ## Dice Rolling
 - Dice Roller
