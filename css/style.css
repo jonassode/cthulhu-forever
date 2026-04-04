@@ -252,6 +252,163 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 .card-detail-list li { margin-bottom: 0.25rem; padding-left: 1rem; position: relative; }
 .card-detail-list li::before { content: '▸'; position: absolute; left: 0; color: var(--accent-gold); }
 
+/* ── Era Accordion / Timeline ── */
+.era-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.era-timeline::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--border-color) 5%, var(--border-color) 95%, transparent);
+  pointer-events: none;
+}
+
+.era-accordion-item {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  background: var(--bg-card);
+  overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.era-accordion-item:hover {
+  border-color: rgba(201,168,76,0.4);
+}
+
+.era-accordion-item.era-selected {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 16px rgba(201,168,76,0.25);
+}
+
+.era-accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.era-accordion-header:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: -2px;
+}
+
+.era-timeline-dot {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--border-color);
+  border: 2px solid var(--bg-card);
+  transition: background 0.25s;
+  margin-left: 2px;
+}
+
+.era-accordion-item.era-selected .era-timeline-dot,
+.era-accordion-item.era-open .era-timeline-dot {
+  background: var(--accent-gold);
+}
+
+.era-icon {
+  flex-shrink: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+  width: 32px;
+  text-align: center;
+}
+
+.era-header-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.era-header-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.era-accordion-item.era-selected .era-header-title {
+  color: var(--accent-gold);
+}
+
+.era-header-dates {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.era-selected-badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent-gold);
+  color: #0a0e14;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 700;
+}
+
+.era-chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+  line-height: 1;
+}
+
+.era-accordion-item.era-open .era-chevron {
+  transform: rotate(180deg);
+}
+
+.era-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.era-accordion-body.era-expanded {
+  max-height: 600px;
+}
+
+.era-accordion-inner {
+  padding: 0 1.1rem 1.1rem 3.75rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .era-timeline::before {
+    display: none;
+  }
+  .era-accordion-inner {
+    padding-left: 1.1rem;
+  }
+  .era-timeline-dot {
+    display: none;
+  }
+}
+
 /* ── Archetype grid ── */
 .archetype-grid {
   display: grid;
