@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.23 - Add World War II era with skills, archetypes, and 3+3 layout  
 0.2.22 - Update ROADMAP with temporary values for Attributes  
 0.2.21 - Mark WWI as completed in the roadmap  
 0.2.20 - fix: correct Alertness skill description typo in WWI_SKILL_DESCRIPTIONS; feat: Add World War I era with skills, archetypes, adversity skills, and 3+2 era grid layout  
