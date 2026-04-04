@@ -2,21 +2,21 @@
 
 All notable changes are listed here from newest to oldest.
 
-0.2.16 - feat: update footer - move Clear Credits next to Cthulhu Reborn, add Itch.io link; Initial plan  
-0.2.15 - fix: make release workflow run after changelog workflow succeeds on main; Initial plan; Update system title to Cthulhu Forever and Cthulhu Eternal Character Generator; Update project name from 'Character Builder' to 'Cthulhu Forever'; Update roadmap with new playing and dice rolling sections; Update ROADMAP.md with new features; Revise roadmap with new eras and completion status; Initial plan; Fix remove-bond tooltip: use data-tooltip instead of native title attribute; feat: add release ZIP workflow and releases folder; Initial plan; Add Remove Bond tooltip and UNDO notification (#remove-bond-improvements); Initial plan  
-0.2.14 - fix: extend JS tooltip to all [data-tooltip] elements to prevent overflow clipping; Initial plan  
-0.2.13 - feat: add Temporary Insanity checkbox below Exhausted on character sheet; Initial plan  
-0.2.12 - Set document.title to character name during print for correct PDF filename; Initial plan  
-0.2.11 - refactor: make notification system generic (showNotification/closeNotification); feat: add floating notification when raising personal bond above CHA; Cap personal bond score at CHA in adjustBondPlayScore; Initial plan  
+0.2.16 - feat: update footer - move Clear Credits next to Cthulhu Reborn, add Itch.io link  
+0.2.15 - fix: make release workflow run after changelog workflow succeeds on main; Update system title to Cthulhu Forever and Cthulhu Eternal Character Generator; Update project name from 'Character Builder' to 'Cthulhu Forever'; Update roadmap with new playing and dice rolling sections; Update ROADMAP.md with new features; Revise roadmap with new eras and completion status; Fix remove-bond tooltip: use data-tooltip instead of native title attribute; feat: add release ZIP workflow and releases folder; Add Remove Bond tooltip and UNDO notification (#remove-bond-improvements)  
+0.2.14 - fix: extend JS tooltip to all [data-tooltip] elements to prevent overflow clipping  
+0.2.13 - feat: add Temporary Insanity checkbox below Exhausted on character sheet  
+0.2.12 - Set document.title to character name during print for correct PDF filename  
+0.2.11 - refactor: make notification system generic (showNotification/closeNotification); feat: add floating notification when raising personal bond above CHA; Cap personal bond score at CHA in adjustBondPlayScore
 0.2.10 - Update titles and descriptions for age cards  
-0.2.9 - Remove era card badges and reduce card padding/grid gap; Initial plan  
-0.2.8 - Fix WP-0 badge label to Lose Control and add tooltips to all status badges; Move HP/WP status badges under Exhausted label; Add HP/WP status colour change and badges at ≤2 and 0; Initial plan  
-0.2.7 - Cap Resources capacity breakdown at 6/6/8 for ratings above 20; Remove max-20 cap from Resources rating; Initial plan  
-0.2.6 - align bond type badges: add min-width and text-align: center to .bond-type-badge; Initial plan  
-0.2.5 - Trim era card descriptions to 1 sentence and remove Archetypes bullet; Initial plan  
-0.2.4 - feat: double-click to edit motivation text on character sheet; feat: replace motivations textarea with 5 individual fields + cross-out feature; Initial plan  
-0.2.3 - Add Suite 5b: Adversity Skills by Era verification tests; Initial plan  
-0.2.2 - feat: change versioning to MAJOR.MINOR.PATCH (0.2.1); Initial plan  
+0.2.9 - Remove era card badges and reduce card padding/grid gap  
+0.2.8 - Fix WP-0 badge label to Lose Control and add tooltips to all status badges; Move HP/WP status badges under Exhausted label; Add HP/WP status colour change and badges at ≤2 and 0  
+0.2.7 - Cap Resources capacity breakdown at 6/6/8 for ratings above 20; Remove max-20 cap from Resources rating  
+0.2.6 - align bond type badges: add min-width and text-align: center to .bond-type-badge  
+0.2.5 - Trim era card descriptions to 1 sentence and remove Archetypes bullet  
+0.2.4 - feat: double-click to edit motivation text on character sheet; feat: replace motivations textarea with 5 individual fields + cross-out feature  
+0.2.3 - Add Suite 5b: Adversity Skills by Era verification tests  
+0.2.2 - feat: change versioning to MAJOR.MINOR.PATCH (0.2.1)  
 0.1.194 - Update era selection in features list  
 0.1.193 - feat: add Victorian Age era with skills, archetypes, and adversity picks  
 0.1.192 - Add Luck static value (50) to Derived Statistics section  
@@ -78,28 +78,19 @@ All notable changes are listed here from newest to oldest.
 0.1.136 - fix: update GitHub Actions to resolve Node.js 20 deprecation warnings  
 0.1.135 - Delete plan.md  
 0.1.134 - Fix MaxSAN calculation and clamp SAN/RecoverySAN to MaxSAN  
-0.1.133 - Initial plan  
 0.1.132 - Add character creation validation tests and wire into CI  
 0.1.131 - fix: reset violenceChecked, helplessnessChecked, editMode, showAllSkills on Start Over  
-0.1.130 - Initial plan  
-0.1.129 - Initial plan  
 0.1.128 - Fix: reset resourcesEditAdjust and skillEditAdjust in resetState()  
 0.1.127 - Export final HP/WP/SAN/BP/MaxSAN/RecoverySAN values in v2 format  
 0.1.126 - Simplify JSON export to outcome-only v2 format  
 0.1.125 - Add Import/Export character JSON feature with tests  
-0.1.124 - Initial plan  
 0.1.123 - Enhance copilot instructions with new sections  
 0.1.122 - Add CHANGELOG.md with PR-based version entries from newest to oldest  
-0.1.121 - Initial plan  
 0.1.120 - Fix invalid actions/checkout@v5 to v4 in static.yml  
 0.1.119 - Fix pages workflow: downgrade configure-pages to v5 and deploy-pages to v4  
-0.1.118 - Initial plan  
 0.1.117 - fix: update GitHub Actions to Node.js 24 compatible versions  
-0.1.116 - Initial plan  
 0.1.115 - Update Credits.md link to use full GitHub URL on main branch  
-0.1.114 - Initial plan  
 0.1.113 - Add test workflow to run validate-skill-parity.mjs on PRs and main  
-0.1.112 - Initial plan  
 0.1.111 - style: replace globe icon with octopus icon for cthulhueternal.com link  
 0.1.110 - fix: replace broken OGL link with Wikipedia OGL page in Credits.md  
 0.1.109 - Move Add Custom Skill out of advanced mode, remove advanced mode, use skill tooltip  

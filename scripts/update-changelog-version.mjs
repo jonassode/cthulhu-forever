@@ -49,6 +49,7 @@ const BOT_PATTERNS = [
   'update changelog',
   '[skip ci]',
   'skip ci',
+  'initial plan',
 ];
 
 /** True if this commit subject should be excluded from the changelog. */
@@ -109,7 +110,7 @@ async function summariseWithAI(commits) {
             {
               role: 'system',
               content:
-                'You are a changelog writer. Summarise the following git commit messages into a single concise sentence (under 120 characters) that describes what was added or changed. Return only the summary sentence with no extra punctuation or quotes.',
+                'You are a changelog writer. Summarise the following git commit messages into a single concise sentence (under 120 characters) that describes what was added or changed. Return only the summary sentence with no extra punctuation or quotes. Do not include the phrase "Initial plan" in your response.',
             },
             { role: 'user', content: commits.join('\n') },
           ],
