@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.18 - Add skill tooltips to Step 3 Archetypal and Optional Skills  
 0.2.16 - feat: update footer - move Clear Credits next to Cthulhu Reborn, add Itch.io link  
 0.2.15 - fix: make release workflow run after changelog workflow succeeds on main; Update system title to Cthulhu Forever and Cthulhu Eternal Character Generator; Update project name from 'Character Builder' to 'Cthulhu Forever'; Update roadmap with new playing and dice rolling sections; Update ROADMAP.md with new features; Revise roadmap with new eras and completion status; Fix remove-bond tooltip: use data-tooltip instead of native title attribute; feat: add release ZIP workflow and releases folder; Add Remove Bond tooltip and UNDO notification (#remove-bond-improvements)  
 0.2.14 - fix: extend JS tooltip to all [data-tooltip] elements to prevent overflow clipping  
