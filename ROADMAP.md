@@ -14,6 +14,7 @@ This is the high level roadmap for Cthulhu Forever
   - Medieval
   - Classical
   - Age of Sails
+ With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
 
 # Playing
 - Editing for all fields that can be modified during play or downtime activities ✅
