@@ -6,7 +6,7 @@ This is the high level roadmap for Cthulhu Forever
 ## Additional Eras
 - Add All ERAs from the SRDs
   - Modern, Jazz, Victorian, Cold War ✅
-  - WWI
+  - WWI ✅
   - WWII
   - Elizabethan
   - Future
