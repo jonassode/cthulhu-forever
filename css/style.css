@@ -1771,6 +1771,15 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border: none;
   font-weight: 700;
 }
+.btn-primary {
+  background: transparent;
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+}
+.btn-primary:hover:not(:disabled) {
+  background: rgba(201,168,76,0.1);
+  box-shadow: 0 0 12px rgba(201,168,76,0.3);
+}
 .btn-gold {
   background: var(--accent-gold);
   color: #0a0e14;
