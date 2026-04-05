@@ -1062,24 +1062,24 @@ function renderStep1() {
     <p class="step-subtitle">The age in which your story unfolds shapes every skill, contact, and shadow that will haunt you.</p>
 
     <div class="era-timeline">
-      ${_eraAccordionItem('victorian', 'The Victorian Era', '1837–1901',
-        'Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors lurking beneath the veneer of progress.',
-        ['Technology: Steam engines, telegraphs, early photography', 'Tone: Gothic mystery, imperial horror, spiritualism'])}
-      ${_eraAccordionItem('ww1', 'World War I', '1914–1918',
-        'Mud, gas, and steel define the Great War — but the trenches hide horrors that no general ever planned for.',
-        ['Technology: Artillery, early aircraft, poison gas', 'Tone: Military horror, survival, cosmic dread'])}
       ${_eraAccordionItem('jazz', 'Jazz Age - The Roaring Twenties', '1920–1939',
         'Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come.',
         ['Technology: Motor cars, telegraphs, early radio', 'Tone: Gothic mystery, colonial horror'])}
-      ${_eraAccordionItem('ww2', 'World War II', '1939–1945',
-        'Blitzkrieg, resistance, and global conflict — beneath the carnage of the deadliest war in history lurk horrors older than any ideology.',
-        ['Technology: Tanks, radar, bombers, early jet aircraft', 'Tone: Military horror, espionage, cosmic dread'])}
-      ${_eraAccordionItem('coldwar', 'The Cold War Era', '1950s–1980s',
-        'Espionage, nuclear dread, and ideological shadows define the mid-twentieth century.',
-        ['Technology: Early computers, surveillance, Cold War arms', 'Tone: Espionage, paranoia, ideological horror'])}
       ${_eraAccordionItem('modern', 'Modern Era', 'Present Day',
         'The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil that has always watched from the dark.',
         ['Technology: Computers, the internet, forensics', 'Tone: Conspiracy, urban dread, digital horror'])}
+      ${_eraAccordionItem('victorian', 'The Victorian Era', '1837–1901',
+        'Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors lurking beneath the veneer of progress.',
+        ['Technology: Steam engines, telegraphs, early photography', 'Tone: Gothic mystery, imperial horror, spiritualism'])}
+      ${_eraAccordionItem('coldwar', 'The Cold War Era', '1950s–1980s',
+        'Espionage, nuclear dread, and ideological shadows define the mid-twentieth century.',
+        ['Technology: Early computers, surveillance, Cold War arms', 'Tone: Espionage, paranoia, ideological horror'])}
+      ${_eraAccordionItem('ww1', 'World War I', '1914–1918',
+        'Mud, gas, and steel define the Great War — but the trenches hide horrors that no general ever planned for.',
+        ['Technology: Artillery, early aircraft, poison gas', 'Tone: Military horror, survival, cosmic dread'])}
+      ${_eraAccordionItem('ww2', 'World War II', '1939–1945',
+        'Blitzkrieg, resistance, and global conflict — beneath the carnage of the deadliest war in history lurk horrors older than any ideology.',
+        ['Technology: Tanks, radar, bombers, early jet aircraft', 'Tone: Military horror, espionage, cosmic dread'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
@@ -1125,7 +1125,7 @@ function selectAge(val) {
       state.selectedOptional = [];
     }
   }
-  render();
+  nextStep();
 }
 
 // ── RENDER: Step 2 — Attributes ─────────────────────────────
@@ -3604,9 +3604,11 @@ function renderNavButtons() {
     </span>
     ${isLast
       ? `<button class="btn btn-gold" onclick="confirmReset()">✦ Start Over</button>`
-      : `<button class="btn btn-gold" id="next-btn" onclick="nextStep()" ${proceed ? '' : 'disabled'}>
-          Continue →
-        </button>`
+      : isFirst
+        ? `<span></span>`
+        : `<button class="btn btn-gold" id="next-btn" onclick="nextStep()" ${proceed ? '' : 'disabled'}>
+            Continue →
+          </button>`
     }
   </div>`;
 }
