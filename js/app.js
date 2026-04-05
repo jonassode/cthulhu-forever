@@ -1033,7 +1033,6 @@ function _eraAccordionItem(id, title, dates, desc, details) {
         <div class="era-timeline-dot"></div>
         <div class="era-header-content">
           <span class="era-header-title">${title}</span>
-          <span class="era-header-dates">${dates}</span>
         </div>
         ${isSelected ? '<span class="era-selected-badge">Selected</span>' : ''}
         <div class="era-chevron">▼</div>
@@ -1042,6 +1041,7 @@ function _eraAccordionItem(id, title, dates, desc, details) {
         <div class="era-accordion-inner">
           <p class="card-desc">${desc}</p>
           <ul class="card-detail-list mt-3">
+            <li>Setting: ${dates}</li>
             ${details.map(d => `<li>${d}</li>`).join('')}
           </ul>
           <div style="margin-top:1rem;">
