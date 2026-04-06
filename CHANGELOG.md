@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.29 - fix: allow ww1 and ww2 eras to be imported  
 0.2.28 - ux: clear era selection when navigating back to step 1; ui: move era dates from header into expander as Setting bullet point; style: add btn-primary with gold border for Select This Era button; UX: era order, select advances step, hide continue on step 1; Remove icons from era accordion timeline; feat: replace era card grid with interactive timeline accordion on Step 1  
 0.2.27 - Fix typo in Quality of Life Improvements section  
 0.2.26 - Update ROADMAP with new game themes  
