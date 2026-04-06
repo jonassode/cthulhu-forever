@@ -975,6 +975,12 @@ function prevStep() {
     return;
   }
   if (state.currentStep > 1) {
+    // Going back to step 1 — clear era selection so the user starts fresh
+    if (state.currentStep === 2) {
+      state.age = null;
+      state.archetype = null;
+      state.selectedOptional = [];
+    }
     goToStep(state.currentStep - 1);
   }
 }
@@ -1018,110 +1024,68 @@ function renderStepper() {
 
 // ── RENDER: Step 1 — Age Selection ──────────────────────────
 
+// Module-level variable tracking which era accordion is currently open (no re-render needed)
+let _expandedEra = null;
+
+function _eraAccordionItem(id, title, dates, desc, details) {
+  const isSelected = state.age === id;
+  const isOpen = _expandedEra === id;
+  return `
+    <div class="era-accordion-item${isSelected ? ' era-selected' : ''}${isOpen ? ' era-open' : ''}" data-era="${id}">
+      <div class="era-accordion-header"
+           role="button" tabindex="0" aria-expanded="${isOpen}"
+           onclick="toggleEraAccordion('${id}')"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleEraAccordion('${id}')}">
+        <div class="era-timeline-dot"></div>
+        <div class="era-header-content">
+          <span class="era-header-title">${title}</span>
+        </div>
+        ${isSelected ? '<span class="era-selected-badge">Selected</span>' : ''}
+        <div class="era-chevron">▼</div>
+      </div>
+      <div class="era-accordion-body${isOpen ? ' era-expanded' : ''}" data-era="${id}">
+        <div class="era-accordion-inner">
+          <p class="card-desc">${desc}</p>
+          <ul class="card-detail-list mt-3">
+            <li>Setting: ${dates}</li>
+            ${details.map(d => `<li>${d}</li>`).join('')}
+          </ul>
+          <div style="margin-top:1rem;">
+            <button class="btn${isSelected ? ' btn-outline' : ' btn-primary'}"
+                    onclick="selectAge('${id}')">
+              ${isSelected ? '✓ Era Selected' : 'Select This Era'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderStep1() {
   return `
   <div class="step-content">
     <h2 class="step-title">Choose Your Era</h2>
     <p class="step-subtitle">The age in which your story unfolds shapes every skill, contact, and shadow that will haunt you.</p>
 
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.9rem;">
-
-      <div class="sel-card ${state.age === 'victorian' ? 'selected' : ''}"
-           style="grid-column:span 2"
-           onclick="selectAge('victorian')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('victorian')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">The Victorian Era</div>
-        <div class="card-desc">
-          Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors lurking beneath the veneer of progress.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Setting: 1837–1901</li>
-          <li>Technology: Steam engines, telegraphs, early photography</li>
-          <li>Tone: Gothic mystery, imperial horror, spiritualism</li>
-        </ul>
-      </div>
-
-      <div class="sel-card ${state.age === 'ww1' ? 'selected' : ''}"
-           style="grid-column:span 2"
-           onclick="selectAge('ww1')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('ww1')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">World War I</div>
-        <div class="card-desc">
-          Mud, gas, and steel define the Great War — but the trenches hide horrors that no general ever planned for.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Setting: 1914–1918</li>
-          <li>Technology: Artillery, early aircraft, poison gas</li>
-          <li>Tone: Military horror, survival, cosmic dread</li>
-        </ul>
-      </div>
-
-      <div class="sel-card ${state.age === 'jazz' ? 'selected' : ''}"
-           style="grid-column:span 2"
-           onclick="selectAge('jazz')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('jazz')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">Jazz Age - The Roaring Twenties</div>
-        <div class="card-desc">
-          Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Setting: 1920–1939</li>
-          <li>Technology: Motor cars, telegraphs, early radio</li>
-          <li>Tone: Gothic mystery, colonial horror</li>
-        </ul>
-      </div>
-
-      <div class="sel-card ${state.age === 'ww2' ? 'selected' : ''}"
-           style="grid-column:span 2"
-           onclick="selectAge('ww2')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('ww2')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">World War II</div>
-        <div class="card-desc">
-          Blitzkrieg, resistance, and global conflict — beneath the carnage of the deadliest war in history lurk horrors older than any ideology.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Setting: 1939–1945</li>
-          <li>Technology: Tanks, radar, bombers, early jet aircraft</li>
-          <li>Tone: Military horror, espionage, cosmic dread</li>
-        </ul>
-      </div>
-
-      <div class="sel-card ${state.age === 'coldwar' ? 'selected' : ''}"
-           style="grid-column:span 2"
-           onclick="selectAge('coldwar')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('coldwar')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">The Cold War Era</div>
-        <div class="card-desc">
-          Espionage, nuclear dread, and ideological shadows define the mid-twentieth century.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Setting: 1950s–1980s</li>
-          <li>Technology: Early computers, surveillance, Cold War arms</li>
-          <li>Tone: Espionage, paranoia, ideological horror</li>
-        </ul>
-      </div>
-
-      <div class="sel-card ${state.age === 'modern' ? 'selected' : ''}"
-           style="grid-column:span 2"
-           onclick="selectAge('modern')" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')selectAge('modern')">
-        <div class="card-check">${checkIcon()}</div>
-        <div class="card-title">Modern Era</div>
-        <div class="card-desc">
-          The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil that has always watched from the dark.
-        </div>
-        <ul class="card-detail-list mt-3">
-          <li>Setting: Present Day - Give or Take a Decade</li>
-          <li>Technology: Computers, the internet, forensics</li>
-          <li>Tone: Conspiracy, urban dread, digital horror</li>
-        </ul>
-      </div>
-
+    <div class="era-timeline">
+      ${_eraAccordionItem('jazz', 'Jazz Age - The Roaring Twenties', '1920–1939',
+        'Prohibition and Jazz, the aftermath of the Great War, and the first whispers of worse things to come.',
+        ['Technology: Motor cars, telegraphs, early radio', 'Tone: Gothic mystery, colonial horror'])}
+      ${_eraAccordionItem('modern', 'Modern Era', 'Present Day',
+        'The twenty-first century offers every comfort of civilization—and new vectors for the ancient evil that has always watched from the dark.',
+        ['Technology: Computers, the internet, forensics', 'Tone: Conspiracy, urban dread, digital horror'])}
+      ${_eraAccordionItem('victorian', 'The Victorian Era', '1837–1901',
+        'Gas-lit streets, steam-powered industry, and the vast reach of Empire conceal ancient horrors lurking beneath the veneer of progress.',
+        ['Technology: Steam engines, telegraphs, early photography', 'Tone: Gothic mystery, imperial horror, spiritualism'])}
+      ${_eraAccordionItem('coldwar', 'The Cold War Era', '1950s–1980s',
+        'Espionage, nuclear dread, and ideological shadows define the mid-twentieth century.',
+        ['Technology: Early computers, surveillance, Cold War arms', 'Tone: Espionage, paranoia, ideological horror'])}
+      ${_eraAccordionItem('ww1', 'World War I', '1914–1918',
+        'Mud, gas, and steel define the Great War — but the trenches hide horrors that no general ever planned for.',
+        ['Technology: Artillery, early aircraft, poison gas', 'Tone: Military horror, survival, cosmic dread'])}
+      ${_eraAccordionItem('ww2', 'World War II', '1939–1945',
+        'Blitzkrieg, resistance, and global conflict — beneath the carnage of the deadliest war in history lurk horrors older than any ideology.',
+        ['Technology: Tanks, radar, bombers, early jet aircraft', 'Tone: Military horror, espionage, cosmic dread'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
@@ -1141,6 +1105,22 @@ function renderStep1() {
   </div>`;
 }
 
+function toggleEraAccordion(era) {
+  const isCurrentlyOpen = _expandedEra === era;
+  _expandedEra = isCurrentlyOpen ? null : era;
+
+  // Update all accordion items in the DOM without a full re-render
+  document.querySelectorAll('.era-accordion-item').forEach(item => {
+    const itemEra = item.dataset.era;
+    const open = itemEra === _expandedEra;
+    item.classList.toggle('era-open', open);
+    const header = item.querySelector('.era-accordion-header');
+    if (header) header.setAttribute('aria-expanded', open);
+    const body = item.querySelector('.era-accordion-body');
+    if (body) body.classList.toggle('era-expanded', open);
+  });
+}
+
 function selectAge(val) {
   state.age = val;
   // If archetype is incompatible with new age, reset it
@@ -1151,7 +1131,7 @@ function selectAge(val) {
       state.selectedOptional = [];
     }
   }
-  render();
+  nextStep();
 }
 
 // ── RENDER: Step 2 — Attributes ─────────────────────────────
@@ -3630,9 +3610,11 @@ function renderNavButtons() {
     </span>
     ${isLast
       ? `<button class="btn btn-gold" onclick="confirmReset()">✦ Start Over</button>`
-      : `<button class="btn btn-gold" id="next-btn" onclick="nextStep()" ${proceed ? '' : 'disabled'}>
-          Continue →
-        </button>`
+      : isFirst
+        ? `<span></span>`
+        : `<button class="btn btn-gold" id="next-btn" onclick="nextStep()" ${proceed ? '' : 'disabled'}>
+            Continue →
+          </button>`
     }
   </div>`;
 }
