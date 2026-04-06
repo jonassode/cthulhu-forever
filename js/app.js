@@ -975,6 +975,12 @@ function prevStep() {
     return;
   }
   if (state.currentStep > 1) {
+    // Going back to step 1 — clear era selection so the user starts fresh
+    if (state.currentStep === 2) {
+      state.age = null;
+      state.archetype = null;
+      state.selectedOptional = [];
+    }
     goToStep(state.currentStep - 1);
   }
 }
