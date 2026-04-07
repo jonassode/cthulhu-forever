@@ -343,6 +343,55 @@ const EXPECTED_FUTURE = {
 };
 
 
+const EXPECTED_MEDIEVAL = {
+  'Alchemy':                         0,
+  'Alertness':                       20,
+  'Animal Handling':                 10,
+  'Appraise':                        10,
+  'Art (Type)':                       0,
+  'Athletics':                       30,
+  'Beguile':                         20,
+  'Carouse':                          0,
+  'Chirurgery':                       0,
+  'Ciphers':                          0,
+  'Craft (Type)':                    10,
+  'Disguise':                        10,
+  'Dodge':                           30,
+  'Drive':                           20,
+  'First Aid':                       10,
+  'Folklore':                        10,
+  'Forage/Hunt':                     10,
+  'Foreign Court/Kingdom (Type)':     0,
+  'Foreign Language (Type)':          0,
+  'Harangue/Taunt':                  10,
+  'Herb Lore':                       20,
+  'History':                         10,
+  'Homeland':                         0,
+  'Insight':                         10,
+  'Literacy':                         0,
+  'Melee Weapons':                   30,
+  'Navigate':                        10,
+  'Occult (Type)':                   10,
+  'Persuade':                        20,
+  'Procuratio':                       0,
+  'Quadrivium':                       0,
+  'Ranged Weapons':                  20,
+  'Reassure':                        10,
+  'Religion (Type)':                 10,
+  'Repair/Devise':                    0,
+  'Ride':                            10,
+  'Sailing (Type)':                   0,
+  'Scavenge':                        10,
+  'Search':                          20,
+  'Siege Weapons':                    0,
+  'Stealth':                         10,
+  'Swim':                            20,
+  'Trivium':                          0,
+  'Unarmed Combat':                  40,
+  'Unnatural':                        0,
+};
+
+
 function extractObject(name) {
   const blockPattern = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`);
   const blockMatch = dataSource.match(blockPattern);
@@ -407,6 +456,7 @@ const victorianActual = extractObject('VICTORIAN_SKILLS');
 const wwiActual = extractObject('WWI_SKILLS');
 const wwiiActual = extractObject('WWII_SKILLS');
 const futureActual = extractObject('FUTURE_SKILLS');
+const medievalActual = extractObject('MEDIEVAL_SKILLS');
 
 const jazzOk = compareTables('Jazz skills', EXPECTED_JAZZ, jazzActual);
 const modernOk = compareTables('Modern skills', EXPECTED_MODERN, modernActual);
@@ -415,8 +465,9 @@ const victorianOk = compareTables('Victorian skills', EXPECTED_VICTORIAN, victor
 const wwiOk = compareTables('WWI skills', EXPECTED_WWI, wwiActual);
 const wwiiOk = compareTables('WWII skills', EXPECTED_WWII, wwiiActual);
 const futureOk = compareTables('Future skills', EXPECTED_FUTURE, futureActual);
+const medievalOk = compareTables('Medieval skills', EXPECTED_MEDIEVAL, medievalActual);
 
-if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk) {
+if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk) {
   process.exit(1);
 }
 

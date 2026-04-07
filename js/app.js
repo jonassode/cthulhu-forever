@@ -7,7 +7,7 @@
 const state = {
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2'
+  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -153,6 +153,7 @@ function getSkillDescription(skillName) {
     : state.age === 'ww1' ? WWI_SKILL_DESCRIPTIONS
     : state.age === 'ww2' ? WWII_SKILL_DESCRIPTIONS
     : state.age === 'future' ? FUTURE_SKILL_DESCRIPTIONS
+    : state.age === 'medieval' ? MEDIEVAL_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -387,6 +388,7 @@ function getCurrentSkills() {
   if (state.age === 'ww1')       return WWI_SKILLS;
   if (state.age === 'ww2')       return WWII_SKILLS;
   if (state.age === 'future')    return FUTURE_SKILLS;
+  if (state.age === 'medieval')  return MEDIEVAL_SKILLS;
   return MODERN_SKILLS;
 }
 
@@ -865,6 +867,9 @@ function getAdversitySkills() {
   if (state.age === 'future') {
     return ['First Aid', 'Military Training (Type)', 'Planet/Station Lore (Type)', 'Survival (Type)'];
   }
+  if (state.age === 'medieval') {
+    return ['Carouse', 'First Aid', 'Foreign Court/Kingdom (Type)', 'Scavenge'];
+  }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
 
@@ -1094,10 +1099,13 @@ function renderStep1() {
       ${_eraAccordionItem('future', 'The Future', 'Far Future',
         'Humanity has spread across the stars — but the cosmos is vast and indifferent, and the ancient horrors did not stay behind.',
         ['Technology: AI, beam weapons, starships, zero-g', 'Tone: Cosmic horror, isolation, alien dread'])}
+      ${_eraAccordionItem('medieval', 'Medieval Era', '500–1500 CE',
+        'A world of feudal lords, crusades, and superstition — beneath the mud and piety lurk horrors as old as the darkness between the stars.',
+        ['Technology: Swords, bows, siege weapons, chirurgery', 'Tone: Folk horror, religious dread, cosmic mystery'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -2427,7 +2435,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -3243,6 +3251,7 @@ function exportToOriginalSheet() {
     : state.age === 'victorian' ? 'Victorian Age'
     : state.age === 'ww1'       ? 'World War I'
     : state.age === 'ww2'       ? 'World War II'
+    : state.age === 'medieval'  ? 'Medieval Era'
     : 'Modern Age';
 
   // All skills sorted alphabetically, including 0% values
@@ -3931,7 +3940,7 @@ function importFromJson(data) {
     return;
   }
 
-  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future'];
+  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
@@ -3994,7 +4003,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};
