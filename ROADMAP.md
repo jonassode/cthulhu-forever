@@ -3,7 +3,8 @@ This is the high level roadmap for Cthulhu Forever
 # Character Creation
 - Supporting all Character Creation Options from the SRD ✅
 
-## Additional Eras
+# 1.0 - to be released - April
+### All Eras
 - Add All ERAs from the SRDs
   - Modern ✅
   - Jazz ✅
@@ -17,8 +18,26 @@ This is the high level roadmap for Cthulhu Forever
   - Age of Revolutions
   - Classical
   - Age of Sails
- 
- With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
+
+## Quality of Life Improvements
+- Improved Tooltips
+
+## Improved Export and Character Sheet
+- Being able to Export to a Character Sheet format that looks more like the sheets from the books
+
+## Mobile
+- Responsive so it looks better on mobile browsers
+
+# 1.1 - to be released - May
+## Pregenerated Characters 
+- Load Pregenerated Characters 
+
+# 1.2 - to be released - June/July
+
+## Character Storage
+- Characters being stored in either Local Storage 
+
+# Future Version - to be released - ?
 
 # Playing
 - Editing for all fields that can be modified during play or downtime activities ✅
@@ -28,20 +47,14 @@ This is the high level roadmap for Cthulhu Forever
 - Dice Roller
 - Rollable Elements
 
-## Quality of Life Improvements
-- Improved Tooltips
+ ## Games
+ With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well, but in future version
 
-# Improved Export and Character Sheet
+## Improved Export and Character Sheet
 - Being able to Export to a Character Sheet format that looks more like the sheets from the books
 - Export to text, to make it easy to include in google docs and play by forum sheets
 
-# Mobile
-- Responsive so it looks better on mobile browsers
-
-# Character Storage
-- Characters being stored in either Local Storage or Login of some kind
-
-# Additional Tools
+## Additional Tools
 
 ## Custom Archetypes
 - Adding custom Archetypes
