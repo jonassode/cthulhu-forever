@@ -1,19 +1,31 @@
 This is the high level roadmap for Cthulhu Forever
 
-# Character Creation
-- Supporting all Character Creation Options from the SRD ✅
+# Currently in Production
+
+## Eras support 
+  - Modern
+  - Jazz
+  - Victorian
+  - Cold War
+  - WWI
+  - WWII
+  - Future
+  - Medieval
+
+## Character Creation
+- Supporting all Character Creation Options from the SRD
+
+## Export 
+- Export to json
+- Export to Character Sheet
+
+## Playing
+- Play Mode
+- Editing for all fields that can be modified during play or downtime activities
 
 # 1.0 - to be released - April
 ### All Eras
 - Add All ERAs from the SRDs
-  - Modern ✅
-  - Jazz ✅
-  - Victorian ✅ 
-  - Cold War ✅
-  - WWI ✅
-  - WWII ✅
-  - Future ✅
-  - Medieval ✅
   - Elizabethan
   - Age of Revolutions
   - Classical
@@ -39,16 +51,15 @@ This is the high level roadmap for Cthulhu Forever
 
 # Future Version - to be released - ?
 
-# Playing
-- Editing for all fields that can be modified during play or downtime activities ✅
-- Temporary values for Attributes
+## Playing
+- Temporary values for Attributes?
 
 ## Dice Rolling
 - Dice Roller
 - Rollable Elements
 
- ## Games
- With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well, but in future version
+## Games
+- With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
 
 ## Improved Export and Character Sheet
 - Being able to Export to a Character Sheet format that looks more like the sheets from the books
