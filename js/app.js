@@ -3316,12 +3316,17 @@ function exportToOriginalSheet() {
     const isOver = (n > maxSANNum);
     return `<span class="sn${isCurr?' sn-curr':''}${isOver?' sn-over':''}">${String(n).padStart(2,'0')}</span>`;
   }
-  // SAN main grid: row 08-20, then rows of 10 up to 99
+  // SAN main grid: insane row (01-07), then 08-20, then rows of 10 up to 99
   const sanMainRows = (() => {
     const rows = [];
+    // Insane row: 01–07
+    const insane = [1,2,3,4,5,6,7].map(sanCell);
+    rows.push(`<div class="san-row san-insane-row"><span class="san-row-lbl">Insane</span>${insane.join('')}</div>`);
+    // 08–20
     const r1 = [];
     for (let i = 8; i <= 20; i++) r1.push(sanCell(i));
     rows.push(`<div class="san-row">${r1.join('')}</div>`);
+    // 21–99
     for (let s2 = 21; s2 <= 91; s2 += 10) {
       const r = [];
       for (let i = s2; i <= Math.min(s2 + 9, 99); i++) r.push(sanCell(i));
@@ -3329,7 +3334,6 @@ function exportToOriginalSheet() {
     }
     return rows.join('');
   })();
-  const sanInsaneHtml = [1,2,3,4,5,6,7].map(sanCell).join('');
 
   // SAN incidents checkboxes
   function cbBox(c) {
@@ -3483,13 +3487,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-block { border: 1.5px solid #555; }
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .san-topval { border-bottom: 1px solid #000; min-width: 12mm; text-align: center; font-size: 9pt; }
-.san-grid-wrapper { display: flex; }
-.san-main { flex: 1; padding: 2px; }
-.san-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 1px; }
-.san-right { display: flex; flex-direction: column; align-items: center; border-left: 1px solid #888; padding: 2px; background: #eaf3f8; }
-.san-insane-lbl { font-size: 6pt; font-weight: bold; color: #c00; text-transform: uppercase; margin-bottom: 1px; }
-.san-insane-nums { display: flex; flex-direction: column; gap: 1px; }
-.san-curr-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; color: #444; flex: 1; display: flex; align-items: center; padding-top: 4px; }
+.san-main { padding: 2px; }
+.san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
+.san-insane-row .san-row-lbl { font-size: 6pt; font-weight: bold; color: #c00; text-transform: uppercase; margin-right: 2px; white-space: nowrap; }
 .sn { font-size: 6pt; border: 1px solid #ccc; padding: 0 1px; min-width: 11px; text-align: center; }
 .sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
@@ -3677,17 +3677,11 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     <!-- SAN grid -->
     <div class="san-block">
       <div class="san-top">
+        <span>Current SAN <span class="san-topval">${san}</span></span>
         <span>Max SAN <span class="san-topval">${maxSAN}</span></span>
         <span>Recovery SAN <span class="san-topval">${recSAN}</span></span>
       </div>
-      <div class="san-grid-wrapper">
-        <div class="san-main">${sanMainRows}</div>
-        <div class="san-right">
-          <div class="san-insane-lbl">Insane</div>
-          <div class="san-insane-nums">${sanInsaneHtml}</div>
-          <div class="san-curr-vlabel">Current SAN</div>
-        </div>
-      </div>
+      <div class="san-main">${sanMainRows}</div>
     </div>
 
     <!-- Breaking Point notes -->
