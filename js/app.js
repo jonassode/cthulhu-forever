@@ -3296,38 +3296,102 @@ function exportToOriginalSheet() {
   // Helper: escape HTML
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  // Build skill cells (3-column layout)
-  const skillCellsHtml = allSkills.map(s =>
-    `<div class="skill-row">
-      <span class="skill-name">${esc(s.displayName)}</span>
-      <span class="skill-val">${s.val}%</span>
-    </div>`
-  ).join('');
+  // Attribute full names
+  const ATTR_FULL = { STR:'Strength', CON:'Constitution', DEX:'Dexterity', INT:'Intelligence', POW:'Power', CHA:'Charisma' };
 
-  // Checkboxes (SAN incidents)
-  function cbRow(label, checks) {
-    const boxes = checks.map(c =>
-      `<span class="cb-box${c ? ' cb-checked' : ''}">${c ? '✕' : ''}</span>`
-    ).join('');
-    const adapted = checks.every(Boolean) ? ' <em>(Adapted)</em>' : '';
-    return `<div class="cb-row"><span class="cb-label">${esc(label)}</span>${boxes}${adapted}</div>`;
+  // HP grid helpers
+  const currentHPNum = (hp !== '—') ? Number(hp) : -1;
+  const maxHPNum = (maxHP !== '—') ? Number(maxHP) : 20;
+  function hpCell(n) {
+    const isCurr = (n === currentHPNum);
+    const isOver = (n > maxHPNum);
+    return `<span class="hn${isCurr?' hn-curr':''}${isOver?' hn-over':''}">${String(n).padStart(2,'0')}</span>`;
   }
+
+  // SAN grid helpers
+  const currentSANNum = (san !== '—') ? Number(san) : -1;
+  const maxSANNum = (maxSAN !== '—') ? Number(maxSAN) : 99;
+  function sanCell(n) {
+    const isCurr = (n === currentSANNum);
+    const isOver = (n > maxSANNum);
+    return `<span class="sn${isCurr?' sn-curr':''}${isOver?' sn-over':''}">${String(n).padStart(2,'0')}</span>`;
+  }
+  // SAN main grid: row 08-20, then rows of 10 up to 99
+  const sanMainRows = (() => {
+    const rows = [];
+    const r1 = [];
+    for (let i = 8; i <= 20; i++) r1.push(sanCell(i));
+    rows.push(`<div class="san-row">${r1.join('')}</div>`);
+    for (let s2 = 21; s2 <= 91; s2 += 10) {
+      const r = [];
+      for (let i = s2; i <= Math.min(s2 + 9, 99); i++) r.push(sanCell(i));
+      rows.push(`<div class="san-row">${r.join('')}</div>`);
+    }
+    return rows.join('');
+  })();
+  const sanInsaneHtml = [1,2,3,4,5,6,7].map(sanCell).join('');
+
+  // SAN incidents checkboxes
+  function cbBox(c) {
+    return `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`;
+  }
+
+  // Skills with base% and calculated value (2-column)
+  const skillsSheet = Object.keys(skills)
+    .sort((a, b) => a.localeCompare(b))
+    .map(s => {
+      const base = skills[s] || 0;
+      const editAdj = state.skillEditAdjust[s] || 0;
+      const val = Math.min(99, Math.max(0, getFinalSkillValue(s) + editAdj));
+      return { displayName: getSkillDisplayName(s), base, val };
+    });
+  (state.customSkills || [])
+    .filter(cs => (cs.customName || '').trim())
+    .forEach(cs => {
+      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+      skillsSheet.push({
+        displayName: getCustomSkillDisplayName(cs),
+        base: cs.baseValue || 0,
+        val: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
+      });
+    });
+  skillsSheet.sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+  function skillRowHtml(s) {
+    return `<div class="sk-row">
+      <span class="sk-cb">□</span>
+      <span class="sk-name">${esc(s.displayName)} [${s.base}%]</span>
+      <span class="sk-score">${s.val}%</span>
+    </div>`;
+  }
+  const skillRowsHtml = skillsSheet.map(skillRowHtml).join('');
+
+  // Split bonds by type
+  const indivBonds = bonds.filter(b => b.type === 'Personal');
+  const commBonds  = bonds.filter(b => b.type === 'Community');
+
+  function bondLineHtml(b) {
+    return `<div class="bond-line">
+      <span class="bond-lname">${b ? esc(b.name) : ''}</span>
+      <span class="bond-lscore">${b ? b.score : ''}</span>
+    </div>`;
+  }
+  const indivBondRows = Array.from({ length: Math.max(indivBonds.length, 4) }, (_, i) => bondLineHtml(indivBonds[i] || null)).join('');
+  const commBondRows  = Array.from({ length: Math.max(commBonds.length, 2) }, (_, i) => bondLineHtml(commBonds[i] || null)).join('');
+
+  // Motivations
+  const motivationsHtml = motivations.map(m => {
+    const crossed = m.crossed ? ' style="text-decoration:line-through;color:#888;"' : '';
+    return `<div class="motiv-item"${crossed}>${esc(m.text) || ''}</div>`;
+  }).join('');
 
   // Disorders
   const disordersHtml = state.disorders.length > 0
-    ? state.disorders.map(d => `<div class="disorder-item">${esc(d.text)}</div>`).join('')
-    : '<div class="empty-field">&nbsp;</div>';
+    ? state.disorders.map(d => `<div class="disord-item">${esc(d.text)}</div>`).join('')
+    : '';
 
-  // Motivations HTML
-  const motivationsHtml = motivations.map(m => {
-    const crossed = m.crossed ? ' style="text-decoration:line-through;color:#888;"' : '';
-    return `<div class="motivation-item"${crossed}>${esc(m.text) || '<span class="empty-field">—</span>'}</div>`;
-  }).join('');
-
-  // Bonds HTML
-  const bondsHtml = bonds.length > 0
-    ? bonds.map(b => `<div class="bond-item"><span class="bond-type">[${esc(b.type)}]</span> ${esc(b.name)} <span class="bond-score">${b.score}</span></div>`).join('')
-    : '<div class="empty-field">—</div>';
+  // Upbringing label
+  const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal';
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -3335,253 +3399,189 @@ function exportToOriginalSheet() {
 <meta charset="UTF-8"/>
 <title>${esc(state.identity.name) || 'Character Sheet'} — ${esc(eraLabel)}</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 9.5pt;
-    color: #000;
-    background: #fff;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; background: #fff; }
 
-  /* ── Page layout ── */
-  .page {
-    width: 210mm;
-    min-height: 297mm;
-    padding: 10mm 12mm;
-    border: 2px solid #000;
-    page-break-after: always;
-    page-break-inside: avoid;
-  }
-  .page:last-child { page-break-after: auto; }
+/* ── page ── */
+.page { width: 210mm; min-height: 297mm; padding: 6mm 7mm; page-break-after: always; page-break-inside: avoid; }
+.page:last-child { page-break-after: auto; }
 
-  /* ── Header ── */
-  .sheet-header {
-    text-align: center;
-    border-bottom: 2px solid #000;
-    padding-bottom: 4px;
-    margin-bottom: 6px;
-  }
-  .sheet-era {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 22pt;
-    font-weight: bold;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .sheet-title {
-    font-size: 8pt;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: #333;
-    margin-top: 1px;
-  }
+/* ── section helpers ── */
+.sec { border: 1.5px solid #555; margin-bottom: 3px; }
+.sec-hdr {
+  background: #4a7fa0; color: #fff;
+  font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em;
+  padding: 1px 4px;
+}
+.sec-body { padding: 3px 4px; }
 
-  /* ── Section ── */
-  .section {
-    margin-bottom: 6px;
-    border: 1px solid #000;
-    padding: 4px 6px;
-  }
-  .section-title {
-    font-weight: bold;
-    font-size: 8pt;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border-bottom: 1px solid #000;
-    margin-bottom: 4px;
-    padding-bottom: 2px;
-  }
+/* ── top row (identity | stats | other attrs) ── */
+.top-row { display: grid; grid-template-columns: 34mm 1fr 44mm; gap: 3px; margin-bottom: 3px; }
 
-  /* ── Identity block ── */
-  .identity-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2px 10px;
-  }
-  .id-field {
-    display: flex;
-    flex-direction: column;
-    border-bottom: 1px solid #999;
-    padding-bottom: 1px;
-    margin-bottom: 2px;
-  }
-  .id-label {
-    font-size: 7pt;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .id-value {
-    font-size: 9.5pt;
-    font-weight: bold;
-  }
+/* identity block */
+.id-title-box {
+  background: #4a7fa0; color: #fff; font-weight: bold; font-size: 7.5pt;
+  text-transform: uppercase; letter-spacing: .05em; text-align: center;
+  padding: 3px 2px; border: 1.5px solid #555; margin-bottom: 2px; line-height: 1.3;
+}
+.id-block { border: 1.5px solid #555; padding: 2px 3px; }
+.id-line { border-bottom: 1px solid #bbb; margin-bottom: 2px; padding-bottom: 1px; font-size: 7.5pt; }
+.id-line:last-child { border-bottom: none; margin-bottom: 0; }
+.id-lbl { color: #555; font-size: 6.5pt; text-transform: uppercase; display: block; }
+.id-val { font-weight: bold; }
+.id-inline { display: flex; gap: 6px; }
+.id-inline .id-line { flex: 1; }
 
-  /* ── Attributes ── */
-  .attrs-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
-    text-align: center;
-  }
-  .attr-box {
-    border: 1px solid #000;
-    padding: 3px 2px;
-  }
-  .attr-name {
-    font-size: 7.5pt;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  .attr-val {
-    font-size: 14pt;
-    font-weight: bold;
-    line-height: 1.1;
-  }
-  .attr-x5 {
-    font-size: 7.5pt;
-    color: #333;
-  }
+/* statistics table */
+.stats-block { border: 1.5px solid #555; }
+.stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 9pt; text-align: center; text-transform: uppercase; letter-spacing: .15em; padding: 1px 0; }
+.stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+.stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #888; padding: 1px 2px; font-size: 7pt; }
+.stats-table td { border: 1px solid #bbb; padding: 1px 3px; }
+.stats-table tr:nth-child(even) td { background: #eaf3f8; }
+.st-name { font-weight: bold; }
+.st-score { text-align: center; font-weight: bold; font-size: 9pt; }
+.st-x5 { text-align: center; font-style: italic; }
+.st-feat { min-width: 30mm; }
 
-  /* ── Derived stats ── */
-  .derived-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    text-align: center;
-  }
-  .derived-box {
-    border: 1px solid #000;
-    padding: 3px 2px;
-  }
-  .derived-name {
-    font-size: 7pt;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  .derived-val {
-    font-size: 12pt;
-    font-weight: bold;
-    line-height: 1.2;
-  }
-  .derived-sub {
-    font-size: 7pt;
-    color: #444;
-  }
+/* other attributes */
+.oa-block { border: 1.5px solid #555; }
+.oa-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 7pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 3px; }
+.oa-body { padding: 3px; }
+.wp-title { font-weight: bold; font-size: 7.5pt; border-bottom: 1px solid #888; margin-bottom: 2px; padding-bottom: 1px; }
+.wp-row { display: flex; gap: 4px; align-items: flex-end; margin-bottom: 2px; }
+.wp-box-grp { display: flex; flex-direction: column; align-items: center; }
+.wp-box { width: 14mm; height: 7mm; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10pt; }
+.wp-lbl { font-size: 6pt; text-transform: uppercase; text-align: center; margin-top: 1px; }
+.wp-exhausted { margin-left: 3px; }
+.wp-exbox { width: 8px; height: 8px; border: 1px solid #333; display: inline-block; margin-right: 2px; ${state.exhausted?'background:#555;':''} }
+.wp-exlbl { font-size: 6pt; }
+.wp-note { font-size: 5.5pt; color: #444; line-height: 1.3; margin-bottom: 3px; }
+.oa-field { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #bbb; padding: 2px 0; font-size: 7.5pt; }
+.oa-field:last-child { border-bottom: none; }
+.oa-flbl { font-weight: bold; }
+.oa-fval { font-weight: bold; border-bottom: 1px solid #000; min-width: 16mm; text-align: right; font-size: 9pt; padding-right: 2px; }
 
-  /* ── Resources ── */
-  .resources-row {
-    display: flex;
-    gap: 16px;
-    align-items: baseline;
-  }
-  .res-item { display: flex; flex-direction: column; }
-  .res-label { font-size: 7pt; color: #555; text-transform: uppercase; }
-  .res-val { font-size: 10pt; font-weight: bold; }
+/* ── middle row (HP | SAN grid | BP notes) ── */
+.mid-row { display: grid; grid-template-columns: 32mm 1fr 42mm; gap: 3px; margin-bottom: 3px; }
 
-  /* ── Skills ── */
-  .skills-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0 8px;
-  }
-  .skill-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    border-bottom: 1px solid #ddd;
-    padding: 1px 0;
-    font-size: 8.5pt;
-  }
-  .skill-name { flex: 1; }
-  .skill-val { font-weight: bold; min-width: 30px; text-align: right; }
+/* HP block */
+.hp-block { border: 1.5px solid #555; }
+.hp-top { display: flex; align-items: baseline; justify-content: space-between; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
+.hp-maxval { border-bottom: 1px solid #000; min-width: 10mm; text-align: center; font-size: 9pt; }
+.hp-wrapper { display: flex; }
+.hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; background: #eaf3f8; border-right: 1px solid #888; color: #444; }
+.hp-grid { flex: 1; padding: 2px; }
+.hp-stunned-lbl { font-size: 6pt; font-weight: bold; text-transform: uppercase; color: #c00; margin-bottom: 1px; }
+.hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
+.hp-divider { border-top: 1px dashed #aaa; margin: 2px 0; }
+.hn { font-size: 6.5pt; border: 1px solid #ccc; padding: 0 1px; min-width: 12px; text-align: center; }
+.hn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
+.hn-over { color: #ccc; border-color: #eee; }
 
-  /* ── Bonds ── */
-  .bond-item {
-    padding: 2px 0;
-    border-bottom: 1px solid #ddd;
-    font-size: 9pt;
-  }
-  .bond-type {
-    font-size: 7.5pt;
-    color: #555;
-    font-style: italic;
-  }
-  .bond-score {
-    font-weight: bold;
-    float: right;
-    border: 1px solid #000;
-    min-width: 20px;
-    text-align: center;
-    padding: 0 3px;
-  }
+/* SAN grid */
+.san-block { border: 1.5px solid #555; }
+.san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
+.san-topval { border-bottom: 1px solid #000; min-width: 12mm; text-align: center; font-size: 9pt; }
+.san-grid-wrapper { display: flex; }
+.san-main { flex: 1; padding: 2px; }
+.san-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 1px; }
+.san-right { display: flex; flex-direction: column; align-items: center; border-left: 1px solid #888; padding: 2px; background: #eaf3f8; }
+.san-insane-lbl { font-size: 6pt; font-weight: bold; color: #c00; text-transform: uppercase; margin-bottom: 1px; }
+.san-insane-nums { display: flex; flex-direction: column; gap: 1px; }
+.san-curr-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; color: #444; flex: 1; display: flex; align-items: center; padding-top: 4px; }
+.sn { font-size: 6pt; border: 1px solid #ccc; padding: 0 1px; min-width: 11px; text-align: center; }
+.sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
+.sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
 
-  /* ── Motivations ── */
-  .motivation-item {
-    padding: 2px 0;
-    border-bottom: 1px solid #ddd;
-    font-size: 9pt;
-  }
+/* BP notes */
+.bp-block { border: 1.5px solid #555; padding: 3px; font-size: 5.5pt; line-height: 1.4; color: #222; }
+.bp-block p { margin-bottom: 3px; }
+.bp-block p:last-child { margin-bottom: 0; }
 
-  /* ── Disorders ── */
-  .disorder-item {
-    padding: 2px 0;
-    border-bottom: 1px solid #ddd;
-    font-size: 9pt;
-  }
+/* ── incidents + breaking point row ── */
+.inc-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 3px; border: 1.5px solid #555; padding: 2px 4px; background: #f9f9f9; }
+.inc-title { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
+.inc-line { display: flex; align-items: center; gap: 4px; font-size: 7.5pt; margin-bottom: 1px; }
+.inc-lbl { min-width: 60px; font-weight: bold; }
+.cb-box { display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #333; font-size: 7pt; font-weight: bold; }
+.cb-checked { background: #ddd; }
+.bp-display { margin-left: auto; text-align: center; }
+.bp-dis-lbl { font-size: 7pt; font-weight: bold; text-transform: uppercase; }
+.bp-dis-box { border: 2px solid #333; min-width: 12mm; height: 8mm; display: flex; align-items: center; justify-content: center; font-size: 11pt; font-weight: bold; margin-top: 1px; }
 
-  /* ── Text blocks ── */
-  .text-block {
-    min-height: 40px;
-    font-size: 9pt;
-    line-height: 1.5;
-    white-space: pre-wrap;
-  }
+/* ── perm injuries + logo row ── */
+.perm-logo-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
+.perm-block { border: 1.5px solid #555; }
+.era-logo { border: 1.5px solid #555; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; padding: 2px; }
+.era-logo-title { font-size: 20pt; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; line-height: 1; }
+.era-logo-sub { font-size: 10pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
+.era-logo-era { font-size: 9pt; letter-spacing: .2em; text-transform: uppercase; color: #444; margin-top: 2px; }
+.perm-text { padding: 2px 3px; font-size: 7.5pt; min-height: 12mm; white-space: pre-wrap; }
 
-  /* ── SAN checkboxes ── */
-  .cb-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 2px;
-    font-size: 9pt;
-  }
-  .cb-label { min-width: 90px; }
-  .cb-box {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px;
-    height: 14px;
-    border: 1px solid #000;
-    font-size: 8pt;
-    font-weight: bold;
-  }
-  .cb-checked { background: #eee; }
+/* ── bottom row (skills | bonds) ── */
+.bot-row { display: grid; grid-template-columns: 1fr 52mm; gap: 3px; }
 
-  /* ── Two-column layout for page 2 ── */
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
+/* skills */
+.skills-block { border: 1.5px solid #555; }
+.skills-note { font-size: 5.5pt; color: #555; padding: 1px 3px; border-bottom: 1px solid #ddd; }
+.skills-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 4px; padding: 2px 3px; }
+.sk-row { display: flex; align-items: baseline; gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 7pt; break-inside: avoid; }
+.sk-cb { flex-shrink: 0; font-size: 8pt; line-height: 1; }
+.sk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sk-score { flex-shrink: 0; font-weight: bold; font-size: 7pt; border-bottom: 1px solid #000; min-width: 18px; text-align: right; margin-left: 2px; }
 
-  /* ── Empty placeholder ── */
-  .empty-field { color: #aaa; font-style: italic; }
+/* bonds */
+.bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
+.bonds-sub-hdr { display: flex; justify-content: space-between; font-size: 6.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #888; padding: 1px 3px; background: #d0e8f0; }
+.bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; }
+.bond-lname { flex: 1; }
+.bond-lscore { min-width: 12mm; text-align: right; border-bottom: 1px solid #000; font-weight: bold; }
+.motiv-dis-block { border-top: 1.5px solid #555; }
+.motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; }
+.res-block { border-top: 1.5px solid #555; padding: 2px 3px; font-size: 7pt; }
+.res-hdr { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
+.res-checks { display: flex; gap: 3px; align-items: center; font-size: 7pt; margin-bottom: 2px; }
+.res-caps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; text-align: center; font-size: 6pt; }
+.res-cap-item { border: 1px solid #888; padding: 1px; }
+.res-cap-val { font-weight: bold; font-size: 7pt; }
 
-  /* ── Print settings ── */
-  @page {
-    size: A4;
-    margin: 0;
-  }
-  @media print {
-    body { background: #fff; }
-    .page {
-      border: none;
-      padding: 8mm 10mm;
-      width: 100%;
-      min-height: 0;
-    }
-  }
+/* ── page 2 ── */
+.story-block { border: 1.5px solid #555; margin-bottom: 3px; }
+.story-text { padding: 3px 4px; font-size: 8pt; line-height: 1.5; white-space: pre-wrap; min-height: 55mm; }
+.story-lines { padding: 0 4px 2px; }
+.story-line { border-bottom: 1px solid #aaa; height: 6mm; }
+
+.tomes-gear-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 3px; }
+.tomes-block, .gear-block { border: 1.5px solid #555; }
+.gear-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
+.gear-cond-note { font-size: 6pt; color: #555; padding-right: 3px; }
+.generic-text { padding: 3px 4px; font-size: 7.5pt; white-space: pre-wrap; min-height: 28mm; }
+.gear-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
+
+.wpns-block { border: 1.5px solid #555; margin-bottom: 3px; }
+.wpns-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
+.wpns-note { font-size: 6pt; color: #555; padding-right: 3px; }
+.wpns-table { width: 100%; border-collapse: collapse; font-size: 6.5pt; }
+.wpns-table th { background: #c8dce8; font-weight: bold; border: 1px solid #888; padding: 1px 2px; text-align: center; font-size: 6pt; }
+.wpns-table td { border: 1px solid #ccc; padding: 1px 2px; height: 6mm; }
+.wpns-table tr:nth-child(even) td { background: #f5f9fc; }
+.wpn-cond { display: flex; gap: 2px; justify-content: center; }
+
+.bot-p2 { display: grid; grid-template-columns: 55mm 1fr 45mm; gap: 3px; }
+.cheat-block, .notes-block, .fellows-block { border: 1.5px solid #555; }
+.cheat-body { padding: 3px; font-size: 5.5pt; line-height: 1.4; }
+.cheat-body p { margin-bottom: 3px; }
+.notes-body { padding: 2px; }
+.notes-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
+.fellows-body { padding: 2px 3px; }
+.fellow-item { border-bottom: 1px solid #ddd; height: 5.5mm; font-size: 7.5pt; }
+
+@page { size: A4; margin: 0; }
+@media print {
+  body { background: #fff; }
+  .page { border: none; padding: 6mm 7mm; width: 100%; min-height: 0; }
+}
 </style>
 </head>
 <body>
@@ -3589,165 +3589,270 @@ function exportToOriginalSheet() {
 <!-- ═══════════════════════════ PAGE 1 ═══════════════════════════ -->
 <div class="page">
 
-  <div class="sheet-header">
-    <div class="sheet-era">${esc(eraLabel)}</div>
-    <div class="sheet-title">Cthulhu Eternal — Protagonist Sheet</div>
-  </div>
+  <!-- ── TOP ROW: Identity | Statistics | Other Attributes ── -->
+  <div class="top-row">
 
-  <!-- Identity -->
-  <div class="section">
-    <div class="section-title">Protagonist</div>
-    <div class="identity-grid">
-      <div class="id-field"><span class="id-label">Name</span><span class="id-value">${esc(state.identity.name) || '—'}</span></div>
-      <div class="id-field"><span class="id-label">Profession / Occupation</span><span class="id-value">${esc(state.identity.profession) || '—'}</span></div>
-      <div class="id-field"><span class="id-label">Archetype</span><span class="id-value">${arch ? esc(arch.name) : '—'}</span></div>
-      <div class="id-field"><span class="id-label">Age</span><span class="id-value">${esc(state.identity.characterAge)}</span></div>
-      <div class="id-field"><span class="id-label">Gender</span><span class="id-value">${esc(state.identity.gender) || '—'}</span></div>
-      <div class="id-field"><span class="id-label">Birthplace</span><span class="id-value">${esc(state.identity.birthplace) || '—'}</span></div>
-      <div class="id-field"><span class="id-label">Era</span><span class="id-value">${esc(eraLabel)}</span></div>
-      <div class="id-field"><span class="id-label">Upbringing</span><span class="id-value">${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</span></div>
+    <!-- Identity block -->
+    <div>
+      <div class="id-title-box">Lovecraftian Protagonist<br>Character Record Sheet</div>
+      <div class="id-block">
+        <div class="id-line"><span class="id-lbl">Name</span><span class="id-val">${esc(state.identity.name) || ''}</span></div>
+        <div class="id-line"><span class="id-lbl">Setting</span><span class="id-val">${esc(eraLabel)}</span></div>
+        <div class="id-line"><span class="id-lbl">Archetype</span><span class="id-val">${arch ? esc(arch.name) : ''}</span></div>
+        <div class="id-inline">
+          <div class="id-line"><span class="id-lbl">Age</span><span class="id-val">${esc(state.identity.characterAge)}</span></div>
+          <div class="id-line"><span class="id-lbl">Gender</span><span class="id-val">${esc(state.identity.gender) || ''}</span></div>
+        </div>
+        <div class="id-line"><span class="id-lbl">Occupation</span><span class="id-val">${esc(state.identity.profession) || ''}</span></div>
+        <div class="id-line"><span class="id-lbl">Birthplace</span><span class="id-val">${esc(state.identity.birthplace) || ''}</span></div>
+      </div>
+    </div>
+
+    <!-- Statistics table -->
+    <div class="stats-block">
+      <div class="stats-hdr">Statistics</div>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Statistic</th>
+            <th>Score</th>
+            <th>×5</th>
+            <th>Distinguishing Feature</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${attrRows.map(a => `<tr>
+            <td class="st-name">${esc(ATTR_FULL[a.name])} (${esc(a.name)})</td>
+            <td class="st-score">${a.val}</td>
+            <td class="st-x5">${a.x5}</td>
+            <td class="st-feat"></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Other Attributes -->
+    <div class="oa-block">
+      <div class="oa-hdr">Other Attributes</div>
+      <div class="oa-body">
+        <div class="wp-title">Willpower Points</div>
+        <div class="wp-row">
+          <div class="wp-box-grp"><div class="wp-box">${maxWP}</div><div class="wp-lbl">MAX</div></div>
+          <div class="wp-box-grp"><div class="wp-box">${wp}</div><div class="wp-lbl">Current</div></div>
+          <div class="wp-exhausted">
+            <span class="wp-exbox"></span><span class="wp-exlbl">Exhausted<br>(-20%)</span>
+          </div>
+        </div>
+        <div class="wp-note">WP 2 or less = emotional breakdown (-20%), WP 0 = incapacitated</div>
+        <div class="oa-field"><span class="oa-flbl">Damage Bonus</span><span class="oa-fval">${dmg}</span></div>
+        <div class="oa-field"><span class="oa-flbl">Body Armor</span><span class="oa-fval">${state.bodyArmour || 0}</span></div>
+      </div>
+    </div>
+
+  </div><!-- /top-row -->
+
+  <!-- ── MIDDLE ROW: HP tracking | SAN grid | BP notes ── -->
+  <div class="mid-row">
+
+    <!-- HP tracking -->
+    <div class="hp-block">
+      <div class="hp-top"><span>Max/Starting HP</span><span class="hp-maxval">${maxHP}</span></div>
+      <div class="hp-wrapper">
+        <div class="hp-vlabel">Current HP</div>
+        <div class="hp-grid">
+          <div class="hp-stunned-lbl">Stunned</div>
+          <div class="hp-row">${[0,1,2].map(hpCell).join('')}</div>
+          <div class="hp-row">${[3,4,5].map(hpCell).join('')}</div>
+          <div class="hp-divider"></div>
+          <div class="hp-row">${[6,7,8,9,10].map(hpCell).join('')}</div>
+          <div class="hp-row">${[11,12,13,14,15].map(hpCell).join('')}</div>
+          <div class="hp-row">${[16,17,18,19,20].map(hpCell).join('')}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAN grid -->
+    <div class="san-block">
+      <div class="san-top">
+        <span>Max SAN <span class="san-topval">${maxSAN}</span></span>
+        <span>Recovery SAN <span class="san-topval">${recSAN}</span></span>
+      </div>
+      <div class="san-grid-wrapper">
+        <div class="san-main">${sanMainRows}</div>
+        <div class="san-right">
+          <div class="san-insane-lbl">Insane</div>
+          <div class="san-insane-nums">${sanInsaneHtml}</div>
+          <div class="san-curr-vlabel">Current SAN</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breaking Point notes -->
+    <div class="bp-block">
+      <p>● Circle current SAN on meter. Black out numbers above MAX SAN. Draw box around Breaking Point.</p>
+      <p>● Third checkbox filled, character is adapted.</p>
+      <p>● &gt;5 SAN lost in one roll, temporary insanity. If SAN reaches Breaking Point, acquire a Disorder and reset BP.</p>
+      <p>● HP 2 or less = unconscious AND roll for permanent injury. HP of 0 = dead.</p>
+    </div>
+
+  </div><!-- /mid-row -->
+
+  <!-- ── INCIDENTS OF SAN LOSS + BREAKING POINT ── -->
+  <div class="inc-row">
+    <div>
+      <div class="inc-title">Incidents of SAN Loss Without Insanity</div>
+      <div class="inc-line">
+        <span class="inc-lbl">Violence</span>
+        ${(state.violenceChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
+      </div>
+      <div class="inc-line">
+        <span class="inc-lbl">Helplessness</span>
+        ${(state.helplessnessChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
+      </div>
+    </div>
+    <div class="bp-display">
+      <div class="bp-dis-lbl">Breaking Point</div>
+      <div class="bp-dis-box">${bp}</div>
     </div>
   </div>
 
-  <!-- Attributes -->
-  <div class="section">
-    <div class="section-title">Attributes</div>
-    <div class="attrs-grid">
-      ${attrRows.map(a => `
-      <div class="attr-box">
-        <div class="attr-name">${esc(a.name)}</div>
-        <div class="attr-val">${a.val}</div>
-        <div class="attr-x5">${a.x5}</div>
-      </div>`).join('')}
+  <!-- ── PERMANENT INJURIES + ERA LOGO ── -->
+  <div class="perm-logo-row">
+    <div class="perm-block">
+      <div class="sec-hdr">Permanent Injuries</div>
+      <div class="perm-text">${esc(state.identity.permanentInjuries) || ''}</div>
+    </div>
+    <div class="era-logo">
+      <div class="era-logo-title">Cthulhu</div>
+      <div class="era-logo-sub">Eternal</div>
+      <div class="era-logo-era">${esc(eraLabel.toUpperCase())}</div>
     </div>
   </div>
 
-  <!-- Derived Statistics -->
-  <div class="section">
-    <div class="section-title">Derived Statistics</div>
-    <div class="derived-grid">
-      <div class="derived-box">
-        <div class="derived-name">HP</div>
-        <div class="derived-val">${hp} / ${maxHP}</div>
-        <div class="derived-sub">⌈(STR+CON)÷2⌉</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">WP</div>
-        <div class="derived-val">${wp} / ${maxWP}</div>
-        <div class="derived-sub">Equal to POW</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">SAN</div>
-        <div class="derived-val">${san} / ${maxSAN}</div>
-        <div class="derived-sub">POW × 5 (max: 99−Unnatural)</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">Breaking Point</div>
-        <div class="derived-val">${bp}</div>
-        <div class="derived-sub">SAN − POW</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">Recovery SAN</div>
-        <div class="derived-val">${recSAN}</div>
-        <div class="derived-sub">POW × 5</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">Dmg Bonus</div>
-        <div class="derived-val">${dmg}</div>
-        <div class="derived-sub">STR modifier</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">Body Armour</div>
-        <div class="derived-val">${state.bodyArmour || 0}</div>
-        <div class="derived-sub">Reduces damage</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">Luck</div>
-        <div class="derived-val">50</div>
-        <div class="derived-sub">Always 50%</div>
-      </div>
-      <div class="derived-box">
-        <div class="derived-name">Resources</div>
-        <div class="derived-val">${resRating}</div>
-        <div class="derived-sub">${resCap.atHand}/${resCap.stowed}/${resCap.inStorage}</div>
-      </div>
-    </div>
-    <div style="margin-top:4px;">
-      <div class="section-title" style="font-size:7pt;margin-bottom:2px;">Incidents of SAN Loss</div>
-      ${cbRow('Violence', state.violenceChecked || [false,false,false])}
-      ${cbRow('Helplessness', state.helplessnessChecked || [false,false,false])}
-    </div>
-  </div>
+  <!-- ── BOTTOM: Skills | Bonds ── -->
+  <div class="bot-row">
 
-  <!-- Skills -->
-  <div class="section">
-    <div class="section-title">Skills (all values)</div>
-    <div class="skills-columns">
-      ${skillCellsHtml}
+    <!-- Skills -->
+    <div class="skills-block">
+      <div class="sec-hdr">Skills</div>
+      <div class="skills-note">Base ratings shown in [square brackets]. Skills with fill-in spaces for specializations have a base rating of 0%.</div>
+      <div class="skills-2col">${skillRowsHtml}</div>
     </div>
-  </div>
 
-</div>
+    <!-- Bonds + Motivation + Resources -->
+    <div class="bonds-block">
+      <div class="sec-hdr">Bonds</div>
+      <div class="bonds-sub-hdr"><span>Individual Bond</span><span>Score</span></div>
+      ${indivBondRows}
+      <div class="bonds-sub-hdr"><span>Community Bond</span><span>Score</span></div>
+      ${commBondRows}
+      <div class="motiv-dis-block">
+        <div class="sec-hdr">Motivation / Mental Disorder</div>
+        ${motivationsHtml}
+        ${disordersHtml}
+      </div>
+      <div class="res-block">
+        <div class="res-hdr">Permanent Resources <strong>${resRating}</strong></div>
+        <div class="res-checks">Resource Checks: <span class="cb-box ${(state.resourceChecked||[])[0]?'cb-checked':''}"></span><span class="cb-box ${(state.resourceChecked||[])[1]?'cb-checked':''}"></span><span class="cb-box ${(state.resourceChecked||[])[2]?'cb-checked':''}"></span></div>
+        <div class="res-caps">
+          <div class="res-cap-item"><div class="res-cap-val">${resCap.atHand}</div><div>AT HAND</div></div>
+          <div class="res-cap-item"><div class="res-cap-val">${resCap.stowed}</div><div>STOWED</div></div>
+          <div class="res-cap-item"><div class="res-cap-val">${resCap.inStorage === 999 ? '∞' : resCap.inStorage}</div><div>IN STORAGE</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /bot-row -->
+
+</div><!-- /page 1 -->
 
 <!-- ═══════════════════════════ PAGE 2 ═══════════════════════════ -->
 <div class="page">
 
-  <div class="sheet-header">
-    <div class="sheet-era">${esc(eraLabel)}</div>
-    <div class="sheet-title">Cthulhu Eternal — Protagonist Sheet (continued)</div>
+  <!-- ── STORY SO FAR (full width) ── -->
+  <div class="story-block">
+    <div class="sec-hdr" style="font-size:10pt;text-align:center;letter-spacing:.2em;">Protagonist's Story So Far</div>
+    ${(state.identity.backstory || '').trim()
+      ? `<div class="story-text">${esc(state.identity.backstory)}</div>`
+      : `<div class="story-lines">${Array(12).fill('<div class="story-line"></div>').join('')}</div>`
+    }
   </div>
 
-  <div class="two-col">
-
-    <!-- Left column -->
-    <div>
-
-      <!-- Motivations -->
-      <div class="section">
-        <div class="section-title">Motivations &amp; Drivers</div>
-        ${motivationsHtml}
-      </div>
-
-      <!-- Bonds -->
-      <div class="section">
-        <div class="section-title">Bonds</div>
-        ${bondsHtml}
-      </div>
-
-      <!-- Disorders / Conditions -->
-      <div class="section">
-        <div class="section-title">Disorders &amp; Conditions</div>
-        ${disordersHtml}
-      </div>
-
-      <!-- Permanent Injuries -->
-      <div class="section">
-        <div class="section-title">Permanent Injuries</div>
-        <div class="text-block">${esc(state.identity.permanentInjuries) || '<span class="empty-field">—</span>'}</div>
-      </div>
-
+  <!-- ── DISORDERS + GEAR ── -->
+  <div class="tomes-gear-row">
+    <div class="tomes-block">
+      <div class="sec-hdr">Disorders &amp; Conditions</div>
+      <div class="generic-text">${disordersHtml || Array(6).fill('<div class="gear-line"></div>').join('')}</div>
     </div>
-
-    <!-- Right column -->
-    <div>
-
-      <!-- Story So Far (= backstory / background) -->
-      <div class="section" style="flex:1;">
-        <div class="section-title">Story So Far</div>
-        <div class="text-block">${esc(state.identity.backstory) || '<span class="empty-field">—</span>'}</div>
+    <div class="gear-block">
+      <div class="sec-hdr">
+        <div class="gear-hdr-row"><span>Gear</span><span class="gear-cond-note">Record Pristine/Worn/Junk</span></div>
       </div>
-
-      <!-- Gear & Weapons -->
-      <div class="section">
-        <div class="section-title">Gear &amp; Weapons</div>
-        <div class="text-block">${esc(state.identity.gear) || '<span class="empty-field">—</span>'}</div>
-      </div>
-
+      ${(state.identity.gear || '').trim()
+        ? `<div class="generic-text">${esc(state.identity.gear)}</div>`
+        : `<div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>`
+      }
     </div>
-
   </div>
 
-</div>
+  <!-- ── WEAPONS ── -->
+  <div class="wpns-block">
+    <div class="sec-hdr">
+      <div class="wpns-hdr-row"><span>Weapons</span><span class="wpns-note">(db) = damage bonus &nbsp; (ap) = armor piercing</span></div>
+    </div>
+    <table class="wpns-table">
+      <thead>
+        <tr>
+          <th style="width:22%">Weapon</th>
+          <th style="width:9%">Skill %</th>
+          <th style="width:10%">Base Range</th>
+          <th style="width:10%">Damage</th>
+          <th style="width:5%">(db)</th>
+          <th style="width:5%">(ap)</th>
+          <th style="width:13%">Pristine/Worn/Junk</th>
+          <th style="width:10%">Lethality %</th>
+          <th style="width:9%">Kill Radius</th>
+          <th style="width:7%">Ammo</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Array(8).fill(0).map(() => `<tr>
+          <td></td><td></td><td></td><td></td>
+          <td></td><td></td>
+          <td><div class="wpn-cond"><span class="cb-box"></span><span class="cb-box"></span><span class="cb-box"></span></div></td>
+          <td></td><td></td><td></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── BOTTOM: Cheat Sheet | Notes | Fellow Characters ── -->
+  <div class="bot-p2">
+    <div class="cheat-block">
+      <div class="sec-hdr">Cthulhu Eternal Rules Cheat Sheet</div>
+      <div class="cheat-body">
+        <p><strong>Test Outcomes:</strong> Roll d100. If under test → <em>Success</em>; if digits match (or roll 01) → <em>Critical</em>. Roll over test → <em>Failure</em>; if digits match (or roll 00) → <em>Fumble</em>.</p>
+        <p><strong>Opposed Tests:</strong> Both sides roll and compare results. Critical beats Success beats any failure. If both succeed or crit, whoever rolled HIGHER wins.</p>
+        <p><strong>Combat Options:</strong> Aim, Attack, Called Shot, Disarm, Dodge, Escape Pin, Fight Back, Move, Pin, Wait.</p>
+        <p><strong>Resisting Insanity:</strong> Project SAN loss onto Bond. Use Bond to Repress Temp Insanity / episode of Disorder.</p>
+      </div>
+    </div>
+    <div class="notes-block">
+      <div class="sec-hdr" style="text-align:center;letter-spacing:.2em;">Notes</div>
+      <div class="notes-body">${Array(10).fill('<div class="notes-line"></div>').join('')}</div>
+    </div>
+    <div class="fellows-block">
+      <div class="sec-hdr">Fellow Characters</div>
+      <div class="fellows-body">
+        ${bonds.length > 0
+          ? bonds.map(b => `<div class="fellow-item">${esc(b.name)}</div>`).join('')
+          : Array(6).fill('<div class="fellow-item"></div>').join('')
+        }
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page 2 -->
 
 </body>
 </html>`;
