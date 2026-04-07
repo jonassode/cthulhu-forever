@@ -3639,7 +3639,7 @@ function exportToOriginalSheet() {
       <div class="derived-box">
         <div class="derived-name">SAN</div>
         <div class="derived-val">${san} / ${maxSAN}</div>
-        <div class="derived-sub">Max SAN: ${maxSAN}</div>
+        <div class="derived-sub">POW × 5 (max: 99−Unnatural)</div>
       </div>
       <div class="derived-box">
         <div class="derived-name">Breaking Point</div>
