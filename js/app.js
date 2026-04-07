@@ -1468,7 +1468,7 @@ function renderUpbringing() {
       Your upbringing shapes your starting resilience and initial sanity score.
       Adversity skill picks can only improve: <strong>${getAdversitySkills().join(', ')}</strong>.
     </p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;" class="sm:grid-cols-1">
+    <div class="upbringing-grid">
       ${upbOpts.map(o => `
         <div class="sel-card ${state.upbringing === o.id ? 'selected' : ''}"
              onclick="selectUpbringing('${o.id}')" role="button" tabindex="0"
