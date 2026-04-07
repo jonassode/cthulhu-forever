@@ -2427,7 +2427,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
