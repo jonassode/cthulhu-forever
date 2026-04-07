@@ -3339,13 +3339,14 @@ function exportToOriginalSheet() {
       const base = skills[s] || 0;
       const editAdj = state.skillEditAdjust[s] || 0;
       const val = Math.min(99, Math.max(0, getFinalSkillValue(s) + editAdj));
-      return { displayName: getSkillDisplayName(s), base, val };
+      return { name: s, displayName: getSkillDisplayName(s), base, val };
     });
   (state.customSkills || [])
     .filter(cs => (cs.customName || '').trim())
     .forEach(cs => {
       const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
       skillsSheet.push({
+        name: `custom_${cs.id}`,
         displayName: getCustomSkillDisplayName(cs),
         base: cs.baseValue || 0,
         val: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
@@ -3354,10 +3355,11 @@ function exportToOriginalSheet() {
   skillsSheet.sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   function skillRowHtml(s) {
+    const checked = !!(state.skillChecked && state.skillChecked[s.name]);
     return `<div class="sk-row">
-      <span class="sk-cb">□</span>
       <span class="sk-name">${esc(s.displayName)} [${s.base}%]</span>
       <span class="sk-score">${s.val}%</span>
+      <span class="sk-cb">${checked ? '✕' : '□'}</span>
     </div>`;
   }
   const skillRowsHtml = skillsSheet.map(skillRowHtml).join('');
@@ -3726,9 +3728,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="bonds-sub-hdr"><span>Community Bond</span><span>Score</span></div>
       ${commBondRows}
       <div class="motiv-dis-block">
-        <div class="sec-hdr">Motivation / Mental Disorder</div>
+        <div class="sec-hdr">Motivations</div>
         ${motivationsHtml}
-        ${disordersHtml}
+      </div>
+      <div class="motiv-dis-block">
+        <div class="sec-hdr">Disorders</div>
+        ${disordersHtml || ''}
       </div>
       <div class="res-block">
         <div class="res-hdr">Permanent Resources <strong>${resRating}</strong></div>
@@ -3760,7 +3765,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <!-- ── DISORDERS + GEAR ── -->
   <div class="tomes-gear-row">
     <div class="tomes-block">
-      <div class="sec-hdr">Disorders &amp; Conditions</div>
+      <div class="sec-hdr">Terrible Tomes &amp; Arcane Rituals</div>
       <div class="generic-text">${disordersHtml || Array(6).fill('<div class="gear-line"></div>').join('')}</div>
     </div>
     <div class="gear-block">
