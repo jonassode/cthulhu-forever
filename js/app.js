@@ -3242,8 +3242,6 @@ function exportToOriginalSheet() {
     ...Object.keys(skills)
       .sort((a, b) => a.localeCompare(b))
       .map(s => {
-        const base    = skills[s];
-        const archBon = getArchetypeSkillBonus(s);
         const final   = getFinalSkillValue(s);
         const editAdj = state.skillEditAdjust[s] || 0;
         const val = Math.min(99, Math.max(0, final + editAdj));
@@ -3364,7 +3362,7 @@ function exportToOriginalSheet() {
     margin-bottom: 6px;
   }
   .sheet-era {
-    font-family: Georgia, serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 22pt;
     font-weight: bold;
     letter-spacing: 0.08em;
@@ -3640,8 +3638,8 @@ function exportToOriginalSheet() {
       </div>
       <div class="derived-box">
         <div class="derived-name">SAN</div>
-        <div class="derived-val">${san}</div>
-        <div class="derived-sub">Max: ${maxSAN}</div>
+        <div class="derived-val">${san} / ${maxSAN}</div>
+        <div class="derived-sub">Max SAN: ${maxSAN}</div>
       </div>
       <div class="derived-box">
         <div class="derived-name">Breaking Point</div>
@@ -3673,13 +3671,11 @@ function exportToOriginalSheet() {
         <div class="derived-val">${resRating}</div>
         <div class="derived-sub">${resCap.atHand}/${resCap.stowed}/${resCap.inStorage}</div>
       </div>
-      <div class="derived-box">
-        <div class="derived-name">SAN Incidents</div>
-        <div style="font-size:8pt;margin-top:2px;">
-          ${cbRow('Violence', state.violenceChecked || [false,false,false])}
-          ${cbRow('Helplessness', state.helplessnessChecked || [false,false,false])}
-        </div>
-      </div>
+    </div>
+    <div style="margin-top:4px;">
+      <div class="section-title" style="font-size:7pt;margin-bottom:2px;">Incidents of SAN Loss</div>
+      ${cbRow('Violence', state.violenceChecked || [false,false,false])}
+      ${cbRow('Helplessness', state.helplessnessChecked || [false,false,false])}
     </div>
   </div>
 
