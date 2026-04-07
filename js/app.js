@@ -3480,7 +3480,6 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hp-grid { flex: 1; padding: 2px; }
 .hp-stunned-lbl { font-size: 6pt; font-weight: bold; text-transform: uppercase; color: #c00; margin-bottom: 1px; }
 .hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
-.hp-divider { border-top: 1px dashed #aaa; margin: 2px 0; }
 .hn { font-size: 6.5pt; border: 1px solid #ccc; padding: 0 1px; min-width: 12px; text-align: center; }
 .hn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .hn-over { color: #ccc; border-color: #eee; }
@@ -3669,13 +3668,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="hp-wrapper">
         <div class="hp-vlabel">Current HP</div>
         <div class="hp-grid">
-          <div class="hp-stunned-lbl">Stunned</div>
-          <div class="hp-row">${[0,1,2].map(hpCell).join('')}</div>
-          <div class="hp-row">${[3,4,5].map(hpCell).join('')}</div>
-          <div class="hp-divider"></div>
-          <div class="hp-row">${[6,7,8,9,10].map(hpCell).join('')}</div>
-          <div class="hp-row">${[11,12,13,14,15].map(hpCell).join('')}</div>
-          <div class="hp-row">${[16,17,18,19,20].map(hpCell).join('')}</div>
+          <div class="hp-stunned-lbl">Dead</div>
+          <div class="hp-row">${[0,1,2,3].map(hpCell).join('')}</div>
+          <div class="hp-row">${[4,5,6,7].map(hpCell).join('')}</div>
+          <div class="hp-row">${[8,9,10,11].map(hpCell).join('')}</div>
+          <div class="hp-row">${[12,13,14,15].map(hpCell).join('')}</div>
+          <div class="hp-row">${[16,17,18,19].map(hpCell).join('')}</div>
         </div>
       </div>
     </div>
