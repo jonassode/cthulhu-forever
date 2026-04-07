@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.37 - Refine ERAs list in ROADMAP.md  
 0.2.36 - Update era selection description in README  
 0.2.35 - Add Medieval Era: skills, skill descriptions, archetypes, adversity skills, and UI  
 0.2.34 - Fix upbringing selection layout on mobile - stack cards vertically  
