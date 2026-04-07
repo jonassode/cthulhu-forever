@@ -3466,7 +3466,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .oa-field { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #bbb; padding: 2px 0; font-size: 7.5pt; }
 .oa-field:last-child { border-bottom: none; }
 .oa-flbl { font-weight: bold; }
-.oa-fval { font-weight: bold; border-bottom: 1px solid #000; min-width: 16mm; text-align: right; font-size: 9pt; padding-right: 2px; }
+.oa-fval { font-weight: bold; min-width: 16mm; text-align: right; font-size: 9pt; padding-right: 2px; }
 
 /* ── middle row (HP | SAN grid | BP notes) ── */
 .mid-row { display: grid; grid-template-columns: 32mm 1fr 42mm; gap: 3px; margin-bottom: 3px; }
@@ -3474,7 +3474,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 /* HP block */
 .hp-block { border: 1.5px solid #555; }
 .hp-top { display: flex; align-items: baseline; justify-content: space-between; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
-.hp-maxval { border-bottom: 1px solid #000; min-width: 10mm; text-align: center; font-size: 9pt; }
+.hp-maxval { min-width: 10mm; text-align: center; font-size: 9pt; }
 .hp-wrapper { display: flex; }
 .hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; background: #eaf3f8; border-right: 1px solid #888; color: #444; }
 .hp-grid { flex: 1; padding: 2px; }
@@ -3488,7 +3488,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 /* SAN grid */
 .san-block { border: 1.5px solid #555; }
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
-.san-topval { border-bottom: 1px solid #000; min-width: 12mm; text-align: center; font-size: 9pt; }
+.san-topval { min-width: 12mm; text-align: center; font-size: 9pt; }
 .san-main { padding: 2px; }
 .san-curr-row { font-size: 6.5pt; font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 2px; padding-left: 1px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
@@ -3529,14 +3529,14 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .sk-row { display: flex; align-items: baseline; gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 7pt; break-inside: avoid; }
 .sk-cb { flex-shrink: 0; font-size: 8pt; line-height: 1; }
 .sk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sk-score { flex-shrink: 0; font-weight: bold; font-size: 7pt; border-bottom: 1px solid #000; min-width: 18px; text-align: right; margin-left: 2px; }
+.sk-score { flex-shrink: 0; font-weight: bold; font-size: 7pt; min-width: 18px; text-align: right; margin-left: 2px; }
 
 /* bonds */
 .bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
 .bonds-sub-hdr { display: flex; justify-content: space-between; font-size: 6.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #888; padding: 1px 3px; background: #d0e8f0; }
 .bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; }
 .bond-lname { flex: 1; }
-.bond-lscore { min-width: 12mm; text-align: right; border-bottom: 1px solid #000; font-weight: bold; }
+.bond-lscore { min-width: 12mm; text-align: right; font-weight: bold; }
 .motiv-dis-block { border-top: 1.5px solid #555; }
 .motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; }
 .res-block { border-top: 1.5px solid #555; padding: 2px 3px; font-size: 7pt; }
@@ -3600,7 +3600,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
     <!-- Identity block -->
     <div>
-      <div class="id-title-box">Lovecraftian Protagonist<br>Character Record Sheet</div>
+      <div class="id-title-box">Protagonist</div>
       <div class="id-block">
         <div class="id-line"><span class="id-lbl">Name</span><span class="id-val">${esc(state.identity.name) || ''}</span></div>
         <div class="id-line"><span class="id-lbl">Setting</span><span class="id-val">${esc(eraLabel)}</span></div>
@@ -3834,10 +3834,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     <div class="fellows-block">
       <div class="sec-hdr">Fellow Characters</div>
       <div class="fellows-body">
-        ${bonds.length > 0
-          ? bonds.map(b => `<div class="fellow-item">${esc(b.name)}</div>`).join('')
-          : Array(6).fill('<div class="fellow-item"></div>').join('')
-        }
+        ${Array(6).fill('<div class="fellow-item"></div>').join('')}
       </div>
     </div>
   </div>
