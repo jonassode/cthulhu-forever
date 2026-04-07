@@ -3316,9 +3316,11 @@ function exportToOriginalSheet() {
     const isOver = (n > maxSANNum);
     return `<span class="sn${isCurr?' sn-curr':''}${isOver?' sn-over':''}">${String(n).padStart(2,'0')}</span>`;
   }
-  // SAN main grid: insane row (01-07), then 08-20, then rows of 10 up to 99
+  // SAN main grid: Current SAN label, insane row (01-07), then 08-20, then rows of 10 up to 99
   const sanMainRows = (() => {
     const rows = [];
+    // "Current SAN" label row (no number)
+    rows.push(`<div class="san-curr-row">Current SAN</div>`);
     // Insane row: 01–07
     const insane = [1,2,3,4,5,6,7].map(sanCell);
     rows.push(`<div class="san-row san-insane-row"><span class="san-row-lbl">Insane</span>${insane.join('')}</div>`);
@@ -3488,6 +3490,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .san-topval { border-bottom: 1px solid #000; min-width: 12mm; text-align: center; font-size: 9pt; }
 .san-main { padding: 2px; }
+.san-curr-row { font-size: 6.5pt; font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 2px; padding-left: 1px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
 .san-insane-row .san-row-lbl { font-size: 6pt; font-weight: bold; color: #c00; text-transform: uppercase; margin-right: 2px; white-space: nowrap; }
 .sn { font-size: 6pt; border: 1px solid #ccc; padding: 0 1px; min-width: 11px; text-align: center; }
@@ -3677,9 +3680,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     <!-- SAN grid -->
     <div class="san-block">
       <div class="san-top">
-        <span>Current SAN <span class="san-topval">${san}</span></span>
         <span>Max SAN <span class="san-topval">${maxSAN}</span></span>
         <span>Recovery SAN <span class="san-topval">${recSAN}</span></span>
+        <span>BP <span class="san-topval">${bp}</span></span>
       </div>
       <div class="san-main">${sanMainRows}</div>
     </div>
