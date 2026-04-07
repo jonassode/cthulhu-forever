@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.33 - feat: empty tomes section, permanent resources gets blue sec-hdr; feat: move skill checkbox to right of score, rename tomes section, split motivation/disorder; fix: change all checked checkboxes to × crossout style; fix: SAN grid - vertical Current SAN label, 00 added, 10/row, remove Insane/Dead labels; fix: HP grid - remove dotted divider, rename Stunned to Dead, 5 rows of 4 cells; fix: remove value underlines, rename title to Protagonist, leave fellow characters empty; fix: move era banner to top, merge perm injuries + incidents row, remove BP display box; fix: restructure SAN block - BP in header, Current SAN label inside grid; fix: integrate Insane/01-07 into main SAN grid and add Current SAN header label; fix: populate Distinguishing Feature column in exported sheet statistics table; feat: restructure exported sheet layout to match original Cthulhu Eternal sheet; fix: remove auto-print on load from original character sheet export; fix: remove redundant Max SAN in derived-sub label; fix: address code review issues in exportToOriginalSheet; feat: add Export to Original Character Sheet option to settings menu  
 0.2.32 - Fix Future era showing as Modern Age on character sheet; Add Future era: skills, archetypes, adversity skills, import/export support  
 0.2.31 - fix: wrap stepper into 2 rows on mobile screens  
 0.2.30 - fix: remove error when importing character without a name  
