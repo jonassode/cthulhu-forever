@@ -3621,12 +3621,15 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
           </tr>
         </thead>
         <tbody>
-          ${attrRows.map(a => `<tr>
+          ${attrRows.map(a => {
+            const feat = (a.val !== '—') ? getDistinguishingFeature(a.name, Number(a.val)) : null;
+            return `<tr>
             <td class="st-name">${esc(ATTR_FULL[a.name])} (${esc(a.name)})</td>
             <td class="st-score">${a.val}</td>
             <td class="st-x5">${a.x5}</td>
-            <td class="st-feat"></td>
-          </tr>`).join('')}
+            <td class="st-feat">${feat ? esc(feat) : ''}</td>
+          </tr>`;
+          }).join('')}
         </tbody>
       </table>
     </div>
