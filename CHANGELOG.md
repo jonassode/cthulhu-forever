@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.41 - Revise roadmap with new export and character sheet features  
 0.2.40 - Update roadmap with new features and eras  
 0.2.39 - Revise ROADMAP.md with new features and timelines  
 0.2.38 - Format additional eras in the roadmap  
