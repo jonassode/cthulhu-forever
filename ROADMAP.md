@@ -8,10 +8,10 @@ This is the high level roadmap for Cthulhu Forever
   - Modern, Jazz, Victorian, Cold War ✅
   - WWI ✅
   - WWII ✅
+  - Future ✅
+  - Medieval ✅
   - Elizabethan
-  - Future
   - Age of Revolutions
-  - Medieval
   - Classical
   - Age of Sails
  
