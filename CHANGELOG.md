@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.32 - Fix Future era showing as Modern Age on character sheet; Add Future era: skills, archetypes, adversity skills, import/export support  
 0.2.31 - fix: wrap stepper into 2 rows on mobile screens  
 0.2.30 - fix: remove error when importing character without a name  
 0.2.29 - fix: allow ww1 and ww2 eras to be imported  
