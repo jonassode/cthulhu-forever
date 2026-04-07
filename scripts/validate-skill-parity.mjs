@@ -294,6 +294,54 @@ const EXPECTED_WWII = {
   'Use Gadgets':                  0,
 };
 
+const EXPECTED_FUTURE = {
+  'Administration':              10,
+  'Alertness':                   20,
+  'Appraise':                    10,
+  'Art (Type)':                   0,
+  'Artificial Intelligence':      0,
+  'Athletics':                   30,
+  'Charm':                       20,
+  'Cosmology':                   10,
+  'Craft (Type)':                 0,
+  'Disguise':                    10,
+  'Dodge':                       30,
+  'Drive':                       20,
+  'Firearms / Beam Weapons':     20,
+  'First Aid':                   10,
+  'Foreign Language (Type)':      0,
+  'Forensics':                    0,
+  'Hacking':                      0,
+  'Harangue':                    10,
+  'Heavy Machinery':             10,
+  'History':                     10,
+  'Insight':                     10,
+  'Law (Type)':                   0,
+  'Medicine':                     0,
+  'Melee Weapons':               30,
+  'Military Training (Type)':     0,
+  'Navigate':                    10,
+  'Occult':                      10,
+  'Persuade':                    20,
+  'Pharmacy':                     0,
+  'Pilot (Type)':                  0,
+  'Planet/Station Lore (Type)':   0,
+  'Psychoanalyze':               10,
+  'Research':                    10,
+  'Science (Type)':               0,
+  'Search':                      20,
+  'Stealth':                     10,
+  'Surgery':                      0,
+  'Survival (Type)':             10,
+  'Swim':                        20,
+  'Technology Use':               0,
+  'Track':                       10,
+  'Unarmed Combat':              20,
+  'Unnatural':                    0,
+  'Xenoarcheology':               0,
+  'Zero-G Maneuvering':           0,
+};
+
 
 function extractObject(name) {
   const blockPattern = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`);
@@ -358,6 +406,7 @@ const coldWarActual = extractObject('COLD_WAR_SKILLS');
 const victorianActual = extractObject('VICTORIAN_SKILLS');
 const wwiActual = extractObject('WWI_SKILLS');
 const wwiiActual = extractObject('WWII_SKILLS');
+const futureActual = extractObject('FUTURE_SKILLS');
 
 const jazzOk = compareTables('Jazz skills', EXPECTED_JAZZ, jazzActual);
 const modernOk = compareTables('Modern skills', EXPECTED_MODERN, modernActual);
@@ -365,8 +414,9 @@ const coldWarOk = compareTables('Cold War skills', EXPECTED_COLD_WAR, coldWarAct
 const victorianOk = compareTables('Victorian skills', EXPECTED_VICTORIAN, victorianActual);
 const wwiOk = compareTables('WWI skills', EXPECTED_WWI, wwiActual);
 const wwiiOk = compareTables('WWII skills', EXPECTED_WWII, wwiiActual);
+const futureOk = compareTables('Future skills', EXPECTED_FUTURE, futureActual);
 
-if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk) {
+if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk) {
   process.exit(1);
 }
 

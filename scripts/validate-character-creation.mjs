@@ -691,6 +691,14 @@ const testCode = `
       'WWII adversity skills: First Aid, Regional Lore (Type), Scavenge, Survival (Type)');
   }
 
+  // 5b.7  Future era
+  {
+    const FUTURE_ADVERSITY = ['First Aid', 'Military Training (Type)', 'Planet/Station Lore (Type)', 'Survival (Type)'];
+    resetState(); state.age = 'future';
+    arrEq(getAdversitySkills(), FUTURE_ADVERSITY,
+      'Future adversity skills: First Aid, Military Training (Type), Planet/Station Lore (Type), Survival (Type)');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');
