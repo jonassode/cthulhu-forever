@@ -2439,6 +2439,10 @@ function buildCharSheetHtml() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Export to JSON</span>
               </button>
+              <button class="sheet-settings-item sheet-settings-action" onclick="exportToOriginalSheet()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+                <span>Export to Original Character Sheet</span>
+              </button>
             </div>
           </div>
         </div>
@@ -3214,6 +3218,557 @@ function exportToJson() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+
+  // Close settings dropdown after export
+  const dropdown = document.getElementById('sheet-settings-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+}
+
+function exportToOriginalSheet() {
+  const arch    = getArchetype();
+  const derived = calculateDerived();
+  const skills  = getCurrentSkills();
+
+  // Era display name
+  const eraLabel = state.age === 'jazz' ? 'Jazz Age'
+    : state.age === 'coldwar'   ? 'Cold War'
+    : state.age === 'victorian' ? 'Victorian Age'
+    : state.age === 'ww1'       ? 'World War I'
+    : state.age === 'ww2'       ? 'World War II'
+    : 'Modern Age';
+
+  // All skills sorted alphabetically, including 0% values
+  const allSkills = [
+    ...Object.keys(skills)
+      .sort((a, b) => a.localeCompare(b))
+      .map(s => {
+        const base    = skills[s];
+        const archBon = getArchetypeSkillBonus(s);
+        const final   = getFinalSkillValue(s);
+        const editAdj = state.skillEditAdjust[s] || 0;
+        const val = Math.min(99, Math.max(0, final + editAdj));
+        return { displayName: getSkillDisplayName(s), val };
+      }),
+    ...(state.customSkills || [])
+      .filter(cs => (cs.customName || '').trim())
+      .map(cs => {
+        const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+        return {
+          displayName: getCustomSkillDisplayName(cs),
+          val: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
+        };
+      }),
+  ].sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+  // Bonds
+  const bonds = state.bonds
+    .filter(b => b && b.name && b.name.trim() && b.type)
+    .map(b => ({
+      name: b.name,
+      type: b.type === 'community' ? 'Community' : 'Personal',
+      score: getBondPlayScore(b),
+    }));
+
+  // Motivations
+  const motivations = Array.isArray(state.identity.motivations)
+    ? state.identity.motivations
+    : makeDefaultMotivations();
+
+  // Derived stats
+  const hp  = derived ? getEffectiveHP() : '—';
+  const maxHP  = derived ? derived.HP : '—';
+  const wp  = derived ? getEffectiveWP() : '—';
+  const maxWP  = derived ? derived.WP : '—';
+  const san = derived ? getEffectiveSAN() : '—';
+  const maxSAN = derived ? derived.MaxSAN : '—';
+  const bp  = derived ? (derived.BP + (state.bpAdjust || 0)) : '—';
+  const dmg = derived ? (derived.DMG > 0 ? `+${derived.DMG}` : `${derived.DMG}`) : '—';
+  const recSAN = derived ? derived.RecoverySAN : '—';
+
+  // Resources
+  const resRating = getDisplayedResources();
+  const resCap    = getResourcesCapacity(resRating);
+
+  // Attributes
+  const attrRows = ATTRIBUTES.map(a => {
+    const v = getDisplayedAttrValue(a);
+    return { name: a, val: v ?? '—', x5: v ? `${v * 5}%` : '—' };
+  });
+
+  // Helper: escape HTML
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // Build skill cells (3-column layout)
+  const skillCellsHtml = allSkills.map(s =>
+    `<div class="skill-row">
+      <span class="skill-name">${esc(s.displayName)}</span>
+      <span class="skill-val">${s.val}%</span>
+    </div>`
+  ).join('');
+
+  // Checkboxes (SAN incidents)
+  function cbRow(label, checks) {
+    const boxes = checks.map(c =>
+      `<span class="cb-box${c ? ' cb-checked' : ''}">${c ? '✕' : ''}</span>`
+    ).join('');
+    const adapted = checks.every(Boolean) ? ' <em>(Adapted)</em>' : '';
+    return `<div class="cb-row"><span class="cb-label">${esc(label)}</span>${boxes}${adapted}</div>`;
+  }
+
+  // Disorders
+  const disordersHtml = state.disorders.length > 0
+    ? state.disorders.map(d => `<div class="disorder-item">${esc(d.text)}</div>`).join('')
+    : '<div class="empty-field">&nbsp;</div>';
+
+  // Motivations HTML
+  const motivationsHtml = motivations.map(m => {
+    const crossed = m.crossed ? ' style="text-decoration:line-through;color:#888;"' : '';
+    return `<div class="motivation-item"${crossed}>${esc(m.text) || '<span class="empty-field">—</span>'}</div>`;
+  }).join('');
+
+  // Bonds HTML
+  const bondsHtml = bonds.length > 0
+    ? bonds.map(b => `<div class="bond-item"><span class="bond-type">[${esc(b.type)}]</span> ${esc(b.name)} <span class="bond-score">${b.score}</span></div>`).join('')
+    : '<div class="empty-field">—</div>';
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>${esc(state.identity.name) || 'Character Sheet'} — ${esc(eraLabel)}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.5pt;
+    color: #000;
+    background: #fff;
+  }
+
+  /* ── Page layout ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 10mm 12mm;
+    border: 2px solid #000;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ── Header ── */
+  .sheet-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+  }
+  .sheet-era {
+    font-family: Georgia, serif;
+    font-size: 22pt;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sheet-title {
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #333;
+    margin-top: 1px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 6px;
+    border: 1px solid #000;
+    padding: 4px 6px;
+  }
+  .section-title {
+    font-weight: bold;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid #000;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+  }
+
+  /* ── Identity block ── */
+  .identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px 10px;
+  }
+  .id-field {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #999;
+    padding-bottom: 1px;
+    margin-bottom: 2px;
+  }
+  .id-label {
+    font-size: 7pt;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .id-value {
+    font-size: 9.5pt;
+    font-weight: bold;
+  }
+
+  /* ── Attributes ── */
+  .attrs-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    text-align: center;
+  }
+  .attr-box {
+    border: 1px solid #000;
+    padding: 3px 2px;
+  }
+  .attr-name {
+    font-size: 7.5pt;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .attr-val {
+    font-size: 14pt;
+    font-weight: bold;
+    line-height: 1.1;
+  }
+  .attr-x5 {
+    font-size: 7.5pt;
+    color: #333;
+  }
+
+  /* ── Derived stats ── */
+  .derived-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    text-align: center;
+  }
+  .derived-box {
+    border: 1px solid #000;
+    padding: 3px 2px;
+  }
+  .derived-name {
+    font-size: 7pt;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .derived-val {
+    font-size: 12pt;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+  .derived-sub {
+    font-size: 7pt;
+    color: #444;
+  }
+
+  /* ── Resources ── */
+  .resources-row {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .res-item { display: flex; flex-direction: column; }
+  .res-label { font-size: 7pt; color: #555; text-transform: uppercase; }
+  .res-val { font-size: 10pt; font-weight: bold; }
+
+  /* ── Skills ── */
+  .skills-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0 8px;
+  }
+  .skill-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #ddd;
+    padding: 1px 0;
+    font-size: 8.5pt;
+  }
+  .skill-name { flex: 1; }
+  .skill-val { font-weight: bold; min-width: 30px; text-align: right; }
+
+  /* ── Bonds ── */
+  .bond-item {
+    padding: 2px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 9pt;
+  }
+  .bond-type {
+    font-size: 7.5pt;
+    color: #555;
+    font-style: italic;
+  }
+  .bond-score {
+    font-weight: bold;
+    float: right;
+    border: 1px solid #000;
+    min-width: 20px;
+    text-align: center;
+    padding: 0 3px;
+  }
+
+  /* ── Motivations ── */
+  .motivation-item {
+    padding: 2px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 9pt;
+  }
+
+  /* ── Disorders ── */
+  .disorder-item {
+    padding: 2px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 9pt;
+  }
+
+  /* ── Text blocks ── */
+  .text-block {
+    min-height: 40px;
+    font-size: 9pt;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  /* ── SAN checkboxes ── */
+  .cb-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+    font-size: 9pt;
+  }
+  .cb-label { min-width: 90px; }
+  .cb-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border: 1px solid #000;
+    font-size: 8pt;
+    font-weight: bold;
+  }
+  .cb-checked { background: #eee; }
+
+  /* ── Two-column layout for page 2 ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  /* ── Empty placeholder ── */
+  .empty-field { color: #aaa; font-style: italic; }
+
+  /* ── Print settings ── */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  @media print {
+    body { background: #fff; }
+    .page {
+      border: none;
+      padding: 8mm 10mm;
+      width: 100%;
+      min-height: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ PAGE 1 ═══════════════════════════ -->
+<div class="page">
+
+  <div class="sheet-header">
+    <div class="sheet-era">${esc(eraLabel)}</div>
+    <div class="sheet-title">Cthulhu Eternal — Protagonist Sheet</div>
+  </div>
+
+  <!-- Identity -->
+  <div class="section">
+    <div class="section-title">Protagonist</div>
+    <div class="identity-grid">
+      <div class="id-field"><span class="id-label">Name</span><span class="id-value">${esc(state.identity.name) || '—'}</span></div>
+      <div class="id-field"><span class="id-label">Profession / Occupation</span><span class="id-value">${esc(state.identity.profession) || '—'}</span></div>
+      <div class="id-field"><span class="id-label">Archetype</span><span class="id-value">${arch ? esc(arch.name) : '—'}</span></div>
+      <div class="id-field"><span class="id-label">Age</span><span class="id-value">${esc(state.identity.characterAge)}</span></div>
+      <div class="id-field"><span class="id-label">Gender</span><span class="id-value">${esc(state.identity.gender) || '—'}</span></div>
+      <div class="id-field"><span class="id-label">Birthplace</span><span class="id-value">${esc(state.identity.birthplace) || '—'}</span></div>
+      <div class="id-field"><span class="id-label">Era</span><span class="id-value">${esc(eraLabel)}</span></div>
+      <div class="id-field"><span class="id-label">Upbringing</span><span class="id-value">${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</span></div>
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  <div class="section">
+    <div class="section-title">Attributes</div>
+    <div class="attrs-grid">
+      ${attrRows.map(a => `
+      <div class="attr-box">
+        <div class="attr-name">${esc(a.name)}</div>
+        <div class="attr-val">${a.val}</div>
+        <div class="attr-x5">${a.x5}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Derived Statistics -->
+  <div class="section">
+    <div class="section-title">Derived Statistics</div>
+    <div class="derived-grid">
+      <div class="derived-box">
+        <div class="derived-name">HP</div>
+        <div class="derived-val">${hp} / ${maxHP}</div>
+        <div class="derived-sub">⌈(STR+CON)÷2⌉</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">WP</div>
+        <div class="derived-val">${wp} / ${maxWP}</div>
+        <div class="derived-sub">Equal to POW</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">SAN</div>
+        <div class="derived-val">${san}</div>
+        <div class="derived-sub">Max: ${maxSAN}</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">Breaking Point</div>
+        <div class="derived-val">${bp}</div>
+        <div class="derived-sub">SAN − POW</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">Recovery SAN</div>
+        <div class="derived-val">${recSAN}</div>
+        <div class="derived-sub">POW × 5</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">Dmg Bonus</div>
+        <div class="derived-val">${dmg}</div>
+        <div class="derived-sub">STR modifier</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">Body Armour</div>
+        <div class="derived-val">${state.bodyArmour || 0}</div>
+        <div class="derived-sub">Reduces damage</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">Luck</div>
+        <div class="derived-val">50</div>
+        <div class="derived-sub">Always 50%</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">Resources</div>
+        <div class="derived-val">${resRating}</div>
+        <div class="derived-sub">${resCap.atHand}/${resCap.stowed}/${resCap.inStorage}</div>
+      </div>
+      <div class="derived-box">
+        <div class="derived-name">SAN Incidents</div>
+        <div style="font-size:8pt;margin-top:2px;">
+          ${cbRow('Violence', state.violenceChecked || [false,false,false])}
+          ${cbRow('Helplessness', state.helplessnessChecked || [false,false,false])}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills -->
+  <div class="section">
+    <div class="section-title">Skills (all values)</div>
+    <div class="skills-columns">
+      ${skillCellsHtml}
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ PAGE 2 ═══════════════════════════ -->
+<div class="page">
+
+  <div class="sheet-header">
+    <div class="sheet-era">${esc(eraLabel)}</div>
+    <div class="sheet-title">Cthulhu Eternal — Protagonist Sheet (continued)</div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- Left column -->
+    <div>
+
+      <!-- Motivations -->
+      <div class="section">
+        <div class="section-title">Motivations &amp; Drivers</div>
+        ${motivationsHtml}
+      </div>
+
+      <!-- Bonds -->
+      <div class="section">
+        <div class="section-title">Bonds</div>
+        ${bondsHtml}
+      </div>
+
+      <!-- Disorders / Conditions -->
+      <div class="section">
+        <div class="section-title">Disorders &amp; Conditions</div>
+        ${disordersHtml}
+      </div>
+
+      <!-- Permanent Injuries -->
+      <div class="section">
+        <div class="section-title">Permanent Injuries</div>
+        <div class="text-block">${esc(state.identity.permanentInjuries) || '<span class="empty-field">—</span>'}</div>
+      </div>
+
+    </div>
+
+    <!-- Right column -->
+    <div>
+
+      <!-- Story So Far (= backstory / background) -->
+      <div class="section" style="flex:1;">
+        <div class="section-title">Story So Far</div>
+        <div class="text-block">${esc(state.identity.backstory) || '<span class="empty-field">—</span>'}</div>
+      </div>
+
+      <!-- Gear & Weapons -->
+      <div class="section">
+        <div class="section-title">Gear &amp; Weapons</div>
+        <div class="text-block">${esc(state.identity.gear) || '<span class="empty-field">—</span>'}</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  window.addEventListener('load', function() {
+    window.print();
+  });
+</script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Please allow pop-ups for this site to use the Original Character Sheet export.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
 
   // Close settings dropdown after export
   const dropdown = document.getElementById('sheet-settings-dropdown');
