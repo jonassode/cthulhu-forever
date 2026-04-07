@@ -1957,6 +1957,13 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
 }
 
+/* ── Upbringing grid ── */
+.upbringing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .archetype-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1970,6 +1977,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   .stepper        { gap: 0; flex-wrap: wrap; overflow-x: visible; }
   .step-item      { flex: 0 0 33.333%; max-width: 33.333%; }
   .step-item:not(:last-child)::after { display: none; }
+  .upbringing-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Print styles ── */
