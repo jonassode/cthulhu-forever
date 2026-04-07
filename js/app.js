@@ -3502,25 +3502,22 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .bp-block p { margin-bottom: 3px; }
 .bp-block p:last-child { margin-bottom: 0; }
 
-/* ── incidents + breaking point row ── */
-.inc-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 3px; border: 1.5px solid #555; padding: 2px 4px; background: #f9f9f9; }
+/* ── era banner (top of page) ── */
+.era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
+.era-banner-title { font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
+.era-banner-era { font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: #444; }
+
+/* ── perm injuries + incidents combined row ── */
+.perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
+.perm-block { border: 1.5px solid #555; }
+.perm-text { padding: 2px 3px; font-size: 7.5pt; min-height: 12mm; white-space: pre-wrap; }
+.inc-block { border: 1.5px solid #555; padding: 2px 4px; background: #f9f9f9; }
 .inc-title { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
 .inc-line { display: flex; align-items: center; gap: 4px; font-size: 7.5pt; margin-bottom: 1px; }
 .inc-lbl { min-width: 60px; font-weight: bold; }
 .cb-box { display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #333; font-size: 7pt; font-weight: bold; }
 .cb-checked { background: #ddd; }
-.bp-display { margin-left: auto; text-align: center; }
-.bp-dis-lbl { font-size: 7pt; font-weight: bold; text-transform: uppercase; }
-.bp-dis-box { border: 2px solid #333; min-width: 12mm; height: 8mm; display: flex; align-items: center; justify-content: center; font-size: 11pt; font-weight: bold; margin-top: 1px; }
-
-/* ── perm injuries + logo row ── */
-.perm-logo-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
-.perm-block { border: 1.5px solid #555; }
-.era-logo { border: 1.5px solid #555; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; padding: 2px; }
-.era-logo-title { font-size: 20pt; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; line-height: 1; }
-.era-logo-sub { font-size: 10pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
-.era-logo-era { font-size: 9pt; letter-spacing: .2em; text-transform: uppercase; color: #444; margin-top: 2px; }
-.perm-text { padding: 2px 3px; font-size: 7.5pt; min-height: 12mm; white-space: pre-wrap; }
 
 /* ── bottom row (skills | bonds) ── */
 .bot-row { display: grid; grid-template-columns: 1fr 52mm; gap: 3px; }
@@ -3591,6 +3588,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 <!-- ═══════════════════════════ PAGE 1 ═══════════════════════════ -->
 <div class="page">
+
+  <!-- ── ERA BANNER ── -->
+  <div class="era-banner">
+    <div class="era-banner-title">Cthulhu Eternal</div>
+    <div class="era-banner-era">${esc(eraLabel.toUpperCase())}</div>
+  </div>
 
   <!-- ── TOP ROW: Identity | Statistics | Other Attributes ── -->
   <div class="top-row">
@@ -3697,9 +3700,13 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
   </div><!-- /mid-row -->
 
-  <!-- ── INCIDENTS OF SAN LOSS + BREAKING POINT ── -->
-  <div class="inc-row">
-    <div>
+  <!-- ── PERMANENT INJURIES + INCIDENTS OF SAN LOSS ── -->
+  <div class="perm-inc-row">
+    <div class="perm-block">
+      <div class="sec-hdr">Permanent Injuries</div>
+      <div class="perm-text">${esc(state.identity.permanentInjuries) || ''}</div>
+    </div>
+    <div class="inc-block">
       <div class="inc-title">Incidents of SAN Loss Without Insanity</div>
       <div class="inc-line">
         <span class="inc-lbl">Violence</span>
@@ -3709,23 +3716,6 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         <span class="inc-lbl">Helplessness</span>
         ${(state.helplessnessChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
       </div>
-    </div>
-    <div class="bp-display">
-      <div class="bp-dis-lbl">Breaking Point</div>
-      <div class="bp-dis-box">${bp}</div>
-    </div>
-  </div>
-
-  <!-- ── PERMANENT INJURIES + ERA LOGO ── -->
-  <div class="perm-logo-row">
-    <div class="perm-block">
-      <div class="sec-hdr">Permanent Injuries</div>
-      <div class="perm-text">${esc(state.identity.permanentInjuries) || ''}</div>
-    </div>
-    <div class="era-logo">
-      <div class="era-logo-title">Cthulhu</div>
-      <div class="era-logo-sub">Eternal</div>
-      <div class="era-logo-era">${esc(eraLabel.toUpperCase())}</div>
     </div>
   </div>
 
