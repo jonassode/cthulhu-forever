@@ -711,13 +711,13 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   position: relative;
 }
 .san-checkbox:checked::after {
-  content: '✓';
+  content: '✗';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 0.65rem;
-  color: var(--accent-gold);
+  color: var(--text-primary);
   line-height: 1;
 }
 .derived-stat {
@@ -1588,16 +1588,14 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-color: var(--text-primary);
 }
 .resource-checkbox:checked::after {
-  content: '';
+  content: '✗';
   position: absolute;
+  top: 50%;
   left: 50%;
-  top: 45%;
-  transform: translate(-50%, -50%) rotate(45deg);
-  width: 30%;
-  height: 55%;
-  border: 1.5px solid var(--accent-gold);
-  border-top: none;
-  border-left: none;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  color: var(--text-primary);
+  line-height: 1;
 }
 .resource-row {
   display: flex;
@@ -1667,16 +1665,14 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-color: var(--text-primary);
 }
 .skill-sheet-cb:checked::after {
-  content: '';
+  content: '✗';
   position: absolute;
+  top: 50%;
   left: 50%;
-  top: 45%;
-  transform: translate(-50%, -50%) rotate(45deg);
-  width: 28%;
-  height: 52%;
-  border: 1.5px solid var(--accent-gold);
-  border-top: none;
-  border-left: none;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  color: var(--text-primary);
+  line-height: 1;
 }
 .skill-row-sheet .sr-name {
   flex: 1;
@@ -2022,7 +2018,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   }
   .resource-checkbox:checked::after,
   .skill-sheet-cb:checked::after {
-    border-color: #4a3728 !important;
+    color: #4a3728 !important;
   }
   @page { margin: 1.5cm; }
 }
@@ -2126,7 +2122,28 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 /* Keep pointer cursor even though data-tooltip sets cursor:help */
 .exhausted-label[data-tooltip] { cursor: pointer; }
 .exhausted-label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
   flex-shrink: 0;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--text-primary);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.exhausted-label input[type="checkbox"]:checked::after {
+  content: '✗';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  color: var(--text-primary);
+  line-height: 1;
 }
 .exhausted-label.exhausted-active {
   color: var(--exhausted-blue);

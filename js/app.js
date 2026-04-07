@@ -3450,7 +3450,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .wp-box { width: 14mm; height: 7mm; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10pt; }
 .wp-lbl { font-size: 6pt; text-transform: uppercase; text-align: center; margin-top: 1px; }
 .wp-exhausted { margin-left: 3px; }
-.wp-exbox { width: 8px; height: 8px; border: 1px solid #333; display: inline-block; margin-right: 2px; ${state.exhausted?'background:#555;':''} }
+.wp-exbox { width: 8px; height: 8px; border: 1px solid #333; display: inline-flex; align-items: center; justify-content: center; margin-right: 2px; font-size: 6pt; font-weight: bold; ${state.exhausted?'':''}}
 .wp-exlbl { font-size: 6pt; }
 .wp-note { font-size: 5.5pt; color: #444; line-height: 1.3; margin-bottom: 3px; }
 .oa-field { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #bbb; padding: 2px 0; font-size: 7.5pt; }
@@ -3505,7 +3505,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .inc-line { display: flex; align-items: center; gap: 4px; font-size: 7.5pt; margin-bottom: 1px; }
 .inc-lbl { min-width: 60px; font-weight: bold; }
 .cb-box { display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #333; font-size: 7pt; font-weight: bold; }
-.cb-checked { background: #ddd; }
+.cb-checked { }
 
 /* ── bottom row (skills | bonds) ── */
 .bot-row { display: grid; grid-template-columns: 1fr 52mm; gap: 3px; }
@@ -3637,7 +3637,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
           <div class="wp-box-grp"><div class="wp-box">${maxWP}</div><div class="wp-lbl">MAX</div></div>
           <div class="wp-box-grp"><div class="wp-box">${wp}</div><div class="wp-lbl">Current</div></div>
           <div class="wp-exhausted">
-            <span class="wp-exbox"></span><span class="wp-exlbl">Exhausted<br>(-20%)</span>
+            <span class="wp-exbox">${state.exhausted ? '✕' : ''}</span><span class="wp-exlbl">Exhausted<br>(-20%)</span>
           </div>
         </div>
         <div class="wp-note">WP 2 or less = emotional breakdown (-20%), WP 0 = incapacitated</div>
@@ -3732,7 +3732,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       </div>
       <div class="res-block">
         <div class="res-hdr">Permanent Resources <strong>${resRating}</strong></div>
-        <div class="res-checks">Resource Checks: <span class="cb-box ${(state.resourceChecked||[])[0]?'cb-checked':''}"></span><span class="cb-box ${(state.resourceChecked||[])[1]?'cb-checked':''}"></span><span class="cb-box ${(state.resourceChecked||[])[2]?'cb-checked':''}"></span></div>
+        <div class="res-checks">Resource Checks: ${[0,1,2].map(i => `<span class="cb-box${(state.resourceChecked||[])[i]?' cb-checked':''}">${(state.resourceChecked||[])[i]?'✕':''}</span>`).join('')}</div>
         <div class="res-caps">
           <div class="res-cap-item"><div class="res-cap-val">${resCap.atHand}</div><div>AT HAND</div></div>
           <div class="res-cap-item"><div class="res-cap-val">${resCap.stowed}</div><div>STOWED</div></div>
