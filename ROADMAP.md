@@ -35,7 +35,7 @@ This is the high level roadmap for Cthulhu Forever
 - Improved Tooltips
 
 ## Improved Export and Character Sheet
-- Being able to Export to a Character Sheet format that looks more like the sheets from the books
+- Better looking character Sheets
 
 ## Mobile
 - Responsive so it looks better on mobile browsers
@@ -49,6 +49,11 @@ This is the high level roadmap for Cthulhu Forever
 ## Character Storage
 - Characters being stored in either Local Storage 
 
+# 1.3 - to be released - ? 
+
+## Export to Text
+- Export to text, to make it easy to include in google docs and play by forum sheets
+
 # Future Version - to be released - ?
 
 ## Playing
@@ -60,10 +65,6 @@ This is the high level roadmap for Cthulhu Forever
 
 ## Games
 - With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
-
-## Improved Export and Character Sheet
-- Being able to Export to a Character Sheet format that looks more like the sheets from the books
-- Export to text, to make it easy to include in google docs and play by forum sheets
 
 ## Additional Tools
 
