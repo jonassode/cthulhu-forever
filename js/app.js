@@ -3316,22 +3316,12 @@ function exportToOriginalSheet() {
     const isOver = (n > maxSANNum);
     return `<span class="sn${isCurr?' sn-curr':''}${isOver?' sn-over':''}">${String(n).padStart(2,'0')}</span>`;
   }
-  // SAN main grid: Current SAN label, insane row (01-07), then 08-20, then rows of 10 up to 99
+  // SAN main grid: 10 rows of 10 (00–09, 10–19, …, 90–99)
   const sanMainRows = (() => {
     const rows = [];
-    // "Current SAN" label row (no number)
-    rows.push(`<div class="san-curr-row">Current SAN</div>`);
-    // Insane row: 01–07
-    const insane = [1,2,3,4,5,6,7].map(sanCell);
-    rows.push(`<div class="san-row san-insane-row"><span class="san-row-lbl">Insane</span>${insane.join('')}</div>`);
-    // 08–20
-    const r1 = [];
-    for (let i = 8; i <= 20; i++) r1.push(sanCell(i));
-    rows.push(`<div class="san-row">${r1.join('')}</div>`);
-    // 21–99
-    for (let s2 = 21; s2 <= 91; s2 += 10) {
+    for (let s = 0; s <= 90; s += 10) {
       const r = [];
-      for (let i = s2; i <= Math.min(s2 + 9, 99); i++) r.push(sanCell(i));
+      for (let i = s; i <= s + 9; i++) r.push(sanCell(i));
       rows.push(`<div class="san-row">${r.join('')}</div>`);
     }
     return rows.join('');
@@ -3478,7 +3468,6 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hp-wrapper { display: flex; }
 .hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; background: #eaf3f8; border-right: 1px solid #888; color: #444; }
 .hp-grid { flex: 1; padding: 2px; }
-.hp-stunned-lbl { font-size: 6pt; font-weight: bold; text-transform: uppercase; color: #c00; margin-bottom: 1px; }
 .hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
 .hn { font-size: 6.5pt; border: 1px solid #ccc; padding: 0 1px; min-width: 12px; text-align: center; }
 .hn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
@@ -3488,10 +3477,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-block { border: 1.5px solid #555; }
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .san-topval { min-width: 12mm; text-align: center; font-size: 9pt; }
-.san-main { padding: 2px; }
-.san-curr-row { font-size: 6.5pt; font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 2px; padding-left: 1px; }
+.san-wrapper { display: flex; }
+.san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; background: #eaf3f8; border-right: 1px solid #888; color: #444; }
+.san-grid { flex: 1; padding: 2px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
-.san-insane-row .san-row-lbl { font-size: 6pt; font-weight: bold; color: #c00; text-transform: uppercase; margin-right: 2px; white-space: nowrap; }
 .sn { font-size: 6pt; border: 1px solid #ccc; padding: 0 1px; min-width: 11px; text-align: center; }
 .sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
@@ -3668,7 +3657,6 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="hp-wrapper">
         <div class="hp-vlabel">Current HP</div>
         <div class="hp-grid">
-          <div class="hp-stunned-lbl">Dead</div>
           <div class="hp-row">${[0,1,2,3].map(hpCell).join('')}</div>
           <div class="hp-row">${[4,5,6,7].map(hpCell).join('')}</div>
           <div class="hp-row">${[8,9,10,11].map(hpCell).join('')}</div>
@@ -3685,7 +3673,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         <span>Recovery SAN <span class="san-topval">${recSAN}</span></span>
         <span>BP <span class="san-topval">${bp}</span></span>
       </div>
-      <div class="san-main">${sanMainRows}</div>
+      <div class="san-wrapper">
+        <div class="san-vlabel">Current SAN</div>
+        <div class="san-grid">${sanMainRows}</div>
+      </div>
     </div>
 
     <!-- Breaking Point notes -->
