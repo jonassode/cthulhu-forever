@@ -3492,7 +3492,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hp-block { border: 1.5px solid #555; }
 .hp-top { display: flex; align-items: baseline; justify-content: space-between; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .hp-maxval { min-width: 10mm; text-align: center; font-size: 9pt; }
-.hp-wrapper { display: flex; }
+.hp-wrapper { display: flex; align-items: flex-start; }
 .hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .hp-grid { flex: 1; padding: 2px 0 2px 2px; }
 .hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
@@ -3504,7 +3504,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-block { border: 1.5px solid #555; }
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .san-topval { min-width: 12mm; text-align: center; font-size: 9pt; }
-.san-wrapper { display: flex; }
+.san-wrapper { display: flex; align-items: flex-start; }
 .san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .san-grid { flex: 1; padding: 2px 0 2px 2px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
