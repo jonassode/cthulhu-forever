@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.45 - Fix alignment: match mid-row column widths to top-row  
 0.2.44 - fix: align Current HP and Current SAN labels to top of wrapper; fix: remove vlabel backgrounds and protagonist card border lines; Remove border-right from hp-vlabel and san-vlabel to fix extra visual border; Remove padding-right from hp-grid and san-grid to eliminate extra right border; Fix PROTAGONIST heading height and gap: move heading inside border wrapper, remove line-height/margin/border from id-title-box; Unify PROTAGONIST, STATISTICS, OTHER ATTRIBUTES heading styles to 8pt/1px 4px/.1em; Fix Fellow Characters line colour/count and Terrible Tomes line count in export sheet; Match inc-block header style and fix checkbox alignment in Original Sheet export; Fix resource check boxes count in Original Sheet export to match rating; Add 'Total Resources' label before resource rating in Original Sheet export; Fix Bonds Box: ensure minimum empty rows in Original Sheet export  
 0.2.43 - feat: chain workflows to run in sequence: Tests → Changelog → Pages → Release  
 0.2.42 - feat: Add Classical Era with skills, descriptions, archetypes, and import/export support  
