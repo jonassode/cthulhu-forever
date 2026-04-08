@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.43 - feat: chain workflows to run in sequence: Tests → Changelog → Pages → Release  
 0.2.42 - feat: Add Classical Era with skills, descriptions, archetypes, and import/export support  
 0.2.41 - Revise roadmap with new export and character sheet features  
 0.2.40 - Update roadmap with new features and eras  
