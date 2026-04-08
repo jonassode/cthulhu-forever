@@ -3590,7 +3590,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .notes-body { padding: 2px; }
 .notes-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
 .fellows-body { padding: 2px 3px; }
-.fellow-item { border-bottom: 1px solid #ddd; height: 5.5mm; font-size: 7.5pt; }
+.fellow-item { border-bottom: 1px solid #aaa; height: 5.5mm; font-size: 7.5pt; }
 
 @page { size: A4; margin: 0; }
 @media print {
@@ -3796,7 +3796,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <div class="tomes-gear-row">
     <div class="tomes-block">
       <div class="sec-hdr">Terrible Tomes &amp; Arcane Rituals</div>
-      <div class="generic-text">${Array(6).fill('<div class="gear-line"></div>').join('')}</div>
+      <div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>
     </div>
     <div class="gear-block">
       <div class="sec-hdr">
@@ -3858,7 +3858,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     <div class="fellows-block">
       <div class="sec-hdr">Fellow Characters</div>
       <div class="fellows-body">
-        ${Array(6).fill('<div class="fellow-item"></div>').join('')}
+        ${Array(10).fill('<div class="fellow-item"></div>').join('')}
       </div>
     </div>
   </div>
