@@ -3397,8 +3397,8 @@ function exportToOriginalSheet() {
       <span class="bond-lscore">${b ? b.score : ''}</span>
     </div>`;
   }
-  const indivBondRows = Array.from({ length: Math.max(indivBonds.length, 4) }, (_, i) => bondLineHtml(indivBonds[i] || null)).join('');
-  const commBondRows  = Array.from({ length: Math.max(commBonds.length, 2) }, (_, i) => bondLineHtml(commBonds[i] || null)).join('');
+  const indivBondRows = Array.from({ length: Math.max(indivBonds.length, 3) }, (_, i) => bondLineHtml(indivBonds[i] || null)).join('');
+  const commBondRows  = Array.from({ length: Math.max(commBonds.length, 3) }, (_, i) => bondLineHtml(commBonds[i] || null)).join('');
 
   // Motivations
   const motivationsHtml = motivations.map(m => {
@@ -3406,10 +3406,12 @@ function exportToOriginalSheet() {
     return `<div class="motiv-item"${crossed}>${esc(m.text) || ''}</div>`;
   }).join('');
 
-  // Disorders
-  const disordersHtml = state.disorders.length > 0
-    ? state.disorders.map(d => `<div class="disord-item">${esc(d.text)}</div>`).join('')
-    : '';
+  // Disorders — always show at least 5 rows
+  const disorderItems = state.disorders || [];
+  const disordersHtml = Array.from({ length: Math.max(disorderItems.length, 5) }, (_, i) => {
+    const d = disorderItems[i];
+    return `<div class="disord-item">${d ? esc(d.text) : ''}</div>`;
+  }).join('');
 
   // Upbringing label
   const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal';
@@ -3441,13 +3443,13 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* identity block */
 .id-title-box {
-  background: #4a7fa0; color: #fff; font-weight: bold; font-size: 7.5pt;
-  text-transform: uppercase; letter-spacing: .05em; text-align: center;
-  padding: 3px 2px; border: 1.5px solid #555; margin-bottom: 2px; line-height: 1.3;
+  background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt;
+  text-transform: uppercase; letter-spacing: .1em; text-align: center;
+  padding: 1px 4px;
 }
-.id-block { border: 1.5px solid #555; padding: 2px 3px; }
-.id-line { border-bottom: 1px solid #bbb; margin-bottom: 2px; padding-bottom: 1px; font-size: 7.5pt; }
-.id-line:last-child { border-bottom: none; margin-bottom: 0; }
+.id-block { border: 1.5px solid #555; }
+.id-inner { padding: 2px 3px; }
+.id-line { margin-bottom: 2px; padding-bottom: 1px; font-size: 7.5pt; }
 .id-lbl { color: #555; font-size: 6.5pt; text-transform: uppercase; display: block; }
 .id-val { font-weight: bold; }
 .id-inline { display: flex; gap: 6px; }
@@ -3455,7 +3457,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* statistics table */
 .stats-block { border: 1.5px solid #555; }
-.stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 9pt; text-align: center; text-transform: uppercase; letter-spacing: .15em; padding: 1px 0; }
+.stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
 .stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #888; padding: 1px 2px; font-size: 7pt; }
 .stats-table td { border: 1px solid #bbb; padding: 1px 3px; }
@@ -3467,7 +3469,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* other attributes */
 .oa-block { border: 1.5px solid #555; }
-.oa-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 7pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 3px; }
+.oa-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .oa-body { padding: 3px; }
 .wp-title { font-weight: bold; font-size: 7.5pt; border-bottom: 1px solid #888; margin-bottom: 2px; padding-bottom: 1px; }
 .wp-row { display: flex; gap: 4px; align-items: flex-end; margin-bottom: 2px; }
@@ -3490,9 +3492,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hp-block { border: 1.5px solid #555; }
 .hp-top { display: flex; align-items: baseline; justify-content: space-between; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .hp-maxval { min-width: 10mm; text-align: center; font-size: 9pt; }
-.hp-wrapper { display: flex; }
-.hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; background: #eaf3f8; border-right: 1px solid #888; color: #444; }
-.hp-grid { flex: 1; padding: 2px; }
+.hp-wrapper { display: flex; align-items: flex-start; }
+.hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
+.hp-grid { flex: 1; padding: 2px 0 2px 2px; }
 .hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
 .hn { font-size: 6.5pt; border: 1px solid #ccc; padding: 0 1px; min-width: 12px; text-align: center; }
 .hn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
@@ -3502,9 +3504,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-block { border: 1.5px solid #555; }
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .san-topval { min-width: 12mm; text-align: center; font-size: 9pt; }
-.san-wrapper { display: flex; }
-.san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; background: #eaf3f8; border-right: 1px solid #888; color: #444; }
-.san-grid { flex: 1; padding: 2px; }
+.san-wrapper { display: flex; align-items: flex-start; }
+.san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
+.san-grid { flex: 1; padding: 2px 0 2px 2px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
 .sn { font-size: 6pt; border: 1px solid #ccc; padding: 0 1px; min-width: 11px; text-align: center; }
 .sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
@@ -3525,10 +3527,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
 .perm-block { border: 1.5px solid #555; }
 .perm-text { padding: 2px 3px; font-size: 7.5pt; min-height: 12mm; white-space: pre-wrap; }
-.inc-block { border: 1.5px solid #555; padding: 2px 4px; background: #f9f9f9; }
-.inc-title { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
+.inc-block { border: 1.5px solid #555; }
+.inc-body { padding: 2px 4px; }
 .inc-line { display: flex; align-items: center; gap: 4px; font-size: 7.5pt; margin-bottom: 1px; }
-.inc-lbl { min-width: 60px; font-weight: bold; }
+.inc-lbl { min-width: 72px; font-weight: bold; }
 .cb-box { display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #333; font-size: 7pt; font-weight: bold; }
 .cb-checked { }
 
@@ -3547,11 +3549,11 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 /* bonds */
 .bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
 .bonds-sub-hdr { display: flex; justify-content: space-between; font-size: 6.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #888; padding: 1px 3px; background: #d0e8f0; }
-.bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; }
+.bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; min-height: 5mm; }
 .bond-lname { flex: 1; }
 .bond-lscore { min-width: 12mm; text-align: right; font-weight: bold; }
 .motiv-dis-block { border-top: 1.5px solid #555; }
-.motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; }
+.motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; min-height: 5mm; }
 .res-block { border-top: 1.5px solid #555; padding: 2px 3px; font-size: 7pt; }
 .res-hdr { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
 .res-checks { display: flex; gap: 3px; align-items: center; font-size: 7pt; margin-bottom: 2px; }
@@ -3588,7 +3590,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .notes-body { padding: 2px; }
 .notes-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
 .fellows-body { padding: 2px 3px; }
-.fellow-item { border-bottom: 1px solid #ddd; height: 5.5mm; font-size: 7.5pt; }
+.fellow-item { border-bottom: 1px solid #aaa; height: 5.5mm; font-size: 7.5pt; }
 
 @page { size: A4; margin: 0; }
 @media print {
@@ -3612,9 +3614,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <div class="top-row">
 
     <!-- Identity block -->
-    <div>
+    <div class="id-block">
       <div class="id-title-box">Protagonist</div>
-      <div class="id-block">
+      <div class="id-inner">
         <div class="id-line"><span class="id-lbl">Name</span><span class="id-val">${esc(state.identity.name) || ''}</span></div>
         <div class="id-line"><span class="id-lbl">Setting</span><span class="id-val">${esc(eraLabel)}</span></div>
         <div class="id-line"><span class="id-lbl">Archetype</span><span class="id-val">${arch ? esc(arch.name) : ''}</span></div>
@@ -3721,7 +3723,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="perm-text">${esc(state.identity.permanentInjuries) || ''}</div>
     </div>
     <div class="inc-block">
-      <div class="inc-title">Incidents of SAN Loss Without Insanity</div>
+      <div class="sec-hdr">Incidents of SAN Loss Without Insanity</div>
+      <div class="inc-body">
       <div class="inc-line">
         <span class="inc-lbl">Violence</span>
         ${(state.violenceChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
@@ -3729,6 +3732,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="inc-line">
         <span class="inc-lbl">Helplessness</span>
         ${(state.helplessnessChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
+      </div>
       </div>
     </div>
   </div>
@@ -3761,8 +3765,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="motiv-dis-block">
         <div class="sec-hdr">Permanent Resources</div>
         <div class="res-block">
-          <div class="res-hdr"><strong>${resRating}</strong></div>
-          <div class="res-checks">Resource Checks: ${[0,1,2].map(i => `<span class="cb-box${(state.resourceChecked||[])[i]?' cb-checked':''}">${(state.resourceChecked||[])[i]?'✕':''}</span>`).join('')}</div>
+          <div class="res-hdr">Total Resources <strong>${resRating}</strong></div>
+          <div class="res-checks">Resource Checks: ${Array.from({length: resCap.checkboxes}, (_, i) => `<span class="cb-box${(state.resourceChecked||[])[i]?' cb-checked':''}">${(state.resourceChecked||[])[i]?'✕':''}</span>`).join('')}</div>
           <div class="res-caps">
             <div class="res-cap-item"><div class="res-cap-val">${resCap.atHand}</div><div>AT HAND</div></div>
             <div class="res-cap-item"><div class="res-cap-val">${resCap.stowed}</div><div>STOWED</div></div>
@@ -3792,7 +3796,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <div class="tomes-gear-row">
     <div class="tomes-block">
       <div class="sec-hdr">Terrible Tomes &amp; Arcane Rituals</div>
-      <div class="generic-text">${Array(6).fill('<div class="gear-line"></div>').join('')}</div>
+      <div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>
     </div>
     <div class="gear-block">
       <div class="sec-hdr">
@@ -3854,7 +3858,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     <div class="fellows-block">
       <div class="sec-hdr">Fellow Characters</div>
       <div class="fellows-body">
-        ${Array(6).fill('<div class="fellow-item"></div>').join('')}
+        ${Array(10).fill('<div class="fellow-item"></div>').join('')}
       </div>
     </div>
   </div>
