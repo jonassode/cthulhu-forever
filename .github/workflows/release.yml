@@ -3,7 +3,7 @@ name: Generate Release ZIP
 on:
   workflow_run:
     workflows:
-      - "Update Changelog and Version"
+      - "Deploy static content to Pages"
     types:
       - completed
 
