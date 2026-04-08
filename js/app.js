@@ -3527,10 +3527,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
 .perm-block { border: 1.5px solid #555; }
 .perm-text { padding: 2px 3px; font-size: 7.5pt; min-height: 12mm; white-space: pre-wrap; }
-.inc-block { border: 1.5px solid #555; padding: 2px 4px; background: #f9f9f9; }
-.inc-title { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
+.inc-block { border: 1.5px solid #555; }
+.inc-body { padding: 2px 4px; }
 .inc-line { display: flex; align-items: center; gap: 4px; font-size: 7.5pt; margin-bottom: 1px; }
-.inc-lbl { min-width: 60px; font-weight: bold; }
+.inc-lbl { min-width: 72px; font-weight: bold; }
 .cb-box { display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #333; font-size: 7pt; font-weight: bold; }
 .cb-checked { }
 
@@ -3723,7 +3723,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="perm-text">${esc(state.identity.permanentInjuries) || ''}</div>
     </div>
     <div class="inc-block">
-      <div class="inc-title">Incidents of SAN Loss Without Insanity</div>
+      <div class="sec-hdr">Incidents of SAN Loss Without Insanity</div>
+      <div class="inc-body">
       <div class="inc-line">
         <span class="inc-lbl">Violence</span>
         ${(state.violenceChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
@@ -3731,6 +3732,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
       <div class="inc-line">
         <span class="inc-lbl">Helplessness</span>
         ${(state.helplessnessChecked || [false,false,false]).map(c => `<span class="cb-box${c?' cb-checked':''}">${c?'✕':''}</span>`).join('')}
+      </div>
       </div>
     </div>
   </div>
