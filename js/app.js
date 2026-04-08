@@ -3397,8 +3397,8 @@ function exportToOriginalSheet() {
       <span class="bond-lscore">${b ? b.score : ''}</span>
     </div>`;
   }
-  const indivBondRows = Array.from({ length: Math.max(indivBonds.length, 4) }, (_, i) => bondLineHtml(indivBonds[i] || null)).join('');
-  const commBondRows  = Array.from({ length: Math.max(commBonds.length, 2) }, (_, i) => bondLineHtml(commBonds[i] || null)).join('');
+  const indivBondRows = Array.from({ length: Math.max(indivBonds.length, 3) }, (_, i) => bondLineHtml(indivBonds[i] || null)).join('');
+  const commBondRows  = Array.from({ length: Math.max(commBonds.length, 3) }, (_, i) => bondLineHtml(commBonds[i] || null)).join('');
 
   // Motivations
   const motivationsHtml = motivations.map(m => {
@@ -3406,10 +3406,12 @@ function exportToOriginalSheet() {
     return `<div class="motiv-item"${crossed}>${esc(m.text) || ''}</div>`;
   }).join('');
 
-  // Disorders
-  const disordersHtml = state.disorders.length > 0
-    ? state.disorders.map(d => `<div class="disord-item">${esc(d.text)}</div>`).join('')
-    : '';
+  // Disorders — always show at least 5 rows
+  const disorderItems = state.disorders || [];
+  const disordersHtml = Array.from({ length: Math.max(disorderItems.length, 5) }, (_, i) => {
+    const d = disorderItems[i];
+    return `<div class="disord-item">${d ? esc(d.text) : ''}</div>`;
+  }).join('');
 
   // Upbringing label
   const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal';
@@ -3547,11 +3549,11 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 /* bonds */
 .bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
 .bonds-sub-hdr { display: flex; justify-content: space-between; font-size: 6.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #888; padding: 1px 3px; background: #d0e8f0; }
-.bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; }
+.bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; min-height: 5mm; }
 .bond-lname { flex: 1; }
 .bond-lscore { min-width: 12mm; text-align: right; font-weight: bold; }
 .motiv-dis-block { border-top: 1.5px solid #555; }
-.motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; }
+.motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; min-height: 5mm; }
 .res-block { border-top: 1.5px solid #555; padding: 2px 3px; font-size: 7pt; }
 .res-hdr { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
 .res-checks { display: flex; gap: 3px; align-items: center; font-size: 7pt; margin-bottom: 2px; }
