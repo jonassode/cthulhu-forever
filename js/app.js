@@ -3486,7 +3486,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .oa-fval { font-weight: bold; min-width: 16mm; text-align: right; font-size: 9pt; padding-right: 2px; }
 
 /* ── middle row (HP | SAN grid | BP notes) ── */
-.mid-row { display: grid; grid-template-columns: 32mm 1fr 42mm; gap: 3px; margin-bottom: 3px; }
+.mid-row { display: grid; grid-template-columns: 34mm 1fr 44mm; gap: 3px; margin-bottom: 3px; }
 
 /* HP block */
 .hp-block { border: 1.5px solid #555; }
