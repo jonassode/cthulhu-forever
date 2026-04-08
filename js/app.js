@@ -3764,7 +3764,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         <div class="sec-hdr">Permanent Resources</div>
         <div class="res-block">
           <div class="res-hdr">Total Resources <strong>${resRating}</strong></div>
-          <div class="res-checks">Resource Checks: ${[0,1,2].map(i => `<span class="cb-box${(state.resourceChecked||[])[i]?' cb-checked':''}">${(state.resourceChecked||[])[i]?'✕':''}</span>`).join('')}</div>
+          <div class="res-checks">Resource Checks: ${Array.from({length: resCap.checkboxes}, (_, i) => `<span class="cb-box${(state.resourceChecked||[])[i]?' cb-checked':''}">${(state.resourceChecked||[])[i]?'✕':''}</span>`).join('')}</div>
           <div class="res-caps">
             <div class="res-cap-item"><div class="res-cap-val">${resCap.atHand}</div><div>AT HAND</div></div>
             <div class="res-cap-item"><div class="res-cap-val">${resCap.stowed}</div><div>STOWED</div></div>
