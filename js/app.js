@@ -3430,7 +3430,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .page:last-child { page-break-after: auto; }
 
 /* ── section helpers ── */
-.sec { border: 1.5px solid #555; margin-bottom: 3px; }
+.sec { border: 2px solid #555; margin-bottom: 3px; }
 .sec-hdr {
   background: #4a7fa0; color: #fff;
   font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em;
@@ -3447,7 +3447,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   text-transform: uppercase; letter-spacing: .1em; text-align: center;
   padding: 1px 4px;
 }
-.id-block { border: 1.5px solid #555; }
+.id-block { border: 2px solid #555; }
 .id-inner { padding: 2px 3px; }
 .id-line { margin-bottom: 2px; padding-bottom: 1px; font-size: 7.5pt; }
 .id-lbl { color: #555; font-size: 6.5pt; text-transform: uppercase; display: block; }
@@ -3456,7 +3456,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .id-inline .id-line { flex: 1; }
 
 /* statistics table */
-.stats-block { border: 1.5px solid #555; }
+.stats-block { border: 2px solid #555; }
 .stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
 .stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #888; padding: 1px 2px; font-size: 7pt; }
@@ -3468,7 +3468,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .st-feat { min-width: 30mm; }
 
 /* other attributes */
-.oa-block { border: 1.5px solid #555; }
+.oa-block { border: 2px solid #555; }
 .oa-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .oa-body { padding: 3px; }
 .wp-title { font-weight: bold; font-size: 7.5pt; border-bottom: 1px solid #888; margin-bottom: 2px; padding-bottom: 1px; }
@@ -3489,7 +3489,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .mid-row { display: grid; grid-template-columns: 34mm 1fr 44mm; gap: 3px; margin-bottom: 3px; }
 
 /* HP block */
-.hp-block { border: 1.5px solid #555; }
+.hp-block { border: 2px solid #555; }
 .hp-top { display: flex; align-items: baseline; justify-content: space-between; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .hp-maxval { min-width: 10mm; text-align: center; font-size: 9pt; }
 .hp-wrapper { display: flex; align-items: flex-start; }
@@ -3501,7 +3501,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hn-over { color: #ccc; border-color: #eee; }
 
 /* SAN grid */
-.san-block { border: 1.5px solid #555; }
+.san-block { border: 2px solid #555; }
 .san-top { display: flex; gap: 6px; align-items: baseline; padding: 1px 3px; font-size: 6.5pt; font-weight: bold; border-bottom: 1px solid #888; background: #eaf3f8; }
 .san-topval { min-width: 12mm; text-align: center; font-size: 9pt; }
 .san-wrapper { display: flex; align-items: flex-start; }
@@ -3513,21 +3513,21 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
 
 /* BP notes */
-.bp-block { border: 1.5px solid #555; padding: 3px; font-size: 5.5pt; line-height: 1.4; color: #222; }
+.bp-block { border: 2px solid #555; padding: 3px; font-size: 5.5pt; line-height: 1.4; color: #222; }
 .bp-block p { margin-bottom: 3px; }
 .bp-block p:last-child { margin-bottom: 0; }
 
 /* ── era banner (top of page) ── */
-.era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
+.era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 2px solid #555; padding: 3px 6px; margin-bottom: 3px; }
 .era-banner-title { font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
 .era-banner-era { font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: #444; }
 
 /* ── perm injuries + incidents combined row ── */
 .perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
-.perm-block { border: 1.5px solid #555; }
+.perm-block { border: 2px solid #555; }
 .perm-text { padding: 2px 3px; font-size: 7.5pt; min-height: 12mm; white-space: pre-wrap; }
-.inc-block { border: 1.5px solid #555; }
+.inc-block { border: 2px solid #555; }
 .inc-body { padding: 2px 4px; }
 .inc-line { display: flex; align-items: center; gap: 4px; font-size: 7.5pt; margin-bottom: 1px; }
 .inc-lbl { min-width: 72px; font-weight: bold; }
@@ -3538,7 +3538,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .bot-row { display: grid; grid-template-columns: 1fr 52mm; gap: 3px; }
 
 /* skills */
-.skills-block { border: 1.5px solid #555; }
+.skills-block { border: 2px solid #555; }
 .skills-note { font-size: 5.5pt; color: #555; padding: 1px 3px; border-bottom: 1px solid #ddd; }
 .skills-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 4px; padding: 2px 3px; }
 .sk-row { display: flex; align-items: baseline; gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 7pt; break-inside: avoid; }
@@ -3547,14 +3547,14 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .sk-score { flex-shrink: 0; font-weight: bold; font-size: 7pt; min-width: 18px; text-align: right; margin-left: 2px; }
 
 /* bonds */
-.bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
+.bonds-block { border: 2px solid #555; display: flex; flex-direction: column; }
 .bonds-sub-hdr { display: flex; justify-content: space-between; font-size: 6.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #888; padding: 1px 3px; background: #d0e8f0; }
 .bond-line { display: flex; align-items: baseline; border-bottom: 1px solid #ddd; padding: 1px 3px; font-size: 7.5pt; min-height: 5mm; }
 .bond-lname { flex: 1; }
 .bond-lscore { min-width: 12mm; text-align: right; font-weight: bold; }
-.motiv-dis-block { border-top: 1.5px solid #555; }
+.motiv-dis-block { border-top: 2px solid #555; }
 .motiv-item, .disord-item { font-size: 7.5pt; padding: 1px 3px; border-bottom: 1px solid #ddd; min-height: 5mm; }
-.res-block { border-top: 1.5px solid #555; padding: 2px 3px; font-size: 7pt; }
+.res-block { border-top: 2px solid #555; padding: 2px 3px; font-size: 7pt; }
 .res-hdr { font-weight: bold; font-size: 7pt; text-transform: uppercase; margin-bottom: 2px; }
 .res-checks { display: flex; gap: 3px; align-items: center; font-size: 7pt; margin-bottom: 2px; }
 .res-caps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; text-align: center; font-size: 6pt; }
@@ -3562,19 +3562,19 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .res-cap-val { font-weight: bold; font-size: 7pt; }
 
 /* ── page 2 ── */
-.story-block { border: 1.5px solid #555; margin-bottom: 3px; }
+.story-block { border: 2px solid #555; margin-bottom: 3px; }
 .story-text { padding: 3px 4px; font-size: 8pt; line-height: 1.5; white-space: pre-wrap; min-height: 55mm; }
 .story-lines { padding: 0 4px 2px; }
 .story-line { border-bottom: 1px solid #aaa; height: 6mm; }
 
 .tomes-gear-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 3px; }
-.tomes-block, .gear-block { border: 1.5px solid #555; }
+.tomes-block, .gear-block { border: 2px solid #555; }
 .gear-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
 .gear-cond-note { font-size: 6pt; color: #555; padding-right: 3px; }
 .generic-text { padding: 3px 4px; font-size: 7.5pt; white-space: pre-wrap; min-height: 28mm; }
 .gear-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
 
-.wpns-block { border: 1.5px solid #555; margin-bottom: 3px; }
+.wpns-block { border: 2px solid #555; margin-bottom: 3px; }
 .wpns-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
 .wpns-note { font-size: 6pt; color: #555; padding-right: 3px; }
 .wpns-table { width: 100%; border-collapse: collapse; font-size: 6.5pt; }
@@ -3584,7 +3584,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .wpn-cond { display: flex; gap: 2px; justify-content: center; }
 
 .bot-p2 { display: grid; grid-template-columns: 55mm 1fr 45mm; gap: 3px; }
-.cheat-block, .notes-block, .fellows-block { border: 1.5px solid #555; }
+.cheat-block, .notes-block, .fellows-block { border: 2px solid #555; }
 .cheat-body { padding: 3px; font-size: 5.5pt; line-height: 1.4; }
 .cheat-body p { margin-bottom: 3px; }
 .notes-body { padding: 2px; }
