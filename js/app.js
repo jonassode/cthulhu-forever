@@ -3445,9 +3445,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .id-title-box {
   background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt;
   text-transform: uppercase; letter-spacing: .1em; text-align: center;
-  padding: 1px 4px; border: 1.5px solid #555; margin-bottom: 2px; line-height: 1.3;
+  padding: 1px 4px;
 }
-.id-block { border: 1.5px solid #555; padding: 2px 3px; }
+.id-block { border: 1.5px solid #555; }
+.id-inner { padding: 2px 3px; }
 .id-line { border-bottom: 1px solid #bbb; margin-bottom: 2px; padding-bottom: 1px; font-size: 7.5pt; }
 .id-line:last-child { border-bottom: none; margin-bottom: 0; }
 .id-lbl { color: #555; font-size: 6.5pt; text-transform: uppercase; display: block; }
@@ -3614,9 +3615,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <div class="top-row">
 
     <!-- Identity block -->
-    <div>
+    <div class="id-block">
       <div class="id-title-box">Protagonist</div>
-      <div class="id-block">
+      <div class="id-inner">
         <div class="id-line"><span class="id-lbl">Name</span><span class="id-val">${esc(state.identity.name) || ''}</span></div>
         <div class="id-line"><span class="id-lbl">Setting</span><span class="id-val">${esc(eraLabel)}</span></div>
         <div class="id-line"><span class="id-lbl">Archetype</span><span class="id-val">${arch ? esc(arch.name) : ''}</span></div>
