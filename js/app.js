@@ -937,7 +937,7 @@ function canProceed(step) {
       }
       return true;
     }
-    case 5: return true; // motivations & gear are optional
+    case 5: return true; // motivations & backstory are optional
     case 6: return true;
     default: return false;
   }
@@ -2336,7 +2336,7 @@ function renderUpbringingEffects() {
   return html;
 }
 
-// ── RENDER: Step 5 — Motivations & Gear ─────────────────────
+// ── RENDER: Step 5 — Motivations & Backstory ─────────────────
 
 function renderStep5() {
   // If the character started with a disorder from a very harsh upbringing + failed POW test,
@@ -2365,8 +2365,8 @@ function renderStep5() {
 
   return `
   <div class="step-content">
-    <h2 class="step-title">Motivations &amp; Gear</h2>
-    <p class="step-subtitle">Define what drives your investigator and what they carry into the darkness. Both fields are optional.</p>
+    <h2 class="step-title">Motivations &amp; Backstory</h2>
+    <p class="step-subtitle">Define what drives your investigator and the history that shaped them. Both fields are optional.</p>
 
     <div class="form-group">
       <label class="form-label">Motivations</label>
@@ -2379,14 +2379,13 @@ function renderStep5() {
     </div>
 
     <div class="form-group" style="margin-top:1.5rem;">
-      <label class="form-label">Gear &amp; Weapons</label>
+      <label class="form-label">Backstory</label>
       <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.5rem;line-height:1.6;">
-        Work with your Keeper to define what equipment you start with that fits your character and the era.
-        Examples: <em>a revolver and holster</em>, <em>a worn leather-bound journal</em>, <em>a first-aid kit</em>, <em>a folding camera</em>.
+        What drove you to investigate the unknown? What do you stand to lose?
       </p>
-      <textarea class="form-textarea" id="char-gear" rows="5"
-                placeholder="Describe your starting equipment and weapons…"
-                oninput="updateIdentity('gear',this.value)">${escapeHtml(state.identity.gear)}</textarea>
+      <textarea class="form-textarea" id="char-backstory" rows="5"
+                placeholder="What drove you to investigate the unknown? What do you stand to lose?"
+                oninput="updateIdentity('backstory',this.value)">${escapeHtml(state.identity.backstory)}</textarea>
     </div>
   </div>`;
 }
@@ -2803,6 +2802,8 @@ function renderStep6() {
                  value="${escapeHtml(state.identity.gender)}"
                  oninput="updateIdentity('gender',this.value)" />
         </div>
+      </div>
+      <div>
         <div class="form-group">
           <label class="form-label">Birthplace</label>
           <input class="form-input" type="text" id="char-birthplace"
@@ -2810,20 +2811,12 @@ function renderStep6() {
                  value="${escapeHtml(state.identity.birthplace)}"
                  oninput="updateIdentity('birthplace',this.value)" />
         </div>
-      </div>
-      <div>
         <div class="form-group">
           <label class="form-label">Age</label>
           <input class="form-input" type="number" id="char-age"
                  min="18" max="80" placeholder="18–80"
                  value="${state.identity.characterAge}"
                  oninput="updateIdentity('characterAge',parseInt(this.value)||25)" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Backstory</label>
-          <textarea class="form-textarea" id="char-backstory" rows="4"
-                    placeholder="What drove you to investigate the unknown? What do you stand to lose?"
-                    oninput="updateIdentity('backstory',this.value)">${escapeHtml(state.identity.backstory)}</textarea>
         </div>
       </div>
     </div>
