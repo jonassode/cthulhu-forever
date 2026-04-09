@@ -3435,9 +3435,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 /* ── section helpers ── */
 .sec { border: 1.5px solid #555; margin-bottom: 3px; }
 .sec-hdr {
-  background: #4a7fa0; color: #fff;
+  background: #4a7fa0; color: #000;
   font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em;
-  padding: 1px 4px;
+  padding: 1px 4px; border: 1.5px solid #000;
 }
 .sec-body { padding: 3px 4px; }
 
@@ -3446,9 +3446,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* identity block */
 .id-title-box {
-  background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt;
+  background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt;
   text-transform: uppercase; letter-spacing: .1em; text-align: center;
-  padding: 1px 4px;
+  padding: 1px 4px; border: 1.5px solid #000;
 }
 .id-block { border: 1.5px solid #555; }
 .id-inner { padding: 2px 3px; }
@@ -3460,7 +3460,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* statistics table */
 .stats-block { border-top: 1.5px solid #555; }
-.stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
+.stats-hdr { background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; border: 1.5px solid #000; }
 .stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
 .stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #bbb; padding: 1px 2px; font-size: 7pt; }
 .stats-table td { border: 1px solid #bbb; padding: 1px 3px; }
@@ -3472,7 +3472,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* other attributes */
 .oa-block { border: 1.5px solid #555; }
-.oa-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
+.oa-hdr { background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; border: 1.5px solid #000; }
 .oa-body { padding: 3px; }
 .wp-title { font-weight: bold; font-size: 7.5pt; margin-bottom: 2px; padding-bottom: 1px; }
 .wp-row { display: flex; gap: 4px; align-items: flex-end; margin-bottom: 2px; }
@@ -3574,14 +3574,14 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .tomes-gear-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 3px; }
 .tomes-block, .gear-block { border: 1.5px solid #555; }
 .gear-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
-.gear-cond-note { font-size: 6pt; color: #fff; padding-right: 3px; }
+.gear-cond-note { font-size: 6pt; color: #000; padding-right: 3px; }
 .generic-text { padding: 3px 4px; font-size: 7.5pt; white-space: pre-wrap; min-height: 28mm; }
 .gear-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
 .gear-line:last-child { border-bottom: none; }
 
 .wpns-block { border: 1.5px solid #555; margin-bottom: 3px; }
 .wpns-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
-.wpns-note { font-size: 6pt; color: #fff; padding-right: 3px; }
+.wpns-note { font-size: 6pt; color: #000; padding-right: 3px; }
 .wpns-table { width: 100%; border-collapse: collapse; font-size: 6.5pt; }
 .wpns-table th { background: #c8dce8; font-weight: bold; border: 1px solid #888; padding: 1px 2px; text-align: center; font-size: 6pt; }
 .wpns-table td { border: 1px solid #ccc; padding: 1px 2px; height: 6mm; }
