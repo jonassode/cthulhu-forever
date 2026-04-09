@@ -11,6 +11,7 @@ This is the high level roadmap for Cthulhu Forever
   - WWII
   - Future
   - Medieval
+  - Classic
 
 ## Character Creation
 - Supporting all Character Creation Options from the SRD
@@ -28,7 +29,6 @@ This is the high level roadmap for Cthulhu Forever
 - Add All ERAs from the SRDs
   - Elizabethan
   - Age of Revolutions
-  - Classical
   - Age of Sails
 
 ## Quality of Life Improvements
