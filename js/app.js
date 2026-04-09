@@ -3421,6 +3421,9 @@ function exportToOriginalSheet() {
 <head>
 <meta charset="UTF-8"/>
 <title>${esc(state.identity.name) || 'Character Sheet'} — ${esc(eraLabel)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; background: #fff; }
@@ -3519,7 +3522,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* ── era banner (top of page) ── */
 .era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
-.era-banner-title { font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.era-banner-title { font-family: 'Cinzel', serif; font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
 .era-banner-era { font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: #444; }
 
