@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.51 - Reorder derived stat boxes in step 2: HP, WP, Dmg Bonus, Body Armour, SAN, Recovery SAN, BP, Max SAN, Luck; Make derived stat boxes half-width in step 2 by switching to 4-column grid  
 0.2.50 - Update ROADMAP to remove character sheet improvements  
 0.2.49 - Update ROADMAP.md  
 0.2.48 - Match stats-table header row border colour to data rows (#bbb); Remove border-bottom from Statistics box on character sheet; Remove bottom line from story, gear, notes, and fellow-characters boxes  
