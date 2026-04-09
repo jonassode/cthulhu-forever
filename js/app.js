@@ -3459,10 +3459,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .id-inline .id-line { flex: 1; }
 
 /* statistics table */
-.stats-block { border-top: 1.5px solid #555; border-bottom: 1.5px solid #555; }
+.stats-block { border-top: 1.5px solid #555; }
 .stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
-.stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #888; padding: 1px 2px; font-size: 7pt; }
+.stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #bbb; padding: 1px 2px; font-size: 7pt; }
 .stats-table td { border: 1px solid #bbb; padding: 1px 3px; }
 .stats-table tr:nth-child(even) td { background: #eaf3f8; }
 .st-name { font-weight: bold; }
@@ -3569,6 +3569,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .story-text { padding: 3px 4px; font-size: 8pt; line-height: 1.5; white-space: pre-wrap; min-height: 55mm; }
 .story-lines { padding: 0 4px 2px; }
 .story-line { border-bottom: 1px solid #aaa; height: 6mm; }
+.story-line:last-child { border-bottom: none; }
 
 .tomes-gear-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 3px; }
 .tomes-block, .gear-block { border: 1.5px solid #555; }
@@ -3576,6 +3577,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .gear-cond-note { font-size: 6pt; color: #fff; padding-right: 3px; }
 .generic-text { padding: 3px 4px; font-size: 7.5pt; white-space: pre-wrap; min-height: 28mm; }
 .gear-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
+.gear-line:last-child { border-bottom: none; }
 
 .wpns-block { border: 1.5px solid #555; margin-bottom: 3px; }
 .wpns-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
@@ -3592,8 +3594,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .cheat-body p { margin-bottom: 3px; }
 .notes-body { padding: 2px; }
 .notes-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
+.notes-line:last-child { border-bottom: none; }
 .fellows-body { padding: 2px 3px; }
 .fellow-item { border-bottom: 1px solid #aaa; height: 5.5mm; font-size: 7.5pt; }
+.fellow-item:last-child { border-bottom: none; }
 
 @page { size: A4; margin: 0; }
 @media print {
