@@ -34,9 +34,6 @@ This is the high level roadmap for Cthulhu Forever
 ## Quality of Life Improvements
 - Improved Tooltips
 
-## Improved Export and Character Sheet
-- Better looking character Sheets
-
 ## Mobile
 - Responsive so it looks better on mobile browsers
 
