@@ -1166,46 +1166,42 @@ function renderStep2() {
   const sanFormula  = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
 
   const derivedHtml = derived ? `
-    <div class="derived-stats-columns">
-      <div class="derived-stats-col">
-        <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
-          <div class="ds-label">Hit Points</div>
-          <div class="ds-value">${derived.HP}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="Equal to POW">
-          <div class="ds-label">Willpower</div>
-          <div class="ds-value">${derived.WP}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
-          <div class="ds-label">Dmg Bonus</div>
-          <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="Armour points that reduce incoming damage">
-          <div class="ds-label">Body Armour</div>
-          <div class="ds-value">${state.bodyArmour || 0}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="Always 50">
-          <div class="ds-label">Luck</div>
-          <div class="ds-value">50</div>
-        </div>
+    <div class="derived-stats">
+      <div class="derived-stat" data-tooltip="⌈(STR + CON) ÷ 2⌉">
+        <div class="ds-label">Hit Points</div>
+        <div class="ds-value">${derived.HP}</div>
       </div>
-      <div class="derived-stats-col">
-        <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
-          <div class="ds-label">Sanity</div>
-          <div class="ds-value">${derived.SAN}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
-          <div class="ds-label">Break. Point</div>
-          <div class="ds-value">${derived.BP}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="99 − Unnatural skill">
-          <div class="ds-label">Max SAN</div>
-          <div class="ds-value">${derived.MaxSAN}</div>
-        </div>
-        <div class="derived-stat" data-tooltip="Always POW × 5">
-          <div class="ds-label">Recovery SAN</div>
-          <div class="ds-value">${derived.RecoverySAN}</div>
-        </div>
+      <div class="derived-stat" data-tooltip="Equal to POW">
+        <div class="ds-label">Willpower</div>
+        <div class="ds-value">${derived.WP}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="STR 1–4: −2 | 5–8: −1 | 9–12: 0 | 13–16: +1 | 17+: +2">
+        <div class="ds-label">Dmg Bonus</div>
+        <div class="ds-value">${derived.DMG > 0 ? '+' + derived.DMG : derived.DMG}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="Armour points that reduce incoming damage">
+        <div class="ds-label">Body Armour</div>
+        <div class="ds-value">${state.bodyArmour || 0}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
+        <div class="ds-label">Sanity</div>
+        <div class="ds-value">${derived.SAN}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="Always POW × 5">
+        <div class="ds-label">Recovery SAN</div>
+        <div class="ds-value">${derived.RecoverySAN}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="SAN − POW (Breaking Point)">
+        <div class="ds-label">Break. Point</div>
+        <div class="ds-value">${derived.BP}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="99 − Unnatural skill">
+        <div class="ds-label">Max SAN</div>
+        <div class="ds-value">${derived.MaxSAN}</div>
+      </div>
+      <div class="derived-stat" data-tooltip="Always 50">
+        <div class="ds-label">Luck</div>
+        <div class="ds-value">50</div>
       </div>
     </div>` : '';
 
