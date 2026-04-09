@@ -3437,7 +3437,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .sec-hdr {
   background: #4a7fa0; color: #000;
   font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em;
-  padding: 1px 4px; border: 1.5px solid #000;
+  padding: 1px 4px; border-bottom: 1.5px solid #555;
 }
 .sec-body { padding: 3px 4px; }
 
@@ -3448,7 +3448,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .id-title-box {
   background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt;
   text-transform: uppercase; letter-spacing: .1em; text-align: center;
-  padding: 1px 4px; border: 1.5px solid #000;
+  padding: 1px 4px; border-bottom: 1.5px solid #555;
 }
 .id-block { border: 1.5px solid #555; }
 .id-inner { padding: 2px 3px; }
@@ -3460,7 +3460,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* statistics table */
 .stats-block { border-top: 1.5px solid #555; }
-.stats-hdr { background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; border: 1.5px solid #000; }
+.stats-hdr { background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; border: 1.5px solid #555; }
 .stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
 .stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #bbb; padding: 1px 2px; font-size: 7pt; }
 .stats-table td { border: 1px solid #bbb; padding: 1px 3px; }
@@ -3472,7 +3472,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* other attributes */
 .oa-block { border: 1.5px solid #555; }
-.oa-hdr { background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; border: 1.5px solid #000; }
+.oa-hdr { background: #4a7fa0; color: #000; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; border-bottom: 1.5px solid #555; }
 .oa-body { padding: 3px; }
 .wp-title { font-weight: bold; font-size: 7.5pt; margin-bottom: 2px; padding-bottom: 1px; }
 .wp-row { display: flex; gap: 4px; align-items: flex-end; margin-bottom: 2px; }
