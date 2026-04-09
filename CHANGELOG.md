@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.48 - Match stats-table header row border colour to data rows (#bbb); Remove border-bottom from Statistics box on character sheet; Remove bottom line from story, gear, notes, and fellow-characters boxes  
 0.2.47 - Fix exported sheet: remove stats table side borders, willpower underline, and fix text colors  
 0.2.46 - Change font of Original Sheet heading to Cinzel to match character sheet  
 0.2.45 - Fix alignment: match mid-row column widths to top-row  
