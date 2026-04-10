@@ -59,7 +59,7 @@ physical sheet.
       labels are unchanged.
 - [ ] A `cursive` generic font family is included as a fallback so the sheet
       renders acceptably without an internet connection.
-- [ ] The chosen font size keeps text legible at typical print scale (≥ 7.5pt
+- [ ] The chosen font size keeps text legible at typical print scale (>= 7.5pt
       or equivalent).
 
 ### No regressions
@@ -75,8 +75,9 @@ physical sheet.
 
 - The lined background can be achieved with a CSS `repeating-linear-gradient`
   on the text container (e.g.
-  `background: repeating-linear-gradient(transparent, transparent calc(line-height - 1px), #aaa calc(line-height - 1px), #aaa line-height)`)
-  so that the lines are always present regardless of content.
+  `background: repeating-linear-gradient(transparent, transparent calc(6mm - 1px), #aaa calc(6mm - 1px), #aaa 6mm)`)
+  where `6mm` matches the chosen `line-height`, so that the lines are always
+  present regardless of content.
 - Alternatively, the existing `gear-line` divs can be kept as a background
   layer and the text overlaid with `position: absolute` on top, though the
   gradient approach is simpler.
