@@ -2764,7 +2764,7 @@ function buildCharSheetHtml() {
         <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
       </div>
       <div class="sheet-section">
-        <div class="sheet-section-title">Gear &amp; Weapons</div>
+        <div class="sheet-section-title">Gear</div>
         <div class="sheet-backstory" id="sheet-gear" title="Double-click to edit" ondblclick="startEditText('gear','sheet-gear')">${state.identity.gear.trim() ? escapeHtml(state.identity.gear) : ''}</div>
       </div>
     </div>

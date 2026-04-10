@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.57 - Rename "Gear & Weapons" to "Gear" on character sheet; mark requirement 001 as implemented  
 0.2.56 - fix: remove original sheet export references from weapons table requirements; feat: add requirements/003-weapons-table.md  
 0.2.55 - Add Terrible Tomes & Arcane Rituals field to character sheet; Update acceptance criteria for terribleTomes feature; Change implementation status to 'no' for requirement 002; revert: remove code changes, keep only requirements file 002; feat: add Terrible Tomes & Arcane Rituals field and restructure character sheet  
 0.2.54 - Add implementation status to gear description requirement  

@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented: no
+Implemented: yes
 
 ## Summary
 
@@ -14,9 +14,9 @@ The current character sheet displays a section titled "Gear & Weapons". The weap
 
 ## Acceptance Criteria
 
-- [ ] The section title on the printed/rendered character sheet reads **"Gear"** instead of **"Gear & Weapons"**.
-- [ ] No other labels, field names, state properties, or export/import keys are changed.
-- [ ] Existing character data (the `state.identity.gear` field) continues to load and save correctly.
+- [x] The section title on the printed/rendered character sheet reads **"Gear"** instead of **"Gear & Weapons"**.
+- [x] No other labels, field names, state properties, or export/import keys are changed.
+- [x] Existing character data (the `state.identity.gear` field) continues to load and save correctly.
 
 ## Implementation Notes
 
