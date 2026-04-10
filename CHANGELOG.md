@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.59 - feat: implement Terrible Tomes & Arcane Rituals field (requirement 002)  
 0.2.58 - Implement character sheet gear description changes  
 0.2.57 - feat: rename Gear & Weapons to Gear on character sheet; mark requirement 001 implemented  
 0.2.57 - Rename "Gear & Weapons" to "Gear" on character sheet; mark requirement 001 as implemented  
