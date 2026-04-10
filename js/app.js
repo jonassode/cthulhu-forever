@@ -3602,7 +3602,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .wpns-note { font-size: 6pt; color: #fff; padding-right: 3px; }
 .wpns-table { width: 100%; border-collapse: collapse; font-size: 6.5pt; }
 .wpns-table th { background: #c8dce8; font-weight: bold; border: 1px solid #ccc; padding: 1px 2px; text-align: center; font-size: 6pt; }
+.wpns-table th:first-child { border-left: none; }
+.wpns-table th:last-child { border-right: none; }
 .wpns-table td { border: 1px solid #ccc; padding: 1px 2px; height: 6mm; }
+.wpns-table td:first-child { border-left: none; }
+.wpns-table td:last-child { border-right: none; }
+.wpns-table tr:last-child td { border-bottom: none; }
 .wpns-table tr:nth-child(even) td { background: #f5f9fc; }
 .wpn-cond { display: flex; gap: 2px; justify-content: center; }
 
