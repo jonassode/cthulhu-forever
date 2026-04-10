@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented: no
+Implemented: yes
 
 ## Summary
 
@@ -28,47 +28,47 @@ physical sheet.
 
 ### Ruled lines always visible
 
-- [ ] The **Gear** section on the original sheet always renders ruled lines
+- [x] The **Gear** section on the original sheet always renders ruled lines
       underneath the content, whether the field is empty or contains text.
-- [ ] The **Terrible Tomes & Arcane Rituals** section on the original sheet
+- [x] The **Terrible Tomes & Arcane Rituals** section on the original sheet
       always renders ruled lines underneath the content, whether the field is
       empty or contains text.
-- [ ] The **Protagonist's Story So Far** section applies the same treatment
+- [x] The **Protagonist's Story So Far** section applies the same treatment
       for consistency.
-- [ ] Ruled lines are not removed or hidden when a non-empty value is present;
+- [x] Ruled lines are not removed or hidden when a non-empty value is present;
       lines must be visible beneath each line of text.
 
 ### Line-by-line text layout
 
-- [ ] Text is rendered so that each line of content sits on top of one ruled
+- [x] Text is rendered so that each line of content sits on top of one ruled
       line (i.e. the text baseline aligns with the bottom border of each ruled
       row).
-- [ ] The `line-height` of the text matches the height of each ruled line so
+- [x] The `line-height` of the text matches the height of each ruled line so
       that multi-line content flows across consecutive lines without overlap or
       gaps.
-- [ ] Lines that contain no text still display the visible ruled line (the
+- [x] Lines that contain no text still display the visible ruled line (the
       section never collapses below its minimum ruled height).
 
 ### Handwritten font
 
-- [ ] Text in the lined sections is displayed using a handwritten-style
+- [x] Text in the lined sections is displayed using a handwritten-style
       typeface (for example *Caveat*, *Patrick Hand*, or *Indie Flower* from
       Google Fonts, or an equivalent web-safe cursive fallback).
-- [ ] The font is applied only to the filled-text portions of the Gear,
+- [x] The font is applied only to the filled-text portions of the Gear,
       Terrible Tomes, and Story So Far sections; section headers and other
       labels are unchanged.
-- [ ] A `cursive` generic font family is included as a fallback so the sheet
+- [x] A `cursive` generic font family is included as a fallback so the sheet
       renders acceptably without an internet connection.
-- [ ] The chosen font size keeps text legible at typical print scale (>= 7.5pt
+- [x] The chosen font size keeps text legible at typical print scale (>= 7.5pt
       or equivalent).
 
 ### No regressions
 
-- [ ] Empty sections continue to display the same number of ruled lines as
+- [x] Empty sections continue to display the same number of ruled lines as
       before (8 lines for Gear and Terrible Tomes, 12 lines for Story So Far).
-- [ ] No existing CSS class names, element IDs, state properties, or exported
+- [x] No existing CSS class names, element IDs, state properties, or exported
       JSON keys are renamed.
-- [ ] The `validate-import-export.mjs` and `validate-skill-parity.mjs`
+- [x] The `validate-import-export.mjs` and `validate-skill-parity.mjs`
       validation scripts continue to pass without modification.
 
 ## Implementation Notes

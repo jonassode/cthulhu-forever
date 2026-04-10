@@ -3418,7 +3418,7 @@ function exportToOriginalSheet() {
 <title>${esc(state.identity.name) || 'Character Sheet'} — ${esc(eraLabel)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Caveat:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; background: #fff; }
@@ -3572,6 +3572,26 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .generic-text { padding: 3px 4px; font-size: 7.5pt; white-space: pre-wrap; min-height: 28mm; }
 .gear-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
 .gear-line:last-child { border-bottom: none; }
+.lined-text-sm {
+  padding: 2px 4px 0;
+  font-family: 'Caveat', cursive;
+  font-size: 9pt;
+  line-height: 5.5mm;
+  min-height: 44mm;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: repeating-linear-gradient(transparent, transparent calc(5.5mm - 1px), #aaa calc(5.5mm - 1px), #aaa 5.5mm);
+}
+.lined-text-lg {
+  padding: 2px 4px 0;
+  font-family: 'Caveat', cursive;
+  font-size: 9pt;
+  line-height: 6mm;
+  min-height: 72mm;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: repeating-linear-gradient(transparent, transparent calc(6mm - 1px), #aaa calc(6mm - 1px), #aaa 6mm);
+}
 
 .wpns-block { border: 1.5px solid #555; margin-bottom: 3px; }
 .wpns-hdr-row { display: flex; justify-content: space-between; align-items: baseline; }
@@ -3787,29 +3807,20 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <!-- ── STORY SO FAR (full width) ── -->
   <div class="story-block">
     <div class="sec-hdr" style="font-size:10pt;text-align:center;letter-spacing:.2em;">Protagonist's Story So Far</div>
-    ${(state.identity.backstory || '').trim()
-      ? `<div class="story-text">${esc(state.identity.backstory)}</div>`
-      : `<div class="story-lines">${Array(12).fill('<div class="story-line"></div>').join('')}</div>`
-    }
+    <div class="lined-text-lg">${esc(state.identity.backstory || '')}</div>
   </div>
 
   <!-- ── DISORDERS + GEAR ── -->
   <div class="tomes-gear-row">
     <div class="tomes-block">
       <div class="sec-hdr">Terrible Tomes &amp; Arcane Rituals</div>
-      ${(state.identity.terribleTomes || '').trim()
-        ? `<div class="generic-text">${esc(state.identity.terribleTomes)}</div>`
-        : `<div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>`
-      }
+      <div class="lined-text-sm">${esc(state.identity.terribleTomes || '')}</div>
     </div>
     <div class="gear-block">
       <div class="sec-hdr">
         <div class="gear-hdr-row"><span>Gear</span><span class="gear-cond-note">Record Pristine/Worn/Junk</span></div>
       </div>
-      ${(state.identity.gear || '').trim()
-        ? `<div class="generic-text">${esc(state.identity.gear)}</div>`
-        : `<div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>`
-      }
+      <div class="lined-text-sm">${esc(state.identity.gear || '')}</div>
     </div>
   </div>
 
