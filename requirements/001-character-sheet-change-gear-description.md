@@ -1,5 +1,9 @@
 # Requirement 001 – Rename "Gear & Weapons" to "Gear" on the Character Sheet
 
+## Status
+
+Implemented: no
+
 ## Summary
 
 The label for the gear section on the character sheet must be renamed from **"Gear & Weapons"** to **"Gear"**.
