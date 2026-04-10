@@ -8,7 +8,7 @@ Implemented: no
 
 Add a new **Terrible Tomes & Arcane Rituals** free-text field to the character
 sheet and original sheet export.  Restructure the character sheet so that
-backstory occupies its own full-width row and the new field sits alongside
+backstory occupies its own full-width row and the field sits alongside
 **Gear** in a two-column row beneath it.
 
 ## Background
