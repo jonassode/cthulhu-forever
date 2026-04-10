@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.61 - fix: tidy requirements/004 wording per code review feedback; feat: add requirements/004-original-sheet-lined-text-sections.md  
 0.2.60 - Fix weapons table header border color to match data rows (#ccc)  
 0.2.59 - feat: implement Terrible Tomes & Arcane Rituals field (requirement 002)  
 0.2.58 - Implement character sheet gear description changes  
