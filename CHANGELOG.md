@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.65 - fix: remove left, right, and bottom borders from weapons table on original sheet  
 0.2.64 - Fix lined sections: no bottom line, inset lines matching fellow-item style; Implement requirement 004: lined text sections with handwritten font on original sheet  
 0.2.63 - docs(003): add military training skills to weapons table skill dropdown spec  
 0.2.62 - Remove empty .stats-block CSS rule; Remove border-top line above statistics section in original sheet export  
