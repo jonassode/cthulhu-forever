@@ -59,13 +59,13 @@ more readable.
 
   | Era | Skills offered |
   |---|---|
-  | jazz | Athletics, Firearms, Melee Weapons, Unarmed Combat |
-  | modern | Athletics, Firearms, Melee Weapons, Unarmed Combat |
-  | coldwar | Athletics, Firearms, Martial Arts, Melee Weapons, Unarmed Combat |
-  | victorian | Athletics, Firearms, Melee Weapons, Unarmed Combat |
-  | ww1 | Artillery, Athletics, Firearms, Heavy Weapons, Melee Weapons, Unarmed Combat |
-  | ww2 | Artillery, Athletics, Firearms, Heavy Weapons, Melee Weapons, Unarmed Combat |
-  | future | Athletics, Firearms / Beam Weapons, Melee Weapons, Unarmed Combat |
+  | jazz | Athletics, Firearms, Melee Weapons, Military Training (Type), Unarmed Combat |
+  | modern | Athletics, Firearms, Melee Weapons, Military Training (Type), Unarmed Combat |
+  | coldwar | Athletics, Firearms, Martial Arts, Melee Weapons, Military Training (Type), Unarmed Combat |
+  | victorian | Athletics, Firearms, Melee Weapons, Military Training (Type), Unarmed Combat |
+  | ww1 | Artillery, Athletics, Firearms, Heavy Weapons, Melee Weapons, Military Science, Unarmed Combat |
+  | ww2 | Artillery, Athletics, Firearms, Heavy Weapons, Melee Weapons, Military Science, Unarmed Combat |
+  | future | Athletics, Firearms / Beam Weapons, Melee Weapons, Military Training (Type), Unarmed Combat |
   | medieval | Athletics, Melee Weapons, Ranged Weapons, Siege Weapons, Unarmed Combat |
   | classical | Athletics, Melee Weapons, Ranged Weapons, Siege Weapons, Unarmed Combat |
 
