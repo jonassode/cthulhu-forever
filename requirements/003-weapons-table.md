@@ -6,12 +6,11 @@ Implemented: no
 
 ## Summary
 
-Add a new full-width **Weapons** table to the character sheet (step 6) and
-original sheet export.  Each row captures one weapon's details.  The skill
-dropdown is populated from the era's combat-relevant skills.  Damage bonus is
-auto-filled when a melee or unarmed skill is selected.  Rows grow automatically
-so there is always one blank row at the bottom.  The table round-trips through
-export/import correctly and renders in the original sheet export.
+Add a new full-width **Weapons** table to the character sheet (step 6).
+Each row captures one weapon's details.  The skill dropdown is populated from
+the era's combat-relevant skills.  Damage bonus is auto-filled when a melee or
+unarmed skill is selected.  Rows grow automatically so there is always one blank
+row at the bottom.  The table round-trips through export/import correctly.
 
 ## Background
 
@@ -72,9 +71,8 @@ more readable.
 
 - [ ] The **Damage Bonus** `(db)` cell for a row is automatically populated
       with the character's current Damage Bonus value whenever the selected
-      skill is one that triggers it (Melee Weapons or Unarmed Combat in modern
-      eras; Melee Weapons or Unarmed Combat in historical eras).  The cell is
-      blank for all other skills.
+      skill is Melee Weapons or Unarmed Combat.  The cell is blank for all
+      other skills.
 - [ ] The three condition checkboxes (Pristine / Worn / Junk) behave as a
       radio group: selecting one deselects the other two in the same row.
 - [ ] When the user enters any value in the last (blank) row, a new empty row
@@ -94,15 +92,6 @@ more readable.
       absent.
 - [ ] After import the trailing-blank-row invariant is enforced: if the last
       row of the imported array is not fully blank, a new empty row is appended.
-
-### Original Sheet Export
-
-- [ ] `exportToOriginalSheet` renders a Weapons block in the generated HTML
-      that mirrors the on-screen table layout.
-- [ ] Each non-blank weapon row is rendered as a table row with all field
-      values populated.
-- [ ] If all rows are blank the Weapons block renders empty rows (matching the
-      reference image style — blank lines are shown, not omitted).
 
 ### Validation Scripts
 
