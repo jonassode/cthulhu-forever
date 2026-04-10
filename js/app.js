@@ -3572,25 +3572,29 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .generic-text { padding: 3px 4px; font-size: 7.5pt; white-space: pre-wrap; min-height: 28mm; }
 .gear-line { border-bottom: 1px solid #aaa; height: 5.5mm; }
 .gear-line:last-child { border-bottom: none; }
+.lined-wrap { position: relative; overflow: hidden; }
+.lined-rows { padding: 2px 3px; }
+.lined-row { height: 5.5mm; border-bottom: 1px solid #aaa; }
+.lined-row:last-child { border-bottom: none; }
+.lined-row-lg { height: 6mm; border-bottom: 1px solid #aaa; }
+.lined-row-lg:last-child { border-bottom: none; }
 .lined-text-sm {
-  padding: 2px 4px 0;
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 2px 3px 0;
   font-family: 'Caveat', cursive;
   font-size: 9pt;
   line-height: 5.5mm;
-  min-height: 44mm;
   white-space: pre-wrap;
   word-wrap: break-word;
-  background: repeating-linear-gradient(transparent, transparent calc(5.5mm - 1px), #aaa calc(5.5mm - 1px), #aaa 5.5mm);
 }
 .lined-text-lg {
-  padding: 2px 4px 0;
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 2px 3px 0;
   font-family: 'Caveat', cursive;
   font-size: 9pt;
   line-height: 6mm;
-  min-height: 72mm;
   white-space: pre-wrap;
   word-wrap: break-word;
-  background: repeating-linear-gradient(transparent, transparent calc(6mm - 1px), #aaa calc(6mm - 1px), #aaa 6mm);
 }
 
 .wpns-block { border: 1.5px solid #555; margin-bottom: 3px; }
@@ -3807,20 +3811,29 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <!-- ── STORY SO FAR (full width) ── -->
   <div class="story-block">
     <div class="sec-hdr" style="font-size:10pt;text-align:center;letter-spacing:.2em;">Protagonist's Story So Far</div>
-    <div class="lined-text-lg">${esc(state.identity.backstory || '')}</div>
+    <div class="lined-wrap">
+      <div class="lined-rows">${Array(12).fill('<div class="lined-row-lg"></div>').join('')}</div>
+      <div class="lined-text-lg">${esc(state.identity.backstory || '')}</div>
+    </div>
   </div>
 
   <!-- ── DISORDERS + GEAR ── -->
   <div class="tomes-gear-row">
     <div class="tomes-block">
       <div class="sec-hdr">Terrible Tomes &amp; Arcane Rituals</div>
-      <div class="lined-text-sm">${esc(state.identity.terribleTomes || '')}</div>
+      <div class="lined-wrap">
+        <div class="lined-rows">${Array(8).fill('<div class="lined-row"></div>').join('')}</div>
+        <div class="lined-text-sm">${esc(state.identity.terribleTomes || '')}</div>
+      </div>
     </div>
     <div class="gear-block">
       <div class="sec-hdr">
         <div class="gear-hdr-row"><span>Gear</span><span class="gear-cond-note">Record Pristine/Worn/Junk</span></div>
       </div>
-      <div class="lined-text-sm">${esc(state.identity.gear || '')}</div>
+      <div class="lined-wrap">
+        <div class="lined-rows">${Array(8).fill('<div class="lined-row"></div>').join('')}</div>
+        <div class="lined-text-sm">${esc(state.identity.gear || '')}</div>
+      </div>
     </div>
   </div>
 
