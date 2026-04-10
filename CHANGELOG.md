@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.53 - Add requirements folder and 001-character-sheet-change-gear-description.md  
 0.2.52 - Replace gear & weapons with backstory in step 5; realign step 6 fields  
 0.2.51 - Reorder derived stat boxes in step 2: HP, WP, Dmg Bonus, Body Armour, SAN, Recovery SAN, BP, Max SAN, Luck; Make derived stat boxes half-width in step 2 by switching to 4-column grid  
 0.2.50 - Update ROADMAP to remove character sheet improvements  
