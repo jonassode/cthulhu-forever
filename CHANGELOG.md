@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.63 - docs(003): add military training skills to weapons table skill dropdown spec  
 0.2.62 - Remove empty .stats-block CSS rule; Remove border-top line above statistics section in original sheet export  
 0.2.61 - fix: tidy requirements/004 wording per code review feedback; feat: add requirements/004-original-sheet-lined-text-sections.md  
 0.2.60 - Fix weapons table header border color to match data rows (#ccc)  
