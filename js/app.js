@@ -85,6 +85,7 @@ const state = {
     backstory: '',
     motivations: [{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false}],
     gear: '',
+    terribleTomes: '',
     permanentInjuries: '',
   },
 };
@@ -2758,10 +2759,15 @@ function buildCharSheetHtml() {
       </div>
     </div>
 
+    <div class="sheet-section">
+      <div class="sheet-section-title">Backstory</div>
+      <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+    </div>
+
     <div class="sheet-2col-row">
       <div class="sheet-section">
-        <div class="sheet-section-title">Backstory</div>
-        <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
+        <div class="sheet-section-title">Terrible Tomes &amp; Arcane Rituals</div>
+        <div class="sheet-backstory" id="sheet-terrible-tomes" title="Double-click to edit" ondblclick="startEditText('terribleTomes','sheet-terrible-tomes')">${state.identity.terribleTomes.trim() ? escapeHtml(state.identity.terribleTomes) : ''}</div>
       </div>
       <div class="sheet-section">
         <div class="sheet-section-title">Gear</div>
@@ -3792,7 +3798,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <div class="tomes-gear-row">
     <div class="tomes-block">
       <div class="sec-hdr">Terrible Tomes &amp; Arcane Rituals</div>
-      <div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>
+      ${(state.identity.terribleTomes || '').trim()
+        ? `<div class="generic-text">${esc(state.identity.terribleTomes)}</div>`
+        : `<div class="generic-text">${Array(8).fill('<div class="gear-line"></div>').join('')}</div>`
+      }
     </div>
     <div class="gear-block">
       <div class="sec-hdr">
@@ -3984,6 +3993,7 @@ function importFromJsonV2(data) {
     backstory:         data.identity.backstory || '',
     motivations:       importMotivations(data.identity.motivations),
     gear:              data.identity.gear || '',
+    terribleTomes:     data.identity.terribleTomes || '',
     permanentInjuries: data.identity.permanentInjuries || '',
   };
 
@@ -4133,6 +4143,7 @@ function importFromJsonV1(data) {
     backstory:         data.identity.backstory || '',
     motivations:       importMotivations(data.identity.motivations),
     gear:              data.identity.gear || '',
+    terribleTomes:     data.identity.terribleTomes || '',
     permanentInjuries: data.identity.permanentInjuries || '',
   };
 
@@ -4203,7 +4214,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', permanentInjuries: '' };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '' };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;

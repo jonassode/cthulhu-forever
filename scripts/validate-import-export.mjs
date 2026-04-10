@@ -90,6 +90,7 @@ for (let i = 0; i < (id.motivations || []).length; i++) {
 }
 assert((id.motivations || []).length === 5, `identity.motivations should have 5 entries, got ${(id.motivations || []).length}`);
 assertField(id, 'gear', 'string', 'identity');
+assertField(id, 'terribleTomes', 'string', 'identity');
 assertField(id, 'permanentInjuries', 'string', 'identity');
 
 // 4. Final attribute values — all 6 must be present as numbers
