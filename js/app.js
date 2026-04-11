@@ -4355,7 +4355,7 @@ function render() {
         </span>
       </div>
       <div class="app-footer__issues">
-        <span>Found a bug or have a suggestion?
+        <span><strong>Cthulhu Forever</strong> is a unofficial fan project. Found a bug or have a suggestion?
           <a href="https://github.com/jonassode/cthulhu-forever/issues" target="_blank" rel="noopener noreferrer">Raise a ticket on GitHub</a>
            or <a href="https://jonassoderstrom.itch.io/cthulhu-forever" target="_blank" rel="noopener noreferrer">Check out the project on Itch</a>
         </span>
