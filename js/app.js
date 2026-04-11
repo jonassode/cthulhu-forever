@@ -87,6 +87,7 @@ const state = {
     gear: '',
     terribleTomes: '',
     permanentInjuries: '',
+    weapons: [{}],
   },
 };
 
@@ -665,6 +666,101 @@ function adjustAttrInEditMode(attrKey, delta) {
 
 function makeDefaultMotivations() {
   return [{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false}];
+}
+
+function makeEmptyWeaponRow() {
+  return { weapon: '', skill: '', baseRange: '', damage: '', ap: '', condition: '', lethality: '', killRadius: '', ammo: '' };
+}
+
+function getWeaponSkills() {
+  switch (state.age) {
+    case 'coldwar':
+      return ['Athletics', 'Firearms', 'Martial Arts', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
+    case 'ww1':
+    case 'ww2':
+      return ['Artillery', 'Athletics', 'Firearms', 'Heavy Weapons', 'Melee Weapons', 'Military Science', 'Unarmed Combat'];
+    case 'future':
+      return ['Athletics', 'Firearms / Beam Weapons', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
+    case 'medieval':
+    case 'classical':
+      return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
+    default: // jazz, modern, victorian and any other era
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
+  }
+}
+
+function isMeleeOrUnarmedWeaponSkill(skillName) {
+  return skillName === 'Melee Weapons' || skillName === 'Unarmed Combat';
+}
+
+function ensureTrailingBlankWeaponRow() {
+  if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
+  const rows = state.identity.weapons;
+  const last = rows[rows.length - 1] || {};
+  const empty = makeEmptyWeaponRow();
+  const isBlank = Object.keys(empty).every(k => !last[k]);
+  if (!isBlank) { rows.push({}); return true; }
+  return false;
+}
+
+function renderWeaponRow(row, i) {
+  const weaponSkills = getWeaponSkills();
+  const dmg = calculateDerived();
+  const dmgBonus = dmg ? dmg.DMG : 0;
+  const dmgBonusStr = dmgBonus > 0 ? `+${dmgBonus}` : `${dmgBonus}`;
+  const skillVal = row.skill ? getDisplayedSkillValue(row.skill) : null;
+  const skillPct = (row.skill && skillVal !== null) ? `${skillVal}%` : '';
+  const showDb = isMeleeOrUnarmedWeaponSkill(row.skill || '');
+  const dbDisplay = showDb ? dmgBonusStr : '';
+  return `<tr>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.weapon || '')}" oninput="updateWeaponField(${i},'weapon',this.value)" aria-label="Weapon name row ${i+1}" /></td>
+    <td class="wpn-skill-cell">
+      <select class="wpn-skill-select" onchange="updateWeaponField(${i},'skill',this.value)" aria-label="Skill row ${i+1}">
+        <option value="">—</option>
+        ${weaponSkills.map(s => `<option value="${escapeHtml(s)}"${row.skill === s ? ' selected' : ''}>${escapeHtml(s)}</option>`).join('')}
+      </select>
+      <span class="wpn-skill-pct">${skillPct}</span>
+    </td>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.baseRange || '')}" oninput="updateWeaponField(${i},'baseRange',this.value)" aria-label="Base range row ${i+1}" /></td>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.damage || '')}" oninput="updateWeaponField(${i},'damage',this.value)" aria-label="Damage row ${i+1}" /></td>
+    <td class="wpn-db-cell">${escapeHtml(dbDisplay)}</td>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.ap || '')}" oninput="updateWeaponField(${i},'ap',this.value)" aria-label="AP row ${i+1}" /></td>
+    <td class="wpn-cond-cell"><input type="checkbox" class="wpn-cond-cb" ${(row.condition||'')==='pristine' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'pristine')" aria-label="Pristine row ${i+1}" /></td>
+    <td class="wpn-cond-cell"><input type="checkbox" class="wpn-cond-cb" ${(row.condition||'')==='worn' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'worn')" aria-label="Worn row ${i+1}" /></td>
+    <td class="wpn-cond-cell"><input type="checkbox" class="wpn-cond-cb" ${(row.condition||'')==='junk' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'junk')" aria-label="Junk row ${i+1}" /></td>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.lethality || '')}" oninput="updateWeaponField(${i},'lethality',this.value)" aria-label="Lethality row ${i+1}" /></td>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.killRadius || '')}" oninput="updateWeaponField(${i},'killRadius',this.value)" aria-label="Kill radius row ${i+1}" /></td>
+    <td><input class="wpn-input" type="text" value="${escapeHtml(row.ammo || '')}" oninput="updateWeaponField(${i},'ammo',this.value)" aria-label="Ammo row ${i+1}" /></td>
+  </tr>`;
+}
+
+function updateWeaponField(rowIdx, field, value) {
+  if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
+  if (!state.identity.weapons[rowIdx]) return;
+  state.identity.weapons[rowIdx][field] = value;
+  const rowAdded = ensureTrailingBlankWeaponRow();
+  if (field === 'skill') {
+    // Re-render to update the % display and (db) cell.
+    render();
+  } else if (rowAdded) {
+    // A new blank row was appended to state. Insert only that row into the DOM
+    // so the focused input is never destroyed.
+    const tbody = document.querySelector('.sheet-weapons-table tbody');
+    if (tbody) {
+      const newIdx = state.identity.weapons.length - 1;
+      tbody.insertAdjacentHTML('beforeend', renderWeaponRow({}, newIdx));
+    }
+  }
+}
+
+function updateWeaponCondition(rowIdx, value) {
+  if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
+  if (!state.identity.weapons[rowIdx]) return;
+  const current = state.identity.weapons[rowIdx].condition || '';
+  // radio-group behaviour: toggle off if already selected
+  state.identity.weapons[rowIdx].condition = current === value ? '' : value;
+  ensureTrailingBlankWeaponRow();
+  render();
 }
 
 function updateMotivation(index, value) {
@@ -2766,6 +2862,34 @@ function buildCharSheetHtml() {
       </div>
     </div>
 
+    <div class="sheet-section sheet-weapons-section">
+      <div class="sheet-weapons-header">
+        <span class="sheet-section-title">Weapons</span>
+        <span class="sheet-weapons-legend">(db) = damage bonus &nbsp; (ap) = armor piercing</span>
+      </div>
+      <table class="sheet-weapons-table">
+        <thead>
+          <tr>
+            <th>WEAPON</th>
+            <th>SKILL %</th>
+            <th>BASE RANGE</th>
+            <th>DAMAGE</th>
+            <th>(db)</th>
+            <th>(ap)</th>
+            <th>Pristine</th>
+            <th>Worn</th>
+            <th>Junk</th>
+            <th>LETHALITY %</th>
+            <th>KILL RADIUS</th>
+            <th>AMMO</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(Array.isArray(state.identity.weapons) ? state.identity.weapons : [{}]).map((row, i) => renderWeaponRow(row, i)).join('')}
+        </tbody>
+      </table>
+    </div>
+
     <div class="sheet-section">
       <div class="sheet-section-title">Backstory</div>
       <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
@@ -3862,12 +3986,37 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         </tr>
       </thead>
       <tbody>
-        ${Array(8).fill(0).map(() => `<tr>
-          <td></td><td></td><td></td><td></td>
-          <td></td><td></td>
-          <td><div class="wpn-cond"><span class="cb-box"></span><span class="cb-box"></span><span class="cb-box"></span></div></td>
-          <td></td><td></td><td></td>
-        </tr>`).join('')}
+        ${(() => {
+          const weaponRows = Array.isArray(state.identity.weapons) ? state.identity.weapons : [];
+          // Filter out the trailing blank row; pad to at least 8 rows for a readable sheet
+          const dataRows = weaponRows.filter(r => r && Object.keys(makeEmptyWeaponRow()).some(k => r[k]));
+          const totalRows = Math.max(dataRows.length + 1, 8);
+          const dmgBonus = derived ? derived.DMG : 0;
+          const dmgBonusStr = dmgBonus > 0 ? `+${dmgBonus}` : `${dmgBonus}`;
+          return Array.from({ length: totalRows }, (_, i) => {
+            const row = dataRows[i] || {};
+            const skillName = row.skill || '';
+            const skillVal  = skillName ? Math.min(99, Math.max(0, getDisplayedSkillValue(skillName))) : '';
+            const skillDisp = skillName ? `${skillName} ${skillVal}%` : '';
+            const showDb    = skillName === 'Melee Weapons' || skillName === 'Unarmed Combat';
+            const dbDisp    = showDb ? dmgBonusStr : '';
+            const condP = (row.condition || '') === 'pristine';
+            const condW = (row.condition || '') === 'worn';
+            const condJ = (row.condition || '') === 'junk';
+            return `<tr>
+              <td>${esc(row.weapon || '')}</td>
+              <td>${esc(skillDisp)}</td>
+              <td>${esc(row.baseRange || '')}</td>
+              <td>${esc(row.damage || '')}</td>
+              <td>${esc(dbDisp)}</td>
+              <td>${esc(row.ap || '')}</td>
+              <td><div class="wpn-cond">${cbBox(condP)}${cbBox(condW)}${cbBox(condJ)}</div></td>
+              <td>${esc(row.lethality || '')}</td>
+              <td>${esc(row.killRadius || '')}</td>
+              <td>${esc(row.ammo || '')}</td>
+            </tr>`;
+          }).join('');
+        })()}
       </tbody>
     </table>
   </div>
@@ -3975,6 +4124,25 @@ function importMotivations(raw) {
   return makeDefaultMotivations();
 }
 
+function importWeapons(raw) {
+  const fields = ['weapon', 'skill', 'baseRange', 'damage', 'ap', 'lethality', 'killRadius', 'ammo'];
+  const validConditions = ['', 'pristine', 'worn', 'junk'];
+  let rows = Array.isArray(raw)
+    ? raw.map(item => {
+        const row = {};
+        fields.forEach(f => { row[f] = (item && typeof item[f] === 'string') ? item[f] : ''; });
+        row.condition = (item && validConditions.includes(item.condition)) ? item.condition : '';
+        return row;
+      })
+    : [{}];
+  // Enforce trailing blank row invariant
+  if (rows.length === 0) rows = [{}];
+  const last = rows[rows.length - 1];
+  const isBlank = fields.every(f => !last[f]) && !last.condition;
+  if (!isBlank) rows.push({});
+  return rows;
+}
+
 
 function importFromJson(data) {
   if (!data || typeof data !== 'object') {
@@ -4022,9 +4190,8 @@ function importFromJsonV2(data) {
     gear:              data.identity.gear || '',
     terribleTomes:     data.identity.terribleTomes || '',
     permanentInjuries: data.identity.permanentInjuries || '',
+    weapons:           importWeapons(data.identity.weapons),
   };
-
-  // ── Attributes: synthetic roll sets ─────────────────────
   // Each roll set has a total equal to the exported final attribute value.
   // Since harshStatChoice = null, getUpbringingBonus() = 0 for all attrs,
   // so getAttrValue(a) = rolledSet.total = exported value.
@@ -4172,6 +4339,7 @@ function importFromJsonV1(data) {
     gear:              data.identity.gear || '',
     terribleTomes:     data.identity.terribleTomes || '',
     permanentInjuries: data.identity.permanentInjuries || '',
+    weapons:           importWeapons(data.identity.weapons),
   };
 
   _customSkillIdCounter = state.customSkills.length > 0
@@ -4241,7 +4409,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '' };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', weapons: [{}] };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;

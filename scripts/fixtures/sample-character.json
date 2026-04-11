@@ -19,7 +19,31 @@
     ],
     "gear": "Trusty .38 revolver, press badge, leather notebook",
     "terribleTomes": "",
-    "permanentInjuries": ""
+    "permanentInjuries": "",
+    "weapons": [
+      {
+        "weapon": ".38 Revolver",
+        "skill": "Firearms",
+        "baseRange": "15m",
+        "damage": "1D10",
+        "ap": "",
+        "condition": "pristine",
+        "lethality": "",
+        "killRadius": "",
+        "ammo": "6"
+      },
+      {
+        "weapon": "",
+        "skill": "",
+        "baseRange": "",
+        "damage": "",
+        "ap": "",
+        "condition": "",
+        "lethality": "",
+        "killRadius": "",
+        "ammo": ""
+      }
+    ]
   },
   "attributes": {
     "STR": 15,
