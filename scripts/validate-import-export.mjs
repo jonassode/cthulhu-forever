@@ -94,6 +94,12 @@ assertField(id, 'terribleTomes', 'string', 'identity');
 assertField(id, 'permanentInjuries', 'string', 'identity');
 assertField(id, 'weapons', 'array', 'identity');
 assert((id.weapons || []).length >= 1, `identity.weapons should have at least 1 entry, got ${(id.weapons || []).length}`);
+{
+  const weaponFields = ['weapon', 'skill', 'baseRange', 'damage', 'ap', 'lethality', 'killRadius', 'ammo'];
+  const lastWeapon = (id.weapons || [])[(id.weapons || []).length - 1] || {};
+  const lastIsBlank = weaponFields.every(f => !lastWeapon[f]) && !lastWeapon.condition;
+  assert(lastIsBlank, `identity.weapons last row should be blank (trailing blank row invariant)`);
+}
 
 // 4. Final attribute values — all 6 must be present as numbers
 const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
