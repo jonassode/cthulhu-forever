@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.70 - Fix weapons table: append new rows without full re-render to preserve focus; Fix first-character re-render in weapons table; Fix weapons table: no re-render on text input, styled checkboxes, populated original sheet; Add trailing blank row validation to validate-import-export.mjs; Implement weapons table (requirement 003)  
 0.2.69 - Change print button text to 'Print', remove Export to Original Character Sheet, add View as Character Sheet button  
 0.2.68 - Remove 'unofficial' from project description  
 0.2.67 - Update footer text for Cthulhu Forever project  
