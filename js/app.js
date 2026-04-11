@@ -699,18 +699,19 @@ function ensureTrailingBlankWeaponRow() {
   const last = rows[rows.length - 1] || {};
   const empty = makeEmptyWeaponRow();
   const isBlank = Object.keys(empty).every(k => !last[k]);
-  if (!isBlank) { rows.push({}); return true; }
-  return false;
+  if (!isBlank) rows.push({});
 }
 
 function updateWeaponField(rowIdx, field, value) {
   if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
   if (!state.identity.weapons[rowIdx]) return;
+  // Ensure the trailing blank row exists BEFORE writing, so typing the first character
+  // into a row never causes ensureTrailingBlankWeaponRow to return true and trigger a re-render.
+  ensureTrailingBlankWeaponRow();
   state.identity.weapons[rowIdx][field] = value;
-  const rowAdded = ensureTrailingBlankWeaponRow();
-  // Only re-render for skill changes (updates % display and (db) cell) or when a new row was appended.
-  // For plain text fields we update state silently to avoid destroying the focused input on every keystroke.
-  if (field === 'skill' || rowAdded) render();
+  // Only re-render for skill changes (updates % display and (db) cell).
+  // Plain text fields update state silently to keep the focused input alive.
+  if (field === 'skill') render();
 }
 
 function updateWeaponCondition(rowIdx, value) {
