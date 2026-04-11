@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.68 - Remove 'unofficial' from project description  
 0.2.67 - Update footer text for Cthulhu Forever project  
 0.2.66 - Move Backstory section below Tomes/Gear on the character sheet  
 0.2.65 - fix: remove left, right, and bottom borders from weapons table on original sheet  
