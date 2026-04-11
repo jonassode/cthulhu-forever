@@ -1797,6 +1797,34 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   min-width: 2rem;
 }
 .wpn-cond-cell { text-align: center; }
+.wpn-cond-cb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--text-primary);
+  border-radius: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.wpn-cond-cb:checked {
+  background: var(--bg-card);
+  border-color: var(--accent-gold);
+}
+.wpn-cond-cb:checked::after {
+  content: '✗';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  color: var(--accent-gold);
+  line-height: 1;
+}
 .db-edit-textarea {
   width: 100%;
   min-height: 4rem;

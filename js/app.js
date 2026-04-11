@@ -699,15 +699,18 @@ function ensureTrailingBlankWeaponRow() {
   const last = rows[rows.length - 1] || {};
   const empty = makeEmptyWeaponRow();
   const isBlank = Object.keys(empty).every(k => !last[k]);
-  if (!isBlank) rows.push({});
+  if (!isBlank) { rows.push({}); return true; }
+  return false;
 }
 
 function updateWeaponField(rowIdx, field, value) {
   if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
   if (!state.identity.weapons[rowIdx]) return;
   state.identity.weapons[rowIdx][field] = value;
-  ensureTrailingBlankWeaponRow();
-  render();
+  const rowAdded = ensureTrailingBlankWeaponRow();
+  // Only re-render for skill changes (updates % display and (db) cell) or when a new row was appended.
+  // For plain text fields we update state silently to avoid destroying the focused input on every keystroke.
+  if (field === 'skill' || rowAdded) render();
 }
 
 function updateWeaponCondition(rowIdx, value) {
@@ -2870,9 +2873,9 @@ function buildCharSheetHtml() {
                 <td><input class="wpn-input" type="text" value="${escapeHtml(row.damage || '')}" oninput="updateWeaponField(${i},'damage',this.value)" aria-label="Damage row ${i+1}" /></td>
                 <td class="wpn-db-cell">${escapeHtml(dbDisplay)}</td>
                 <td><input class="wpn-input" type="text" value="${escapeHtml(row.ap || '')}" oninput="updateWeaponField(${i},'ap',this.value)" aria-label="AP row ${i+1}" /></td>
-                <td class="wpn-cond-cell"><input type="checkbox" ${(row.condition||'')==='pristine' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'pristine')" aria-label="Pristine row ${i+1}" /></td>
-                <td class="wpn-cond-cell"><input type="checkbox" ${(row.condition||'')==='worn' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'worn')" aria-label="Worn row ${i+1}" /></td>
-                <td class="wpn-cond-cell"><input type="checkbox" ${(row.condition||'')==='junk' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'junk')" aria-label="Junk row ${i+1}" /></td>
+                <td class="wpn-cond-cell"><input type="checkbox" class="wpn-cond-cb" ${(row.condition||'')==='pristine' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'pristine')" aria-label="Pristine row ${i+1}" /></td>
+                <td class="wpn-cond-cell"><input type="checkbox" class="wpn-cond-cb" ${(row.condition||'')==='worn' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'worn')" aria-label="Worn row ${i+1}" /></td>
+                <td class="wpn-cond-cell"><input type="checkbox" class="wpn-cond-cb" ${(row.condition||'')==='junk' ? 'checked' : ''} onchange="updateWeaponCondition(${i},'junk')" aria-label="Junk row ${i+1}" /></td>
                 <td><input class="wpn-input" type="text" value="${escapeHtml(row.lethality || '')}" oninput="updateWeaponField(${i},'lethality',this.value)" aria-label="Lethality row ${i+1}" /></td>
                 <td><input class="wpn-input" type="text" value="${escapeHtml(row.killRadius || '')}" oninput="updateWeaponField(${i},'killRadius',this.value)" aria-label="Kill radius row ${i+1}" /></td>
                 <td><input class="wpn-input" type="text" value="${escapeHtml(row.ammo || '')}" oninput="updateWeaponField(${i},'ammo',this.value)" aria-label="Ammo row ${i+1}" /></td>
@@ -3976,12 +3979,37 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         </tr>
       </thead>
       <tbody>
-        ${Array(8).fill(0).map(() => `<tr>
-          <td></td><td></td><td></td><td></td>
-          <td></td><td></td>
-          <td><div class="wpn-cond"><span class="cb-box"></span><span class="cb-box"></span><span class="cb-box"></span></div></td>
-          <td></td><td></td><td></td>
-        </tr>`).join('')}
+        ${(() => {
+          const weaponRows = Array.isArray(state.identity.weapons) ? state.identity.weapons : [];
+          // Filter out the trailing blank row; pad to at least 8 rows for a readable sheet
+          const dataRows = weaponRows.filter(r => r && Object.keys(makeEmptyWeaponRow()).some(k => r[k]));
+          const totalRows = Math.max(dataRows.length + 1, 8);
+          const dmgBonus = derived ? derived.DMG : 0;
+          const dmgBonusStr = dmgBonus > 0 ? `+${dmgBonus}` : `${dmgBonus}`;
+          return Array.from({ length: totalRows }, (_, i) => {
+            const row = dataRows[i] || {};
+            const skillName = row.skill || '';
+            const skillVal  = skillName ? Math.min(99, Math.max(0, getDisplayedSkillValue(skillName))) : '';
+            const skillDisp = skillName ? `${skillName} ${skillVal}%` : '';
+            const showDb    = skillName === 'Melee Weapons' || skillName === 'Unarmed Combat';
+            const dbDisp    = showDb ? dmgBonusStr : '';
+            const condP = (row.condition || '') === 'pristine';
+            const condW = (row.condition || '') === 'worn';
+            const condJ = (row.condition || '') === 'junk';
+            return `<tr>
+              <td>${esc(row.weapon || '')}</td>
+              <td>${esc(skillDisp)}</td>
+              <td>${esc(row.baseRange || '')}</td>
+              <td>${esc(row.damage || '')}</td>
+              <td>${esc(dbDisp)}</td>
+              <td>${esc(row.ap || '')}</td>
+              <td><div class="wpn-cond">${cbBox(condP)}${cbBox(condW)}${cbBox(condJ)}</div></td>
+              <td>${esc(row.lethality || '')}</td>
+              <td>${esc(row.killRadius || '')}</td>
+              <td>${esc(row.ammo || '')}</td>
+            </tr>`;
+          }).join('');
+        })()}
       </tbody>
     </table>
   </div>
