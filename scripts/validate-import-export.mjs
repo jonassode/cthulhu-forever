@@ -92,6 +92,8 @@ assert((id.motivations || []).length === 5, `identity.motivations should have 5 
 assertField(id, 'gear', 'string', 'identity');
 assertField(id, 'terribleTomes', 'string', 'identity');
 assertField(id, 'permanentInjuries', 'string', 'identity');
+assertField(id, 'weapons', 'array', 'identity');
+assert((id.weapons || []).length >= 1, `identity.weapons should have at least 1 entry, got ${(id.weapons || []).length}`);
 
 // 4. Final attribute values — all 6 must be present as numbers
 const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];

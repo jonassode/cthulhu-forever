@@ -1718,6 +1718,85 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 .sheet-backstory:hover {
   text-decoration: underline dotted var(--accent-gold);
 }
+/* ── Weapons table (step 6 character sheet) ── */
+.sheet-weapons-section { padding: 1.25rem 1.75rem; }
+.sheet-weapons-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.sheet-weapons-legend {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.sheet-weapons-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.sheet-weapons-table th {
+  font-family: var(--font-head);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-gold);
+  border-bottom: 1px solid rgba(42,53,72,0.5);
+  padding: 0.2rem 0.4rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.sheet-weapons-table td {
+  padding: 0.15rem 0.3rem;
+  border-bottom: 1px solid rgba(42,53,72,0.25);
+  vertical-align: middle;
+}
+.sheet-weapons-table tr:last-child td { border-bottom: none; }
+.sheet-weapons-table tr:nth-child(even) td { background: rgba(42,53,72,0.04); }
+.wpn-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(42,53,72,0.3);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-family: inherit;
+  padding: 0.1rem 0.15rem;
+  outline: none;
+  min-width: 0;
+}
+.wpn-input:focus { border-bottom-color: var(--accent-gold); }
+.wpn-skill-cell { white-space: nowrap; display: flex; align-items: center; gap: 0.3rem; min-width: 9rem; }
+.wpn-skill-select {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(42,53,72,0.3);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-family: inherit;
+  outline: none;
+  padding: 0.1rem 0;
+  cursor: pointer;
+  min-width: 0;
+}
+.wpn-skill-select:focus { border-bottom-color: var(--accent-gold); }
+.wpn-skill-pct {
+  font-size: 0.72rem;
+  color: var(--accent-gold);
+  white-space: nowrap;
+  min-width: 2.5rem;
+  text-align: right;
+}
+.wpn-db-cell {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  min-width: 2rem;
+}
+.wpn-cond-cell { text-align: center; }
 .db-edit-textarea {
   width: 100%;
   min-height: 4rem;
