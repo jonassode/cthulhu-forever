@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.74 - Add Notes field for session notes and reminders with inline editing and export support  
 0.2.73 - Add upbringing field to original sheet PROTAGONIST block  
 0.2.72 - Remove space between LETHALITY and % in weapons table header; Add line breaks in BASE RANGE and KILL RADIUS headers; align headers to bottom  
 0.2.71 - align weapon/skill column widths consistently across builder and export tables; adjust weapons and skill column widths in weapons table  
