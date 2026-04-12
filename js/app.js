@@ -2870,8 +2870,8 @@ function buildCharSheetHtml() {
       <table class="sheet-weapons-table">
         <thead>
           <tr>
-            <th>WEAPON</th>
-            <th>SKILL %</th>
+            <th style="width:13%">WEAPON</th>
+            <th style="width:15%">SKILL %</th>
             <th>BASE RANGE</th>
             <th>DAMAGE</th>
             <th>(db)</th>
@@ -3973,8 +3973,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     <table class="wpns-table">
       <thead>
         <tr>
-          <th style="width:22%">Weapon</th>
-          <th style="width:9%">Skill %</th>
+          <th style="width:15%">Weapon</th>
+          <th style="width:16%">Skill %</th>
           <th style="width:10%">Base Range</th>
           <th style="width:10%">Damage</th>
           <th style="width:5%">(db)</th>
