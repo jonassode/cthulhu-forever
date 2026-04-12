@@ -2870,8 +2870,8 @@ function buildCharSheetHtml() {
       <table class="sheet-weapons-table">
         <thead>
           <tr>
-            <th style="width:13%">WEAPON</th>
-            <th style="width:15%">SKILL %</th>
+            <th style="width:15%">WEAPON</th>
+            <th style="width:16%">SKILL %</th>
             <th>BASE RANGE</th>
             <th>DAMAGE</th>
             <th>(db)</th>
