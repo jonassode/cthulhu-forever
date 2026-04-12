@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.2.73 - Add upbringing field to original sheet PROTAGONIST block  
 0.2.72 - Remove space between LETHALITY and % in weapons table header; Add line breaks in BASE RANGE and KILL RADIUS headers; align headers to bottom  
 0.2.71 - align weapon/skill column widths consistently across builder and export tables; adjust weapons and skill column widths in weapons table  
 0.2.70 - Fix weapons table: append new rows without full re-render to preserve focus; Fix first-character re-render in weapons table; Fix weapons table: no re-render on text input, styled checkboxes, populated original sheet; Add trailing blank row validation to validate-import-export.mjs; Implement weapons table (requirement 003)  
