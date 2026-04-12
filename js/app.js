@@ -3779,6 +3779,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         </div>
         <div class="id-line"><span class="id-lbl">Occupation</span><span class="id-val">${esc(state.identity.profession) || ''}</span></div>
         <div class="id-line"><span class="id-lbl">Birthplace</span><span class="id-val">${esc(state.identity.birthplace) || ''}</span></div>
+        <div class="id-line"><span class="id-lbl">Upbringing</span><span class="id-val">${esc(upbringingLabel)}</span></div>
       </div>
     </div>
 
