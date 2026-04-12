@@ -2872,7 +2872,7 @@ function buildCharSheetHtml() {
           <tr>
             <th>WEAPON</th>
             <th>SKILL %</th>
-            <th>BASE RANGE</th>
+            <th>BASE<br>RANGE</th>
             <th>DAMAGE</th>
             <th>(db)</th>
             <th>(ap)</th>
@@ -2880,7 +2880,7 @@ function buildCharSheetHtml() {
             <th>Worn</th>
             <th>Junk</th>
             <th>LETHALITY %</th>
-            <th>KILL RADIUS</th>
+            <th>KILL<br>RADIUS</th>
             <th>AMMO</th>
           </tr>
         </thead>
