@@ -1745,7 +1745,7 @@ h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
   border-bottom: 1px solid rgba(42,53,72,0.5);
   padding: 0.2rem 0.4rem;
   text-align: left;
-  white-space: nowrap;
+  vertical-align: bottom;
 }
 .sheet-weapons-table td {
   padding: 0.15rem 0.3rem;

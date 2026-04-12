@@ -2872,15 +2872,15 @@ function buildCharSheetHtml() {
           <tr>
             <th style="width:15%">WEAPON</th>
             <th style="width:16%">SKILL %</th>
-            <th>BASE RANGE</th>
+            <th>BASE<br>RANGE</th>
             <th>DAMAGE</th>
             <th>(db)</th>
             <th>(ap)</th>
             <th>Pristine</th>
             <th>Worn</th>
             <th>Junk</th>
-            <th>LETHALITY %</th>
-            <th>KILL RADIUS</th>
+            <th>LETHALITY%</th>
+            <th>KILL<br>RADIUS</th>
             <th>AMMO</th>
           </tr>
         </thead>
