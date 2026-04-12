@@ -2879,7 +2879,7 @@ function buildCharSheetHtml() {
             <th>Pristine</th>
             <th>Worn</th>
             <th>Junk</th>
-            <th>LETHALITY %</th>
+            <th>LETHALITY%</th>
             <th>KILL<br>RADIUS</th>
             <th>AMMO</th>
           </tr>
