@@ -87,6 +87,7 @@ const state = {
     gear: '',
     terribleTomes: '',
     permanentInjuries: '',
+    notes: '',
     weapons: [{}],
   },
 };
@@ -2484,6 +2485,13 @@ function renderStep5() {
                 placeholder="What drove you to investigate the unknown? What do you stand to lose?"
                 oninput="updateIdentity('backstory',this.value)">${escapeHtml(state.identity.backstory)}</textarea>
     </div>
+
+    <div class="form-group" style="margin-top:1.5rem;">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="char-notes" rows="5"
+                placeholder="Session notes, clues, reminders…"
+                oninput="updateIdentity('notes',this.value)">${escapeHtml(state.identity.notes)}</textarea>
+    </div>
   </div>`;
 }
 
@@ -2894,6 +2902,11 @@ function buildCharSheetHtml() {
       <div class="sheet-section-title">Backstory</div>
       <div class="sheet-backstory" id="sheet-backstory" title="Double-click to edit" ondblclick="startEditText('backstory','sheet-backstory')">${state.identity.backstory.trim() ? escapeHtml(state.identity.backstory) : ''}</div>
     </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Notes</div>
+      <div class="sheet-backstory" id="sheet-notes" title="Double-click to edit" ondblclick="startEditText('notes','sheet-notes')">${state.identity.notes.trim() ? escapeHtml(state.identity.notes) : ''}</div>
+    </div>
   </div>`;
 }
 
@@ -2990,6 +3003,9 @@ function updateIdentity(field, value) {
     } else if (field === 'backstory') {
       const backstoryEl = document.getElementById('sheet-backstory');
       if (backstoryEl) backstoryEl.textContent = value.trim() ? value : '';
+    } else if (field === 'notes') {
+      const notesEl = document.getElementById('sheet-notes');
+      if (notesEl) notesEl.textContent = value.trim() ? value : '';
     } else if (field === 'characterAge') {
       const ageEl = document.getElementById('sheet-age');
       if (ageEl) ageEl.textContent = value;
@@ -4035,7 +4051,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
     </div>
     <div class="notes-block">
       <div class="sec-hdr" style="text-align:center;letter-spacing:.2em;">Notes</div>
-      <div class="notes-body">${Array(10).fill('<div class="notes-line"></div>').join('')}</div>
+      <div class="notes-body">
+        <div class="lined-wrap">
+          <div class="lined-rows">${Array(10).fill('<div class="notes-line"></div>').join('')}</div>
+          <div class="lined-text-sm">${esc(state.identity.notes || '')}</div>
+        </div>
+      </div>
     </div>
     <div class="fellows-block">
       <div class="sec-hdr">Fellow Characters</div>
@@ -4191,6 +4212,7 @@ function importFromJsonV2(data) {
     gear:              data.identity.gear || '',
     terribleTomes:     data.identity.terribleTomes || '',
     permanentInjuries: data.identity.permanentInjuries || '',
+    notes:             data.identity.notes || '',
     weapons:           importWeapons(data.identity.weapons),
   };
   // Each roll set has a total equal to the exported final attribute value.
@@ -4340,6 +4362,7 @@ function importFromJsonV1(data) {
     gear:              data.identity.gear || '',
     terribleTomes:     data.identity.terribleTomes || '',
     permanentInjuries: data.identity.permanentInjuries || '',
+    notes:             data.identity.notes || '',
     weapons:           importWeapons(data.identity.weapons),
   };
 
@@ -4410,7 +4433,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', weapons: [{}] };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', notes: '', weapons: [{}] };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
