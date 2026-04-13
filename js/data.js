@@ -3,7 +3,7 @@
    Skills, Archetypes, Edges
    ============================================================ */
 
-const APP_VERSION = '0.2.74';
+const APP_VERSION = '0.3.1';
 
 const ATTRIBUTES = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
 const ATTRIBUTE_FULL = {
