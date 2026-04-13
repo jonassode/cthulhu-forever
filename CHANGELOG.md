@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.3.1 - Change version to 0.3.1  
 0.2.74 - Add Notes field with inline editing, export, and original sheet support  
 0.2.74 - Add Notes field for session notes and reminders with inline editing and export support  
 0.2.73 - Add upbringing field to original sheet PROTAGONIST block  
