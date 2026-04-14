@@ -35,17 +35,23 @@ html, body {
   font-family: var(--font-body);
   min-height: 100vh;
 }
+html {
+  overflow-y: auto;
+}
+body {
+  margin: 0;
+}
 
 h1, h2, h3, h4, .font-cinzel { font-family: var(--font-head); }
 
 /* ── Scrollbar ── */
 /* Firefox scrollbar */
-* { scrollbar-width: thin; scrollbar-color: var(--border-color) var(--bg-secondary); }
+html { scrollbar-width: thin; scrollbar-color: var(--border-color) var(--bg-secondary); }
 /* WebKit scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
+html::-webkit-scrollbar { width: 6px; height: 6px; }
+html::-webkit-scrollbar-track { background: var(--bg-secondary); }
+html::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 
 /* ── App wrapper ── */
 #app {
