@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.3.4 - feat: add Import Character option to character sheet settings  
 0.3.3 - fix: scope scrollbar styling to root scroll container  
 0.3.1 - Change version to 0.3.1  
 0.2.74 - Add Notes field with inline editing, export, and original sheet support  
