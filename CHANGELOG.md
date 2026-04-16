@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.3.6 - Add CONTRIBUTING.md and update Credits.md with attribution section  
 0.3.5 - Add itch/index.html redirect page  
 0.3.4 - feat: add Import Character option to character sheet settings  
 0.3.3 - fix: scope scrollbar styling to root scroll container  
