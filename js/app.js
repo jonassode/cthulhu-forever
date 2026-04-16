@@ -2665,24 +2665,28 @@ function buildCharSheetHtml() {
           </div>`;
         }).join('')}
         <div class="exhausted-col">
-          <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
-            <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
-            <span>Exhausted</span>
-          </label>
-          <label class="exhausted-label temp-insanity-label${state.temporaryInsanity ? ' temp-insanity-active' : ''}" data-tooltip="For a short time, you cannot control your Protagonist's actions. Your Protagonist's primitive brain switches to pure panic, with one of three possible responses: Flee, Struggle, or Submit. Work with the Game Moderator to determine which stance your Protagonist takes. Each is more likely in some circumstances than others. If the circumstances are calm, it may be possible to talk your Protagonist down from temporary insanity. Such attempts are tests of the Psychoanalyze skill. In the absence of anything like that, your Protagonist loses control until the insanity runs its course.">
-            <input type="checkbox" class="san-checkbox" ${state.temporaryInsanity ? 'checked' : ''} onchange="toggleTemporaryInsanity()">
-            <span>Temp. Insanity</span>
-          </label>
-          ${(() => {
-            if (!hasSocietalClass()) return '';
-            const sc = calculateSocietalClass();
-            if (!sc) return '';
-            return `<div class="societal-class-block" data-tooltip="Societal Class is determined by social skills, community bonds, and resources. Score: ${sc.score}">
-              <div class="sc-label">Societal Class</div>
-              <div class="sc-value">${escapeHtml(sc.label)}</div>
-              <div class="sc-score">(${sc.score})</div>
-            </div>`;
-          })()}
+          <div class="exhausted-inner-row">
+            <div class="exhausted-checks">
+              <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
+                <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
+                <span>Exhausted</span>
+              </label>
+              <label class="exhausted-label temp-insanity-label${state.temporaryInsanity ? ' temp-insanity-active' : ''}" data-tooltip="For a short time, you cannot control your Protagonist's actions. Your Protagonist's primitive brain switches to pure panic, with one of three possible responses: Flee, Struggle, or Submit. Work with the Game Moderator to determine which stance your Protagonist takes. Each is more likely in some circumstances than others. If the circumstances are calm, it may be possible to talk your Protagonist down from temporary insanity. Such attempts are tests of the Psychoanalyze skill. In the absence of anything like that, your Protagonist loses control until the insanity runs its course.">
+                <input type="checkbox" class="san-checkbox" ${state.temporaryInsanity ? 'checked' : ''} onchange="toggleTemporaryInsanity()">
+                <span>Temp. Insanity</span>
+              </label>
+            </div>
+            ${(() => {
+              if (!hasSocietalClass()) return '';
+              const sc = calculateSocietalClass();
+              if (!sc) return '';
+              return `<div class="societal-class-block" data-tooltip="Societal Class is determined by social skills, community bonds, and resources. Score: ${sc.score}">
+                <div class="sc-label">Societal Class</div>
+                <div class="sc-value">${escapeHtml(sc.label)}</div>
+                <div class="sc-score">(${sc.score})</div>
+              </div>`;
+            })()}
+          </div>
           <div class="stat-status-badges">
             <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
             <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
