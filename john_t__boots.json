@@ -1,0 +1,138 @@
+{
+  "version": 2,
+  "age": "revolutions",
+  "upbringing": "normal",
+  "archetype": "explorer_surveyor_revolutions",
+  "identity": {
+    "name": "John T. Boots",
+    "profession": "Explorer",
+    "birthplace": "England",
+    "characterAge": 25,
+    "backstory": "I have been obsessed with my Grandfather books since I was child, now I have the chance to track down the truth.",
+    "motivations": [
+      {
+        "text": "Fortune",
+        "crossed": false
+      },
+      {
+        "text": "Fame",
+        "crossed": false
+      },
+      {
+        "text": "Whiskey",
+        "crossed": false
+      },
+      {
+        "text": "Find out more about the prophecy",
+        "crossed": false
+      },
+      {
+        "text": "",
+        "crossed": false
+      }
+    ],
+    "gear": "Prospector tools",
+    "terribleTomes": "My grand fathers book on 'The prophecy of the Appalachian Hill Tribe'",
+    "permanentInjuries": "",
+    "notes": "",
+    "weapons": [
+      {}
+    ],
+    "gender": "Man"
+  },
+  "attributes": {
+    "STR": 12,
+    "CON": 12,
+    "DEX": 12,
+    "INT": 12,
+    "POW": 12,
+    "CHA": 12
+  },
+  "skills": {
+    "Administration": 60,
+    "Alertness": 20,
+    "Antiquary": 0,
+    "Appraise": 10,
+    "Art (Type)": 0,
+    "Athletics": 60,
+    "Bootlick": 40,
+    "Carouse": 40,
+    "Colonial Lore (Type)": 0,
+    "Craft (Type)": 0,
+    "Disguise": 10,
+    "Dodge": 50,
+    "Drive": 40,
+    "Firearms": 60,
+    "First Aid": 30,
+    "Foreign Language (Type)": 0,
+    "Harangue/Taunt": 10,
+    "History": 10,
+    "Indigenous Lore": 20,
+    "Insight": 10,
+    "Law (Type)": 0,
+    "Literacy": 40,
+    "Mechanical Knack": 0,
+    "Melee Weapons": 30,
+    "Militaria (Type)": 0,
+    "Navigate": 80,
+    "Occult": 10,
+    "Ordnance": 0,
+    "Persuade": 20,
+    "Pharmacy": 20,
+    "Ranged Weapons": 40,
+    "Reassure": 10,
+    "Religion (Type)": 0,
+    "Ride": 10,
+    "Sailing (Type)": 0,
+    "Scavenge": 10,
+    "Science (Type)": 0,
+    "Search": 50,
+    "Social Etiquette": 10,
+    "Stealth": 10,
+    "Surgery": 0,
+    "Survival (Type)": 60,
+    "Swim": 20,
+    "Unarmed Combat": 60,
+    "Unnatural": 0
+  },
+  "skillTypes": {},
+  "customSkills": [],
+  "bonds": [
+    {
+      "name": "Revolutionary Guard",
+      "type": "community",
+      "currentScore": 11
+    },
+    {
+      "name": "Mentor - Dr Johnson",
+      "type": "individual",
+      "currentScore": 12
+    }
+  ],
+  "resources": 12,
+  "resourceChecked": [],
+  "skillChecked": {},
+  "violenceChecked": [
+    false,
+    false,
+    false
+  ],
+  "helplessnessChecked": [
+    false,
+    false,
+    false
+  ],
+  "maxHP": 12,
+  "maxWP": 12,
+  "maxSAN": 99,
+  "currentHP": 12,
+  "currentWP": 12,
+  "currentSAN": 60,
+  "breakingPoint": 48,
+  "recoverySAN": 60,
+  "disorders": [],
+  "showAllSkills": false,
+  "bodyArmour": 0,
+  "exhausted": false,
+  "temporaryInsanity": false
+}
