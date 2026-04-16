@@ -89,6 +89,11 @@ for (let i = 0; i < (id.motivations || []).length; i++) {
   assertField(m, 'crossed', 'boolean', `identity.motivations[${i}]`);
 }
 assert((id.motivations || []).length === 5, `identity.motivations should have 5 entries, got ${(id.motivations || []).length}`);
+// At least 2 motivations should have non-empty text for a complete character
+{
+  const filledMotivations = (id.motivations || []).filter(m => m.text && m.text.trim() !== '').length;
+  assert(filledMotivations >= 2, `At least 2 motivations should be filled in, got ${filledMotivations}`);
+}
 assertField(id, 'gear', 'string', 'identity');
 assertField(id, 'terribleTomes', 'string', 'identity');
 assertField(id, 'permanentInjuries', 'string', 'identity');
@@ -130,9 +135,23 @@ assert(skills['Insight']         === 80, `skills.Insight should be 80 (archetype
 assert(skills['Persuade']        === 60, `skills.Persuade should be 60 (base 20 + 2 picks), got ${skills['Persuade']}`);
 assert(skills['Research']        === 60, `skills.Research should be 60 (archetype), got ${skills['Research']}`);
 assert(skills['Unnatural']       === 0,  `skills.Unnatural should be 0, got ${skills['Unnatural']}`);
+// Spot-check the 4 optional skills chosen during character creation
+assert(skills['History']                === 50, `skills.History should be 50 (optional archetype pick), got ${skills['History']}`);
+assert(skills['Occult']                 === 50, `skills.Occult should be 50 (optional archetype pick), got ${skills['Occult']}`);
+assert(skills['Foreign Language (Type)'] === 40, `skills['Foreign Language (Type)'] should be 40 (optional archetype pick), got ${skills['Foreign Language (Type)']}`);
+assert(skills['Use Gadgets']            === 40, `skills['Use Gadgets'] should be 40 (optional archetype pick), got ${skills['Use Gadgets']}`);
 
 // 6. skillTypes (specialisation strings for "(Type)" skills)
 assertField(character, 'skillTypes', 'object', 'root');
+// Each skillTypes entry must correspond to a skill that exists and has a non-zero value
+for (const [typedSkill, typeVal] of Object.entries(character.skillTypes || {})) {
+  assert(typedSkill in (character.skills || {}), `skillTypes contains '${typedSkill}' which is not present in skills`);
+  assert(typeof typeVal === 'string' && typeVal.trim() !== '', `skillTypes.${typedSkill} should be a non-empty string`);
+  assert((character.skills || {})[typedSkill] > 0, `skillTypes.${typedSkill} is defined but skill value is 0 — type should only be set for skills actually used`);
+}
+// Spot-check known skill types for the sample character
+assert(character.skillTypes['Art (Type)'] === 'Writing',  `skillTypes['Art (Type)'] should be 'Writing', got '${character.skillTypes['Art (Type)']}'`);
+assert(character.skillTypes['Foreign Language (Type)'] === 'French', `skillTypes['Foreign Language (Type)'] should be 'French', got '${character.skillTypes['Foreign Language (Type)']}'`);
 
 // 7. Custom skills shape in v2: { name, value }
 assertField(character, 'customSkills', 'array', 'root');
@@ -144,6 +163,8 @@ for (let i = 0; i < (character.customSkills || []).length; i++) {
 
 // 8. Bonds: outcome-only shape — name, type, currentScore; no bonusSpent
 assertField(character, 'bonds', 'array', 'root');
+// Journalist archetype provides exactly 4 bonds
+assert((character.bonds || []).length === 4, `bonds should have 4 entries for the Journalist archetype, got ${(character.bonds || []).length}`);
 for (let i = 0; i < (character.bonds || []).length; i++) {
   const b = character.bonds[i];
   assertField(b, 'name', 'string', `bonds[${i}]`);
@@ -195,6 +216,8 @@ assert(
 );
 assertField(character, 'disorders', 'array', 'root');
 assertField(character, 'showAllSkills', 'boolean', 'root');
+assertField(character, 'exhausted', 'boolean', 'root');
+assertField(character, 'temporaryInsanity', 'boolean', 'root');
 assertField(character, 'bodyArmour', 'number', 'root');
 assert(character.bodyArmour >= 0, `bodyArmour must be >= 0, got ${character.bodyArmour}`);
 
