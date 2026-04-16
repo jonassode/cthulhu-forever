@@ -12,26 +12,37 @@
     "backstory": "A seasoned reporter for the Arkham Gazette who has seen too much to sleep soundly.",
     "motivations": [
       {"text": "Expose the truth no matter the cost", "crossed": false},
-      {"text": "", "crossed": false},
-      {"text": "", "crossed": false},
-      {"text": "", "crossed": false},
-      {"text": "", "crossed": false}
+      {"text": "Protect the innocent from unseen forces", "crossed": false},
+      {"text": "Find out what really happened to my missing colleague", "crossed": true},
+      {"text": "Uncover the secret behind the Innsmouth disappearances", "crossed": false},
+      {"text": "Never let fear silence the press", "crossed": false}
     ],
     "gear": "Trusty .38 revolver, press badge, leather notebook",
-    "terribleTomes": "",
-    "permanentInjuries": "",
-    "notes": "",
+    "terribleTomes": "Cultes des Goules (French edition, heavily annotated)",
+    "permanentInjuries": "Scarred left hand from a confrontation in Innsmouth harbour",
+    "notes": "Keep an eye on the Marsh family. Do not mention the Esoteric Order of Dagon to anyone.",
     "weapons": [
       {
         "weapon": ".38 Revolver",
         "skill": "Firearms",
         "baseRange": "15m",
         "damage": "1D10",
-        "ap": "",
+        "ap": "0",
         "condition": "pristine",
         "lethality": "",
         "killRadius": "",
         "ammo": "6"
+      },
+      {
+        "weapon": "Straight Razor",
+        "skill": "Melee Weapons",
+        "baseRange": "touch",
+        "damage": "1D4",
+        "ap": "0",
+        "condition": "worn",
+        "lethality": "",
+        "killRadius": "",
+        "ammo": ""
       },
       {
         "weapon": "",
@@ -69,10 +80,10 @@
     "Drive": 20,
     "Firearms": 20,
     "First Aid": 10,
-    "Foreign Language (Type)": 0,
+    "Foreign Language (Type)": 40,
     "Harangue": 10,
     "Heavy Machinery": 10,
-    "History": 10,
+    "History": 50,
     "Insight": 80,
     "Law (Type)": 0,
     "Medicine": 0,
@@ -80,7 +91,7 @@
     "Military Training (Type)": 0,
     "Natural World": 10,
     "Navigate": 10,
-    "Occult": 10,
+    "Occult": 50,
     "Persuade": 60,
     "Pilot (Type)": 0,
     "Psychoanalyze": 10,
@@ -98,13 +109,16 @@
     "Track": 10,
     "Unarmed Combat": 20,
     "Unnatural": 0,
-    "Use Gadgets": 0
+    "Use Gadgets": 40
   },
   "skillTypes": {
-    "Foreign Language (Type)": "French",
-    "Streetwise (Type)": "New York"
+    "Art (Type)": "Writing",
+    "Foreign Language (Type)": "French"
   },
-  "customSkills": [],
+  "customSkills": [
+    {"name": "Network Contacts", "value": 40},
+    {"name": "Photography", "value": 35}
+  ],
   "bonds": [
     {
       "name": "Margaret \u2014 beloved sister",
@@ -120,6 +134,11 @@
       "name": "Miskatonic University Library",
       "type": "community",
       "currentScore": 2
+    },
+    {
+      "name": "Samuel \u2018Sam\u2019 Brentwood \u2014 old war buddy",
+      "type": "individual",
+      "currentScore": 8
     }
   ],
   "resources": 4,
@@ -158,5 +177,7 @@
     }
   ],
   "showAllSkills": false,
-  "bodyArmour": 0
+  "exhausted": false,
+  "temporaryInsanity": false,
+  "bodyArmour": 1
 }
