@@ -2673,10 +2673,6 @@ function buildCharSheetHtml() {
             <input type="checkbox" class="san-checkbox" ${state.temporaryInsanity ? 'checked' : ''} onchange="toggleTemporaryInsanity()">
             <span>Temp. Insanity</span>
           </label>
-          <div class="stat-status-badges">
-            <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
-            <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
-          </div>
           ${(() => {
             if (!hasSocietalClass()) return '';
             const sc = calculateSocietalClass();
@@ -2687,6 +2683,10 @@ function buildCharSheetHtml() {
               <div class="sc-score">(${sc.score})</div>
             </div>`;
           })()}
+          <div class="stat-status-badges">
+            <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
+            <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
+          </div>
         </div>
       </div>
     </div>
