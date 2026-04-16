@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.3.7 - Apply reviewer feedback: fill fixture blanks, add custom skills, set bodyArmour=1; Improve sample character fixture and import/export validation  
 0.3.6 - Add CONTRIBUTING.md and update Credits.md with attribution section  
 0.3.5 - Add itch/index.html redirect page  
 0.3.4 - feat: add Import Character option to character sheet settings  
