@@ -2228,6 +2228,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
+  justify-content: space-between;
 }
 .exhausted-checks {
   display: flex;
@@ -2290,10 +2291,8 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 .societal-class-block {
   margin-top: 0.3rem;
   padding: 0.3rem 0.5rem;
-  border: 1px solid var(--border-subtle, rgba(184,150,80,0.3));
-  border-radius: 4px;
-  background: var(--bg-card, #1a1a2e);
   cursor: default;
+  text-align: right;
 }
 .sc-label {
   font-size: 0.62rem;
