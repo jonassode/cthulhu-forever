@@ -2222,6 +2222,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   flex-direction: column;
   gap: 0.35rem;
   align-self: center;
+  flex: 1;
 }
 .exhausted-inner-row {
   display: flex;
