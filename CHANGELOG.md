@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.3.5 - Add itch/index.html redirect page  
 0.3.4 - feat: add Import Character option to character sheet settings  
 0.3.3 - fix: scope scrollbar styling to root scroll container  
 0.3.1 - Change version to 0.3.1  
