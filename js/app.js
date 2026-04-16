@@ -340,6 +340,8 @@ function calculateSocietalClass() {
 
   // Step A: highest of social-standing skills
   // Use the base final value (archetype + picks + edit), not the exhausted display value.
+  // 'Medicine' is specified by the Age of Revolutions rules even though it's not a default
+  // era skill; it would apply for characters who add it as a custom skill.
   const socialSkillNames = ['Bootlick', 'Medicine', 'Militaria (Type)', 'Religion (Type)', 'Social Etiquette'];
   let stepA = 0;
   socialSkillNames.forEach(sName => {
@@ -3708,6 +3710,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .oa-field:last-child { border-bottom: none; }
 .oa-flbl { font-weight: bold; }
 .oa-fval { font-weight: bold; min-width: 16mm; text-align: right; font-size: 9pt; padding-right: 2px; }
+.oa-fval-sm { font-size: 7pt; min-width: auto; }
 
 /* ── middle row (HP | SAN grid | BP notes) ── */
 .mid-row { display: grid; grid-template-columns: 34mm 1fr 44mm; gap: 3px; margin-bottom: 3px; }
@@ -3932,7 +3935,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
           if (!hasSocietalClass()) return '';
           const sc = calculateSocietalClass();
           if (!sc) return '';
-          return `<div class="oa-field"><span class="oa-flbl">Societal Class</span><span class="oa-fval" style="font-size:7pt;min-width:auto;text-align:right;">${esc(sc.label)} (${sc.score})</span></div>`;
+          return `<div class="oa-field"><span class="oa-flbl">Societal Class</span><span class="oa-fval oa-fval-sm">${esc(sc.label)} (${sc.score})</span></div>`;
         })()}
       </div>
     </div>
