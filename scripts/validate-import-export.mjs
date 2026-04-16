@@ -94,6 +94,11 @@ assert((id.motivations || []).length === 5, `identity.motivations should have 5 
   const filledMotivations = (id.motivations || []).filter(m => m.text && m.text.trim() !== '').length;
   assert(filledMotivations >= 2, `At least 2 motivations should be filled in, got ${filledMotivations}`);
 }
+// At least one motivation should be crossed off (represents a resolved or lost goal)
+{
+  const crossedMotivations = (id.motivations || []).filter(m => m.crossed === true).length;
+  assert(crossedMotivations >= 1, `At least 1 motivation should be crossed, got ${crossedMotivations}`);
+}
 assertField(id, 'gear', 'string', 'identity');
 assertField(id, 'terribleTomes', 'string', 'identity');
 assertField(id, 'permanentInjuries', 'string', 'identity');
@@ -155,10 +160,12 @@ assert(character.skillTypes['Foreign Language (Type)'] === 'French', `skillTypes
 
 // 7. Custom skills shape in v2: { name, value }
 assertField(character, 'customSkills', 'array', 'root');
+assert((character.customSkills || []).length >= 1, `customSkills should have at least 1 entry for this sample character`);
 for (let i = 0; i < (character.customSkills || []).length; i++) {
   const cs = character.customSkills[i];
   assertField(cs, 'name', 'string', `customSkills[${i}]`);
   assertField(cs, 'value', 'number', `customSkills[${i}]`);
+  assert(cs.value >= 0 && cs.value <= 99, `customSkills[${i}].value should be 0–99, got ${cs.value}`);
 }
 
 // 8. Bonds: outcome-only shape — name, type, currentScore; no bonusSpent
@@ -220,6 +227,7 @@ assertField(character, 'exhausted', 'boolean', 'root');
 assertField(character, 'temporaryInsanity', 'boolean', 'root');
 assertField(character, 'bodyArmour', 'number', 'root');
 assert(character.bodyArmour >= 0, `bodyArmour must be >= 0, got ${character.bodyArmour}`);
+assert(character.bodyArmour === 1, `bodyArmour should be 1 for this sample character, got ${character.bodyArmour}`);
 
 // 11. Disorders shape
 for (let i = 0; i < (character.disorders || []).length; i++) {

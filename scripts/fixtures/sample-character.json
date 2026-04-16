@@ -13,25 +13,36 @@
     "motivations": [
       {"text": "Expose the truth no matter the cost", "crossed": false},
       {"text": "Protect the innocent from unseen forces", "crossed": false},
-      {"text": "Find out what really happened to my missing colleague", "crossed": false},
+      {"text": "Find out what really happened to my missing colleague", "crossed": true},
       {"text": "Uncover the secret behind the Innsmouth disappearances", "crossed": false},
       {"text": "Never let fear silence the press", "crossed": false}
     ],
     "gear": "Trusty .38 revolver, press badge, leather notebook",
-    "terribleTomes": "",
-    "permanentInjuries": "",
-    "notes": "",
+    "terribleTomes": "Cultes des Goules (French edition, heavily annotated)",
+    "permanentInjuries": "Scarred left hand from a confrontation in Innsmouth harbour",
+    "notes": "Keep an eye on the Marsh family. Do not mention the Esoteric Order of Dagon to anyone.",
     "weapons": [
       {
         "weapon": ".38 Revolver",
         "skill": "Firearms",
         "baseRange": "15m",
         "damage": "1D10",
-        "ap": "",
+        "ap": "0",
         "condition": "pristine",
         "lethality": "",
         "killRadius": "",
         "ammo": "6"
+      },
+      {
+        "weapon": "Straight Razor",
+        "skill": "Melee Weapons",
+        "baseRange": "touch",
+        "damage": "1D4",
+        "ap": "0",
+        "condition": "worn",
+        "lethality": "",
+        "killRadius": "",
+        "ammo": ""
       },
       {
         "weapon": "",
@@ -104,7 +115,10 @@
     "Art (Type)": "Writing",
     "Foreign Language (Type)": "French"
   },
-  "customSkills": [],
+  "customSkills": [
+    {"name": "Network Contacts", "value": 40},
+    {"name": "Photography", "value": 35}
+  ],
   "bonds": [
     {
       "name": "Margaret \u2014 beloved sister",
@@ -165,5 +179,5 @@
   "showAllSkills": false,
   "exhausted": false,
   "temporaryInsanity": false,
-  "bodyArmour": 0
+  "bodyArmour": 1
 }
