@@ -7,7 +7,7 @@
 const state = {
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical'
+  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -158,6 +158,7 @@ function getSkillDescription(skillName) {
     : state.age === 'future' ? FUTURE_SKILL_DESCRIPTIONS
     : state.age === 'medieval' ? MEDIEVAL_SKILL_DESCRIPTIONS
     : state.age === 'classical' ? CLASSICAL_SKILL_DESCRIPTIONS
+    : state.age === 'revolutions' ? REVOLUTIONS_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -318,6 +319,71 @@ function calculateDerived() {
   };
 }
 
+// ── Societal Class (Age of Revolutions and future eras) ──────
+
+// Returns true for eras that use the Societal Class mechanic.
+function hasSocietalClass() {
+  return state.age === 'revolutions';
+}
+
+// Calculates Societal Class for eras that use it.
+// Returns { score, label } or null if not applicable.
+// Rules (Age of Revolutions cheat sheet):
+//   A. Highest displayed value among social-standing skills
+//   B. Highest community bond score × 5
+//   C. Take the larger of A and B; average with Resources × 5
+//   D. Map score to label
+function calculateSocietalClass() {
+  if (!hasSocietalClass()) return null;
+
+  const skills = getCurrentSkills();
+
+  // Step A: highest of social-standing skills
+  // Use the base final value (archetype + picks + edit), not the exhausted display value.
+  // 'Medicine' is specified by the Age of Revolutions rules even though it's not a default
+  // era skill; it would apply for characters who add it as a custom skill.
+  const socialSkillNames = ['Bootlick', 'Medicine', 'Militaria (Type)', 'Religion (Type)', 'Social Etiquette'];
+  let stepA = 0;
+  socialSkillNames.forEach(sName => {
+    if (sName in skills) {
+      const val = Math.min(99, Math.max(0, getFinalSkillValue(sName) + (state.skillEditAdjust[sName] || 0)));
+      stepA = Math.max(stepA, val);
+    }
+    // Also check custom skills whose name contains the base name (without the type)
+    const baseName = sName.replace(' (Type)', '');
+    (state.customSkills || []).forEach(cs => {
+      if ((cs.customName || '').toLowerCase().includes(baseName.toLowerCase())) {
+        const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+        const val = Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj));
+        stepA = Math.max(stepA, val);
+      }
+    });
+  });
+
+  // Step B: highest community bond score × 5
+  let stepB = 0;
+  (state.bonds || []).filter(b => b && b.type === 'community').forEach(b => {
+    const score = getBondPlayScore(b);
+    if (score !== null) stepB = Math.max(stepB, score * 5);
+  });
+
+  // Step C: larger of A or B, averaged with Resources × 5
+  const larger = Math.max(stepA, stepB);
+  const resScore = getDisplayedResources() * 5;
+  const statusScore = Math.round((larger + resScore) / 2);
+
+  // Step D: map to label
+  let label;
+  if (statusScore >= 90)      label = 'High Nobility / Privileged';
+  else if (statusScore >= 80) label = 'Nobility / Privilege';
+  else if (statusScore >= 70) label = 'Upper Class';
+  else if (statusScore >= 50) label = 'Middle Class';
+  else if (statusScore >= 30) label = 'Lower Class';
+  else                        label = 'The Poor';
+
+  return { score: statusScore, label };
+}
+
 // ── Effective HP / WP / SAN (current tracking) ─────────────
 
 function getEffectiveHP() {
@@ -386,14 +452,15 @@ function getDistinguishingFeature(attrKey, value) {
 }
 
 function getCurrentSkills() {
-  if (state.age === 'jazz')       return JAZZ_SKILLS;
-  if (state.age === 'coldwar')    return COLD_WAR_SKILLS;
-  if (state.age === 'victorian')  return VICTORIAN_SKILLS;
-  if (state.age === 'ww1')        return WWI_SKILLS;
-  if (state.age === 'ww2')        return WWII_SKILLS;
-  if (state.age === 'future')     return FUTURE_SKILLS;
-  if (state.age === 'medieval')   return MEDIEVAL_SKILLS;
-  if (state.age === 'classical')  return CLASSICAL_SKILLS;
+  if (state.age === 'jazz')         return JAZZ_SKILLS;
+  if (state.age === 'coldwar')      return COLD_WAR_SKILLS;
+  if (state.age === 'victorian')    return VICTORIAN_SKILLS;
+  if (state.age === 'ww1')          return WWI_SKILLS;
+  if (state.age === 'ww2')          return WWII_SKILLS;
+  if (state.age === 'future')       return FUTURE_SKILLS;
+  if (state.age === 'medieval')     return MEDIEVAL_SKILLS;
+  if (state.age === 'classical')    return CLASSICAL_SKILLS;
+  if (state.age === 'revolutions')  return REVOLUTIONS_SKILLS;
   return MODERN_SKILLS;
 }
 
@@ -685,6 +752,8 @@ function getWeaponSkills() {
     case 'medieval':
     case 'classical':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
+    case 'revolutions':
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     default: // jazz, modern, victorian and any other era
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
   }
@@ -970,6 +1039,9 @@ function getAdversitySkills() {
   if (state.age === 'medieval' || state.age === 'classical') {
     return ['Carouse', 'First Aid', 'Foreign Court/Kingdom (Type)', 'Scavenge'];
   }
+  if (state.age === 'revolutions') {
+    return ['Carouse', 'First Aid', 'Scavenge', 'Survival (Type)'];
+  }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
 
@@ -1205,10 +1277,13 @@ function renderStep1() {
       ${_eraAccordionItem('classical', 'Classical Era', '500 BCE–500 CE',
         'The age of Greece and Rome, of philosophers and legions — behind the marble columns and laurel wreaths, elder things stir in the deep places of the world.',
         ['Technology: Bronze and iron weapons, siege engines, trireme warships', 'Tone: Mythic horror, civic dread, cosmic mystery'])}
+      ${_eraAccordionItem('revolutions', 'Age of Revolutions', '1750–1850',
+        'An era of upheaval, empire, and enlightenment — as revolutions topple thrones and science illuminates the world, something ancient stirs in the shadows of colonial ambition.',
+        ['Technology: Muskets, cannon, early industry, sail', 'Tone: Colonial horror, revolutionary dread, Enlightenment unease'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'revolutions' ? 'Age of Revolutions' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -2540,7 +2615,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'revolutions' ? 'Age of Revolutions' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -2590,14 +2665,28 @@ function buildCharSheetHtml() {
           </div>`;
         }).join('')}
         <div class="exhausted-col">
-          <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
-            <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
-            <span>Exhausted</span>
-          </label>
-          <label class="exhausted-label temp-insanity-label${state.temporaryInsanity ? ' temp-insanity-active' : ''}" data-tooltip="For a short time, you cannot control your Protagonist's actions. Your Protagonist's primitive brain switches to pure panic, with one of three possible responses: Flee, Struggle, or Submit. Work with the Game Moderator to determine which stance your Protagonist takes. Each is more likely in some circumstances than others. If the circumstances are calm, it may be possible to talk your Protagonist down from temporary insanity. Such attempts are tests of the Psychoanalyze skill. In the absence of anything like that, your Protagonist loses control until the insanity runs its course.">
-            <input type="checkbox" class="san-checkbox" ${state.temporaryInsanity ? 'checked' : ''} onchange="toggleTemporaryInsanity()">
-            <span>Temp. Insanity</span>
-          </label>
+          <div class="exhausted-inner-row">
+            <div class="exhausted-checks">
+              <label class="exhausted-label${state.exhausted ? ' exhausted-active' : ''}" data-tooltip="A Protagonist who works too long or faces extreme danger and injury without resting becomes exhausted. An exhausted Protagonist suffers a −20% penalty to all skills, stat tests, and SAN tests, and loses 1D6 WP. The exhausted Protagonist loses another 1D6 WP after going another night without sleep, after working hard for a few hours, or after running or fighting for a few minutes. A full night's sleep cures exhaustion.">
+                <input type="checkbox" class="san-checkbox" ${state.exhausted ? 'checked' : ''} onchange="toggleExhausted()">
+                <span>Exhausted</span>
+              </label>
+              <label class="exhausted-label temp-insanity-label${state.temporaryInsanity ? ' temp-insanity-active' : ''}" data-tooltip="For a short time, you cannot control your Protagonist's actions. Your Protagonist's primitive brain switches to pure panic, with one of three possible responses: Flee, Struggle, or Submit. Work with the Game Moderator to determine which stance your Protagonist takes. Each is more likely in some circumstances than others. If the circumstances are calm, it may be possible to talk your Protagonist down from temporary insanity. Such attempts are tests of the Psychoanalyze skill. In the absence of anything like that, your Protagonist loses control until the insanity runs its course.">
+                <input type="checkbox" class="san-checkbox" ${state.temporaryInsanity ? 'checked' : ''} onchange="toggleTemporaryInsanity()">
+                <span>Temp. Insanity</span>
+              </label>
+            </div>
+            ${(() => {
+              if (!hasSocietalClass()) return '';
+              const sc = calculateSocietalClass();
+              if (!sc) return '';
+              return `<div class="societal-class-block" data-tooltip="Societal Class is determined by social skills, community bonds, and resources. Score: ${sc.score}">
+                <div class="sc-label">Societal Class</div>
+                <div class="sc-value">${escapeHtml(sc.label)}</div>
+                <div class="sc-score">(${sc.score})</div>
+              </div>`;
+            })()}
+          </div>
           <div class="stat-status-badges">
             <span id="hp-status-badge">${derived ? getHPBadgeContent(getEffectiveHP()) : ''}</span>
             <span id="wp-status-badge">${derived ? getWPBadgeContent(getEffectiveWP()) : ''}</span>
@@ -3390,12 +3479,13 @@ function exportToOriginalSheet() {
 
   // Era display name
   const eraLabel = state.age === 'jazz' ? 'Jazz Age'
-    : state.age === 'coldwar'   ? 'Cold War'
-    : state.age === 'victorian' ? 'Victorian Age'
-    : state.age === 'ww1'       ? 'World War I'
-    : state.age === 'ww2'       ? 'World War II'
-    : state.age === 'medieval'  ? 'Medieval Era'
-    : state.age === 'classical' ? 'Classical Era'
+    : state.age === 'coldwar'     ? 'Cold War'
+    : state.age === 'victorian'   ? 'Victorian Age'
+    : state.age === 'ww1'         ? 'World War I'
+    : state.age === 'ww2'         ? 'World War II'
+    : state.age === 'medieval'    ? 'Medieval Era'
+    : state.age === 'classical'   ? 'Classical Era'
+    : state.age === 'revolutions' ? 'Age of Revolutions'
     : 'Modern Age';
 
   // All skills sorted alphabetically, including 0% values
@@ -3624,6 +3714,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .oa-field:last-child { border-bottom: none; }
 .oa-flbl { font-weight: bold; }
 .oa-fval { font-weight: bold; min-width: 16mm; text-align: right; font-size: 9pt; padding-right: 2px; }
+.oa-fval-sm { font-size: 7pt; min-width: auto; }
 
 /* ── middle row (HP | SAN grid | BP notes) ── */
 .mid-row { display: grid; grid-template-columns: 34mm 1fr 44mm; gap: 3px; margin-bottom: 3px; }
@@ -3844,6 +3935,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         <div class="wp-note">WP 2 or less = emotional breakdown (-20%), WP 0 = incapacitated</div>
         <div class="oa-field"><span class="oa-flbl">Damage Bonus</span><span class="oa-fval">${dmg}</span></div>
         <div class="oa-field"><span class="oa-flbl">Body Armor</span><span class="oa-fval">${state.bodyArmour || 0}</span></div>
+        ${(() => {
+          if (!hasSocietalClass()) return '';
+          const sc = calculateSocietalClass();
+          if (!sc) return '';
+          return `<div class="oa-field"><span class="oa-flbl">Societal Class</span><span class="oa-fval oa-fval-sm">${esc(sc.label)} (${sc.score})</span></div>`;
+        })()}
       </div>
     </div>
 
@@ -4176,7 +4273,7 @@ function importFromJson(data) {
     return;
   }
 
-  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical'];
+  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
@@ -4240,7 +4337,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};

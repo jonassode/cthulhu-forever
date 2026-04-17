@@ -699,6 +699,14 @@ const testCode = `
       'Future adversity skills: First Aid, Military Training (Type), Planet/Station Lore (Type), Survival (Type)');
   }
 
+  // 5b.8  Age of Revolutions era
+  {
+    const REVOLUTIONS_ADVERSITY = ['Carouse', 'First Aid', 'Scavenge', 'Survival (Type)'];
+    resetState(); state.age = 'revolutions';
+    arrEq(getAdversitySkills(), REVOLUTIONS_ADVERSITY,
+      'Revolutions adversity skills: Carouse, First Aid, Scavenge, Survival (Type)');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');

@@ -2222,6 +2222,19 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   flex-direction: column;
   gap: 0.35rem;
   align-self: center;
+  flex: 1;
+}
+.exhausted-inner-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+.exhausted-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 .stat-status-badges {
   display: flex;
@@ -2273,6 +2286,33 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 /* ── Temporary Insanity label ── */
 .temp-insanity-label.temp-insanity-active {
   color: #e09040;
+}
+
+/* ── Societal Class block (Age of Revolutions and future eras with class) ── */
+.societal-class-block {
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  cursor: default;
+  text-align: right;
+}
+.sc-label {
+  font-size: 0.62rem;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+.sc-value {
+  font-size: 0.78rem;
+  font-family: var(--font-head);
+  color: var(--accent-gold, #b89650);
+  font-weight: bold;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+.sc-score {
+  font-size: 0.62rem;
+  color: var(--text-secondary);
 }
 
 /* ── Exhausted attr ×5 value ── */

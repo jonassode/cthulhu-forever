@@ -440,6 +440,54 @@ const EXPECTED_CLASSICAL = {
   'Unnatural':                        0,
 };
 
+const EXPECTED_REVOLUTIONS = {
+  'Administration':          10,
+  'Alertness':               20,
+  'Antiquary':                0,
+  'Appraise':                10,
+  'Art (Type)':               0,
+  'Athletics':               30,
+  'Bootlick':                20,
+  'Carouse':                  0,
+  'Colonial Lore (Type)':     0,
+  'Craft (Type)':             0,
+  'Disguise':                10,
+  'Dodge':                   30,
+  'Drive':                   20,
+  'Firearms':                20,
+  'First Aid':               10,
+  'Foreign Language (Type)':  0,
+  'Harangue/Taunt':          10,
+  'History':                 10,
+  'Indigenous Lore':          0,
+  'Insight':                 10,
+  'Law (Type)':               0,
+  'Literacy':                 0,
+  'Mechanical Knack':         0,
+  'Melee Weapons':           30,
+  'Militaria (Type)':         0,
+  'Navigate':                10,
+  'Occult':                  10,
+  'Ordnance':                 0,
+  'Persuade':                20,
+  'Pharmacy':                 0,
+  'Ranged Weapons':          20,
+  'Reassure':                10,
+  'Religion (Type)':          0,
+  'Ride':                    10,
+  'Sailing (Type)':           0,
+  'Scavenge':                10,
+  'Science (Type)':           0,
+  'Search':                  20,
+  'Social Etiquette':        10,
+  'Stealth':                 10,
+  'Surgery':                  0,
+  'Survival (Type)':         10,
+  'Swim':                    20,
+  'Unarmed Combat':          40,
+  'Unnatural':                0,
+};
+
 
 function extractObject(name) {
   const blockPattern = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`);
@@ -507,6 +555,7 @@ const wwiiActual = extractObject('WWII_SKILLS');
 const futureActual = extractObject('FUTURE_SKILLS');
 const medievalActual = extractObject('MEDIEVAL_SKILLS');
 const classicalActual = extractObject('CLASSICAL_SKILLS');
+const revolutionsActual = extractObject('REVOLUTIONS_SKILLS');
 
 const jazzOk = compareTables('Jazz skills', EXPECTED_JAZZ, jazzActual);
 const modernOk = compareTables('Modern skills', EXPECTED_MODERN, modernActual);
@@ -517,8 +566,9 @@ const wwiiOk = compareTables('WWII skills', EXPECTED_WWII, wwiiActual);
 const futureOk = compareTables('Future skills', EXPECTED_FUTURE, futureActual);
 const medievalOk = compareTables('Medieval skills', EXPECTED_MEDIEVAL, medievalActual);
 const classicalOk = compareTables('Classical skills', EXPECTED_CLASSICAL, classicalActual);
+const revolutionsOk = compareTables('Revolutions skills', EXPECTED_REVOLUTIONS, revolutionsActual);
 
-if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk || !classicalOk) {
+if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk || !classicalOk || !revolutionsOk) {
   process.exit(1);
 }
 
