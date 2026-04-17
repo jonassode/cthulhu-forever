@@ -759,7 +759,6 @@ function getWeaponSkills() {
     case 'classical':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
     case 'revolutions':
-      return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     case 'sails':
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     default: // jazz, modern, victorian and any other era
