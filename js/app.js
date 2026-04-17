@@ -159,6 +159,7 @@ function getSkillDescription(skillName) {
     : state.age === 'medieval' ? MEDIEVAL_SKILL_DESCRIPTIONS
     : state.age === 'classical' ? CLASSICAL_SKILL_DESCRIPTIONS
     : state.age === 'revolutions' ? REVOLUTIONS_SKILL_DESCRIPTIONS
+    : state.age === 'sails' ? AGE_OF_SAILS_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -323,7 +324,7 @@ function calculateDerived() {
 
 // Returns true for eras that use the Societal Class mechanic.
 function hasSocietalClass() {
-  return state.age === 'revolutions';
+  return state.age === 'revolutions' || state.age === 'sails';
 }
 
 // Calculates Societal Class for eras that use it.
@@ -342,7 +343,11 @@ function calculateSocietalClass() {
   // Use the base final value (archetype + picks + edit), not the exhausted display value.
   // 'Medicine' is specified by the Age of Revolutions rules even though it's not a default
   // era skill; it would apply for characters who add it as a custom skill.
-  const socialSkillNames = ['Bootlick', 'Medicine', 'Militaria (Type)', 'Religion (Type)', 'Social Etiquette'];
+  // Age of Sails uses different societal class skills: Apothecary, Law (Type), Militaria (Type),
+  // Religion (Type), Social Etiquette.
+  const socialSkillNames = state.age === 'sails'
+    ? ['Apothecary', 'Law (Type)', 'Militaria (Type)', 'Religion (Type)', 'Social Etiquette']
+    : ['Bootlick', 'Medicine', 'Militaria (Type)', 'Religion (Type)', 'Social Etiquette'];
   let stepA = 0;
   socialSkillNames.forEach(sName => {
     if (sName in skills) {
@@ -461,6 +466,7 @@ function getCurrentSkills() {
   if (state.age === 'medieval')     return MEDIEVAL_SKILLS;
   if (state.age === 'classical')    return CLASSICAL_SKILLS;
   if (state.age === 'revolutions')  return REVOLUTIONS_SKILLS;
+  if (state.age === 'sails')        return AGE_OF_SAILS_SKILLS;
   return MODERN_SKILLS;
 }
 
@@ -754,6 +760,8 @@ function getWeaponSkills() {
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
     case 'revolutions':
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
+    case 'sails':
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     default: // jazz, modern, victorian and any other era
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
   }
@@ -1039,7 +1047,7 @@ function getAdversitySkills() {
   if (state.age === 'medieval' || state.age === 'classical') {
     return ['Carouse', 'First Aid', 'Foreign Court/Kingdom (Type)', 'Scavenge'];
   }
-  if (state.age === 'revolutions') {
+  if (state.age === 'revolutions' || state.age === 'sails') {
     return ['Carouse', 'First Aid', 'Scavenge', 'Survival (Type)'];
   }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
@@ -1277,13 +1285,16 @@ function renderStep1() {
       ${_eraAccordionItem('classical', 'Classical Era', '500 BCE–500 CE',
         'The age of Greece and Rome, of philosophers and legions — behind the marble columns and laurel wreaths, elder things stir in the deep places of the world.',
         ['Technology: Bronze and iron weapons, siege engines, trireme warships', 'Tone: Mythic horror, civic dread, cosmic mystery'])}
+      ${_eraAccordionItem('sails', 'Age of Sails', '1500–1750',
+        'An era of exploration, empire, and trade winds — as tall ships cross unknown oceans and colonial powers carve up the world, something ancient lurks beneath the waves.',
+        ['Technology: Cannon, muskets, sailing vessels, apothecary', 'Tone: Maritime horror, colonial dread, oceanic mystery'])}
       ${_eraAccordionItem('revolutions', 'Age of Revolutions', '1750–1850',
         'An era of upheaval, empire, and enlightenment — as revolutions topple thrones and science illuminates the world, something ancient stirs in the shadows of colonial ambition.',
         ['Technology: Muskets, cannon, early industry, sail', 'Tone: Colonial horror, revolutionary dread, Enlightenment unease'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'revolutions' ? 'Age of Revolutions' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -2615,7 +2626,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'revolutions' ? 'Age of Revolutions' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -3485,6 +3496,7 @@ function exportToOriginalSheet() {
     : state.age === 'ww2'         ? 'World War II'
     : state.age === 'medieval'    ? 'Medieval Era'
     : state.age === 'classical'   ? 'Classical Era'
+    : state.age === 'sails'       ? 'Age of Sails'
     : state.age === 'revolutions' ? 'Age of Revolutions'
     : 'Modern Age';
 
@@ -4337,7 +4349,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};

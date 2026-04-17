@@ -707,6 +707,14 @@ const testCode = `
       'Revolutions adversity skills: Carouse, First Aid, Scavenge, Survival (Type)');
   }
 
+  // 5b.9  Age of Sails era
+  {
+    const SAILS_ADVERSITY = ['Carouse', 'First Aid', 'Scavenge', 'Survival (Type)'];
+    resetState(); state.age = 'sails';
+    arrEq(getAdversitySkills(), SAILS_ADVERSITY,
+      'Age of Sails adversity skills: Carouse, First Aid, Scavenge, Survival (Type)');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');
