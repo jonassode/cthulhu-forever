@@ -12,24 +12,27 @@ This is the high level roadmap for Cthulhu Forever
   - Future
   - Medieval
   - Classic
+  - Age of Revolutions
+  - Age of Sails
 
 ## Character Creation
 - Supporting all Character Creation Options from the SRD
 
 ## Export 
 - Export to json
-- Export to Character Sheet
+- View as Character Sheet
 
 ## Playing
 - Play Mode
 - Editing for all fields that can be modified during play or downtime activities
 
-# 1.0 - to be released - April
-### All Eras
+# NEXT - to be released 
+## All Eras
 - Add All ERAs from the SRDs
   - Elizabethan
-  - Age of Revolutions
-  - Age of Sails
+
+## Better looking Character Sheet
+- Era Specific Fonts for all Eras, probably starting with a few
 
 ## Quality of Life Improvements
 - Improved Tooltips
@@ -37,21 +40,21 @@ This is the high level roadmap for Cthulhu Forever
 ## Mobile
 - Responsive so it looks better on mobile browsers
 
-# 1.1 - to be released - May
+# Improvement 1 - to be released 
 ## Pregenerated Characters 
 - Load Pregenerated Characters 
 
-# 1.2 - to be released - June/July
+# Improvement 2 - to be released 
 
 ## Character Storage
 - Characters being stored in either Local Storage 
 
-# 1.3 - to be released - ? 
+# Improvement 3 - to be released - 
 
 ## Export to Text
 - Export to text, to make it easy to include in google docs and play by forum sheets
 
-# Future Version - to be released - ?
+# Future Version - to be released -
 
 ## Playing
 - Temporary values for Attributes?
@@ -61,18 +64,18 @@ This is the high level roadmap for Cthulhu Forever
 - Rollable Elements
 
 ## Games
-- With permission of Cthluhu Reborn I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
+- I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
 
 ## Additional Tools
 
-## Custom Archetypes
+### Custom Archetypes
 - Adding custom Archetypes
 - Sharing custom Archetypes with friends
 
-## Markdown version of the Rules
+### Markdown version of the Rules
 - Potentially making a Markdown verison of the rules
 
-## Open Mythos
+### Open Mythos
 - Playing around with the idea of making the open mythos or part of it as Markdown
 
 # What Else?
