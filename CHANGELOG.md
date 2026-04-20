@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.5.3 - refactor: use array.includes() for era check in validate-import-export.mjs; fix: add 'sails' era to VALID_ERAS in importFromJson so Age of Sails characters can be imported  
 0.5.2 - Bump version to 0.5.1  
 0.4.3 - Fix duplicate weapon skills case statement and condense Apothecary description; Add Age of Sails era with skills, archetypes, descriptions, and Societal Class support  
 0.4.2 - chore: bump version to 0.4.1  
