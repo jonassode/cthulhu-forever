@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.5.2 - Bump version to 0.5.1  
 0.4.3 - Fix duplicate weapon skills case statement and condense Apothecary description; Add Age of Sails era with skills, archetypes, descriptions, and Societal Class support  
 0.4.2 - chore: bump version to 0.4.1  
 0.3.9 - Stretch exhausted-col to fill attrs-row so Societal Class reaches the right edge; Right-align Societal Class box and remove its border/background; Rename john_t__boots.json to pre-gens/AoR/john_t__boots.json; Place Societal Class box to the right of Exhausted/Temp. Insanity checkboxes; Move Societal Class block directly below checkboxes in attrs column; Address code review: move inline styles to CSS class, add comment for Medicine skill; Add Age of Revolutions era with skills, archetypes, and Societal Class feature  
