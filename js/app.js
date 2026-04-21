@@ -2059,7 +2059,7 @@ function renderStep4() {
                 ${canSacrifice ? `
                   <button class="toggle-sacrifice-btn${isSetToOne ? ' active' : ''}"
                           onclick="toggleBondSetToOne(${i})"
-                          title="${isSetToOne ? 'Undo: restore bond score' : 'Sacrifice bond (set to 1) for +1 Bonus Pick'}"
+                          data-tooltip="${isSetToOne ? 'Undo: restore bond score to its normal value.' : 'If you are willing for your Protagonist to set a Community Bond to a value of 1 (ready to break at the slightest provocation, with possibly disastrous social outcome), that sacrifice earns one EXTRA Bonus Skill Point Pick.'}"
                           aria-label="${isSetToOne ? 'Undo bond sacrifice' : 'Sacrifice bond for bonus pick'}">
                     ${isSetToOne ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
                   </button>
@@ -2091,7 +2091,7 @@ function renderStep4() {
       `}
       <button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
               onclick="toggleResourcesZero()"
-              title="${state.resourcesSetToZero ? 'Undo: restore Resources to base value' : 'Sacrifice Resources (set to 0) for +1 Bonus Pick'}"
+              data-tooltip="${state.resourcesSetToZero ? 'Undo: restore Resources to its base value.' : 'If you are willing for your Protagonist to have a Resources rating of 0 (absolutely without any worldly goods), that sacrifice earns one EXTRA Bonus Skill Point Pick.'}"
               aria-label="${state.resourcesSetToZero ? 'Undo resource sacrifice' : 'Sacrifice resources for bonus pick'}">
         ${state.resourcesSetToZero ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
       </button>
