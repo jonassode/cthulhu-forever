@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.5.7 - Update roadmap structure and improve clarity  
 0.5.6 - Update roadmap with new eras and improvements  
 0.5.5 - Better tooltip: use custom data-tooltip with descriptive text on sacrifice buttons  
 0.5.4 - Rename matthew_flounders.json to matthew_flounders.json; Add files via upload  
