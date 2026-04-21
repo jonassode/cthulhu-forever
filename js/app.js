@@ -2911,7 +2911,7 @@ function buildCharSheetHtml() {
           const typeLabel = b.type === 'community' ? 'Community' : 'Personal';
           return `<div class="bond-sheet-row${playScore === 0 ? ' bond-broken' : ''}">
             <span class="bond-type-badge bond-type-${b.type}">${typeLabel}</span>
-            <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${escapeHtml(b.name)}</span>
+            <span class="bond-sheet-name" id="bond-sheet-name-${origIdx}" title="Double-click to edit" ondblclick="startEditBondName(${origIdx})">${b.name ? escapeHtml(b.name) : '<span class="bond-name-empty">—</span>'}</span>
             <span class="bond-score-group">
               ${renderBondStatusBadge(b, playScore)}
               ${state.editMode ? `<button class="stat-btn stat-btn-compact no-print" onclick="adjustBondPlayScore(${origIdx},-1)" title="Damage bond" aria-label="Decrease bond score">−</button>` : ''}
@@ -3309,7 +3309,14 @@ function createBondNameSpan(origIdx, name) {
   span.className = 'bond-sheet-name';
   span.id = 'bond-sheet-name-' + origIdx;
   span.title = 'Double-click to edit';
-  span.textContent = name;
+  if (name) {
+    span.textContent = name;
+  } else {
+    const emptySpan = document.createElement('span');
+    emptySpan.className = 'bond-name-empty';
+    emptySpan.textContent = '—';
+    span.appendChild(emptySpan);
+  }
   span.addEventListener('dblclick', () => startEditBondName(origIdx));
   return span;
 }

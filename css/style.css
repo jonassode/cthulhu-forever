@@ -1850,6 +1850,9 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 .bond-sheet-name:hover {
   text-decoration: underline dotted var(--accent-gold);
 }
+.bond-name-empty {
+  opacity: 0.35;
+}
 .db-edit-bond-input {
   flex: 1;
   background: transparent;
