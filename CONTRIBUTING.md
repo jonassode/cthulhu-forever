@@ -29,6 +29,10 @@ You can also leave feedback, share your experience, or post suggestions directly
 
 👉 [Cthulhu Forever on Itch.io](https://jonassoderstrom.itch.io/cthulhu-forever)
 
+## 💙 Share the Love
+
+If you like the tool, share it with your friends, on social media, on your favourite forum, it really helps
+
 Community comments there help others discover the project and give the maintainer a sense of how the tool is being used in the wild.
 
 ## 📋 Guidelines for All Feedback
