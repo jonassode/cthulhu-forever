@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.5.8 - fix: show placeholder dash when bond name is empty so it can be double-clicked to edit  
 0.5.7 - Update roadmap structure and improve clarity  
 0.5.6 - Update roadmap with new eras and improvements  
 0.5.5 - Better tooltip: use custom data-tooltip with descriptive text on sacrifice buttons  
