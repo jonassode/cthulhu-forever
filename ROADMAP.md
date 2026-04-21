@@ -26,7 +26,7 @@ This is the high level roadmap for Cthulhu Forever
 - Play Mode
 - Editing for all fields that can be modified during play or downtime activities
 
-# NEXT - to be released 
+# NEXT
 ## All Eras
 - Add All ERAs from the SRDs
   - Elizabethan
@@ -40,21 +40,27 @@ This is the high level roadmap for Cthulhu Forever
 ## Mobile
 - Responsive so it looks better on mobile browsers
 
-# Improvement 1 - to be released 
+# Improvement - Pregens
+
 ## Pregenerated Characters 
 - Load Pregenerated Characters 
 
-# Improvement 2 - to be released 
+# Improvement - Easier play  
 
 ## Character Storage
 - Characters being stored in either Local Storage 
 
-# Improvement 3 - to be released - 
+# Improvement - Supporting Creators 
 
 ## Export to Text
 - Export to text, to make it easy to include in google docs and play by forum sheets
 
-# Future Version - to be released -
+# Improvement - Add games
+
+## Games
+- I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
+
+# Future Version / Mayby?
 
 ## Playing
 - Temporary values for Attributes?
@@ -62,9 +68,6 @@ This is the high level roadmap for Cthulhu Forever
 ## Dice Rolling
 - Dice Roller
 - Rollable Elements
-
-## Games
-- I'd love to add Convicts & Cthulhu, Apocthulhu and Eldritch Horizon as well
 
 ## Additional Tools
 
