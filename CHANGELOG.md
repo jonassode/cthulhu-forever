@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.5.5 - Better tooltip: use custom data-tooltip with descriptive text on sacrifice buttons  
 0.5.4 - Rename matthew_flounders.json to matthew_flounders.json; Add files via upload  
 0.5.3 - refactor: use array.includes() for era check in validate-import-export.mjs; fix: add 'sails' era to VALID_ERAS in importFromJson so Age of Sails characters can be imported  
 0.5.2 - Bump version to 0.5.1  
