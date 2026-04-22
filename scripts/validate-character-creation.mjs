@@ -715,6 +715,14 @@ const testCode = `
       'Age of Sails adversity skills: Carouse, First Aid, Scavenge, Survival (Type)');
   }
 
+  // 5b.10  Elizabethan era
+  {
+    const ELIZABETHAN_ADVERSITY = ['Carouse', 'First Aid', 'Foreign Court/Kingdom (Type)', 'Scavenge'];
+    resetState(); state.age = 'elizabethan';
+    arrEq(getAdversitySkills(), ELIZABETHAN_ADVERSITY,
+      'Elizabethan adversity skills: Carouse, First Aid, Foreign Court/Kingdom (Type), Scavenge');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');

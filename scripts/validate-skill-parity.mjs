@@ -535,6 +535,54 @@ const EXPECTED_AGE_OF_SAILS = {
   'Unnatural':                0,
 };
 
+const EXPECTED_ELIZABETHAN = {
+  'Administration':                  10,
+  'Alchemy':                          0,
+  'Alertness':                       20,
+  'Apothecary':                       0,
+  'Appraise':                        10,
+  'Art (Type)':                       0,
+  'Astrology':                        0,
+  'Athletics':                       30,
+  'Beguile':                         20,
+  'Carouse':                          0,
+  'Ciphers':                          0,
+  'Craft (Type)':                     0,
+  'Disguise':                        10,
+  'Dodge':                           30,
+  'Drive':                           20,
+  'Firearms':                        20,
+  'First Aid':                       10,
+  'Forage/Hunt':                      0,
+  'Foreign Court/Kingdom (Type)':     0,
+  'Foreign Language (Type)':         10,
+  'Harangue/Taunt':                  10,
+  'History':                         10,
+  'Insight':                          0,
+  'Literacy':                         0,
+  'Mathematics':                     30,
+  'Melee Weapons':                    0,
+  'Natural Philosophy':              10,
+  'Navigate':                        10,
+  'Occult':                           0,
+  'Ordnance':                        20,
+  'Persuade':                        20,
+  'Ranged Weapons':                  10,
+  'Reassure':                         0,
+  'Religion (Type)':                  0,
+  'Repair/Devise':                   10,
+  'Ride':                             0,
+  'Sailing (Type)':                  10,
+  'Scavenge':                        20,
+  'Search':                          10,
+  'Social Etiquette':                10,
+  'Stealth':                          0,
+  'Surgery':                         10,
+  'Swim':                            20,
+  'Unarmed Combat':                  40,
+  'Unnatural':                        0,
+};
+
 
 function extractObject(name) {
   const blockPattern = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`);
@@ -604,6 +652,7 @@ const medievalActual = extractObject('MEDIEVAL_SKILLS');
 const classicalActual = extractObject('CLASSICAL_SKILLS');
 const revolutionsActual = extractObject('REVOLUTIONS_SKILLS');
 const ageOfSailsActual = extractObject('AGE_OF_SAILS_SKILLS');
+const elizabethanActual = extractObject('ELIZABETHAN_SKILLS');
 
 const jazzOk = compareTables('Jazz skills', EXPECTED_JAZZ, jazzActual);
 const modernOk = compareTables('Modern skills', EXPECTED_MODERN, modernActual);
@@ -616,8 +665,9 @@ const medievalOk = compareTables('Medieval skills', EXPECTED_MEDIEVAL, medievalA
 const classicalOk = compareTables('Classical skills', EXPECTED_CLASSICAL, classicalActual);
 const revolutionsOk = compareTables('Revolutions skills', EXPECTED_REVOLUTIONS, revolutionsActual);
 const ageOfSailsOk = compareTables('Age of Sails skills', EXPECTED_AGE_OF_SAILS, ageOfSailsActual);
+const elizabethanOk = compareTables('Elizabethan skills', EXPECTED_ELIZABETHAN, elizabethanActual);
 
-if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk || !classicalOk || !revolutionsOk || !ageOfSailsOk) {
+if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk || !classicalOk || !revolutionsOk || !ageOfSailsOk || !elizabethanOk) {
   process.exit(1);
 }
 
