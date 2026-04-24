@@ -4660,7 +4660,7 @@ function render() {
     ${state.notification ? renderNotification() : ''}
     <div class="app-header no-print">
       <h1>Cthulhu Forever</h1>
-      <div class="subtitle">Cthulhu Eternal Character Generator</div>
+      <div class="subtitle">Cthulhu Eternal Character Creator</div>
     </div>
     ${renderStepper()}
     <div id="main-content">
