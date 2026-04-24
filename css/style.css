@@ -76,10 +76,13 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   text-shadow: 0 0 24px rgba(201,168,76,0.3);
 }
 .app-header .subtitle {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.08em;
-  margin-top: 0.25rem;
+  font-family: var(--font-head);
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 400;
+  color: var(--accent-gold);
+  letter-spacing: 0.1em;
+  margin-top: 0.4rem;
+  text-shadow: 0 0 16px rgba(201,168,76,0.25);
 }
 
 /* ── Stepper ── */
