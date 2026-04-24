@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.5.11 - style: bump subtitle font-size one step larger (0.95–1.15rem); fix: bump subtitle font-size to middle ground (0.85–1.05rem); fix: reduce subtitle font size and gap to better match title width; feat: make subtitle font larger and nicer using Cinzel serif  
 0.5.10 - Changes before error encountered  
 0.5.9 - Encourage sharing the tool with friends and community  
 0.5.8 - fix: show placeholder dash when bond name is empty so it can be double-clicked to edit  
