@@ -1,6 +1,6 @@
 # Cthulhu Forever
 
-A Cthulhu Eternal Character Generator
+A Cthulhu Eternal Character Creator
 
 ## Access
 
