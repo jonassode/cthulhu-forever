@@ -77,7 +77,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 }
 .app-header .subtitle {
   font-family: var(--font-head);
-  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
   font-weight: 400;
   color: var(--accent-gold);
   letter-spacing: 0.06em;
