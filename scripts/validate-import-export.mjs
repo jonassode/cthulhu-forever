@@ -65,7 +65,7 @@ assertField(character, 'version', 'number', 'root');
 assert(character.version === 2, `root.version should be 2, got ${character.version}`);
 assertField(character, 'age', 'string', 'root');
 assert(
-  ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails'].includes(character.age),
+  ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan'].includes(character.age),
   `root.age must be a known era, got '${character.age}'`
 );
 
