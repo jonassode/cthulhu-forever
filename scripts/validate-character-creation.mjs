@@ -723,6 +723,14 @@ const testCode = `
       'Elizabethan adversity skills: Carouse, First Aid, Foreign Court/Kingdom (Type), Scavenge');
   }
 
+  // 5b.11  Age of Al-Azrad era
+  {
+    const AL_AZRAD_ADVERSITY = ['Carouse', 'First Aid', 'Forage/Hunt', 'Regional Lore (Type)'];
+    resetState(); state.age = 'alazrad';
+    arrEq(getAdversitySkills(), AL_AZRAD_ADVERSITY,
+      'Age of Al-Azrad adversity skills: Carouse, First Aid, Forage/Hunt, Regional Lore (Type)');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');
