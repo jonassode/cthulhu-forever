@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.2 - chore: bump version to 0.7.1  
 0.6.4 - Add Age of Al-Azrad era with skills, descriptions, archetypes, adversity skills, and validation  
 0.6.3 - fix: rename subtitle from Character Generator to Character Creator  
 0.6.2 - chore: bump version to 0.6.1  
