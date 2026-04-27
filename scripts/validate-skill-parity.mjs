@@ -584,6 +584,55 @@ const EXPECTED_ELIZABETHAN = {
 };
 
 
+const EXPECTED_AL_AZRAD = {
+  'Alchemy':                       0,
+  'Alertness':                    20,
+  'Animal Handling':              10,
+  'Apothecary':                    0,
+  'Appraise':                     10,
+  'Art (Type)':                    0,
+  'Athletics':                    30,
+  'Beguile':                      20,
+  'Bureaucracy':                   0,
+  'Carouse':                       0,
+  'Chirurgery':                    0,
+  'Ciphers':                       0,
+  'Craft (Type)':                 10,
+  'Disguise':                     10,
+  'Dodge':                        30,
+  'Drive':                        20,
+  'First Aid':                    10,
+  'Folklore':                     10,
+  'Forage/Hunt':                  10,
+  'Foreign Language (Type)':       0,
+  'Harangue/Taunt':               10,
+  'Herb Lore':                    20,
+  'History':                      10,
+  'Homeland':                      0,
+  'Insight':                      10,
+  'Literacy':                      0,
+  'Melee Weapons':                30,
+  'Navigate':                     10,
+  'Occult (Type)':                10,
+  'Persuade':                     20,
+  'Quadrivium':                    0,
+  'Ranged Weapons':               20,
+  'Reassure':                     10,
+  'Regional Lore (Type)':          0,
+  'Religion (Type)':              10,
+  'Repair/Devise':                 0,
+  'Ride':                         10,
+  'Sailing (Type)':                0,
+  'Search':                       20,
+  'Siege Weapons':                 0,
+  'Stealth':                      10,
+  'Swim':                         20,
+  'Trivium':                       0,
+  'Unarmed Combat':               40,
+  'Unnatural':                     0,
+};
+
+
 function extractObject(name) {
   const blockPattern = new RegExp(`const\\s+${name}\\s*=\\s*\\{([\\s\\S]*?)\\n\\};`);
   const blockMatch = dataSource.match(blockPattern);
@@ -653,6 +702,7 @@ const classicalActual = extractObject('CLASSICAL_SKILLS');
 const revolutionsActual = extractObject('REVOLUTIONS_SKILLS');
 const ageOfSailsActual = extractObject('AGE_OF_SAILS_SKILLS');
 const elizabethanActual = extractObject('ELIZABETHAN_SKILLS');
+const alAzradActual = extractObject('AL_AZRAD_SKILLS');
 
 const jazzOk = compareTables('Jazz skills', EXPECTED_JAZZ, jazzActual);
 const modernOk = compareTables('Modern skills', EXPECTED_MODERN, modernActual);
@@ -666,8 +716,9 @@ const classicalOk = compareTables('Classical skills', EXPECTED_CLASSICAL, classi
 const revolutionsOk = compareTables('Revolutions skills', EXPECTED_REVOLUTIONS, revolutionsActual);
 const ageOfSailsOk = compareTables('Age of Sails skills', EXPECTED_AGE_OF_SAILS, ageOfSailsActual);
 const elizabethanOk = compareTables('Elizabethan skills', EXPECTED_ELIZABETHAN, elizabethanActual);
+const alAzradOk = compareTables('Age of Al-Azrad skills', EXPECTED_AL_AZRAD, alAzradActual);
 
-if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk || !classicalOk || !revolutionsOk || !ageOfSailsOk || !elizabethanOk) {
+if (!jazzOk || !modernOk || !coldWarOk || !victorianOk || !wwiOk || !wwiiOk || !futureOk || !medievalOk || !classicalOk || !revolutionsOk || !ageOfSailsOk || !elizabethanOk || !alAzradOk) {
   process.exit(1);
 }
 
