@@ -3652,7 +3652,9 @@ function exportToOriginalSheet() {
       <span class="sk-cb">${checked ? '✕' : '□'}</span>
     </div>`;
   }
-  const skillRowsHtml = skillsSheet.map(skillRowHtml).join('');
+  const skillHalf = Math.ceil(skillsSheet.length / 2);
+  const skillRowsHtml = `<div class="sk-col">${skillsSheet.slice(0, skillHalf).map(skillRowHtml).join('')}</div>`
+    + `<div class="sk-col">${skillsSheet.slice(skillHalf).map(skillRowHtml).join('')}</div>`;
 
   // Split bonds by type
   const indivBonds = bonds.filter(b => b.type === 'Personal');
@@ -3810,7 +3812,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 /* skills */
 .skills-block { border: 1.5px solid #555; }
 .skills-note { font-size: 5.5pt; color: #555; padding: 1px 3px; border-bottom: 1px solid #ddd; }
-.skills-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 4px; padding: 2px 3px; }
+.skills-2col { display: flex; gap: 0 4px; padding: 2px 3px; }
+.sk-col { flex: 1; min-width: 0; }
 .sk-row { display: flex; align-items: baseline; gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 7pt; break-inside: avoid; }
 .sk-cb { flex-shrink: 0; font-size: 8pt; line-height: 1; }
 .sk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
