@@ -3802,7 +3802,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .san-grid { flex: 1; padding: 2px 0 2px 2px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 2px; margin-bottom: 2px; align-items: center; }
-.sn { font-size: 12pt; border: 1px solid #ccc; padding: 1px 2px; min-width: 22px; text-align: center; }
+.sn { font-size: 8pt; border: 1px solid #ccc; padding: 1px 2px; min-width: 20px; min-height: 20px; text-align: center; }
 .sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
 
