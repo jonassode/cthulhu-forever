@@ -3691,7 +3691,7 @@ function exportToOriginalSheet() {
     jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
     modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
     coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
-    victorian:   { name: 'Playfair Display SC', url: 'Playfair+Display+SC:wght@700' },
+    victorian:   { name: 'Tapestry',             url: 'Tapestry' },
     ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
     ww2:         { name: 'Special Elite',       url: 'Special+Elite' },
     future:      { name: 'Syne Mono',             url: 'Syne+Mono' },
@@ -3813,7 +3813,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* ── era banner (top of page) ── */
 .era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
-.era-banner-title { font-family: 'Cinzel', serif; font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.era-banner-title { font-family: var(--era-font); font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
 .era-banner-era { font-family: var(--era-font); font-size: 10pt; font-weight: bold; letter-spacing: .2em; text-transform: uppercase; color: #333; }
 
