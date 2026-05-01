@@ -3525,6 +3525,7 @@ function exportToOriginalSheet() {
     : state.age === 'revolutions' ? 'Age of Revolutions'
     : state.age === 'elizabethan' ? 'Elizabethan Age'
     : state.age === 'alazrad'     ? 'Age of Al-Azrad'
+    : state.age === 'future'      ? 'The Future'
     : 'Modern Age';
 
   // All skills sorted alphabetically, including 0% values
