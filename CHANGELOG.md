@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.10 - fix: remove line-height:1 from era-banner-title to equalize top/bottom spacing; fix: merge era banner into one line, remove bold, equalize font size, add separator  
 0.7.9 - Change Jazz age font from Josefin Sans to Fascinate  
 0.7.8 - Use Quintessential font for Age of Sails era; Revert Jazz, Modern, Victorian fonts; keep only Age of Sails → Sail; Update era-specific heading fonts: Jazz→Fascinate, Modern→Syne Mono, Victorian→Sancreek, Sails→Sail; Change Age of Sails era banner font from Cinzel to Sail  
 0.7.7 - Use Tapestry font for Victorian era banner title in exported sheet; Revert non-Victorian font changes; keep only Sancreek for Victorian era; Change Victorian era banner font to Sancreek in exported character sheet  
