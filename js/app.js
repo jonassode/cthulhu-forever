@@ -3790,7 +3790,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .hp-grid { flex: 1; padding: 2px 0 2px 2px; }
 .hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
-.hn { font-size: 8pt; border: 1px solid #ccc; padding: 2 1px; min-width: 20px; min-height: 20px; display: flex; align-items: center; justify-content: center; }
+.hn, .sn { font-size: 7pt; border: 1px solid #ccc; padding: 1px 2px; min-width: 18px; min-height: 18px; display: flex; align-items: center; justify-content: center; }
 .hn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .hn-over { color: #ccc; border-color: #eee; }
 
@@ -3802,7 +3802,6 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .san-grid { flex: 1; padding: 2px 0 2px 2px; }
 .san-row { display: flex; flex-wrap: nowrap; gap: 2px; margin-bottom: 2px; align-items: center; }
-.sn { font-size: 8pt; border: 1px solid #ccc; padding: 1px 2px; min-width: 20px; min-height: 20px; text-align: center; }
 .sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
 
