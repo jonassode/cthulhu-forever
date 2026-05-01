@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.11 - Center HP grid cell numbers vertically and horizontally using flex; Adjust padding in .hn class for better layout; Update app.js; Change alignment property in .hn class; Increase minimum size of .hn elements in CSS; Reduce minimum dimensions for .hn class; Update .hn class styles for better layout; Revert flex/padding changes on .hn, keep 8pt font-size; Set HP grid cell font-size to 8pt; Remove bold from HP grid cells; Make HP numbers bigger — increase font-size to 10pt, bold, flex:1 fill  
 0.7.10 - fix: remove line-height:1 from era-banner-title to equalize top/bottom spacing; fix: merge era banner into one line, remove bold, equalize font size, add separator  
 0.7.9 - Change Jazz age font from Josefin Sans to Fascinate  
 0.7.8 - Use Quintessential font for Age of Sails era; Revert Jazz, Modern, Victorian fonts; keep only Age of Sails → Sail; Update era-specific heading fonts: Jazz→Fascinate, Modern→Syne Mono, Victorian→Sancreek, Sails→Sail; Change Age of Sails era banner font from Cinzel to Sail  
