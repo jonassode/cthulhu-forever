@@ -3607,12 +3607,12 @@ function exportToOriginalSheet() {
     const isOver = (n > maxSANNum);
     return `<span class="sn${isCurr?' sn-curr':''}${isOver?' sn-over':''}">${String(n).padStart(2,'0')}</span>`;
   }
-  // SAN main grid: 10 rows of 10 (00–09, 10–19, …, 90–99)
+  // SAN main grid: 5 rows of 20 (00–19, 20–39, …, 80–99)
   const sanMainRows = (() => {
     const rows = [];
-    for (let s = 0; s <= 90; s += 10) {
+    for (let s = 0; s <= 80; s += 20) {
       const r = [];
-      for (let i = s; i <= s + 9; i++) r.push(sanCell(i));
+      for (let i = s; i <= s + 19; i++) r.push(sanCell(i));
       rows.push(`<div class="san-row">${r.join('')}</div>`);
     }
     return rows.join('');
@@ -3801,8 +3801,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .san-wrapper { display: flex; align-items: flex-start; }
 .san-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .san-grid { flex: 1; padding: 2px 0 2px 2px; }
-.san-row { display: flex; flex-wrap: nowrap; gap: 1px; margin-bottom: 1px; align-items: center; }
-.sn { font-size: 6pt; border: 1px solid #ccc; padding: 0 1px; min-width: 11px; text-align: center; }
+.san-row { display: flex; flex-wrap: nowrap; gap: 2px; margin-bottom: 2px; align-items: center; }
+.sn { font-size: 12pt; border: 1px solid #ccc; padding: 1px 2px; min-width: 22px; text-align: center; }
 .sn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .sn-over { color: #ccc; border-color: #eee; text-decoration: line-through; }
 
