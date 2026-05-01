@@ -3694,7 +3694,7 @@ function exportToOriginalSheet() {
     victorian:   { name: 'Playfair Display SC', url: 'Playfair+Display+SC:wght@700' },
     ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
     ww2:         { name: 'Special Elite',       url: 'Special+Elite' },
-    future:      { name: 'Orbitron',            url: 'Orbitron:wght@700;900' },
+    future:      { name: 'Syne Mono',             url: 'Syne+Mono' },
     medieval:    { name: 'Uncial Antiqua',      url: 'Uncial+Antiqua' },
     classical:   { name: 'Cinzel',             url: 'Cinzel:wght@700;900' },
     revolutions: { name: 'Libre Baskerville',  url: 'Libre+Baskerville:wght@700' },
