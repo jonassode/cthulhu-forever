@@ -3688,7 +3688,7 @@ function exportToOriginalSheet() {
 
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
-    jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
+    jazz:        { name: 'Fascinate',           url: 'Fascinate' },
     modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
     coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
     victorian:   { name: 'Tapestry',             url: 'Tapestry' },
@@ -3790,7 +3790,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .hp-vlabel { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6pt; text-transform: uppercase; letter-spacing: .1em; padding: 2px; color: #444; }
 .hp-grid { flex: 1; padding: 2px 0 2px 2px; }
 .hp-row { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: 2px; }
-.hn { font-size: 6.5pt; border: 1px solid #ccc; padding: 0 1px; min-width: 12px; text-align: center; }
+.hn { font-size: 8pt; border: 1px solid #ccc; padding: 2 1px; min-width: 20px; min-height: 20px; display: flex; align-items: center; justify-content: center; }
 .hn-curr { background: #000; color: #fff; font-weight: bold; border-color: #000; }
 .hn-over { color: #ccc; border-color: #eee; }
 
@@ -3812,10 +3812,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .bp-block p:last-child { margin-bottom: 0; }
 
 /* ── era banner (top of page) ── */
-.era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
-.era-banner-title { font-family: var(--era-font); font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.era-banner { display: flex; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
+.era-banner-title { font-family: var(--era-font); font-size: 14pt; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
-.era-banner-era { font-family: var(--era-font); font-size: 10pt; font-weight: bold; letter-spacing: .2em; text-transform: uppercase; color: #333; }
 
 /* ── perm injuries + incidents combined row ── */
 .perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
@@ -3934,8 +3933,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
   <!-- ── ERA BANNER ── -->
   <div class="era-banner">
-    <div class="era-banner-title">Cthulhu Eternal</div>
-    <div class="era-banner-era">${esc(eraLabel.toUpperCase())}</div>
+    <div class="era-banner-title">Cthulhu Eternal - ${esc(eraLabel)}</div>
   </div>
 
   <!-- ── TOP ROW: Identity | Statistics | Other Attributes ── -->
