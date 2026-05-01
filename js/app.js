@@ -3686,6 +3686,26 @@ function exportToOriginalSheet() {
   // Upbringing label
   const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal';
 
+  // Era-specific heading fonts
+  const ERA_FONT_MAP = {
+    jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
+    modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
+    coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
+    victorian:   { name: 'Playfair Display SC', url: 'Playfair+Display+SC:wght@700' },
+    ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
+    ww2:         { name: 'Special Elite',       url: 'Special+Elite' },
+    future:      { name: 'Orbitron',            url: 'Orbitron:wght@700;900' },
+    medieval:    { name: 'Uncial Antiqua',      url: 'Uncial+Antiqua' },
+    classical:   { name: 'Cinzel',             url: 'Cinzel:wght@700;900' },
+    revolutions: { name: 'Libre Baskerville',  url: 'Libre+Baskerville:wght@700' },
+    sails:       { name: 'Pirata One',          url: 'Pirata+One' },
+    elizabethan: { name: 'IM Fell English',     url: 'IM+Fell+English:ital@0;1' },
+    alazrad:     { name: 'Almendra SC',         url: 'Almendra+SC:wght@700' },
+  };
+  const eraFontCfg  = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
+  const eraFontName = eraFontCfg.name;
+  const eraFontUrl  = eraFontCfg.url;
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3693,9 +3713,10 @@ function exportToOriginalSheet() {
 <title>${esc(state.identity.name) || 'Character Sheet'} — ${esc(eraLabel)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Caveat:wght@400;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Caveat:wght@400;600&family=${eraFontUrl}&display=swap" rel="stylesheet"/>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --era-font: '${eraFontName}', serif; }
 body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; background: #fff; }
 
 /* ── page ── */
@@ -3706,7 +3727,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .sec { border: 1.5px solid #555; margin-bottom: 3px; }
 .sec-hdr {
   background: #4a7fa0; color: #fff;
-  font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em;
+  font-family: var(--era-font); font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em;
   padding: 1px 4px;
 }
 .sec-body { padding: 3px 4px; }
@@ -3716,7 +3737,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* identity block */
 .id-title-box {
-  background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt;
+  background: #4a7fa0; color: #fff; font-family: var(--era-font); font-weight: bold; font-size: 8pt;
   text-transform: uppercase; letter-spacing: .1em; text-align: center;
   padding: 1px 4px;
 }
@@ -3729,7 +3750,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .id-inline .id-line { flex: 1; }
 
 /* statistics table */
-.stats-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
+.stats-hdr { background: #4a7fa0; color: #fff; font-family: var(--era-font); font-weight: bold; font-size: 8pt; text-align: center; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .stats-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
 .stats-table th { background: #c8dce8; font-weight: bold; text-align: center; border: 1px solid #bbb; padding: 1px 2px; font-size: 7pt; }
 .stats-table td { border: 1px solid #bbb; padding: 1px 3px; }
@@ -3741,7 +3762,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* other attributes */
 .oa-block { border: 1.5px solid #555; }
-.oa-hdr { background: #4a7fa0; color: #fff; font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
+.oa-hdr { background: #4a7fa0; color: #fff; font-family: var(--era-font); font-weight: bold; font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; padding: 1px 4px; }
 .oa-body { padding: 3px; }
 .wp-title { font-weight: bold; font-size: 7.5pt; margin-bottom: 2px; padding-bottom: 1px; }
 .wp-row { display: flex; gap: 4px; align-items: flex-end; margin-bottom: 2px; }
@@ -3794,7 +3815,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
 .era-banner-title { font-family: 'Cinzel', serif; font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
-.era-banner-era { font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: #444; }
+.era-banner-era { font-family: var(--era-font); font-size: 10pt; font-weight: bold; letter-spacing: .2em; text-transform: uppercase; color: #333; }
 
 /* ── perm injuries + incidents combined row ── */
 .perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
