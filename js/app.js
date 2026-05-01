@@ -3688,10 +3688,10 @@ function exportToOriginalSheet() {
 
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
-    jazz:        { name: 'Fascinate',            url: 'Fascinate' },
-    modern:      { name: 'Syne Mono',           url: 'Syne+Mono' },
+    jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
+    modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
     coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
-    victorian:   { name: 'Sancreek',            url: 'Sancreek' },
+    victorian:   { name: 'Playfair Display SC', url: 'Playfair+Display+SC:wght@700' },
     ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
     ww2:         { name: 'Special Elite',       url: 'Special+Elite' },
     future:      { name: 'Orbitron',            url: 'Orbitron:wght@700;900' },
