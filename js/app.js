@@ -3688,7 +3688,7 @@ function exportToOriginalSheet() {
 
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
-    jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
+    jazz:        { name: 'Fascinate',           url: 'Fascinate' },
     modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
     coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
     victorian:   { name: 'Playfair Display SC', url: 'Playfair+Display+SC:wght@700' },
