@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.7 - Use Tapestry font for Victorian era banner title in exported sheet; Revert non-Victorian font changes; keep only Sancreek for Victorian era; Change Victorian era banner font to Sancreek in exported character sheet  
 0.7.6 - feat: use Syne Mono for Future era font in ERA_FONT_MAP; feat: use era-specific font for era-banner-title on all headings; feat: use era-specific font for era-banner-title on all headings; feat: change Modern Age font to Syne Mono on original character sheet  
 0.7.5 - feat: add era-specific fonts to the Original Sheet export  
 0.7.4 - fix: add 'future' era to eraLabel mapping in exportToOriginalSheet  
