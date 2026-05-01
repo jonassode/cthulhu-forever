@@ -3691,7 +3691,7 @@ function exportToOriginalSheet() {
     jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
     modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
     coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
-    victorian:   { name: 'Sancreek',            url: 'Sancreek' },
+    victorian:   { name: 'Tapestry',             url: 'Tapestry' },
     ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
     ww2:         { name: 'Special Elite',       url: 'Special+Elite' },
     future:      { name: 'Orbitron',            url: 'Orbitron:wght@700;900' },
