@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.4 - fix: add 'future' era to eraLabel mapping in exportToOriginalSheet  
 0.7.3 - Fix skill sorting in original sheet to sort alphabetically by column not by row  
 0.7.2 - chore: bump version to 0.7.1  
 0.6.4 - Add Age of Al-Azrad era with skills, descriptions, archetypes, adversity skills, and validation  
