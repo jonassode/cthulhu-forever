@@ -3689,7 +3689,7 @@ function exportToOriginalSheet() {
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
     jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
-    modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
+    modern:      { name: 'Oswald',              url: 'Oswald:wght@700' },
     coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
     victorian:   { name: 'Tapestry',             url: 'Tapestry' },
     ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
