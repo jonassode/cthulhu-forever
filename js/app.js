@@ -2,6 +2,25 @@
    CTHULHU ETERNAL — APPLICATION LOGIC
    ============================================================ */
 
+// ── Era Font Map ───────────────────────────────────────────
+// Maps each era to its heading font for both the exported sheet and the live app UI.
+
+const ERA_FONT_MAP = {
+  jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
+  modern:      { name: 'Raleway',            url: 'Raleway:wght@700' },
+  coldwar:     { name: 'Special Elite',      url: 'Special+Elite' },
+  victorian:   { name: 'Playfair Display SC',url: 'Playfair+Display+SC:wght@700' },
+  ww1:         { name: 'Marcellus SC',       url: 'Marcellus+SC' },
+  ww2:         { name: 'Special Elite',      url: 'Special+Elite' },
+  future:      { name: 'Orbitron',           url: 'Orbitron:wght@700;900' },
+  medieval:    { name: 'Uncial Antiqua',     url: 'Uncial+Antiqua' },
+  classical:   { name: 'Cinzel',            url: 'Cinzel:wght@700;900' },
+  revolutions: { name: 'Libre Baskerville', url: 'Libre+Baskerville:wght@700' },
+  sails:       { name: 'Pirata One',         url: 'Pirata+One' },
+  elizabethan: { name: 'IM Fell English',    url: 'IM+Fell+English:ital@0;1' },
+  alazrad:     { name: 'Almendra SC',        url: 'Almendra+SC:wght@700' },
+};
+
 // ── State ──────────────────────────────────────────────────
 
 const state = {
@@ -3687,21 +3706,6 @@ function exportToOriginalSheet() {
   const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal';
 
   // Era-specific heading fonts
-  const ERA_FONT_MAP = {
-    jazz:        { name: 'Josefin Sans',       url: 'Josefin+Sans:wght@700' },
-    modern:      { name: 'Raleway',             url: 'Raleway:wght@700' },
-    coldwar:     { name: 'Special Elite',       url: 'Special+Elite' },
-    victorian:   { name: 'Playfair Display SC', url: 'Playfair+Display+SC:wght@700' },
-    ww1:         { name: 'Marcellus SC',        url: 'Marcellus+SC' },
-    ww2:         { name: 'Special Elite',       url: 'Special+Elite' },
-    future:      { name: 'Orbitron',            url: 'Orbitron:wght@700;900' },
-    medieval:    { name: 'Uncial Antiqua',      url: 'Uncial+Antiqua' },
-    classical:   { name: 'Cinzel',             url: 'Cinzel:wght@700;900' },
-    revolutions: { name: 'Libre Baskerville',  url: 'Libre+Baskerville:wght@700' },
-    sails:       { name: 'Pirata One',          url: 'Pirata+One' },
-    elizabethan: { name: 'IM Fell English',     url: 'IM+Fell+English:ital@0;1' },
-    alazrad:     { name: 'Almendra SC',         url: 'Almendra+SC:wght@700' },
-  };
   const eraFontCfg  = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
   const eraFontName = eraFontCfg.name;
   const eraFontUrl  = eraFontCfg.url;
@@ -3813,7 +3817,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
 /* ── era banner (top of page) ── */
 .era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
-.era-banner-title { font-family: 'Cinzel', serif; font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.era-banner-title { font-family: var(--era-font); font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
 .era-banner-era { font-family: var(--era-font); font-size: 10pt; font-weight: bold; letter-spacing: .2em; text-transform: uppercase; color: #333; }
 
@@ -4686,6 +4690,22 @@ function renderCurrentStep() {
 function render() {
   const app = document.getElementById('app');
   if (!app) return;
+
+  // Apply era-specific heading font to the live app UI
+  if (state.age) {
+    const eraFontCfg = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
+    document.body.style.setProperty('--font-head', `'${eraFontCfg.name}', serif`);
+    let eraFontLink = document.getElementById('era-font-link');
+    if (!eraFontLink) {
+      eraFontLink = document.createElement('link');
+      eraFontLink.id = 'era-font-link';
+      eraFontLink.rel = 'stylesheet';
+      document.head.appendChild(eraFontLink);
+    }
+    eraFontLink.href = `https://fonts.googleapis.com/css2?family=${eraFontCfg.url}&display=swap`;
+  } else {
+    document.body.style.removeProperty('--font-head');
+  }
 
   if (state.playMode) {
     app.innerHTML = renderPlayMode();
