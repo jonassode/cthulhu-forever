@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.5 - feat: add era-specific fonts to the Original Sheet export  
 0.7.4 - fix: add 'future' era to eraLabel mapping in exportToOriginalSheet  
 0.7.3 - Fix skill sorting in original sheet to sort alphabetically by column not by row  
 0.7.2 - chore: bump version to 0.7.1  
