@@ -3825,7 +3825,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .inc-lbl { min-width: 72px; font-weight: bold; }
 .cb-box { display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #333; font-size: 7pt; font-weight: bold; }
 .cb-checked { }
-.inc-adapted { background: #fff; color: #000; border: 1.5px solid #555; border-radius: 3px; font-family: var(--era-font); font-weight: bold; font-size: 6.5pt; text-transform: uppercase; letter-spacing: .15em; padding: 1px 5px; margin-left: 4px; }
+.inc-adapted { background: #fff; color: #000; border: 1px solid #555; border-radius: 3px; font-family: var(--era-font); font-weight: bold; font-size: 6.5pt; text-transform: uppercase; letter-spacing: .15em; padding: 1px 5px; margin-left: 4px; }
 
 /* ── bottom row (skills | bonds) ── */
 .bot-row { display: grid; grid-template-columns: 1fr 52mm; gap: 3px; }
