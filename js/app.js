@@ -3812,10 +3812,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .bp-block p:last-child { margin-bottom: 0; }
 
 /* ── era banner (top of page) ── */
-.era-banner { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
-.era-banner-title { font-family: var(--era-font); font-size: 14pt; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.era-banner { display: flex; align-items: center; justify-content: center; background: #e8f0f6; border: 1.5px solid #555; padding: 3px 6px; margin-bottom: 3px; }
+.era-banner-title { font-family: var(--era-font); font-size: 14pt; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
 .era-banner-sub { font-size: 8pt; font-weight: bold; letter-spacing: .3em; text-transform: uppercase; }
-.era-banner-era { font-family: var(--era-font); font-size: 10pt; font-weight: bold; letter-spacing: .2em; text-transform: uppercase; color: #333; }
 
 /* ── perm injuries + incidents combined row ── */
 .perm-inc-row { display: grid; grid-template-columns: 50mm 1fr; gap: 3px; margin-bottom: 3px; }
@@ -3934,8 +3933,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 
   <!-- ── ERA BANNER ── -->
   <div class="era-banner">
-    <div class="era-banner-title">Cthulhu Eternal</div>
-    <div class="era-banner-era">${esc(eraLabel.toUpperCase())}</div>
+    <div class="era-banner-title">Cthulhu Eternal - ${esc(eraLabel)}</div>
   </div>
 
   <!-- ── TOP ROW: Identity | Statistics | Other Attributes ── -->
