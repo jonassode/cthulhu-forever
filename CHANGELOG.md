@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.14 - Decrease font size for .inc-adapted class; Change font family in .inc-adapted class; Fix formatting of .inc-adapted class in app.js; Fix formatting of .inc-adapted class in app.js; style: restyle ADAPTED badge on original sheet - dark gray border, rounded corners, black text; feat: add ADAPTED badge to original sheet incidents of SAN loss section  
 0.7.13 - fix: prevent stats-block from stretching to match grid row height; fix: add dark gray outer border to statistics table and remove inner outer-edge borders  
 0.7.12 - Unify HP/SAN cell CSS: font-size 7pt, min-width/height 18px, shared .hn,.sn rule; Shrink SAN cells: font-size 8pt, min-width/min-height 20px; Update SAN grid: 5 rows of 20, doubled cell size  
 0.7.11 - Center HP grid cell numbers vertically and horizontally using flex; Adjust padding in .hn class for better layout; Update app.js; Change alignment property in .hn class; Increase minimum size of .hn elements in CSS; Reduce minimum dimensions for .hn class; Update .hn class styles for better layout; Revert flex/padding changes on .hn, keep 8pt font-size; Set HP grid cell font-size to 8pt; Remove bold from HP grid cells; Make HP numbers bigger — increase font-size to 10pt, bold, flex:1 fill  
