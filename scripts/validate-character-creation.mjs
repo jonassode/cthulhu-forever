@@ -733,10 +733,10 @@ const testCode = `
 
   // 5b.12  Apocthulhu era
   {
-    const APOCTHULHU_ADVERSITY = ['Scavenge', 'Survival (Type)', 'Unnatural'];
+    const APOCTHULHU_ADVERSITY = ['Post-Apocalypse Lore (Type)', 'Scavenge', 'Survival (Type)', 'Unnatural'];
     resetState(); state.age = 'apocthulhu';
     arrEq(getAdversitySkills(), APOCTHULHU_ADVERSITY,
-      'Apocthulhu adversity skills: Scavenge, Survival (Type), Unnatural');
+      'Apocthulhu adversity skills: Post-Apocalypse Lore (Type), Scavenge, Survival (Type), Unnatural');
   }
 
   // ── Suite 5c: Nightmarish Upbringing ───────────────────────────────────────
@@ -773,10 +773,10 @@ const testCode = `
     resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
     // Use no archetype so there's no archetype bonus on Scavenge
     state.archetype = null; state.selectedOptional = []; state.skillPoints = {};
-    // Place 2 picks on Scavenge (allowed) — base=20, no archetype bonus, 2×20=40 extra
+    // Place 2 picks on Scavenge (allowed) — base=10, no archetype bonus, 2×20=40 extra
     state.adversityPoints = { 'Scavenge': 2 };
     eq(getAdversitySpent(), 2, 'Nightmarish: 2 picks on Scavenge = 2 spent');
-    eq(getFinalSkillValue('Scavenge'), 60, 'Nightmarish: Scavenge base(20) + 2×20 adversity = 60');
+    eq(getFinalSkillValue('Scavenge'), 50, 'Nightmarish: Scavenge base(10) + 2×20 adversity = 50');
     // Verify that adjustAdversity respects the max-2 cap
     state.adversityPoints = { 'Scavenge': 2 };
     adjustAdversity('Scavenge', 1);  // attempt to add a 3rd pick — should be rejected
