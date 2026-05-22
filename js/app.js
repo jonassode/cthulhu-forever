@@ -1161,7 +1161,7 @@ function getAdversitySkills() {
     return ['Carouse', 'First Aid', 'Forage/Hunt', 'Regional Lore (Type)'];
   }
   if (state.age === 'apocthulhu') {
-    return ['Scavenge', 'Survival (Type)', 'Unnatural'];
+    return ['Post-Apocalypse Lore (Type)', 'Scavenge', 'Survival (Type)', 'Unnatural'];
   }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
