@@ -7,7 +7,7 @@
 const state = {
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad'
+  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad' | 'apocthulhu'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -21,7 +21,7 @@ const state = {
     INT: null, POW: null, CHA: null,
   },
 
-  upbringing: null,        // 'normal' | 'harsh' | 'very_harsh'
+  upbringing: null,        // 'normal' | 'harsh' | 'very_harsh' | 'nightmarish'
   harshStatChoice: null,   // 'STR' | 'CON' — only for 'harsh' upbringing
   adversityPoints: {},     // skillName -> bonus picks spent (adversity pool)
 
@@ -58,6 +58,15 @@ const state = {
   // Attribute reductions from Very Harsh adaptation
   upbringingChaReduction: 0, // CHA reduced by this amount (adapted to violence)
   upbringingPowReduction: 0, // POW reduced by this amount (adapted to helplessness)
+
+  // ── Nightmarish upbringing effects (step 4.5) ──────────────
+  nmPowRoll1: null,           // first d100 roll result
+  nmDisorderId1: null,        // id of disorder added on first roll failure
+  nmPowRoll2: null,           // second d100 roll result
+  nmDisorderId2: null,        // id of disorder added on second roll failure
+  nmAdaptedTo: null,          // 'violence' | 'helplessness' | null (player pick when CHA/POW ≥ 10)
+  nmAdaptViolenceRoll: null,  // 1d6 roll result for violence adaptation
+  nmAdaptHelplessRoll: null,  // 1d6 roll result for helplessness adaptation
 
   currentHP:  null, // current HP (null = use derived max)
   currentWP:  null, // current WP (null = use derived max)
@@ -162,6 +171,7 @@ function getSkillDescription(skillName) {
     : state.age === 'sails' ? AGE_OF_SAILS_SKILL_DESCRIPTIONS
     : state.age === 'elizabethan' ? ELIZABETHAN_SKILL_DESCRIPTIONS
     : state.age === 'alazrad' ? AL_AZRAD_SKILL_DESCRIPTIONS
+    : state.age === 'apocthulhu' ? APOCTHULHU_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -191,6 +201,9 @@ function getUpbringingBonus(attrKey) {
   }
   if (state.upbringing === 'very_harsh') {
     return (attrKey === 'STR' || attrKey === 'CON') ? 1 : 0;
+  }
+  if (state.upbringing === 'nightmarish') {
+    return (attrKey === 'STR' || attrKey === 'CON') ? 2 : 0;
   }
   return 0;
 }
@@ -295,9 +308,11 @@ function calculateDerived() {
   // SAN and BP use the base (un-edited) POW so that editing POW in attribute
   // edit mode does not alter SAN or the breaking point.
   const basePOW = getAttrValue('POW') || v.POW;
-  const baseSAN = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
-    ? basePOW * 4
-    : basePOW * 5;
+  const baseSAN = state.upbringing === 'nightmarish'
+    ? basePOW * 3
+    : (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')
+      ? basePOW * 4
+      : basePOW * 5;
   let DMG;
   if      (v.STR <= 4)  DMG = -2;
   else if (v.STR <= 8)  DMG = -1;
@@ -474,6 +489,7 @@ function getCurrentSkills() {
   if (state.age === 'sails')        return AGE_OF_SAILS_SKILLS;
   if (state.age === 'elizabethan')  return ELIZABETHAN_SKILLS;
   if (state.age === 'alazrad')      return AL_AZRAD_SKILLS;
+  if (state.age === 'apocthulhu')   return APOCTHULHU_SKILLS;
   return MODERN_SKILLS;
 }
 
@@ -771,6 +787,8 @@ function getWeaponSkills() {
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     case 'alazrad':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
+    case 'apocthulhu':
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Unarmed Combat'];
     default: // jazz, modern, victorian and any other era
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
   }
@@ -960,6 +978,20 @@ function resetUpbringingEffectsState() {
   state.vhPowDisorderId = null;
   state.vhAdaptedTo     = null;
   state.vhAdaptRoll     = null;
+  // Remove nightmarish disorders
+  if (state.nmDisorderId1 !== null) {
+    state.disorders = state.disorders.filter(d => d.id !== state.nmDisorderId1);
+  }
+  if (state.nmDisorderId2 !== null) {
+    state.disorders = state.disorders.filter(d => d.id !== state.nmDisorderId2);
+  }
+  state.nmPowRoll1          = null;
+  state.nmDisorderId1       = null;
+  state.nmPowRoll2          = null;
+  state.nmDisorderId2       = null;
+  state.nmAdaptedTo         = null;
+  state.nmAdaptViolenceRoll = null;
+  state.nmAdaptHelplessRoll = null;
   state.upbringingChaReduction = 0;
   state.upbringingPowReduction = 0;
   state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
@@ -1041,6 +1073,72 @@ function rollVhAdaptDice() {
   render();
 }
 
+// ── Nightmarish upbringing effect handlers ──────────────────
+
+// Rolls d100 for the first Nightmarish POW × 4 test.
+function rollNmPowTest1() {
+  const origPow = getOrigAttrValue('POW') || 0;
+  state.nmPowRoll1 = rollD100();
+  if (state.nmPowRoll1 > origPow * 4) {
+    const newDisorder = { id: ++_disorderIdCounter, text: '' };
+    state.disorders.push(newDisorder);
+    state.nmDisorderId1 = newDisorder.id;
+  } else {
+    state.nmDisorderId1 = null;
+  }
+  render();
+}
+
+// Rolls d100 for the second Nightmarish POW × 4 test.
+function rollNmPowTest2() {
+  const origPow = getOrigAttrValue('POW') || 0;
+  state.nmPowRoll2 = rollD100();
+  if (state.nmPowRoll2 > origPow * 4) {
+    const newDisorder = { id: ++_disorderIdCounter, text: '' };
+    state.disorders.push(newDisorder);
+    state.nmDisorderId2 = newDisorder.id;
+  } else {
+    state.nmDisorderId2 = null;
+  }
+  render();
+}
+
+// Selects the adaptation type for Nightmarish (when player has a choice).
+function selectNmAdaptation(adaptationType) {
+  if (state.nmAdaptedTo === adaptationType) return;
+  // Reset any previously applied roll effects
+  if (state.nmAdaptViolenceRoll !== null || state.nmAdaptHelplessRoll !== null) {
+    state.upbringingChaReduction = 0;
+    state.upbringingPowReduction = 0;
+    state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
+    state.violenceChecked     = [false, false, false];
+    state.helplessnessChecked = [false, false, false];
+    state.nmAdaptViolenceRoll = null;
+    state.nmAdaptHelplessRoll = null;
+  }
+  state.nmAdaptedTo = adaptationType;
+  render();
+}
+
+// Rolls 1d6 for the Nightmarish violence adaptation and applies the result.
+function rollNmAdaptViolenceDice() {
+  const roll = rollD6();
+  state.nmAdaptViolenceRoll = roll;
+  state.upbringingChaReduction = (state.upbringingChaReduction || 0) + roll;
+  state.bonds.forEach(b => { if (b) b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
+  state.violenceChecked = [true, true, true];
+  render();
+}
+
+// Rolls 1d6 for the Nightmarish helplessness adaptation and applies the result.
+function rollNmAdaptHelplessnessDice() {
+  const roll = rollD6();
+  state.nmAdaptHelplessRoll = roll;
+  state.upbringingPowReduction = (state.upbringingPowReduction || 0) + roll;
+  state.helplessnessChecked = [true, true, true];
+  render();
+}
+
 // ── Adversity Picks ─────────────────────────────────────────
 
 function getAdversitySkills() {
@@ -1062,12 +1160,16 @@ function getAdversitySkills() {
   if (state.age === 'alazrad') {
     return ['Carouse', 'First Aid', 'Forage/Hunt', 'Regional Lore (Type)'];
   }
+  if (state.age === 'apocthulhu') {
+    return ['Scavenge', 'Survival (Type)', 'Unnatural'];
+  }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
 
 function getAdversityTotal() {
-  if (state.upbringing === 'harsh')      return 1;
-  if (state.upbringing === 'very_harsh') return 2;
+  if (state.upbringing === 'harsh')       return 1;
+  if (state.upbringing === 'very_harsh')  return 2;
+  if (state.upbringing === 'nightmarish') return 4;
   return 0;
 }
 
@@ -1125,6 +1227,19 @@ function canProceed(step) {
         }
         return true;
       }
+      if (state.upbringing === 'nightmarish') {
+        if (state.nmPowRoll1 === null || state.nmPowRoll2 === null) return false;
+        const origCha = getOrigAttrValue('CHA') || 0;
+        const origPow = getOrigAttrValue('POW') || 0;
+        const bothAdapt = origCha < 10 || origPow < 10;
+        if (bothAdapt) {
+          return state.nmAdaptViolenceRoll !== null && state.nmAdaptHelplessRoll !== null;
+        }
+        if (state.nmAdaptedTo === null) return false;
+        if (state.nmAdaptedTo === 'violence')     return state.nmAdaptViolenceRoll !== null;
+        if (state.nmAdaptedTo === 'helplessness') return state.nmAdaptHelplessRoll !== null;
+        return false;
+      }
       return true;
     }
     case 5: return true; // motivations & backstory are optional
@@ -1150,8 +1265,8 @@ function nextStep() {
       ensureBondsCount();
       state.resources = getEffectiveResources();
     }
-    // Route through upbringing effects step for Harsh / Very Harsh
-    if (state.currentStep === 4 && (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')) {
+    // Route through upbringing effects step for Harsh / Very Harsh / Nightmarish
+    if (state.currentStep === 4 && (state.upbringing === 'harsh' || state.upbringing === 'very_harsh' || state.upbringing === 'nightmarish')) {
       resetUpbringingEffectsState();
       goToStep(4.5);
       return;
@@ -1171,8 +1286,8 @@ function prevStep() {
     goToStep(4);
     return;
   }
-  // Going back from step 5 — route through 4.5 for Harsh / Very Harsh
-  if (state.currentStep === 5 && (state.upbringing === 'harsh' || state.upbringing === 'very_harsh')) {
+  // Going back from step 5 — route through 4.5 for Harsh / Very Harsh / Nightmarish
+  if (state.currentStep === 5 && (state.upbringing === 'harsh' || state.upbringing === 'very_harsh' || state.upbringing === 'nightmarish')) {
     goToStep(4.5);
     return;
   }
@@ -1309,10 +1424,13 @@ function renderStep1() {
       ${_eraAccordionItem('alazrad', 'Age of Al-Azrad', '700–1200 CE',
         'The Islamic Golden Age — a time of flourishing scholarship, trade, and culture across a vast caliphate. Beneath the gleaming domes of Baghdad and the dusty caravans of the Silk Road, the author of the Kitab Al-Azif walked a world where cosmic horror was only a prayer away.',
         ['Technology: Swords, bows, siege weapons, chirurgery, alchemy', 'Tone: Scholarly dread, desert horror, ancient cosmic mystery'])}
+      ${_eraAccordionItem('apocthulhu', 'Apocthulhu', 'Post-Apocalypse',
+        'The world has ended — or nearly so. Whatever caused the collapse has left the survivors to scratch out an existence among the ruins, fighting over scraps while something vast and hungry stirs in the silence left behind.',
+        ['Technology: Salvaged firearms, improvised weapons, jury-rigged vehicles', 'Tone: Survival horror, post-apocalyptic dread, cosmic hopelessness'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -1365,7 +1483,7 @@ function renderStep2() {
   // ── Shared: derived stats ─────────────────────────────────
   const allAssigned = allAttributesAssigned();
   const derived     = allAssigned ? calculateDerived() : null;
-  const sanFormula  = (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
+  const sanFormula  = state.upbringing === 'nightmarish' ? 'POW × 3' : (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4' : 'POW × 5';
 
   const derivedHtml = derived ? `
     <div class="derived-stats">
@@ -1385,7 +1503,7 @@ function renderStep2() {
         <div class="ds-label">Body Armour</div>
         <div class="ds-value">${state.bodyArmour || 0}</div>
       </div>
-      <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4)">
+      <div class="derived-stat" data-tooltip="${sanFormula} (Normal = ×5, Harsh/Very Harsh = ×4, Nightmarish = ×3)">
         <div class="ds-label">Sanity</div>
         <div class="ds-value">${derived.SAN}</div>
       </div>
@@ -1657,6 +1775,17 @@ function renderUpbringing() {
     },
   ];
 
+  if (state.age === 'apocthulhu') {
+    upbOpts.push({
+      id: 'nightmarish',
+      label: 'Nightmarish',
+      sanNote: 'SAN = POW × 3',
+      bonus: '+2 to both STR and CON',
+      adversity: '4 adversity picks (max 2 per skill)',
+      desc: 'You were forged in the crucible of the apocalypse itself — something in you broke, then healed wrong.',
+    });
+  }
+
   let statChoiceHtml = '';
   if (state.upbringing === 'harsh') {
     statChoiceHtml = `
@@ -1700,6 +1829,15 @@ function renderUpbringing() {
 function selectUpbringing(val) {
   state.upbringing = val;
   if (val !== 'harsh') state.harshStatChoice = null;
+  if (val !== 'nightmarish') {
+    state.nmPowRoll1 = null;
+    state.nmDisorderId1 = null;
+    state.nmPowRoll2 = null;
+    state.nmDisorderId2 = null;
+    state.nmAdaptedTo = null;
+    state.nmAdaptViolenceRoll = null;
+    state.nmAdaptHelplessRoll = null;
+  }
   render();
 }
 
@@ -2209,6 +2347,8 @@ function adjustAdversity(skillName, delta) {
   if (newPicks < 0) return;
   if (delta > 0) {
     if (getAdversityRemaining() < 1) return;
+    // Nightmarish: no single skill or specialization may benefit more than twice
+    if (state.upbringing === 'nightmarish' && newPicks > 2) return;
     const bpPicks = state.skillPoints[skillName] || 0;
     if (base + archBon + (bpPicks + newPicks) * 20 > 80) return;
   }
@@ -2350,7 +2490,7 @@ function renderUpbringingEffects() {
   let html = `
   <div class="step-content">
     <h2 class="step-title">Upbringing Effects</h2>
-    <p class="step-subtitle">Your ${upbringing === 'harsh' ? 'harsh' : 'very harsh'} upbringing has left its mark — resolve any lasting consequences before continuing.</p>`;
+    <p class="step-subtitle">Your ${upbringing === 'harsh' ? 'harsh' : upbringing === 'very_harsh' ? 'very harsh' : 'nightmarish'} upbringing has left its mark — resolve any lasting consequences before continuing.</p>`;
 
   // ── Harsh ──────────────────────────────────────────────────
   if (upbringing === 'harsh') {
@@ -2533,6 +2673,160 @@ function renderUpbringingEffects() {
     }
   }
 
+  // ── Nightmarish ────────────────────────────────────────────
+  if (upbringing === 'nightmarish') {
+    const powTarget = origPow * 4;
+    const bothAdapt = origCha < 10 || origPow < 10;
+
+    // Part 1: Two POW × 4 Tests
+    html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <div class="sheet-section-title">Part 1 — Two POW × 4 Tests</div>
+      <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:0.75rem;">
+        Roll d100 twice and compare each to your POW × 4 target (<strong>${powTarget}%</strong>). Each failure adds a starting mental disorder.
+      </p>`;
+
+    // Roll 1
+    if (state.nmPowRoll1 === null) {
+      html += `
+      <button class="btn btn-gold" onclick="rollNmPowTest1()">Roll 1 — d100</button>`;
+    } else {
+      const passed1 = state.nmPowRoll1 <= powTarget;
+      html += `
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <span style="font-size:1rem;min-width:90px;">Roll 1: <strong>${state.nmPowRoll1}</strong></span>
+        <span class="bond-status-badge" style="background:${passed1 ? 'rgba(126,255,160,0.15);color:#7effa0;border:1px solid #7effa0' : 'rgba(255,80,80,0.15);color:#ff8080;border:1px solid #ff8080'};">
+          ${passed1 ? '✓ Success' : '✗ Failure — disorder added'}
+        </span>
+      </div>`;
+    }
+
+    // Roll 2 (only after roll 1)
+    if (state.nmPowRoll1 !== null) {
+      if (state.nmPowRoll2 === null) {
+        html += `
+      <button class="btn btn-gold" style="margin-top:0.5rem;" onclick="rollNmPowTest2()">Roll 2 — d100</button>`;
+      } else {
+        const passed2 = state.nmPowRoll2 <= powTarget;
+        html += `
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <span style="font-size:1rem;min-width:90px;">Roll 2: <strong>${state.nmPowRoll2}</strong></span>
+        <span class="bond-status-badge" style="background:${passed2 ? 'rgba(126,255,160,0.15);color:#7effa0;border:1px solid #7effa0' : 'rgba(255,80,80,0.15);color:#ff8080;border:1px solid #ff8080'};">
+          ${passed2 ? '✓ Success' : '✗ Failure — disorder added'}
+        </span>
+      </div>`;
+      }
+    }
+
+    html += `
+    </div>`;
+
+    // Part 2: Adaptation (always applies for Nightmarish)
+    if (state.nmPowRoll1 !== null && state.nmPowRoll2 !== null) {
+      html += `
+    <div class="sheet-section" style="margin-top:1.5rem;">
+      <div class="sheet-section-title">Part 2 — Adaptation</div>`;
+
+      if (bothAdapt) {
+        // Automatically adapted to both
+        html += `
+      <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:0.75rem;">
+        Your ${origCha < 10 ? `CHA (${origCha})` : ''}${origCha < 10 && origPow < 10 ? ' and ' : ''}${origPow < 10 ? `POW (${origPow})` : ''} ${(origCha < 10 && origPow < 10) ? 'are' : 'is'} below 10.
+        Your nightmarish upbringing has left you adapted to <strong>both</strong> violence and helplessness.
+      </p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <div class="sel-card selected" style="flex:1;min-width:200px;opacity:0.9;cursor:default;" aria-disabled="true">
+          <div style="font-weight:600;margin-bottom:0.4rem;">⚔ Adapted to Violence</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce CHA by 1d6, and reduce every bond by the same amount.</div>
+        </div>
+        <div class="sel-card selected" style="flex:1;min-width:200px;opacity:0.9;cursor:default;" aria-disabled="true">
+          <div style="font-weight:600;margin-bottom:0.4rem;">🔗 Adapted to Helplessness</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce POW by 1d6 (affects SAN, Recovery SAN, and Breaking Point).</div>
+        </div>
+      </div>`;
+
+        // Violence roll
+        if (state.nmAdaptViolenceRoll === null) {
+          html += `
+      <button class="btn btn-gold" onclick="rollNmAdaptViolenceDice()">Roll Violence 1d6</button>`;
+        } else {
+          html += `
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <span style="font-size:1rem;">Violence roll: <strong>${state.nmAdaptViolenceRoll}</strong></span>
+        <span style="color:var(--text-secondary);font-size:0.9rem;">CHA reduced by ${state.nmAdaptViolenceRoll} (new: ${getAttrValue('CHA')}), all bonds reduced by ${state.nmAdaptViolenceRoll}</span>
+      </div>`;
+        }
+
+        // Helplessness roll (only after violence roll)
+        if (state.nmAdaptViolenceRoll !== null) {
+          if (state.nmAdaptHelplessRoll === null) {
+            html += `
+      <button class="btn btn-gold" style="margin-top:0.5rem;" onclick="rollNmAdaptHelplessnessDice()">Roll Helplessness 1d6</button>`;
+          } else {
+            html += `
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <span style="font-size:1rem;">Helplessness roll: <strong>${state.nmAdaptHelplessRoll}</strong></span>
+        <span style="color:var(--text-secondary);font-size:0.9rem;">POW reduced by ${state.nmAdaptHelplessRoll} (new: ${getAttrValue('POW')})</span>
+      </div>`;
+          }
+        }
+
+      } else {
+        // Player chooses one adaptation
+        html += `
+      <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:0.75rem;">
+        Your nightmarish upbringing leaves you adapted to either violence or helplessness. Choose one:
+      </p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <div class="sel-card ${state.nmAdaptedTo === 'violence' ? 'selected' : ''}"
+             style="flex:1;min-width:200px;${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? 'cursor:pointer;' : 'opacity:0.7;cursor:default;'}"
+             ${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? "onclick=\"selectNmAdaptation('violence')\"" : ''} role="button">
+          <div style="font-weight:600;margin-bottom:0.4rem;">⚔ Adapted to Violence</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce CHA by 1d6, and reduce every bond by the same amount.</div>
+        </div>
+        <div class="sel-card ${state.nmAdaptedTo === 'helplessness' ? 'selected' : ''}"
+             style="flex:1;min-width:200px;${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? 'cursor:pointer;' : 'opacity:0.7;cursor:default;'}"
+             ${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? "onclick=\"selectNmAdaptation('helplessness')\"" : ''} role="button">
+          <div style="font-weight:600;margin-bottom:0.4rem;">🔗 Adapted to Helplessness</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce POW by 1d6 (affects SAN, Recovery SAN, and Breaking Point).</div>
+        </div>
+      </div>`;
+
+        if (state.nmAdaptedTo === 'violence' && state.nmAdaptViolenceRoll === null) {
+          html += `
+      <button class="btn btn-gold" onclick="rollNmAdaptViolenceDice()">Roll 1d6</button>`;
+        } else if (state.nmAdaptedTo === 'helplessness' && state.nmAdaptHelplessRoll === null) {
+          html += `
+      <button class="btn btn-gold" onclick="rollNmAdaptHelplessnessDice()">Roll 1d6</button>`;
+        }
+
+        if (state.nmAdaptViolenceRoll !== null) {
+          html += `
+      <div style="padding:0.75rem 1rem;background:var(--ct-surface);border-radius:8px;border:1px solid var(--border);line-height:1.8;">
+        <strong>Violence adaptation applied:</strong>
+        <ul style="margin:0.5rem 0 0 1.25rem;">
+          <li>CHA reduced by ${state.nmAdaptViolenceRoll} (new value: ${getAttrValue('CHA')})</li>
+          ${state.bonds.map(b => `<li>${escapeHtml(b.name || 'Unnamed bond')}: reduced by ${state.nmAdaptViolenceRoll} (new value: ${getBondEffectiveValue(b)})</li>`).join('')}
+        </ul>
+        <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-secondary);">All violence incidents are pre-checked — you are adapted to violence.</p>
+      </div>`;
+        } else if (state.nmAdaptHelplessRoll !== null) {
+          html += `
+      <div style="padding:0.75rem 1rem;background:var(--ct-surface);border-radius:8px;border:1px solid var(--border);line-height:1.8;">
+        <strong>Helplessness adaptation applied:</strong>
+        <ul style="margin:0.5rem 0 0 1.25rem;">
+          <li>POW reduced by ${state.nmAdaptHelplessRoll} (new value: ${getAttrValue('POW')}) — SAN, Recovery SAN, and Breaking Point will be recalculated.</li>
+        </ul>
+        <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-secondary);">All helplessness incidents are pre-checked — you are adapted to helplessness.</p>
+      </div>`;
+        }
+      }
+
+      html += `
+    </div>`;
+    }
+  }
+
   html += `
   </div>`;
   return html;
@@ -2541,10 +2835,12 @@ function renderUpbringingEffects() {
 // ── RENDER: Step 5 — Motivations & Backstory ─────────────────
 
 function renderStep5() {
-  // If the character started with a disorder from a very harsh upbringing + failed POW test,
-  // they only have 4 motivation slots (one is already consumed by the starting disorder).
-  const startedWithDisorder = state.vhPowDisorderId !== null;
-  const motivationCount = startedWithDisorder ? 4 : 5;
+  // If the character started with disorders (from very harsh or nightmarish upbringing),
+  // they have fewer motivation slots (one per starting disorder is consumed).
+  const vhDisorder = state.vhPowDisorderId !== null ? 1 : 0;
+  const nmDisorders = (state.nmDisorderId1 !== null ? 1 : 0) + (state.nmDisorderId2 !== null ? 1 : 0);
+  const startingDisorderCount = vhDisorder + nmDisorders;
+  const motivationCount = Math.max(1, 5 - startingDisorderCount);
   const motivations = Array.isArray(state.identity.motivations)
     ? state.identity.motivations
     : makeDefaultMotivations();
@@ -2561,8 +2857,8 @@ function renderStep5() {
     </div>`;
   }).join('');
 
-  const disorderNote = startedWithDisorder
-    ? `<p class="motivation-disorder-note">⚠ Your character started with a disorder due to a very harsh upbringing and a failed POW roll. Only 4 motivation slots are available.</p>`
+  const disorderNote = startingDisorderCount > 0
+    ? `<p class="motivation-disorder-note">⚠ Your character started with ${startingDisorderCount} disorder${startingDisorderCount > 1 ? 's' : ''} due to your upbringing. Only ${motivationCount} motivation slot${motivationCount !== 1 ? 's are' : ' is'} available.</p>`
     : '';
 
   return `
@@ -2644,8 +2940,8 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : 'Modern Age'}</strong></span>
-          ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal'}</strong></span>` : ''}
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : 'Modern Age'}</strong></span>
+          ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
           <button class="sheet-edit-mode-btn no-print${state.editMode ? ' active' : ''}" onclick="toggleEditMode()" aria-label="${state.editMode ? 'Exit edit mode' : 'Enter edit mode'}" title="${state.editMode ? 'Exit edit mode' : 'Enter edit mode'}">
@@ -2772,7 +3068,7 @@ function buildCharSheetHtml() {
         </div>
         <div class="derived-stats-col">
           <div class="derived-row">
-            <div class="derived-box" data-tooltip="${(state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4 (Harsh/Very Harsh upbringing)' : 'POW × 5 (Normal upbringing)'}">
+            <div class="derived-box" data-tooltip="${state.upbringing === 'nightmarish' ? 'POW × 3 (Nightmarish upbringing)' : (state.upbringing === 'harsh' || state.upbringing === 'very_harsh') ? 'POW × 4 (Harsh/Very Harsh upbringing)' : 'POW × 5 (Normal upbringing)'}">
               <span class="db-name">SAN</span>
               ${derived ? `<div class="db-val-group">
                 <button class="stat-btn" onclick="adjustSAN(-1)" title="Decrease SAN" aria-label="Decrease SAN">−</button>
@@ -3525,6 +3821,7 @@ function exportToOriginalSheet() {
     : state.age === 'revolutions' ? 'Age of Revolutions'
     : state.age === 'elizabethan' ? 'Elizabethan Age'
     : state.age === 'alazrad'     ? 'Age of Al-Azrad'
+    : state.age === 'apocthulhu'  ? 'Apocthulhu'
     : state.age === 'future'      ? 'The Future'
     : 'Modern Age';
 
@@ -3684,7 +3981,7 @@ function exportToOriginalSheet() {
   }).join('');
 
   // Upbringing label
-  const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : 'Normal';
+  const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Normal';
 
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
@@ -3701,6 +3998,7 @@ function exportToOriginalSheet() {
     sails:       { name: 'Quintessential',       url: 'Quintessential' },
     elizabethan: { name: 'IM Fell English',     url: 'IM+Fell+English:ital@0;1' },
     alazrad:     { name: 'Almendra SC',         url: 'Almendra+SC:wght@700' },
+    apocthulhu:  { name: 'Raleway',             url: 'Raleway:wght@700' },
   };
   const eraFontCfg  = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
   const eraFontName = eraFontCfg.name;
@@ -4343,7 +4641,7 @@ function importFromJson(data) {
     return;
   }
 
-  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad'];
+  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
@@ -4407,7 +4705,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : data.age === 'apocthulhu' ? APOCTHULHU_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};

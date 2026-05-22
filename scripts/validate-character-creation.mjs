@@ -731,6 +731,58 @@ const testCode = `
       'Age of Al-Azrad adversity skills: Carouse, First Aid, Forage/Hunt, Regional Lore (Type)');
   }
 
+  // 5b.12  Apocthulhu era
+  {
+    const APOCTHULHU_ADVERSITY = ['Scavenge', 'Survival (Type)', 'Unnatural'];
+    resetState(); state.age = 'apocthulhu';
+    arrEq(getAdversitySkills(), APOCTHULHU_ADVERSITY,
+      'Apocthulhu adversity skills: Scavenge, Survival (Type), Unnatural');
+  }
+
+  // ── Suite 5c: Nightmarish Upbringing ───────────────────────────────────────
+  console.log('\\n\u2500\u2500 Suite 5c: Nightmarish Upbringing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+
+  // 5c.1  Nightmarish upbringing provides 4 adversity picks
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    eq(getAdversityTotal(), 4, 'Nightmarish upbringing provides 4 adversity picks');
+  }
+
+  // 5c.2  Nightmarish upbringing bonus: +2 to STR and +2 to CON
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    eq(getUpbringingBonus('STR'), 2, 'Nightmarish upbringing: +2 STR');
+    eq(getUpbringingBonus('CON'), 2, 'Nightmarish upbringing: +2 CON');
+    eq(getUpbringingBonus('DEX'), 0, 'Nightmarish upbringing: +0 DEX');
+  }
+
+  // 5c.3  Nightmarish upbringing: SAN = POW × 3
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    eq(calculateDerived().SAN, 30, 'Nightmarish SAN = POW(10) × 3 = 30');
+  }
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 13, CHA: 10 });
+    eq(calculateDerived().SAN, 39, 'Nightmarish SAN = POW(13) × 3 = 39');
+  }
+
+  // 5c.4  Nightmarish adversity: max 2 picks per skill
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    // Use no archetype so there's no archetype bonus on Scavenge
+    state.archetype = null; state.selectedOptional = []; state.skillPoints = {};
+    // Place 2 picks on Scavenge (allowed) — base=20, no archetype bonus, 2×20=40 extra
+    state.adversityPoints = { 'Scavenge': 2 };
+    eq(getAdversitySpent(), 2, 'Nightmarish: 2 picks on Scavenge = 2 spent');
+    eq(getFinalSkillValue('Scavenge'), 60, 'Nightmarish: Scavenge base(20) + 2×20 adversity = 60');
+    // Verify that adjustAdversity respects the max-2 cap
+    state.adversityPoints = { 'Scavenge': 2 };
+    adjustAdversity('Scavenge', 1);  // attempt to add a 3rd pick — should be rejected
+    eq(state.adversityPoints['Scavenge'], 2, 'Nightmarish: cannot exceed 2 picks on same skill');
+  }
+
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
 
   console.log('\\n── Suite 6: Resources Calculation ──────────────────────────────────────────');
