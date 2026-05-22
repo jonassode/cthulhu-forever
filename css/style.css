@@ -1834,6 +1834,19 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   color: var(--accent-gold);
   line-height: 1;
 }
+.wpn-delete-cell { text-align: center; width: 1.6rem; padding: 0 0.25rem; }
+.wpn-delete-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--danger-light);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: color 0.15s, border-color 0.15s;
+}
+.wpn-delete-btn:hover { color: #e05050; border-color: #e05050; }
 .db-edit-textarea {
   width: 100%;
   min-height: 4rem;
