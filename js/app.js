@@ -2780,13 +2780,15 @@ function renderUpbringingEffects() {
       <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
         <div class="sel-card ${state.nmAdaptedTo === 'violence' ? 'selected' : ''}"
              style="flex:1;min-width:200px;${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? 'cursor:pointer;' : 'opacity:0.7;cursor:default;'}"
-             ${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? "onclick=\"selectNmAdaptation('violence')\"" : ''} role="button">
+             ${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? "onclick=\"selectNmAdaptation('violence')\"" : ''} role="button"
+             ${state.nmAdaptViolenceRoll !== null || state.nmAdaptHelplessRoll !== null ? 'aria-disabled="true"' : ''}>
           <div style="font-weight:600;margin-bottom:0.4rem;">⚔ Adapted to Violence</div>
           <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce CHA by 1d6, and reduce every bond by the same amount.</div>
         </div>
         <div class="sel-card ${state.nmAdaptedTo === 'helplessness' ? 'selected' : ''}"
              style="flex:1;min-width:200px;${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? 'cursor:pointer;' : 'opacity:0.7;cursor:default;'}"
-             ${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? "onclick=\"selectNmAdaptation('helplessness')\"" : ''} role="button">
+             ${state.nmAdaptViolenceRoll === null && state.nmAdaptHelplessRoll === null ? "onclick=\"selectNmAdaptation('helplessness')\"" : ''} role="button"
+             ${state.nmAdaptViolenceRoll !== null || state.nmAdaptHelplessRoll !== null ? 'aria-disabled="true"' : ''}>
           <div style="font-weight:600;margin-bottom:0.4rem;">🔗 Adapted to Helplessness</div>
           <div style="font-size:0.82rem;color:var(--text-secondary);">Reduce POW by 1d6 (affects SAN, Recovery SAN, and Breaking Point).</div>
         </div>
