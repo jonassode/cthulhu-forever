@@ -1238,7 +1238,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   gap: 1rem;
 }
 .sheet-name {
-  font-family: var(--font-head);
+  font-family: 'Rubik Glitch', var(--font-head);
   font-size: clamp(1.3rem, 4vw, 2rem);
   font-weight: 900;
   color: var(--accent-gold);
