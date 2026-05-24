@@ -4000,7 +4000,7 @@ function exportToOriginalSheet() {
     sails:       { name: 'Quintessential',       url: 'Quintessential' },
     elizabethan: { name: 'IM Fell English',     url: 'IM+Fell+English:ital@0;1' },
     alazrad:     { name: 'Almendra SC',         url: 'Almendra+SC:wght@700' },
-    apocthulhu:  { name: 'Raleway',             url: 'Raleway:wght@700' },
+    apocthulhu:  { name: 'Rubik Glitch',        url: 'Rubik+Glitch' },
   };
   const eraFontCfg  = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
   const eraFontName = eraFontCfg.name;
