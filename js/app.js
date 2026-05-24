@@ -3038,7 +3038,7 @@ function buildCharSheetHtml() {
     <div class="sheet-section sheet-weapons-section">
       <div class="sheet-weapons-header">
         <span class="sheet-section-title">Weapons</span>
-        <span class="sheet-weapons-legend">(db) = damage bonus &nbsp; (ap) = armor piercing</span>
+        <span class="sheet-weapons-legend">DB = DAMAGE BONUS &nbsp; AP = ARMOR PIERCING</span>
       </div>
       <table class="sheet-weapons-table">
         <thead>
@@ -3047,8 +3047,8 @@ function buildCharSheetHtml() {
             <th style="width:16%">SKILL %</th>
             <th>BASE<br>RANGE</th>
             <th>DAMAGE</th>
-            <th>(db)</th>
-            <th>(ap)</th>
+            <th>DB</th>
+            <th>AP</th>
             <th>Pristine</th>
             <th>Worn</th>
             <th>Junk</th>
@@ -4201,7 +4201,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <!-- ── WEAPONS ── -->
   <div class="wpns-block">
     <div class="sec-hdr">
-      <div class="wpns-hdr-row"><span>Weapons</span><span class="wpns-note">(db) = damage bonus &nbsp; (ap) = armor piercing</span></div>
+      <div class="wpns-hdr-row"><span>Weapons</span><span class="wpns-note">DB = DAMAGE BONUS &nbsp; AP = ARMOR PIERCING</span></div>
     </div>
     <table class="wpns-table">
       <thead>
@@ -4210,8 +4210,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
           <th style="width:16%">Skill %</th>
           <th style="width:10%">Base Range</th>
           <th style="width:10%">Damage</th>
-          <th style="width:5%">(db)</th>
-          <th style="width:5%">(ap)</th>
+          <th style="width:5%">DB</th>
+          <th style="width:5%">AP</th>
           <th style="width:13%">Pristine/Worn/Junk</th>
           <th style="width:10%">Lethality %</th>
           <th style="width:9%">Kill Radius</th>
