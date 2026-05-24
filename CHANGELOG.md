@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.16 - feat: add default unarmed attack weapon for new characters  
 0.7.15 - feat: add delete weapon button in edit mode with undo notification  
 0.7.15 - feat: add delete weapon button in edit mode with undo notification; ensure empty row remains after last weapon is deleted
 0.7.14 - Decrease font size for .inc-adapted class; Change font family in .inc-adapted class; Fix formatting of .inc-adapted class in app.js; Fix formatting of .inc-adapted class in app.js; style: restyle ADAPTED badge on original sheet - dark gray border, rounded corners, black text; feat: add ADAPTED badge to original sheet incidents of SAN loss section  
