@@ -758,6 +758,10 @@ function makeEmptyWeaponRow() {
   return { weapon: '', skill: '', baseRange: '', damage: '', ap: '', condition: '', lethality: '', killRadius: '', ammo: '' };
 }
 
+function makeDefaultUnarmedWeaponRow() {
+  return { weapon: 'Unarmed Attack', skill: 'Unarmed Combat', baseRange: '', damage: '1D4-1', ap: '', condition: '', lethality: '', killRadius: '', ammo: '' };
+}
+
 function getWeaponSkills() {
   switch (state.age) {
     case 'coldwar':
@@ -4645,7 +4649,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', notes: '', weapons: [{}] };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', notes: '', weapons: [makeDefaultUnarmedWeaponRow(), {}] };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
