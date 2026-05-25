@@ -76,8 +76,9 @@ const state = {
   bodyArmour: 0,          // body armour value (default 0, adjustable in edit mode)
   disorders: [],          // array of {id, text} — mental disorders/conditions acquired during play
 
-  notification: null,     // string message for the floating notification, or null when hidden
-  lastRemovedBond: null,  // { bond, idx } for undo after removeSheetBond, or null
+  notification: null,        // string message for the floating notification, or null when hidden
+  lastRemovedBond: null,     // { bond, idx } for undo after removeSheetBond, or null
+  lastRemovedWeapon: null,   // { weapon, idx } for undo after removeWeapon, or null
 
   editMode: false,        // true = character sheet edit mode (pen icon toggled)
   resourcesEditAdjust: 0, // integer offset to Resources rating applied in edit mode
@@ -681,13 +682,17 @@ function showNotification(message) {
 function closeNotification() {
   state.notification = null;
   state.lastRemovedBond = null;
+  state.lastRemovedWeapon = null;
   render();
 }
 
 function renderNotification() {
-  const undoBtn = state.lastRemovedBond
-    ? `<button class="floating-notification-undo" onclick="undoRemoveBond()" aria-label="Undo remove bond">UNDO</button>`
-    : '';
+  let undoBtn = '';
+  if (state.lastRemovedBond) {
+    undoBtn = `<button class="floating-notification-undo" onclick="undoRemoveBond()" aria-label="Undo remove bond">UNDO</button>`;
+  } else if (state.lastRemovedWeapon) {
+    undoBtn = `<button class="floating-notification-undo" onclick="undoRemoveWeapon()" aria-label="Undo remove weapon">UNDO</button>`;
+  }
   return `<div class="floating-notification" role="alert">
     <span>${escapeHtml(state.notification)}</span>
     ${undoBtn}
@@ -769,6 +774,10 @@ function makeEmptyWeaponRow() {
   return { weapon: '', skill: '', baseRange: '', damage: '', ap: '', condition: '', lethality: '', killRadius: '', ammo: '' };
 }
 
+function makeDefaultUnarmedWeaponRow() {
+  return { weapon: 'Unarmed Attack', skill: 'Unarmed Combat', baseRange: '', damage: '1D4-1', ap: '', condition: '', lethality: '', killRadius: '', ammo: '' };
+}
+
 function getWeaponSkills() {
   switch (state.age) {
     case 'coldwar':
@@ -817,6 +826,9 @@ function renderWeaponRow(row, i) {
   const skillPct = (row.skill && skillVal !== null) ? `${skillVal}%` : '';
   const showDb = isMeleeOrUnarmedWeaponSkill(row.skill || '');
   const dbDisplay = showDb ? dmgBonusStr : '';
+  const deleteCell = state.editMode
+    ? `<td class="wpn-delete-cell no-print"><button class="wpn-delete-btn" onclick="removeWeapon(${i})" aria-label="Delete weapon row ${i+1}" title="Delete weapon">×</button></td>`
+    : '';
   return `<tr>
     <td><input class="wpn-input" type="text" value="${escapeHtml(row.weapon || '')}" oninput="updateWeaponField(${i},'weapon',this.value)" aria-label="Weapon name row ${i+1}" /></td>
     <td class="wpn-skill-cell">
@@ -836,6 +848,7 @@ function renderWeaponRow(row, i) {
     <td><input class="wpn-input" type="text" value="${escapeHtml(row.lethality || '')}" oninput="updateWeaponField(${i},'lethality',this.value)" aria-label="Lethality row ${i+1}" /></td>
     <td><input class="wpn-input" type="text" value="${escapeHtml(row.killRadius || '')}" oninput="updateWeaponField(${i},'killRadius',this.value)" aria-label="Kill radius row ${i+1}" /></td>
     <td><input class="wpn-input" type="text" value="${escapeHtml(row.ammo || '')}" oninput="updateWeaponField(${i},'ammo',this.value)" aria-label="Ammo row ${i+1}" /></td>
+    ${deleteCell}
   </tr>`;
 }
 
@@ -864,6 +877,36 @@ function updateWeaponCondition(rowIdx, value) {
   const current = state.identity.weapons[rowIdx].condition || '';
   // radio-group behaviour: toggle off if already selected
   state.identity.weapons[rowIdx].condition = current === value ? '' : value;
+  ensureTrailingBlankWeaponRow();
+  render();
+}
+
+function removeWeapon(idx) {
+  if (!Array.isArray(state.identity.weapons)) return;
+  const removed = state.identity.weapons[idx];
+  if (!removed) return;
+  state.lastRemovedWeapon = { weapon: { ...removed }, idx };
+  state.lastRemovedBond = null;
+  state.identity.weapons.splice(idx, 1);
+  // Ensure there is always at least one blank row after deletion.
+  if (state.identity.weapons.length === 0) state.identity.weapons = [{}];
+  ensureTrailingBlankWeaponRow();
+  showNotification('Weapon removed.');
+}
+
+function undoRemoveWeapon() {
+  if (!state.lastRemovedWeapon) return;
+  const { weapon, idx } = state.lastRemovedWeapon;
+  if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
+  // Remove trailing blank before re-inserting so we don't accumulate extra blanks.
+  const last = state.identity.weapons[state.identity.weapons.length - 1];
+  const empty = makeEmptyWeaponRow();
+  const lastIsBlank = last && Object.keys(empty).every(k => !last[k]);
+  if (lastIsBlank) state.identity.weapons.pop();
+  const insertAt = Math.min(idx, state.identity.weapons.length);
+  state.identity.weapons.splice(insertAt, 0, weapon);
+  state.lastRemovedWeapon = null;
+  state.notification = null;
   ensureTrailingBlankWeaponRow();
   render();
 }
@@ -3293,7 +3336,7 @@ function buildCharSheetHtml() {
     <div class="sheet-section sheet-weapons-section">
       <div class="sheet-weapons-header">
         <span class="sheet-section-title">Weapons</span>
-        <span class="sheet-weapons-legend">(db) = damage bonus &nbsp; (ap) = armor piercing</span>
+        <span class="sheet-weapons-legend">DB = DAMAGE BONUS &nbsp; AP = ARMOR PIERCING</span>
       </div>
       <table class="sheet-weapons-table">
         <thead>
@@ -3302,14 +3345,15 @@ function buildCharSheetHtml() {
             <th style="width:16%">SKILL %</th>
             <th>BASE<br>RANGE</th>
             <th>DAMAGE</th>
-            <th>(db)</th>
-            <th>(ap)</th>
+            <th>DB</th>
+            <th>AP</th>
             <th>Pristine</th>
             <th>Worn</th>
             <th>Junk</th>
             <th>LETHALITY%</th>
             <th>KILL<br>RADIUS</th>
             <th>AMMO</th>
+            ${state.editMode ? '<th class="no-print"></th>' : ''}
           </tr>
         </thead>
         <tbody>
@@ -3693,6 +3737,7 @@ function addSheetBond() {
 function removeSheetBond(idx) {
   const removed = state.bonds[idx];
   state.lastRemovedBond = { bond: { ...removed }, idx };
+  state.lastRemovedWeapon = null;
   state.bonds.splice(idx, 1);
   showNotification('Bond removed.');
 }
@@ -4456,7 +4501,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
   <!-- ── WEAPONS ── -->
   <div class="wpns-block">
     <div class="sec-hdr">
-      <div class="wpns-hdr-row"><span>Weapons</span><span class="wpns-note">(db) = damage bonus &nbsp; (ap) = armor piercing</span></div>
+      <div class="wpns-hdr-row"><span>Weapons</span><span class="wpns-note">DB = DAMAGE BONUS &nbsp; AP = ARMOR PIERCING</span></div>
     </div>
     <table class="wpns-table">
       <thead>
@@ -4465,8 +4510,8 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
           <th style="width:16%">Skill %</th>
           <th style="width:10%">Base Range</th>
           <th style="width:10%">Damage</th>
-          <th style="width:5%">(db)</th>
-          <th style="width:5%">(ap)</th>
+          <th style="width:5%">DB</th>
+          <th style="width:5%">AP</th>
           <th style="width:13%">Pristine/Worn/Junk</th>
           <th style="width:10%">Lethality %</th>
           <th style="width:9%">Kill Radius</th>
@@ -4904,7 +4949,7 @@ function resetState() {
   state.helplessnessChecked   = [false, false, false];
   state.skillEditAdjust       = {};
   state.attrEditAdjust        = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
-  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', notes: '', weapons: [{}] };
+  state.identity         = { name: '', profession: '', birthplace: '', gender: '', characterAge: 25, backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', notes: '', weapons: [makeDefaultUnarmedWeaponRow(), {}] };
   state.currentHP        = null;
   state.currentWP        = null;
   state.currentSAN       = null;
