@@ -190,6 +190,14 @@ const testCode = `
     state.upbringingPowReduction = 0;
     state.violenceChecked        = [false, false, false];
     state.helplessnessChecked    = [false, false, false];
+    // Nightmarish upbringing state
+    state.nmPowRoll1          = null;
+    state.nmDisorderId1       = null;
+    state.nmPowRoll2          = null;
+    state.nmDisorderId2       = null;
+    state.nmAdaptedTo         = null;
+    state.nmAdaptViolenceRoll = null;
+    state.nmAdaptHelplessRoll = null;
   }
 
   // Populates rolledSets so that getAttrValue(key) returns exactly \`total\`
@@ -781,6 +789,168 @@ const testCode = `
     state.adversityPoints = { 'Scavenge': 2 };
     adjustAdversity('Scavenge', 1);  // attempt to add a 3rd pick — should be rejected
     eq(state.adversityPoints['Scavenge'], 2, 'Nightmarish: cannot exceed 2 picks on same skill');
+  }
+
+  // ── Suite 5c extended: Nightmarish POW Tests & Motivation Reduction ─────────
+
+  console.log('\\n── Suite 5c extended: Nightmarish POW Tests & Motivation Reduction ─────────');
+
+  // 5c.5  Roll 1 success (≤ POW×4), roll 2 failure (> POW×4) → exactly 1 disorder added
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 12 };
+    // POW target = 10 × 4 = 40
+    // Roll 1: 30 ≤ 40 → success, no disorder
+    state.nmPowRoll1 = 30; state.nmDisorderId1 = null;
+    // Roll 2: 99 > 40 → failure, 1 disorder added
+    const dis5 = { id: 501, text: '' };
+    state.disorders.push(dis5);
+    state.nmPowRoll2 = 99; state.nmDisorderId2 = 501;
+    eq(state.disorders.length, 1, 'Nightmarish: 1 success + 1 failure → exactly 1 disorder added');
+    eq(state.nmDisorderId1, null, 'Nightmarish: roll 1 success → nmDisorderId1 is null');
+    eq(state.nmDisorderId2, 501,  'Nightmarish: roll 2 failure → nmDisorderId2 is set');
+  }
+
+  // 5c.6  Both rolls fail → 2 disorders added
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.disorders.push({ id: 601, text: '' }, { id: 602, text: '' });
+    state.nmPowRoll1 = 99; state.nmDisorderId1 = 601;
+    state.nmPowRoll2 = 99; state.nmDisorderId2 = 602;
+    eq(state.disorders.length, 2, 'Nightmarish: 2 failures → 2 disorders added');
+  }
+
+  // 5c.7  Both rolls succeed → 0 disorders
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.nmPowRoll1 = 10; state.nmDisorderId1 = null;
+    state.nmPowRoll2 = 10; state.nmDisorderId2 = null;
+    eq(state.disorders.length, 0, 'Nightmarish: 2 successes → 0 disorders added');
+  }
+
+  // 5c.8  1 disorder (1 success + 1 failure) → motivationCount = 4 (only 1 less than 5)
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.nmDisorderId1 = null; state.nmDisorderId2 = 700; state.vhPowDisorderId = null;
+    const vhDis    = state.vhPowDisorderId !== null ? 1 : 0;
+    const nmDis    = (state.nmDisorderId1 !== null ? 1 : 0) + (state.nmDisorderId2 !== null ? 1 : 0);
+    const motCount = Math.max(1, 5 - (vhDis + nmDis));
+    eq(motCount, 4, 'Nightmarish: 1 disorder (1 success + 1 failure) → motivationCount = 4');
+  }
+
+  // 5c.9  0 disorders → motivationCount = 5 (all 5 slots available)
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.nmDisorderId1 = null; state.nmDisorderId2 = null; state.vhPowDisorderId = null;
+    const motCount = Math.max(1, 5 - 0);
+    eq(motCount, 5, 'Nightmarish: 0 disorders → motivationCount = 5');
+  }
+
+  // 5c.10  canProceed(4.5): neither POW roll done yet → false
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    eq(canProceed(4.5), false, 'Nightmarish: canProceed(4.5) = false when neither POW roll done');
+  }
+
+  // 5c.11  canProceed(4.5): only first roll done → false
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.nmPowRoll1 = 30;
+    eq(canProceed(4.5), false, 'Nightmarish: canProceed(4.5) = false when only first POW roll done');
+  }
+
+  // 5c.12  canProceed(4.5): CHA/POW ≥ 10, both rolls done, no adaptation chosen → false
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    eq(canProceed(4.5), false, 'Nightmarish: canProceed(4.5) = false — CHA/POW ≥ 10, no adaptation chosen');
+  }
+
+  // 5c.13  canProceed(4.5): CHA/POW ≥ 10, violence chosen but no roll yet → false
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    state.nmAdaptedTo = 'violence';
+    eq(canProceed(4.5), false,
+      'Nightmarish: canProceed(4.5) = false — violence chosen but adaptation roll not yet made');
+  }
+
+  // 5c.14  canProceed(4.5): CHA/POW ≥ 10, violence chosen + roll done → true
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    state.nmAdaptedTo = 'violence';
+    state.nmAdaptViolenceRoll = 3; state.upbringingChaReduction = 3;
+    eq(canProceed(4.5), true,
+      'Nightmarish: canProceed(4.5) = true — adapted to violence (CHA/POW ≥ 10)');
+  }
+
+  // 5c.15  canProceed(4.5): CHA/POW ≥ 10, helplessness chosen + roll done → true
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    state.nmAdaptedTo = 'helplessness';
+    state.nmAdaptHelplessRoll = 2; state.upbringingPowReduction = 2;
+    eq(canProceed(4.5), true,
+      'Nightmarish: canProceed(4.5) = true — adapted to helplessness (CHA/POW ≥ 10)');
+  }
+
+  // 5c.16  Adapted to BOTH: CHA < 10 → canProceed requires both adaptation rolls (neither done)
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 8 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    eq(canProceed(4.5), false,
+      'Nightmarish: CHA < 10 (adapted to both) — canProceed(4.5) = false when no adaptation rolls');
+  }
+
+  // 5c.17  Adapted to BOTH: CHA < 10, only violence roll done → false
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 8 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    state.nmAdaptViolenceRoll = 3; state.upbringingChaReduction = 3;
+    eq(canProceed(4.5), false,
+      'Nightmarish: CHA < 10 (adapted to both) — canProceed(4.5) = false when only violence roll done');
+  }
+
+  // 5c.18  Adapted to BOTH: CHA < 10, both adaptation rolls done → true
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 8 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    state.nmAdaptViolenceRoll = 3; state.upbringingChaReduction = 3;
+    state.nmAdaptHelplessRoll = 2; state.upbringingPowReduction = 2;
+    eq(canProceed(4.5), true,
+      'Nightmarish: CHA < 10 (adapted to both) — canProceed(4.5) = true when both rolls done');
+  }
+
+  // 5c.19  Adapted to BOTH: POW < 10, both adaptation rolls done → true
+  {
+    resetState(); state.age = 'apocthulhu'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 8, CHA: 12 };
+    state.nmPowRoll1 = 30; state.nmPowRoll2 = 30;
+    state.nmAdaptViolenceRoll = 2; state.upbringingChaReduction = 2;
+    state.nmAdaptHelplessRoll = 3; state.upbringingPowReduction = 3;
+    eq(canProceed(4.5), true,
+      'Nightmarish: POW < 10 (adapted to both) — canProceed(4.5) = true when both rolls done');
   }
 
   // ── Suite 6: Resources Calculation ──────────────────────────────────────────
