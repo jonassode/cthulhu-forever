@@ -514,7 +514,11 @@ function getArchetypeSkillBonus(skillName) {
 
 function getFinalSkillValue(skillName) {
   const base = (getCurrentSkills()[skillName] || 0);
-  if (skillName === 'Unnatural') return base; // cannot be increased with picks
+  if (skillName === 'Unnatural') {
+    // Unnatural cannot be increased with bonus/archetype picks, but adversity picks apply (e.g. Apocthulhu era)
+    const advPicks = state.adversityPoints[skillName] || 0;
+    return Math.min(80, base + advPicks * 20);
+  }
   const archBonus = getArchetypeSkillBonus(skillName);
   const bpPicks  = state.skillPoints[skillName] || 0;
   const advPicks = state.adversityPoints[skillName] || 0;
