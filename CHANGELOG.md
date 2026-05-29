@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.7.18 - Update app.js; Fix Unnatural skill not gaining adversity pick bonuses in Apocthulhu era; Add nightmarish upbringing tests (Suite 5c extended, 5c.5–5c.19); Apply remaining changes; Set Rubik Glitch as heading font on Original Sheet; Fix Apocthulhu adversity skills test, bump version to 0.7.16; Replace Apocthulhu archetypes and skills with SRD-correct values; Add aria-disabled to Nightmarish adaptation cards for accessibility; Add Apocthulhu era with Nightmarish upbringing  
 0.7.17 - fix: remove parens and capitalize DB/AP in weapons table headers and legend  
 0.7.16 - Replace Apocthulhu archetypes and skills with SRD-correct values; Add aria-disabled to Nightmarish adaptation cards for accessibility; Add Apocthulhu era with Nightmarish upbringing  
 0.7.16 - feat: add default unarmed attack weapon for new characters  
