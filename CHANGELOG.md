@@ -3,6 +3,7 @@
 All notable changes are listed here from newest to oldest.
 
 0.7.17 - fix: remove parens and capitalize DB/AP in weapons table headers and legend  
+0.7.16 - Replace Apocthulhu archetypes and skills with SRD-correct values; Add aria-disabled to Nightmarish adaptation cards for accessibility; Add Apocthulhu era with Nightmarish upbringing  
 0.7.16 - feat: add default unarmed attack weapon for new characters  
 0.7.15 - feat: add delete weapon button in edit mode with undo notification  
 0.7.15 - feat: add delete weapon button in edit mode with undo notification; ensure empty row remains after last weapon is deleted
