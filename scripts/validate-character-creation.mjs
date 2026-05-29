@@ -1522,7 +1522,69 @@ const testCode = `
     eq(d.SAN, 36, 'SAN = reduced POW * 4 (very harsh) = 36');
   }
 
-  // 12.13  resetUpbringingEffectsState clears all upbringing effects state
+  // 12.13  Adapted to Violence (Very Harsh): individual bond is NOT double-reduced
+  // Individual bonds derive their value from CHA. When Adapted to Violence is applied,
+  // CHA is reduced by the roll, so the individual bond value already drops. The bond
+  // must NOT additionally receive an upbringingReduction — that would reduce it twice.
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 12 };
+    state.vhAdaptedTo = 'violence';
+    state.bonds = [
+      { name: 'Alice', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 },
+      { name: 'The Lodge', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 },
+    ];
+
+    const origRandom13 = Math.random;
+    Math.random = () => 2 / 6; // rollD6 → floor(2/6 * 6) + 1 = 3
+    rollVhAdaptDice();
+    Math.random = origRandom13;
+
+    eq(state.vhAdaptRoll, 3, 'VH violence dice roll = 3');
+    eq(state.upbringingChaReduction, 3, 'VH: CHA reduced by 3');
+    eq(getAttrValue('CHA'), 9, 'VH: CHA effective value = 12 - 3 = 9');
+
+    // Individual bond must NOT receive a direct upbringingReduction
+    eq(state.bonds[0].upbringingReduction, 0,
+      'VH individual bond upbringingReduction stays 0 (not double-reduced)');
+    // Its effective value equals reduced CHA, not doubly-subtracted
+    eq(getBondEffectiveValue(state.bonds[0]), 9,
+      'VH individual bond effective value = reduced CHA (9), not doubly reduced (6)');
+
+    // Community bond MUST receive a direct upbringingReduction
+    eq(state.bonds[1].upbringingReduction, 3,
+      'VH community bond upbringingReduction = 3');
+  }
+
+  // 12.14  Adapted to Violence (Nightmarish): individual bond is NOT double-reduced
+  {
+    resetState(); state.age = 'jazz'; state.upbringing = 'nightmarish';
+    state.attrMode = 'points';
+    state.pointsAttr = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 10, CHA: 10 };
+    state.nmAdaptedTo = 'violence';
+    state.bonds = [
+      { name: 'Bob', type: 'individual', bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 },
+    ];
+
+    const origRandom14 = Math.random;
+    Math.random = () => 2 / 6; // rollD6 → 3
+    rollNmAdaptViolenceDice();
+    Math.random = origRandom14;
+
+    eq(state.nmAdaptViolenceRoll, 3, 'NM violence dice roll = 3');
+    eq(state.upbringingChaReduction, 3, 'NM: CHA reduced by 3');
+    eq(getAttrValue('CHA'), 7, 'NM: CHA effective value = 10 - 3 = 7');
+
+    // Individual bond must NOT receive a direct upbringingReduction
+    eq(state.bonds[0].upbringingReduction, 0,
+      'NM individual bond upbringingReduction stays 0 (not double-reduced)');
+    // Its effective value equals reduced CHA
+    eq(getBondEffectiveValue(state.bonds[0]), 7,
+      'NM individual bond effective value = reduced CHA (7), not doubly reduced (4)');
+  }
+
+  // 12.15  resetUpbringingEffectsState clears all upbringing effects state
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'very_harsh';
     state.attrMode = 'points';

@@ -1111,7 +1111,9 @@ function rollVhAdaptDice() {
   state.vhAdaptRoll = roll;
   if (state.vhAdaptedTo === 'violence') {
     state.upbringingChaReduction = roll;
-    state.bonds.forEach(b => { if (b) b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
+    // Individual bonds derive their value from CHA, which is already reduced by upbringingChaReduction.
+    // Only community bonds need a direct upbringingReduction; individual bonds must not be reduced twice.
+    state.bonds.forEach(b => { if (b && b.type === 'community') b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
     state.violenceChecked = [true, true, true];
   } else if (state.vhAdaptedTo === 'helplessness') {
     state.upbringingPowReduction = roll;
@@ -1172,7 +1174,9 @@ function rollNmAdaptViolenceDice() {
   const roll = rollD6();
   state.nmAdaptViolenceRoll = roll;
   state.upbringingChaReduction = (state.upbringingChaReduction || 0) + roll;
-  state.bonds.forEach(b => { if (b) b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
+  // Individual bonds derive their value from CHA, which is already reduced by upbringingChaReduction.
+  // Only community bonds need a direct upbringingReduction; individual bonds must not be reduced twice.
+  state.bonds.forEach(b => { if (b && b.type === 'community') b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
   state.violenceChecked = [true, true, true];
   render();
 }
