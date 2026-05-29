@@ -801,7 +801,7 @@ function getWeaponSkills() {
     case 'alazrad':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
     case 'apocthulhu':
-      return ['Athletics', 'Firearms', 'Melee Weapons', 'Unarmed Combat'];
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Unarmed Combat', 'Heavy Weapons','Ranged Weapons'];
     default: // jazz, modern, victorian and any other era
       return ['Athletics', 'Firearms', 'Melee Weapons', 'Military Training (Type)', 'Unarmed Combat'];
   }
