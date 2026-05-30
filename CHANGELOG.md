@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.8.4 - fix: add default unarmed attack row on initial state load  
 0.8.3 - Fix upbringing label showing 'Harsh' instead of 'Nightmarish' in Apocthulhu era  
 0.8.2 - Bump version to 0.8.1  
 0.7.19 - Fix Adapted to Violence double-reducing individual bonds (step 4.5 bug)  
