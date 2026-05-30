@@ -98,7 +98,7 @@ const state = {
     terribleTomes: '',
     permanentInjuries: '',
     notes: '',
-    weapons: [{}],
+    weapons: [makeDefaultUnarmedWeaponRow(), {}],
   },
 };
 

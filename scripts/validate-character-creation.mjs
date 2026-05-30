@@ -1619,6 +1619,48 @@ const testCode = `
   }
 
 })();
+
+// ── Suite 13: Default Unarmed Weapon Row ─────────────────────────────────────
+
+console.log('\\n── Suite 13: Default Unarmed Weapon Row ─────────────────────────────────────');
+
+{
+  const eqW = (actual, expected, message) => {
+    if (actual === expected) {
+      _results.push({ ok: true, msg: message });
+    } else {
+      _results.push({ ok: false, msg: message + ' — expected ' + JSON.stringify(expected) + ', got ' + JSON.stringify(actual) });
+      console.error('  FAIL: ' + message);
+    }
+  };
+
+  // 13.1  resetState initialises weapons with a default unarmed attack as the first row
+  {
+    resetState();
+    eqW(Array.isArray(state.identity.weapons), true,
+      'resetState: state.identity.weapons is an array');
+    eqW(state.identity.weapons[0].weapon, 'Unarmed Attack',
+      'resetState: weapons[0].weapon === "Unarmed Attack"');
+    eqW(state.identity.weapons[0].skill, 'Unarmed Combat',
+      'resetState: weapons[0].skill === "Unarmed Combat"');
+    eqW(state.identity.weapons[0].damage, '1D4-1',
+      'resetState: weapons[0].damage === "1D4-1"');
+    eqW(typeof state.identity.weapons[1], 'object',
+      'resetState: weapons[1] exists as a blank trailing row');
+  }
+
+  // 13.2  Default unarmed attack row is present when the era is The Future
+  {
+    resetState();
+    state.age = 'future';
+    eqW(state.identity.weapons[0].weapon, 'Unarmed Attack',
+      'future era: weapons[0].weapon === "Unarmed Attack"');
+    eqW(state.identity.weapons[0].skill, 'Unarmed Combat',
+      'future era: weapons[0].skill === "Unarmed Combat"');
+    eqW(state.identity.weapons[0].damage, '1D4-1',
+      'future era: weapons[0].damage === "1D4-1"');
+  }
+}
 `;
 
 try {
