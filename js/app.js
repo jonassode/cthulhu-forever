@@ -2183,7 +2183,7 @@ function renderStep4() {
       <h3>Adversity Skill Picks — ${advLeft} / ${advTotal} remaining</h3>
     </div>
     <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.6;">
-      From your <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : 'Harsh'}</strong> upbringing you receive
+      From your <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Harsh'}</strong> upbringing you receive
       ${advTotal} adversity pick${advTotal > 1 ? 's' : ''} (+20% each). These may only be applied to the four adversity skills below.
     </p>
     <div style="overflow-x:auto;">
