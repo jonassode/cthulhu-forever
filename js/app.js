@@ -1423,7 +1423,7 @@ function _eraAccordionItem(id, title, dates, desc, details) {
           <div style="margin-top:1rem;">
             <button class="btn${isSelected ? ' btn-outline' : ' btn-primary'}"
                     onclick="selectAge('${id}')">
-              ${isSelected ? '✓ Era Selected' : 'Select This Era'}
+              ${isSelected ? (id === 'apocthulhu' ? '✓ Game Selected' : '✓ Era Selected') : (id === 'apocthulhu' ? 'Select This Game' : 'Select This Era')}
             </button>
           </div>
         </div>
