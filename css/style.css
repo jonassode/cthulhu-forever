@@ -359,6 +359,19 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   letter-spacing: 0.04em;
 }
 
+.era-type-badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent-gold);
+  color: #0a0e14;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
 .era-selected-badge {
   flex-shrink: 0;
   font-size: 0.65rem;
