@@ -364,11 +364,12 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   font-size: 0.65rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--accent-gold);
-  color: #0a0e14;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 2px 7px;
-  font-weight: 700;
+  font-weight: 400;
   margin-left: auto;
 }
 
