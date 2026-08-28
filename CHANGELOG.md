@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.8.6 - Derive button labels from typeBadge instead of checking id directly; Refactor button label logic for better readability and maintainability; Fix button text to show "Select This Game" for apocthulhu and "Select This Era" for eras  
 0.8.5 - Make era/game badges less visible with subtle styling; Add Era/Game badges and update title text  
 0.8.4 - fix: add default unarmed attack row on initial state load  
 0.8.3 - Fix upbringing label showing 'Harsh' instead of 'Nightmarish' in Apocthulhu era  
