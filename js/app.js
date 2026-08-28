@@ -1398,6 +1398,7 @@ let _expandedEra = null;
 function _eraAccordionItem(id, title, dates, desc, details) {
   const isSelected = state.age === id;
   const isOpen = _expandedEra === id;
+  const typeBadge = id === 'apocthulhu' ? 'Game' : 'Era';
   return `
     <div class="era-accordion-item${isSelected ? ' era-selected' : ''}${isOpen ? ' era-open' : ''}" data-era="${id}">
       <div class="era-accordion-header"
@@ -1408,6 +1409,7 @@ function _eraAccordionItem(id, title, dates, desc, details) {
         <div class="era-header-content">
           <span class="era-header-title">${title}</span>
         </div>
+        <span class="era-type-badge">${typeBadge}</span>
         ${isSelected ? '<span class="era-selected-badge">Selected</span>' : ''}
         <div class="era-chevron">▼</div>
       </div>
@@ -1432,7 +1434,7 @@ function _eraAccordionItem(id, title, dates, desc, details) {
 function renderStep1() {
   return `
   <div class="step-content">
-    <h2 class="step-title">Choose Your Era</h2>
+    <h2 class="step-title">Choose Your Era or Game</h2>
     <p class="step-subtitle">The age in which your story unfolds shapes every skill, contact, and shadow that will haunt you.</p>
 
     <div class="era-timeline">
