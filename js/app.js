@@ -1399,6 +1399,8 @@ function _eraAccordionItem(id, title, dates, desc, details) {
   const isSelected = state.age === id;
   const isOpen = _expandedEra === id;
   const typeBadge = id === 'apocthulhu' ? 'Game' : 'Era';
+  const selectLabel = typeBadge === 'Game' ? 'Select This Game' : 'Select This Era';
+  const selectedLabel = typeBadge === 'Game' ? '✓ Game Selected' : '✓ Era Selected';
   return `
     <div class="era-accordion-item${isSelected ? ' era-selected' : ''}${isOpen ? ' era-open' : ''}" data-era="${id}">
       <div class="era-accordion-header"
@@ -1423,7 +1425,7 @@ function _eraAccordionItem(id, title, dates, desc, details) {
           <div style="margin-top:1rem;">
             <button class="btn${isSelected ? ' btn-outline' : ' btn-primary'}"
                     onclick="selectAge('${id}')">
-              ${isSelected ? '✓ Era Selected' : 'Select This Era'}
+              ${isSelected ? selectedLabel : selectLabel}
             </button>
           </div>
         </div>
