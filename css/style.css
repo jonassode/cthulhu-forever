@@ -2514,6 +2514,105 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   min-width: 0;
 }
 
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0 2.5rem 0;
+  padding: 0 0 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: var(--accent-gold);
+  border-bottom-color: rgba(201,168,76,0.3);
+}
+
+.tab-btn.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+  box-shadow: 0 0 12px rgba(201,168,76,0.2);
+}
+
+/* ── About Tab ── */
+.about-tab {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(26, 34, 51, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.about-tab h2 {
+  font-size: 1.8rem;
+  color: var(--accent-gold);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 16px rgba(201,168,76,0.2);
+}
+
+.about-tab h3 {
+  font-size: 1.2rem;
+  color: var(--accent-goldl);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.about-tab p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.about-tab a {
+  color: var(--accent-gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-gold);
+  transition: all 0.2s ease;
+}
+
+.about-tab a:hover {
+  color: var(--accent-goldl);
+  border-bottom-color: var(--accent-goldl);
+}
+
+.about-tab ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.5rem 0;
+}
+
+.about-tab li {
+  padding: 0.5rem 0 0.5rem 2rem;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.about-tab li::before {
+  content: '⬥';
+  position: absolute;
+  left: 0.5rem;
+  color: var(--accent-gold);
+}
+
 
 @media print {
   .adapted-badge { background: #f5f0e8 !important; border-color: #9a8d72 !important; color: #5c5445 !important; }
