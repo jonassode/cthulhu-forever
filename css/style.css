@@ -2516,15 +2516,16 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 /* ── Tabs ── */
 .tabs {
   display: flex;
-  gap: 1rem;
-  margin: 2rem 0 2.5rem 0;
-  padding: 1rem 0 0 0;
+  gap: 0;
+  margin: 0.5rem 0 1rem 0;
+  padding: 0;
   border-bottom: 1px solid var(--accent-gold);
 }
 
 .tab-btn {
   background: transparent;
   border: 1px solid var(--border-color);
+  border-right: none;
   color: var(--text-secondary);
   font-family: var(--font-head);
   font-size: 0.9rem;
@@ -2534,6 +2535,10 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   padding: 0.5rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.tab-btn:last-child {
+  border-right: 1px solid var(--border-color);
 }
 
 .tab-btn:hover {
