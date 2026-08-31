@@ -64,8 +64,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 .app-header {
   text-align: center;
   padding: 2rem 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 .app-header h1 {
   font-size: clamp(1.4rem, 4vw, 2.2rem);
@@ -2519,14 +2518,13 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   display: flex;
   gap: 1rem;
   margin: 2rem 0 2.5rem 0;
-  padding: 0 0 1rem 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0 0 0;
+  border-bottom: 1px solid var(--accent-gold);
 }
 
 .tab-btn {
   background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-family: var(--font-head);
   font-size: 0.9rem;
@@ -2540,13 +2538,12 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 
 .tab-btn:hover {
   color: var(--accent-gold);
-  border-bottom-color: rgba(201,168,76,0.3);
+  border-color: var(--accent-gold);
 }
 
 .tab-btn.active {
   color: var(--accent-gold);
-  border-bottom-color: var(--accent-gold);
-  box-shadow: 0 0 12px rgba(201,168,76,0.2);
+  border-color: var(--accent-gold);
 }
 
 /* ── About Tab ── */
