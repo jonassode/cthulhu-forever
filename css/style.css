@@ -2528,7 +2528,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   border-right: none;
   color: var(--text-secondary);
   font-family: var(--font-head);
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2551,6 +2551,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   color: var(--accent-gold);
   border-color: var(--accent-gold);
   border-right: 1px solid var(--accent-gold);
+  border-bottom: none;
   z-index: 1;
 }
 
