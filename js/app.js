@@ -1524,12 +1524,12 @@ function renderStep1() {
       ${_eraAccordionItem('alazrad', 'Age of Al-Azrad', '700–1200 CE',
         'The Islamic Golden Age — a time of flourishing scholarship, trade, and culture across a vast caliphate. Beneath the gleaming domes of Baghdad and the dusty caravans of the Silk Road, the author of the Kitab Al-Azif walked a world where cosmic horror was only a prayer away.',
         ['Technology: Swords, bows, siege weapons, chirurgery, alchemy', 'Tone: Scholarly dread, desert horror, ancient cosmic mystery'])}
-      ${_eraAccordionItem('apocthulhu', 'Apocthulhu', 'Post-Apocalypse',
-        'The world has ended — or nearly so. Whatever caused the collapse has left the survivors to scratch out an existence among the ruins, fighting over scraps while something vast and hungry stirs in the silence left behind.',
-        ['Technology: Salvaged firearms, improvised weapons, jury-rigged vehicles', 'Tone: Survival horror, post-apocalyptic dread, cosmic hopelessness'])}
       ${_eraAccordionItem('stone', 'Stone Age', '40,000 BCE – 3,000 BCE',
         'The dawn of human civilization — a time of hunter-gatherers and early agricultural communities. Survival depends on knowledge of the natural world, and the spirit realm is as real as the earth beneath your feet.',
         ['Technology: Stone tools, fire, early agriculture, oral tradition', 'Tone: Primal horror, shamanic dread, nature\'s indifference'])}
+      ${_eraAccordionItem('apocthulhu', 'Apocthulhu', 'Post-Apocalypse',
+        'The world has ended — or nearly so. Whatever caused the collapse has left the survivors to scratch out an existence among the ruins, fighting over scraps while something vast and hungry stirs in the silence left behind.',
+        ['Technology: Salvaged firearms, improvised weapons, jury-rigged vehicles', 'Tone: Survival horror, post-apocalyptic dread, cosmic hopelessness'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
