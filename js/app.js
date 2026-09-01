@@ -1299,12 +1299,6 @@ function canProceed(step) {
       const bondsOk = state.bonds.length > 0 && state.bonds.every(b => b.type !== null && b.name.trim() !== '');
       return bpOk && advOk && bondsOk;
     }
-    case 5: return true;
-    default: return false;
-  }
-}
-      return bpOk && advOk && bondsOk;
-    }
     case 4.5: {
       if (state.upbringing === 'harsh') {
         // Use original CHA/POW (before any reductions) to decide if the effect applies
