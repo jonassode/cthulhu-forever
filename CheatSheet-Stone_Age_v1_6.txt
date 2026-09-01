@@ -1,0 +1,1192 @@
+1 
+Cthulhu Eternal: An Any-Time Lovecraftian Roleplaying Game 
+Cheat Sheet Summary of Changes 
+ 
+ 
+Localization for Stone Age Settings 
+Document Version 1.6   Released 30 August, 2026 
+Credits: 
+Original Writing: Dean Engelhardt, Jo Kreil, Kevin Ross, Jeff Moeller, Chad Bowser, Dave Sokolowski, Christopher Smith 
+Adair, Fred Behrendt, Emily O’Neil. 
+Additional Writing: Michelle Bernay-Rogers, Paul Franzese. 
+Localization of Cthulhu Eternal for the Stone Age Setting: Adam Alexander with John Shimmin 
+Rules updates, help and enthusiasm: Noah Cline, Matt Wiseman. 
+Copyright © 2026 by Cthulhu Reborn Publishing. 
+The name Cthulhu Eternal and the associated logo are Trademarks of Cthulhu Reborn Publishing. 
+For full OGL License Details including statements of Product Identity and Open Content see end of document. 
+ 
+ 
+WHAT THIS FILE IS – AND WHAT IT IS NOT 
+The Cthulhu Eternal System is a multi-era, multi-setting ruleset for tabletop roleplaying. At its core it has a streamlined 
+set of universal d100-based rules which govern most elements of the game. While these universal rules define the core of 
+the game, each era-specific version of the rules (which we call “localizations” of the game) have certain era -specific rules 
+and modifications. 
+For each such localization, a complete ruleset (or “System Reference Document” on OGL -speak) has been compiled. Such 
+localized SRDs reproduce all the universal material that is the core part of Cthulhu Eternal’s game “DNA” inserting specific 
+sections into the rules text to deal with the technology, social conventions, or other special things that make the 
+era/setting different from others. These extra rules often describe: 
+• New skills lists, and sets of protagonist archetypes, 
+• Special options for running combat in the setting, 
+• Portrayals of mental illness that capture the beliefs and understanding common to the setting,  
+• Details of vehicles, poisons, and common diseases of the era, and 
+• Any other specific modifications the game designers thought would better capture the setting’s flavor.  
+Because an SRD has both the universal rules AND local modifications, each is quite a substantial document (~ 100 pages). 
+They are effectively self-contained rulebooks in their own right: someone could run a game using the SRD alone.  
+If you are new to the Cthulhu Eternal system, the best place to learn the rules (localized to a specific era/setting) is with 
+one of the SRDs. However, once you’ve learned one localization the system and have a need to familiarize yourself with 
+another, reading through the entire SRD for the new setting is overkill. Most of the rules are similar – what you really 
+want to know is “what’s different about this new localization?”  
+That’s exactly what this “Cheat Sheet” is designed to provide you – just the new stuff for a localization. Coupled with your 
+general understanding of the game, this information will get you going quickly. This document definitely is NOT a full 
+rulebook. Also, some minor era-specific details might not get noted here: for those you should refer back to the full 
+details in the SRD (which this document also points to in some places).  
+
+2 
+Protagonists 
+The table below shows the set of skills available to Protagonists in Stone Age games. The table also shows the base 
+ratings for each skill, and which can be specialized. The descriptions of each skill may be found on page 9. 
+Adversity Skills: if your Protagonist gets additional skill picks for enduring an especially harsh upbringing, they can only 
+spend those picks on Carouse, First Aid, Other Tribe, or Scavenge. 
+>> Skills and Base Ratings 
+Alertness (20) 
+Animal Handling (10) 
+Appraise (10) 
+Art (Type) (0) 
+Athletics (30) 
+Augury (0) 
+Beguile (20) 
+Boatbuilding (10) 
+Boating (0) 
+Carouse (0) 
+Craft (Type) (0) 
+Disguise/Mimic (10) 
+Dodge (30) 
+First Aid (10) 
+Folklore (10) 
+Forage/Hunt (10) 
+Foreign Tongue (Type) (0) 
+Harangue/Taunt (10) 
+Healing (0) 
+Herb Lore (20) 
+Homeland (0) 
+Inscriptions (0) 
+Insight (10) 
+Make Fire (20) 
+Melee Weapons (30) 
+Mysticism (Type) (10) 
+Navigate (10) 
+Oral Tradition (10) 
+Other Tribe (0) 
+Persuade (20) 
+Poisons (0) 
+Ranged Weapons (20) 
+Reassure (10) 
+Repair/Devise (0) 
+Ride (10) 
+Scavenge (10) 
+Search (20) 
+Spirit World (10) 
+Stealth (10) 
+Swim (20) 
+Track (10) 
+Unarmed Combat (40) 
+Unnatural (0) 
+Weather & Season (20) 
+ 
+Archetypes 
+>> A Note on Written Language 
+The advent of writing in Stone Age settings is a miniscule slice of time. The earliest known written language dates 
+to 3200 BCE and even then, few would know how to read and write. The limited (or non-existent) education 
+opportunities available to most individuals means that only a relatively small percentage of people are literate. 
+Such skills are usually limited to professions which routinely involve reading or writing documents. Being illiterate 
+doesn’t mean you can’t communicate verbally – but it does make it difficult or impossible to understand any 
+information encountered in written form. 
+In game terms, literacy is represented by the Protagonist’s rating in the Inscriptions skill (described in the skill 
+listings). By default, this skill begins at zero, although some archetypes furnish the Protagonist with a higher 
+starting value – these apply only when playing games set later than 3200 BCE (if playing games in earlier times, 
+take the skill points for Inscriptions and reallocate them to any other skill of your choosing except Unnatural). You 
+can choose to reserve some bonus skill picks to invest in boosting the Inscription skill regardless of whether it is 
+part of the Archetype list or not (although it only makes sense in an era where writing exists).  
+An Inscriptions skill rating of 40% or more would indicate a good level of basic proficiency with the local forms of 
+carved or painted writing. 
+
+3 
+The following archetypes are available for Protagonists in Stone Age games. 
+List of Archetypes 
+The following Archetypes are appropriate for games of Lovecraftian investigation set in Stone Age settings. Archetypes 
+represent the roles that Protagonists fulfill in society. An archetype could represent the life a character had before they 
+were drawn into investigating cosmic horror. Or it could represent the role they still try to maintain to the best of their 
+ability while the horrors slowly erode everything they thought they understood.  
+Each archetype has a collection of skills that represent knowledge areas the Protagonist uses in their daily lives.  
+This list doesn’t cover every possible character type but focus on likely protagonists in mystery and investigation tales. 
+The GM is encouraged to develop other archetypes to cover other character types suggested by players. Guidelines for 
+developing new Archetypes may be found in the SRD. 
+Herbalist 
+RECOMMENDED STATS: INT 
+ARCHETYPAL SKILLS: 
+• First Aid 70% 
+• Folklore 50% 
+• Forage/Hunt 50% 
+• Healing 70% 
+• Herb Lore 60% 
+• Make Fire 60% 
+• Poisons 50% 
+• Search 50% 
+Choose any 2 of these that you don't already have: 
+• Alertness 60% 
+• Beguile 60% 
+• Inscriptions 40% 
+• Insight 50% 
+• Persuade 60% 
+• Reassure 50% 
+• Scavenge 50% 
+• Weather/Seasons 60% 
+STARTING RESOURCES: 5, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 2 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Hunter / Farmer / Forager 
+RECOMMENDED STATS: DEX, STR 
+ARCHETYPAL SKILLS: 
+• Animal Handling 50% 
+• Athletics 70% 
+
+4 
+• Craft (Traps, Snares, etc.) 60% 
+• Forage/Hunt 50% 
+• Ranged Weapons 60% 
+• Repair/Devise 40% 
+• Ride 40% 
+Choose any 3 of these that you don't already have: 
+• Carouse 40% 
+• First Aid 50% 
+• Herb Lore 60% 
+• Homeland 40% 
+• Melee Weapons 70% 
+• Navigate 50% 
+• Search 60% 
+• Track 50% 
+• Weather/Seasons 60% 
+STARTING RESOURCES: 4, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 4 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Leader / Elder 
+RECOMMENDED STATS: CHA, STR 
+ARCHETYPAL SKILLS: 
+• Carouse 40% 
+• Forage/Hunt 40% 
+• Harangue/Taunt 50% 
+• Homeland 60% 
+• Inscriptions 30% 
+• Insight 40% 
+• Make Fire 50% 
+• Melee Weapons 50% 
+• Spirit World 50% 
+Choose any 2 of these that you don't already have: 
+• Boatbuilding 50% 
+• Dodge 70% 
+• First Aid 50% 
+• Foreign Tongue (Type) 40% 
+• Oral Tradition 50% 
+• Other Tribe (Type) 40% 
+• Poisons 40% 
+• Ranged Weapons 60% 
+• Ride 50% 
+
+5 
+STARTING RESOURCES: 5, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 3 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process. If Protagonist is from an 
+agricultural lifestyle, one of their bonds will be a Community Bond with a starting score of 12] 
+Scout / Pathfinder 
+RECOMMENDED STATS: DEX, STR 
+ARCHETYPAL SKILLS: 
+• Athletics 60% 
+• Forage/Hunt 70% 
+• Make Fire 50% 
+• Navigate 60% 
+• Other Tribe (Type) 50% 
+• Ride 60% 
+• Search 50% 
+• Track 50% 
+• Weather/Seasons 60% 
+Choose any 3 of these that you don't already have: 
+• Alertness 60% 
+• Animal Handling 50% 
+• Beguile 60% 
+• Boatbuilding 50% 
+• Boating 40% 
+• Folklore 50% 
+• Foreign Tongue (Type) 40% 
+• Inscriptions 40% 
+• Repair/Devise 40% 
+• Scavenge 50% 
+STARTING RESOURCES: 4, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 2 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Shaman / Mystic 
+RECOMMENDED STATS: INT 
+ARCHETYPAL SKILLS: 
+• Augury 50% 
+• Insight 60% 
+• Mysticism (Type) 70% 
+• Oral Tradition 60% 
+
+6 
+• Reassure 60% 
+• Spirit World 70% 
+• Weather/Seasons 60% 
+Choose any 1 of these that you don't already have: 
+• Alertness 60% 
+• Beguile 60% 
+• Foreign Tongue (Type) 40% 
+• Herb Lore 60% 
+• Inscriptions 40% 
+• Make Fire 60% 
+• Mysticism (Type) 50% 
+• Other Tribe (Type) 40% 
+• Persuade 60% 
+• Poisons 40% 
+STARTING RESOURCES: 5, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 3 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Storyteller 
+RECOMMENDED STATS: POW, CHA 
+ARCHETYPAL SKILLS: 
+• Art (Storytelling, Acting, etc.) 70% 
+• Beguile 60% 
+• Folklore 60% 
+• Inscriptions 40% 
+• Insight 50% 
+• Oral Tradition 70% 
+• Persuade 60% 
+• Spirit World 50% 
+Choose any 3 of these that you don't already have: 
+• Augury 40% 
+• Carouse 40% 
+• Disguise/Mimic 50% 
+• Foreign Tongue (Type) 40% 
+• Harangue/Taunt 50% 
+• Homeland 40% 
+• Mysticism (Type) 50% 
+• Reassure 50% 
+
+7 
+STARTING RESOURCES: 3, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 3 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Thief / Outcast 
+RECOMMENDED STATS: DEX, CHA 
+ARCHETYPAL SKILLS: 
+• Alertness 50% 
+• Appraise 40% 
+• Folklore 40% 
+• Forage/Hunt 50% 
+• Insight 50% 
+• Make Fire 40% 
+• Persuade 60% 
+• Scavenge 40% 
+• Stealth 60% 
+• Unarmed Combat 60% 
+Choose any 3 of these that you don't already have: 
+• Art (Type) 40% 
+• Athletics 70% 
+• Beguile 60% 
+• Carouse 40% 
+• Disguise/Mimic 50% 
+• Harangue/Taunt 50% 
+• Melee Weapons 70% 
+• Poisons 40% 
+• Search 60% 
+• Weather/Seasons 60% 
+STARTING RESOURCES: 2, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 5 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Warrior 
+RECOMMENDED STATS: STR, DEX 
+ARCHETYPAL SKILLS: 
+• Athletics 70% 
+• Carouse 50% 
+• Craft (Type) or Boatbuilding 50% 
+• Forage/Hunt 50% 
+
+8 
+• Homeland or Boating 50% 
+• Melee Weapons 70% 
+• Repair/Devise 40% 
+• Track 50% 
+• Unarmed Combat 70% 
+Choose any 2 of these that you don't already have: 
+• Animal Handling 50% 
+• Craft (Type) 50% 
+• Dodge 70% 
+• First Aid 50% 
+• Harangue/Taunt 50% 
+• Make Fire 60% 
+• Navigate 50% 
+• Poisons 40% 
+• Ranged Weapons 60% 
+• Scavenge 50% 
+STARTING RESOURCES: 3, if Protagonist is from an agricultural lifestyle; for hunter/gatherers the starting resources is 
+the resources rating of the clan/tribe in which they live (or 0 if they have been cast out of their group) 
+BONDS: 4 [if Protagonist is from a hunter/gatherer lifestyle one of these will automatically be a Community Bond to the 
+clan/tribe with strength CHA+2, the remaining bonds allocated using the standard process] 
+Income and Access to Resources 
+Unlike other Cthulhu Eternal eras, Protagonists may either be part of a Hunter/Gatherer lifestyle (everyone in the 
+Paleolithic, some in the Mesolithic, and a few outsiders in the Neolithic), or they may be from an Agricultural society. In 
+the former case, their access to resources is mostly determined by the prosperity of their clan/tribal group and their 
+Resources score (0-20) reflects the communal “wealth” of their community, shared with all other community members. 
+Conversely, agricultural lifestyle Protagonists have personal belongings, and their Resources score reflects their own 
+personal prosperity. 
+Resources  Clan/Tribe (in a hunter/gatherer) Personal wealth (agricultural) 
+0 Community is starving. Weak and old individuals 
+routinely die of starvation. Even healthy 
+individuals are at temporary -2 CON for tests. 
+Individual own no items of value or function. 
+Penury. Near starvation. 
+1-4 Community is struggling to survive, having barely 
+enough food and resources to keep everyone 
+alive. Everyone is temporarily at -1 CON for tests. 
+Individual owns only basic and valueless items; 
+barely enough to eke out a basic life. Always 
+hungry. 
+5-8 Community is not as well fed as anyone would 
+prefer, but nobody is starving. Equipment is 
+serviceable if old and worn-out. 
+Individual owns a sparse personal collection of 
+valuable or useful items, some in terrible 
+condition. Sometimes hungry. 
+9-12 Community is at a comfortable level of food and 
+resources. 
+Individual owns a modest personal cache of 
+valuable, useful items. Usually has basic food. 
+13-16 Community is mildly prosperous, having access 
+to good food with little worry of it running out. 
+Individual owns a fair personal stock of simple 
+items. Occasional access to superior food. 
+17-18 Community is well resourced with everyone 
+having their pick of food and items without 
+anyone missing out. 
+Individual owns an impressive personal 
+collection of useful gear; considered wealthy / 
+well-resourced. Regular access to superior food 
+
+9 
+19 Community is very well resourced with its 
+supplies of food and equipment being the envy 
+of most similar groups nearby. 
+Individual is the envy of most people; personally 
+owns numerous sought-after items of impressive 
+function. Access to the best food and beverages. 
+20+ Community has benefited from a windfall of 
+food or resources which has made life 
+exceptionally easy and comfortable for 
+everyone. 
+Individual has access to unparalleled quantities 
+of valuable/useful items. A stockpile of personal 
+wealth. Choice of available food, in any quantity. 
+ 
+Skills 
+Alertness 
+Base Rating: 20% 
+Alertness detects danger. Use it to hear a safety being weapon being readied, to understand the mumbling on the other 
+side of a wall, to spot a concealed item hidden under a jacket, or to catch someone who is trying to escape notice using 
+Stealth. 
+Animal Handling 
+Base Rating: 10% 
+Animals are an important part of daily life in the Stone Age, whether the earliest domesticated canines, or later with the 
+advent of animal husbandry. Everyone has a basic understanding of caring for and trying to control animals. Animal 
+handling can be used to calm frightened sheep, or perhaps to train a dog to hunt or guard. 
+Animal handling can’t be used by a rider to control a mount. That’s the Ride skill. 
+Appraise 
+Base Rating: 10% 
+The ability to quickly determine the true (intrinsic) value of an item. This is an important skill in ensuring that bartering 
+exchange deals are favorable to you. It is also helpful in knowing what items or resources others might be willing to 
+trade to obtain. 
+Art (Type) 
+Base Rating: 0% 
+Expertise at creating or performing a work that sways emotions and opinions. It also encompasses knowledge of 
+techniques and trends in your field, and the ability tell a particular creator’s real work from a fake. Anyone can draw a 
+rough sketch; the Art skill reflects knowledge, practice, and talent. Each type of Art is a separate skill: Carving, Dance, 
+Singing, Painting, Sculpture, etc. 
+Athletics 
+Base Rating: 30% 
+Your Protagonist trains to get the most out of his or her strength and agility. Strength and Dexterity cover raw physical 
+power and manual dexterity; the Athletics skill represents long practice doing things like running, jumping, climbing, and 
+throwing. 
+Use Athletics to: 
+• Outrun someone (see OPPOSED TESTS in the SRD). 
+• Jump an intimidating gap. 
+• Climb in a crisis. 
+• Land safely in a fall of up to three yards. 
+
+10 
+• Hit a target with a thrown rock or put a thrown trap exactly on target. 
+• Catch something without warning, such as intercepting a thrown rock or trap. 
+Augury 
+Base Rating: 0% 
+This skill measures knowledge of one or more of the known methods of fortune-telling used to predict the future, 
+whether it be through watching the flight patterns of birds, reading entrails, or watching the movements of the planets 
+amongst the stars. Usually, these techniques require multiple observation over several days before yielding some 
+prediction – and it is often relatively vague. It is the Game Moderator’s decision as to whether the prediction is accurate 
+or not, but in either case many (superstitious) people around the Protagonist will firmly believe that the foretold future 
+will come to pass. They might even generously interpret the real events in a way that makes the prediction at least 
+partially correct. For accurate and specific visions of the future, some form of ritual magic must be involved (which is 
+well beyond the remit of this skill).  
+Beguile 
+Base Rating: 20% 
+In the Stone Age, oftentimes the best way to convince someone to do what you want them to do, is by appealing to 
+their sense of power or self-importance. This delicate art combines guile, cunning, “buttering-up”, or other such subtle 
+techniques to curry favor and obtain leverage. 
+Beguiling is not about open threats, teasing, or aggressive bluster – that is covered by the Harangue/Taunt skill. Nor is it 
+about using cold logic to convince them (that’s Persuade). Rather, this skill is about using wile and cunning, coupled with 
+a detailed understanding of the authority and power wielded by the person, to gain advantage. 
+If the target of the skill starts from an antagonistic viewpoint, some form of OPPOSED TEST will probably be needed to 
+overcome their negative impression.  
+Boatbuilding 
+Base Rating: 10% 
+The knowledge required to design a waterborne vessel that will stay afloat in the prevailing conditions it is designed for. 
+While most of the work to actually build a boat will fall under Craft skill specializations, Boatbuilding is required to 
+supply the direction of this effort to ensure the end result actually works as intended. 
+This skill also encompasses a general understanding of the boatbuilding techniques employed by different societies and 
+cultures, and may prove helpful in identifying the origins of a vessel.  
+Boating 
+Base Rating: 0% 
+Operating and navigating waterborne vehicles. Use it to keep a boat safe in a crisis, such as through a storm or in a 
+dangerous pursuit. 
+Carouse 
+Base Rating: 0% 
+People have a variety of ways of reveling and relaxing when the work-day is through. This skill combines a knowledge of 
+such social distractions and indulgences, and a practiced skill in partaking – and perhaps excelling – in their practice. 
+Use it to know the particular forms of entertainments that certain classes of society are likely to crave, and the people 
+and places who are able to satisfy them – whether legally or otherwise. 
+
+11 
+When participating in a leisure activity, this skill can be called upon when endurance or skillful practice of the revelry 
+would achieve an advantage. One such use might be retaining one’s faculties even when imbibing excessive intoxicating 
+drinks. Another might be winning at games of chance commonly used for wagering (in this case, the skill is likely to be 
+part of an OPPOSED TEST against other players’ Carouse, with sly attempts at cheating covered by the Stealth skill). 
+Craft (Type) 
+Base Rating: 0% 
+Making and repairing sophisticated tools and structures. A job that most people could figure out does not require the 
+Craft skill, only an INT or DEX test. Use Craft for specialized work that needs training: Craft (Woodworking) to get carve a 
+water-tight hull — or to sabotage one beyond repair; Craft (Textiles) to weave threads into fabric, and so on.   
+The Game Moderator decides whether a task requires Craft. Each Craft type is a separate skill: Weapon-making, 
+Woodworking, Farmer, Rat-Catcher, etc. 
+Disguise/Mimic 
+Base Rating: 10% 
+Alter your Protagonist’s appearance, voice, posture, body language, and mannerisms to avoid recognition without 
+drawing attention, or to move in a way that impersonates the motions and sounds created by an animal. The latter is an 
+important skill for stalking game; successful use can add a +20% to any Forage/Hunt check (+40% on a critical result), 
+but woe betide anyone who attempts such a move close to deadly predators and fumbles the test. 
+Dodge 
+Base Rating: 30% 
+Evading danger through instinct and reflexes. Use Dodge to avoid an attack. Against ranged weapons and explosions, 
+Dodge is only useful to get to cover (see DODGING RANGED ATTACKS in the SRD). 
+First Aid 
+Base Rating: 10% 
+The initial treatment and stabilization of injuries. Use it to help a character recover lost Hit Points. By comparison, 
+Healing corrects a severe wound and helps ensures long-term treatment and recovery. (See HEALING in the SRD) 
+Folklore 
+Base Rating: 10% 
+Folklore is the knowledge of the customs and lore of the common people of region. It is used to deduce the proper way 
+to enter a cave, whether to walk around the field widdershins prior to planting winter wheat, or in what order to 
+propitiate the ancestors. It’s also useful when trying to understand the myths and legends of region, such as what 
+creature is said to live in the lake or why the eastern face of the mountain has no trees. 
+Forage/Hunt 
+Base Rating: 10% 
+Forage/Hunt is used to find edible food in the wilderness. The appropriate tools are required, such a club, spear, or 
+other weapon to hunt animals. It also covers dressing the prey and preparing it for storage. 
+A successful roll provides enough food for a group of four to eat for a week. 
+Foreign Tongue (Type) 
+Base Rating: 0% 
+Ability to communicate using the verbal systems employed by another culture or group, whether languages or simple 
+patterns of speech. Each foreign tongue is a distinct skill. Having 20% allows halting conversations; at 50% your 
+
+12 
+Protagonist speaks like a native. The greater the skill, the greater the complexity of the information your Protagonist 
+comprehends and the less time it takes. You don’t need to roll a Foreign Tongue skill unless the Game Moderator says 
+the situation is exceptionally difficult. 
+Being able to speak a foreign tongue doesn’t mean you can read or write text in that language (rare skills which few 
+learn in this era). Attempts to do that are determined by the Inscriptions skill. The Game Moderator might require 
+separate rolls against both skills or a single roll applied across both tests, depending on the situation. 
+Harangue/Taunt 
+Base Rating: 10% 
+The art of either browbeating someone into agreeing with your point of view, or of enraging them to the point where 
+they will lose control and act in an undisciplined way that is advantageous to you. 
+This technique is not a subtle attempt to convince someone through a well-reasoned argument (that’s Persuade). Nor is 
+it a tempt to appeal to their sense of power and importance (that’s Beguile). Instead, Harangue/Taunt is all about 
+bluster, shouting, and threats. But sometimes these can be more successful than other techniques, although the 
+individuals on the receiving end are unlikely to enjoy the interaction quite so much. 
+Taunting is a related discipline, namely an attempt to insult or belittle verbal opponents to the point where they lose 
+their temper and say or do something rash (which they will usually later regret). In some cultures, this is a well-
+established way of winning an argument or establishing superiority in the minds of the community. 
+Healing 
+Base Rating: 0% 
+Knowledge of curative preparations, which in this era are a combination of herbal and traditional concoctions for 
+ingestion, and poultices which could be applied to wounds. Use this skill to identify a common healing preparation, 
+know what preparation is likely to improve a particular complaint, and safely administer a preparation. 
+This skill is primarily concerned with the long-term healing of injuries, diseases, or poisonings. For quick stabilization of 
+injuries in the field, the First Aid skill is more useful. 
+Identifying a healing preparation or medicinal herb requires at least 20% skill; finding places where such ingredients may 
+grow naturally will likely require use of the Herb Lore skill. Preparing a particularly powerful treatment safely, such as 
+one with psychoactive effects, requires at least 40% skill or a successful roll. Misusing Healing is a quick way to kill a 
+patient (see POISON AND DISEASE in the SRD). 
+Herb Lore 
+Base Rating: 20% 
+Herb Lore is an understanding of herbs, the proper method to collect them, where to find them, when to find them, and 
+what can be done with them.  
+This skill doesn’t include the processes required to turn herbs into poultices or salves (that’s part of the Healing skill), 
+nor does it instruct someone in creating Poisons from herbs (that’s the Poisons skill). 
+Homeland 
+Base Rating: 0% 
+Homeland represents a protagonist’s general knowledge about their homeland. Who’s in charge, basic geography, 
+known power struggles, which chieftain runs a certain community, etc.  
+History, Folklore, and other more specific skills should be used to gain in-depth knowledge. 
+
+13 
+Inscriptions 
+Base Rating: 0% 
+Written forms of language (pictograms etc.) are rarely employed, and few people are trained in creating or interpreting 
+such inscriptions. Such markings are usually only used to leave permanent accounts of the deeds of the high and mighty. 
+If you want your Protagonist to be able to interpret or create written inscriptions, he or she will need to have at least a 
+basic rating in this skill. As a shorthand, anyone with an Inscriptions skill below 10 is unable to make any sense of written 
+symbols; a skill rating between 11 and 40 represents a limited degree of understanding; a rating above 40 denotes a full 
+understanding of systems of writing. 
+The skill does not need to be purchased separately for each of the languages known; it is assumed that the basics of 
+reading and writing common writing systems does not need to be re-learned. Note that in many cases where an 
+inscription written in a foreign language needs to be comprehended, this will likely involve skill tests of BOTH 
+Inscriptions and the requisite Foreign Tongue skill. It is the GM’s discretion as to whether tests should involve a single 
+die roll compared to both skills, or separate rolls against each. 
+Insight 
+Base Rating: 10% 
+Insight obtains information about a person — especially information the subject would rather conceal — through 
+observation, conversation, or examining patterns of behavior and relationships. Use Insight to recognize signs of 
+dishonesty from verbal cues and body language, gauge attitude and intentions, cultivate sources of information about a 
+subject, determine what it would take to get a subject to cooperate, or recognize clues of what a subject wants to 
+conceal.  
+Insight can notice signs of mental illness but Reassure would be needed to assist with a specific malady. A subject who 
+deliberately tries to deceive your Protagonist can attempt an opposed test comparing their Persuade against your 
+Protagonist’s Insight (see OPPOSED TESTS in the SRD). 
+Make Fire 
+Base Rating: 0% 
+Fire is essential to life in the Stone Age – it is how people stave off the cold winters, and how they cook food to ensure it 
+is safe to eat. Everyone learns the basics of how to make fire via whichever methods are known to the local community 
+(it could be via striking flint on stone, or by rapidly rotating a wooden rod in a palette loaded with dry leaves). When 
+conditions are amenable and time is plentiful, no skill test is required to start a small fire. However, if there is a strong 
+breeze, or it is raining, or if the fire needs to be started quickly (say, before a beast descends on the settlement) the GM 
+will likely ask for a test. 
+Melee Weapons 
+Base Rating: 30% 
+Lethal use of melee weapons in combat. Use it to hurt or kill an opponent with a knife, axe, club, or other hand-held 
+weapon. 
+Mysticism (Type) 
+Base Rating: 10% 
+The study of the supernatural as understood by human traditions, including things like magic, initiation into mystery 
+cults, and secret societies. Use Mysticism to examine and deduce the intent of a ritual, or to identify occult traditions, 
+groups, scrolls, tools, symbols, or legends. Mysticism can never tell a Protagonist what’s genuinely unnatural and what’s 
+just superstition or mythology. That’s the province of the Unnatural skill. 
+
+14 
+Mysticism is the more religious counterpart to Folklore. Successful Folklore and Mysticism rolls could provide the same 
+information, viewed through different filters. 
+Navigate 
+Base Rating: 10% 
+Finding your way quickly from memory, directions, orienteering, or the stars. 
+Oral Tradition 
+Base Rating: 10% 
+In this era, most of the lore and wisdom about the world and events that have happened in the past are transmitted by 
+oral accounts memorized and repeated down the generations. To us today this seems like an unreliable and imprecise 
+way to record important information, but in early historical times it was the normal method – and wise individuals were 
+able to train their memories to hold vast amounts of detail and recall it at a moment’s notice (certainly much more than 
+we can today).  
+This skill reflects the breadth and depth of the knowledge that your Protagonist has received in their life to date, and 
+buried away inside their ‘memory palace’ for later retrieval. It can be used as a kind of general research skill, or a 
+measure of the Protagonist’s general knowledge. 
+Oral Tradition covers routine and well-established general knowledge about how the world really works, local taboos, 
+and what happened in times still remembered. More specialized understanding of common spiritual beliefs is the 
+domain of the Spirit World skill, esoteric lore is the province of the Mysticism skill, and fantastic tales about mythical 
+creatures is covered by Folklore. Similarly, knowledge about the geography and politics of one’s own people is covered 
+by Homeland, and the equivalent details about a foreign group is captured by the Other Tribe skill. Knowledge about the 
+patterns of the seasons and weather is covered by the Weather/Seasons skill instead. 
+Other Tribe (Type) 
+Base Rating: 0% 
+This skill represents a deep understanding of the people, places, and common practices that are unique to a group of 
+people that live outside the Protagonist’s normal community. Use it to recall details of the local climate, local peoples, 
+history, and local government arrangement. It can also cover quirky beliefs or discoveries that have come to be common 
+knowledge among members of the group. 
+Persuade 
+Base Rating: 20% 
+Changing another’s deeply held decision or desire. Use Persuade to get your Protagonist’s way when the subject is so 
+stubborn, what your Protagonist wants is so valuable, or the deception is so flagrant that Charisma isn’t enough.  
+With Persuade, your Protagonist might convince a witness that what she saw was innocuous and not unnatural, talk a 
+community leader into helping you cover up an outbreak to avoid a mass panic, or draw useful information out of an 
+unwilling subject. This skill also allows your Protagonist to resist persuasion and interrogation in opposed Persuade rolls 
+(see OPPOSED TESTS in the SRD). 
+Poisons 
+Base Rating: 0% 
+The use of toxic preparations is common practice in the Stone Age world whether it be to silence a political rival, commit 
+a murder, or rid a woman of an unwanted pregnancy. In most cases the use of poisons is appealing because it is much 
+harder to trace, and may even appear to be the results of natural causes. Not all poisonings are intended to kill. 
+
+15 
+This skill includes the knowledge to prepare poisons from commonly available ingredients, the ability to detect the tell-
+tale signs that something bears the taint of a known poison, and the knowledge of the distinctive signs that poisons 
+leave on their victims (often on their corpses). 
+All ingredients for Stone Age poisons are plants which grow naturally. This skill doesn’t help with knowing where to find 
+such plants in the wild (that would be Forage/Hunt) or whether other types of similar plants could be substituted if they 
+are unavailable (that would be Herb Lore). 
+Ranged Weapons 
+Base Rating: 20% 
+The ability to accurately hit targets with ranged weapons such as Bows, Blow-guns and Slings. 
+This skill isn’t used for thrown weapons like Spears – those make use of the Athletics skill instead. 
+Reassure 
+Base Rating: 10% 
+Use this skill to understand the mental illness afflicting a person, help an afflicted person along the journey back to 
+sanity, or talk someone down when the mental illness threatens to take hold. 
+You can also use this skill to assist in social interactions with someone, to calm them from an agitated state in order to 
+extract information from them. 
+You cannot use Reassure on yourself.  
+Using Reassure to aid someone who suffered exposure to Unnatural forces might cost the reassuring Survivor SAN; see 
+THREATS TO SAN in the SRD. 
+Repair/Devise 
+Base Rating: 0% 
+With many settlements isolated by a day or more journey from each other, self-reliance is key. The ability to repair 
+broken equipment or create impromptu fixes for unexpected breakages is vital. 
+Repair/Devise is not a craft skilled. It’s designed to make some work just long enough to get the job done (hopefully). 
+Many other Cthulhu Eternal settings use Craft (Jury-Rig). Repair/Devise takes the place of that in this setting. 
+Ride 
+Base Rating: 10% 
+Handling, training, and riding an animal—horses, donkeys, camels, whatever. Use it to keep safe on an animal in a crisis 
+and to keep riding animals safe, calm, and healthy. 
+Scavenge 
+Base Rating: 10% 
+The world is full of useful items, although most people don’t know where to go looking for the good stuff. Use this skill 
+to find and salvage helpful pieces of equipment or locate valuable resources like food and water. Anyone can find items 
+in places where they are likely to be found (e.g., food in a larder); use this skill to find things in places where nobody else 
+would think to look. 
+Depending on the game setting and the scarcity of the item being sought, the difficulty of Scavenge tests and the quality 
+of the items unearthed by successful rolls may vary. See SCROUNGING in the SRD. 
+Note that efforts to rummage for information rather than items is handled by social or knowledge skills instead. 
+
+16 
+Search 
+Base Rating: 20% 
+Finding things that are concealed or obscured from plain sight. Searching an abandoned dwelling may not require the 
+Search skill, only time and effort, or a sufficiently high INT. Use Search to find an object that was hidden with the Stealth 
+skill or is otherwise so well hidden or disguised that it needs an expert. The Game Moderator may roll the Search 
+attempt, so you don’t know whether your Protagonist succeeded or failed. 
+Spirit World 
+Base Rating: 10% 
+Peoples in the Stone Age world know that many of the major processes and events of the natural world are, in fact, 
+governed by a host of powerful spirits beings. Some may call them ‘gods’, others might see spirits as beings intimately 
+tied to the very land itself. Others might consider the spirits of long-dead ancestors to be important players in the 
+world’s events. All sensible people understand that it is important to offer devotion or material sacrifice to one or more 
+of these spirit beings, in order to maintain their favor. 
+This skill encompasses knowledge of the spirit beings that are commonly venerated by your Protagonist’s community. Its 
+coverage is limited to mainstream beliefs – esoteric or hidden knowledge is more in the realms of the Mysticism skill, 
+and curious tales about beings who are not recognized by the local worship are covered by the Folklore skill. The 
+interpretations of omens or portents is Augury. 
+Stealth 
+Base Rating: 10% 
+Concealing your presence or activities. Use it to hide a weapon, camouflage a position, conceal a mystical carving, pick a 
+pocket, move silently, follow without being seen, or blend into a crowd. A Protagonist attempting Stealth can be 
+detected only by an opposing Alertness or Search skill (see OPPOSED TESTS in the SRD). 
+Swim 
+Base Rating: 20% 
+Most Protagonists can swim for leisure. Use the Swim skill in a dangerous crisis: going a long distance in choppy water, 
+keeping a friend from drowning, or getting to a boat before the tentacled thing below grabs you. 
+Track 
+Base Rating: 10% 
+Use this to locate the tracks of a specific creature or person and follow them. A test must be made to locate the trail and 
+then again once every ten minutes they are being followed. Penalties or bonuses may apply depending on how long it 
+was since the tracks were made, what the ground is like, what the weather conditions have been since the tracks were 
+made, etc. 
+Unarmed Combat 
+Base Rating: 40% 
+Self-defense. A fight between untrained combatants often involves more shoving and shouting than real violence. Use 
+Unarmed Combat to hurt or kill an opponent with your Protagonist’s bare hands (or feet, elbows, teeth, or head). 
+Unnatural 
+Base Rating: 0% 
+Knowledge of the fundamental, mind-shattering secrets of the universe. The things that slithered in the dark corners of 
+the world and the cosmos beyond. Use it to remember, recognize, or research facts about the things humans consider 
+
+17 
+unnatural. This goes far beyond the occult, because the Unnatural skill represents things that are real. Use it to sift 
+through the darkest parts of myth and folklore and recognize which of it is true.  
+Weather/Seasons 
+Base Rating: 20% 
+Knowledge of the patterns of the seasons and the best time to plant crops and reap, to make best use of the sun and 
+rain. The skill also covers the day-to-day prediction of the weather, based on a combination of observation, established 
+folk wisdom, and intuition. 
+ 
+Bonds 
+For Protagonists with a hunter/gatherer lifestyle, the bond to their local clan/tribe is an especially important Community 
+Bond and its rating directly determines their place in the society and, to an extent, their access to resources. Losing such 
+a bond means banishment as an outcast, which is potentially life-threatening. 
+ 
+
+18 
+Combat 
+The basic mechanics of combat do not vary much between different localizations of Cthulhu Eternal, but each has its 
+own tables of weapons and armor as well as elaborations which cover unique forms of conflict or weapons technology. 
+Attack Skills 
+For games in Stone Age settings, the following skills are used for combat attacks: 
+• Use Ranged Weapons for aimed weapons (e.g., bow or sling); 
+• Use Athletics for a thrown weapon; 
+• Use Melee Weapons for a hand-to-hand weapon; 
+• Use Unarmed Combat for a punch or kick. 
+Weapons for Stone Age settings 
+Table of Example Weapons 
+The tables below summarize some representative weapons and vehicles that characters might have access to. Note that 
+while the concept of LETHAL DAMAGE still exists, it is primarily applied to large-scale natural (or supernatural) events 
+like lightning strikes, avalanches, or devastating attacks from Mythos entities. 
+Thrown weapons use Athletics as a combat skill. 
+>> Melee Weapons 
+Sample Weapons Damage 
+Bare hands and feet  1D4–1* 
+Stone knife 1D4* 
+Club  1D4 +1* 
+Light axe or short spear 1D6+1* 
+Heavy stone axe, other crushing weapons 1D8-1* 
+Long spear 1D8* 
+*Damage bonus is added for this weapon 
+ 
+>> Ranged Weapons 
+Sample Weapons Skill Damage Base Range 
+Sling Ranged Weapons 1D4 30 yards 
+Short Bow and arrow ** Ranged Weapons 1D4+1 150 yards 
+Thrown Rock Athletics 1D4–1* STR×5 feet 
+Thrown Knife Athletics  1D4* STR×5 feet 
+Thrown Axe or Boomerang Athletics 1D6* STR×5 feet 
+Thrown Spear, Short or Javelin Athletics 1D6+1* STR×5 yards 
+Thrown Spear, Long Athletics 1D8+1* STR×4 yards 
+*Damage bonus is added for this weapon 
+** The first use of the bow and arrow dates to approximately 60,000-72,000 years ago in Africa and 48,000-52,000 years 
+ago in Europe and Asia. 
+Armor for Stone Age settings 
+Armor Armor Rating 
+Heavy cloth, winter clothes, furs 1 
+Hardened leather 2 
+Wooden wall, palisade, or thick door 5 
+Thick stone/brick wall or moderate rock 10  
+Reinforced stone/brick wall or thick rock 15 
+
+19 
+ 
+Shield Type* # Free Parries 
+Improvised 1 
+Small 2 
+* The earliest shields date to the late Neolithic Age 
+Healing in Stone Age settings 
+A healer can attempt a Healing or Herb Lore test once per week: Healing for critical care of severe wounds; Herb Lore for 
+poison, disease, and ongoing healing. If treatment succeeds, the patient recovers 1D4 HP. This is doubled with a critical, 
+while a fumble inflicts 1D4 HP damage. At the Game Moderator’s discretion, having worn-out tools or poor quality 
+medicinal preparations/ingredients may incur a penalty. 
+Poisons and Diseases 
+The rules governing the damage inflicted by poisons and diseases don’t vary between localizations, but the specific list of 
+available toxins and infections is guided by the technology and scientific knowledge prevalent in the setting. The table 
+below gives some examples to augment the basic list of common, naturally-occurring poisons. 
+ 
+>> Manufactured & Natural Poisons 
+Poison Entry Route Speed Lethality Symptoms Antidote? 
+Belladonna Ingestion 30+1D20 minutes 8% Dilated pupils, low 
+heartrate & pulse, 
+hallucinations 
+No 
+Cyanide / Laurel Inhalation or 
+Ingestion 
+1D6 turns 20% Asphyxiation No, but some 
+treatments 
+Hemlock Ingestion 30+1D20 minutes 6% Convulsions, 
+muscle pain 
+No 
+Monkshood/Wolfsbane Ingestion 30+1D20 minutes 7% Numbness, 
+nausea, slow 
+heartrate & pulse 
+No 
+ 
+>> Sample Diseases 
+Disease Route Speed CON Test 
+Penalty 
+Damage Symptoms Cure 
+Ague (Malaria) Insect bite 3D6+10 days None 1D6 Fever & chills No 
+Black Plague  Flea bite 
+(bubonic 
+plague), 
+inhalation 
+(pneumonic 
+plague) 
+1D6 days None 1D6 Fever, chills, 
+lymph node 
+swelling, 
+coughing (if 
+pneumonic), 
+shock 
+No 
+Bloody Flux / 
+Parasitic Worms / 
+Snail Fever 
+Bad hygiene, 
+bad water 
+1D6 weeks None 1D3 Diarrhea and 
+bleeding  
+No 
+Consumption Inhaling 
+cough 
+droplets 
+1D6 days None 1D4 Persistent 
+cough, night 
+sweats 
+No 
+Dropsy Bacteria, 
+exposure by 
+contact 
+3+1D6 months None 1D3 Skin lesions, 
+weakness, 
+blindness 
+No 
+The Fever Insect bite 3D6+10 days None 1D6 Fever & chills No 
+
+20 
+The Pox Exposure to 
+infected 
+person 
+2D6 days –40 1D6 Fever, 
+vomiting, 
+ulcers, rashes, 
+scabs 
+No 
+Spotted Fever Fleas, lice, or 
+mites 
+1D6+6 days None 1D4 Headache, 
+fever, chills 
+No 
+Yellow Eyes Virus, 
+parasite, 
+alcoholism 
+2D4 weeks None 1D3 Yellow skin, 
+loss of appetite 
+No 
+ 
+>> Damage from Torture 
+If a Protagonist is beaten, whipped, or subject to another type of physical torture, he or she is required to make a 
+CON×3 test. The damage accrued from the experience depends on the level of success or failure of this roll: 
+• Critical Success: 1D10 HP damage for the whole session, no matter how brutal. 
+• Success by 20 or more: 1D3 damage for every 50 strikes (or equivalent). 
+• Regular Success: Lethality 3% for every 50 strikes (i.e., 3% for 50 strikes, 6% for 100 strikes, and so on). 
+• Failure: Lethality 2% for every 20 strikes. 
+• Fumble: 1D20+5 HP damage for the torture with any torture over 50 strikes results in immediate death. 
+Torture also takes a toll on the mental health of both torturer and victim. The torturer must make violence-related 
+SAN tests until they’ve become inured to torturing others.  
+In some cases, torture is a form of corporal punishment, meant to do nothing other than confer pain on the 
+victim. Other times, torture is a means to extract information. While the victim may want to stay silent, the pain of 
+torture (or even the promise of torture) can convince the victim to divulge what they know. 
+When the victim wants to resist blabbering everything they know, they must attempt a Willpower Points × 3 test. 
+On a success, the victim can say, or not say, whatever they want. For every turn of torture that the victim survives, 
+they lose 1D4 WP in addition to any HP lost. The WP×3 test must be attempted after any turn of torture. 
+If the WP roll is a fumble, the victim can’t help but tell the entire truth. A regular failure means that the victim 
+must reveal one fact or detail, but they can choose what that is. A torturer who succeeds on an Insight test can 
+tell when the truth is being told, and can choose to continue the torture even after the victim talks. 
+ 
+ 
+Additional Combat Rules for Stone Age settings 
+There’s a limited amount of variety in weaponry available during this era. Their usefulness in adventures may be limited, 
+of course, depending on who or what the Protagonists face. 
+The primary game statistics relating to different types of weapons may be found on the Example Weapons Table on 
+page 18. The availability of any class of weapon will be dictated by the scarcity of weapon resources in the particular 
+game setting (see preceding section). There are a wide variety of weapon variations throughout the Stone Age 
+depending on culture and purpose.  
+What follows are some spot rules for Protagonists who have access to common Stone Age weapons. 
+Concealing Weapons 
+Knives and daggers can be concealed under ordinary clothing. Someone deliberately looking for a concealed weapon can 
+attempt an Alertness test to spot it. A larger spear or club means a +20% Alertness bonus. There is no way to conceal a 
+large melee weapon. 
+
+21 
+Hand-to-Hand Weapons 
+Unarmed attacks, like punching, kicking, and strangling, use the Unarmed Combat skill. All melee weapons use the 
+Melee Weapons skill. 
+Ranged Weapons 
+Ranged weapons that are aimed (e.g., bow, and slings) use the Ranged Weapons skill. All require some kind of 
+ammunition (arrows, bolts) and are useless if the supply is exhausted. Primitive weapons that are thrown (e.g., spears) 
+use Athletics skill. 
+Mounted Combat 
+Ancient people used a variety of animals; typically, camels, elephants, or horses, as mounts. The earliest recorded 
+instances of elephant and horse calvary date to around 1000 BCE during the Neolithic Era, but use of horses for 
+mounted infantry may have occurred sooner.  
+If a combatant on a mount attacks an enemy who is on foot, the height advantage of the attacker affords an advantage. 
+All such attacks are made at +20%. Similarly, attempts made by mounted combatants to dodge or fight back against 
+attackers on foot receive a bonus of +20%. These bonuses only apply if there is a significant height advantage (and don’t 
+apply when a rider is attacking something much larger than human-sized). 
+Note that whenever fighting from a mount, a combatant’s effective combat skill is the lesser of their Ride skill and their 
+normal relevant combat skill. 
+Shields and Parrying 
+Combat in Stone Age settings is frequently up-close-and-personal, with opponents going toe-to-toe swinging, stabbing, 
+striking and blocking. As such, the use of defensive measures such as parrying with weapons and blocking attacks with 
+shields is common. Detailed but streamlined rules for handling extended melee fights is built into the basic rules for 
+combat – see DEFENSE ROLLS in the SRD. Note that lengthy bouts of hand-to-hand combat can be particularly taxing, 
+and combatants may become Exhausted and/or end the fight with severely depleted Willpower Points; this may affect 
+their later actions. 
+Weapon Materials 
+Stone Age weapons are made from wood, bone, stone, and other natural materials. Items such as arrowheads, spear 
+tips, knives, and axes are fragile and require a Luck test after use to see if the condition of the weapon has degraded to 
+Junk (See PRE-LOVED ITEMS AND SPOILED GOODS in the SRD).   
+ 
+ 
+ 
+
+22 
+Equipment and Resources 
+All localizations of Cthulhu Eternal use similar mechanics for assessing the success of Protagonists’ efforts to scrounge 
+for scarce supplies or items, or attempt to solve problems by combining items with jury-rigging. The primary mechanical 
+differences lie in the specific skills used. 
+For Protagonists in Stone Age games: 
+• Attempts to scrounge equipment/supplies from likely locations in the environment – tests against the Scavenge 
+skill. 
+• Attempts to jury-rig a contraption – tests against the Repair/Devise skill. 
+Vehicles 
+The table below provides some examples of the types of vehicles common to the Stone Age. 
+>>A Note About Stone Age Vehicles 
+Vehicles will be available in most Neolithic Era games, but only very simple  vehicles will be present in earlier times 
+(marked with an asterisk in the table below).  
+One of the earliest known vehicles was the Pesse Canoe, a dugout log dated to around 8040 BCE. The earliest 
+examples of ships are the Khufu ship in Egypt starting approximately 2500 BCE. These vessels were approximately 
+40 meters long and were rowed.  
+The invention of the wheel dates to roughly 3400 BCE. Carts from this period could be pulled by people or 
+animals. Prior to this, people would use sleds or sledges for transport. The first chariots date to c. 1950 BCE and 
+were found in burial sites in modern day Russia. 
+Speed 
+When comparing Vehicles, there is a range of different vehicle speeds. A vehicle with a ‘Fast’ rating grants a +20% bonus 
+to any Drive or Boating test to pursue or escape. A ‘Slow’ vehicle incurs a −20% penalty instead, while a ‘Very Slow’ 
+vehicle attracts a −40% penalty. An ‘Average’ rating confers no modifier. 
+A vehicle that’s notorious for poor handling or that’s in bad shape might counts as ‘heavily worn’ or ‘junk’ (see above) at 
+the GM’s discretion. 
+Some Example Vehicles 
+>> Vehicles 
+Vehicle Type Description Hit Points Armor Speed 
+Litter* Flat platform with poles at each end; 
+carried by 2—8 people 
+8—10 1 Very 
+Slow 
+Travois, Horse-
+Drawn* 
+Light V- or X-shaped vehicles resembling a 
+wheelbarrow without the wheel. Dragged 
+across earth or sand like a sledge. 
+10—12 2 Slow 
+Travois, Man-
+Drawn* 
+Same as above but pulled by human 
+motive force. 
+10—12 2 Very 
+Slow 
+Cart, Man-Drawn Two-wheeled vehicle for cargo. Drawn by 
+one or more people 
+15—20 1 Very 
+Slow 
+Cart, Horse-Drawn Light vehicles intended to carry a single 
+person, possibly with an out-rider 
+15—20 2 Average 
+Chariot Two-wheeled vehicle for travel or combat. 
+Drawn by one or more horses. 
+15—20 1 Fast 
+Canoe A small watercraft intended to carry cargo 
+or small groups of people 
+15—20 2 Slow 
+Khufu Ship Narrow boat used for cargo or transport 20—25 1 Slow 
+* These very simple vehicle types might be found in any Stone Age era; the remainder will only typically be present in 
+Neolithic eras 
+
+23 
+Sanity 
+Most of the game mechanics surrounding Sanity do not vary between localizations of Cthulhu Eternal, however there 
+are some small changes created through differences in available skills. 
+• The main skill used by Stone Age characters attempting to cure a patient of their mental illness, is: Reassure. 
+Disorders 
+Although the ways in which the human mind responds to stresses and mental illness have not changed for centuries, the 
+labels applied to mental disorders have varied from era to era. To keep the descriptions of mental disorders feeling 
+“contemporary” to a given era, localizations define their own sets of disorders. For Stone Age games, the following set 
+are recommended. 
+Afeared Of … 
+A common affliction arising from traumatic experiences is the development of an irrational fear of something related 
+(directly or by association) with the incident. Whenever a Protagonist is in the presence of a trigger for his or her fear, he 
+or she must make a SAN test (even if the trigger is not terrifying in any way to others). Failure means an acute episode 
+has been triggered, during which there’s little choice but to suffer the Flee or Submit response to temporary insanity 
+(see the SRD). A nearby box provides some examples of fears (what will be termed phobias in much later eras). 
+>>Attributing the Causes of Mental Disorders 
+Ancient societies attributed mental disorders to many causes mostly tied to their superstitious world view. Some 
+cultures believed that mentally ill people were possessed by demonic entities or afflicted by the gods. Some 
+believed such disorders arose from astrological or cosmic origins. It was not uncommon to think that such 
+influences arose because of some kind of moral failing or as punishment for transgressing some kind of cultural 
+norm, cosmic law, or ethical rule laid down by a divinity. 
+While adopting such attributions may provide an element of verisimilitude to a game, it is important to check with 
+players regarding their comfort with blanket rulings about the (perceived) origins of mental illness. Many players 
+will have some personal or familial experiences relating to such topics and may find the reduction of mental illness 
+to a “demonic possession” (or similar) to diminish them and thus be personally insulting or triggering. As with all 
+gaming, there’s no right or wrong way and the best policy is to simply check with players beforehand.  
+ 
+Amnesia 
+This is a common disorder from encounters with the unnatural. Losing 2+ SAN in any single roll triggers an acute 
+episode, which erases all memory of the episode until your Protagonist finds a way to bring it back. 
+Fearful Distrust 
+A delusional state of extreme suspicion, in which a fear of invisible enemies pervades one’s world-view. Losing 2+ SAN in 
+any single roll triggers an acute episode. Unless your Protagonist finds a way to stifle his or her delusions, he or she can’t 
+trust or rely on anyone. Every event, every disagreement or source of suspicion is a clue to a conspiracy against the 
+Protagonist. 
+Great Sadness 
+Acute sadness (what will later be termed depression) means total despair and a crushing inability to get anything done. 
+It sometimes takes the shape of overwhelming guilt. An acute episode is triggered by reminders of past traumas your 
+Protagonist suffered or inflicted, which can come in the most surprising forms and moments. During an acute episode, 
+every skill or stat test costs 1D4 WP. 
+
+24 
+Hearing Voices 
+From time to time your Protagonist experiences auditory hallucinations in which you hear voices which others cannot. 
+Often these are running commentaries about your thoughts or actions, usually critical and derogatory. Any time you lose 
+2+ SAN in any single roll, the voices return for 6+1D6 hours. You can try to hide it from those around you, but while in 
+the grip of one of episodes you are very distracted and will automatically fail any Alertness or Search rolls and suffer a –
+20% penalty to any other action requiring concentration. 
+Mania 
+Your Protagonist displays a euphoric and perhaps irritable mood that is consistently present. This may include frenzied 
+activity for no obvious reason, uncharacteristic garrulousness, a random stream‐of‐consciousness flow of ideas, or 
+difficulty sleeping. An acute episode is triggered whenever your Protagonist loses 2+ SAN in a single roll. During an acute 
+episode all tasks which require concentration or fine control are at one‐fifth chance. 
+Obsession 
+Your Protagonist becomes fixated on some person, place, event, act, or idea. Losing 2+ SAN in any single roll triggers an 
+acute episode, which lasts days. In that time, any long-term action or skill use—anything taking more than a few hours—
+is at −20% because your Protagonist’s mind is so often wrapped around its obsession. 
+Plagued By Nightmares 
+Your Protagonist feels exhausted all the time, barely able to get out of bed in the morning. It might be that some terribly 
+traumatic encounter has left its scars upon them, or it may be just the accumulated stresses of a lifestyle with too much 
+mental fatigue. But being bereft of energy does not equate to being well rested – in fact, your Protagonist sleeps poorly 
+and is always waking to anxiety-inducing memories from the past. An acute episode is triggered by tangible reminders of 
+past traumas your Protagonist suffered or inflicted. In an acute episode, the Game Moderator chooses one effect: your 
+Protagonist either reacts violently to threats only the Protagonist perceives, or suffers an acute bout of melancholy. (See 
+GREAT SADNESS nearby for details.) 
+Reliant on [Intoxicant] 
+Your Protagonist relies on some intoxicant or other (whatever is available in the setting) to get by. However much harm 
+the compulsion causes, your Protagonist needs the relief it offers. Losing 2+ SAN in any single roll triggers an acute 
+episode, an overwhelming need. Feeding it usually imparts a −20% penalty to stats and skills for a few hours due to 
+intoxication or distraction. And even in the best of times, going 24 hours without feeding the compulsion costs 1D6 WP 
+and prevents your Protagonist from recovering any WP. Every further 24 hours costs 1D6 WP. At 2 or fewer WP, your 
+Protagonist does irrational, self-destructive things to feed the compulsion. 
+Self-Absorbed 
+There are some whose certainty in their own pre-eminence knows no bound (today we would call them narcissists). 
+Some people afflicted with this disorder see themselves as messiahs, or as exempt from ordinary morality. Losing 2+ 
+SAN in any single roll triggers an acute episode, in which every hint of doubt about your Protagonist’s superiority fills 
+him or her with indignation. That causes every use of a stat or skill to get help or make a good impression to fail. 
+Wander-Lust 
+Literature is filled with examples of protagonists suffering a bout of madness and then wandering the wilderness for 
+years until they’re cured and make a triumphant return to society. While wandering, they typically have no contact with 
+humans and live a life akin to the beasts. 
+If a Protagonist is afflicted with wander-lust, they are effectively out of the game for the duration of their wandering. 
+Every game month the Protagonist wanders they attempt a Luck test. With success, the Protagonist returns to society 
+cured of their disorder. If the Protagonist fails the Luck roll, they must wander another month, but have a flash of 
+Insight, increasing a skill of their choice by +1D6 percentiles. 
+ 
+
+25 
+ 
+Fears 
+• Afeared of heights 
+• Afeared of open places 
+• Afeared of cats 
+• (for female Protagonists): Afeared of males 
+• Afeared of bees 
+• Afeared of spiders 
+• Afeared of thunder, lightning and storms 
+• Afeared of frogs and toads 
+• Afeared of the deep sea 
+• Afeared of plants 
+• Afeared of reflections 
+• Afeared of confined spaces 
+• Afeared of crowds 
+• Afeared of trees 
+• Afeared of fur 
+• Afeared of insects 
+• (for male Protagonists): Afeared of females 
+• Afeared of blood 
+• Afeared of forests 
+• Afeared of healers 
+• Afeared of being alone 
+• Afeared of dead things 
+• Afeared of snakes 
+• Afeared of fire 
+• Afeared of darkness 
+• Afeared of the sea 
+• Afeared of hair 
+• Afeared of foreigners 
+• Afeared of animals 
+ 
+
+26 
+Open Gaming License v. 1.0a 
+The following text is the property of Wizards of the Coast, Inc. and is Copyright 2000 Wizards of the Coast, Inc (“Wizards”). All Rights Reserved. 
+1. Definitions: (a) “Contributors” means the copyright and/or trademark owners who have contributed Open Game Content; (b) “Derivative Material” means 
+copyrighted material including derivative works and translations (including into other computer languages), potation, modification, correction, addition, extension, 
+upgrade, improvement, compilation, abridgment or other form in which an existing work may be recast, transformed or adapted; (c) “Distribute” means to 
+reproduce, license, rent, lease, sell, broadcast, publicly display, transmit or otherwise distribute; (d) “Open Game Content” means the game mechanic and includes 
+the methods, procedures, processes and routines to the extent such content does not embody the Product Identity and is an enhancement over the prior art and any 
+additional content clearly identified as Open Game Content by the Contributor, and means any work covered by this License, including translations and derivative 
+works under copyright law, but specifically excludes Product Identity. (e) “Product Identity” means product and product line names, logos and identifying marks 
+including trade dress; artifacts; creatures characters; stories, storylines, plots, thematic elements, dialogue, incidents, language, artwork, symbols, designs, depictions, 
+likenesses, formats, poses, concepts, themes and graphic, photographic and other visual or audio representations; names and descriptions of characters, spells, 
+enchantments, personalities, teams, personas, likenesses and special abilities; places, locations, environments, creatures, equipment, magical or supernatural abilities 
+or effects, logos, symbols, or graphic designs; and any other trademark or registered trademark clearly identified as Product identity by the owner of the Product 
+Identity, and which specifically excludes the Open Game Content; (f) “Trademark” means the logos, names, mark, sign, motto, designs that are used by a Contributor 
+to identify itself or its products or the associated products contributed to the Open Game License by the Contributor (g) “Use”, “Used” or “Using” means to use, 
+Distribute, copy, edit, format, modify, translate and otherwise create Derivative Material of Open Game Content. (h) “You” or “Your” means the licensee in terms of 
+this agreement. 
+2. The License: This License applies to any Open Game Content that contains a notice indicating that the Open Game Content may only be Used under and in terms of 
+this License. You must affix such a notice to any Open Game Content that you Use. No terms may be added to or subtracted from this License except as described by 
+the License itself. No other terms or conditions may be applied to any Open Game Content distributed using this License. 
+3. Offer and Acceptance: By Using the Open Game Content You indicate Your acceptance of the terms of this License. 
+4. Grant and Consideration: In consideration for agreeing to use this License, the Contributors grant You a perpetual, worldwide, royalty-free, non-exclusive license 
+with the exact terms of this License to Use, the Open Game Content. 
+5. Representation of Authority to Contribute: If You are contributing original material as Open Game Content, You represent that Your Contributions are Your 
+original creation and/or You have sufficient rights to grant the rights conveyed by this License. 
+6. Notice of License Copyright: You must update the COPYRIGHT NOTICE portion of this License to include the exact text of the COPYRIGHT NOTICE of any Open 
+Game Content You are copying, modifying or distributing, and You must add the title, the copyright date, and the copyright holder’s name to the COPYRIGHT NOTICE 
+of any original Open Game Content you Distribute. 
+7. Use of Product Identity: You agree not to Use any Product Identity, including as an indication as to compatibility, except as expressly licensed in another, 
+independent Agreement with the owner of each element of that Product Identity. You agree not to indicate compatibility or co-adaptability with any Trademark or 
+Registered Trademark in conjunction with a work containing Open Game Content except as expressly licensed in another, independent Agreement with the owner of 
+such Trademark or Registered Trademark. The use of any Product Identity in Open Game Content does not constitute a challenge to the ownership of that Product 
+Identity. The owner of any Product Identity used in Open Game Content shall retain all rights, title and interest in and to that Product Identity. 
+8. Identification: If you distribute Open Game Content You must clearly indicate which portions of the work that you are distributing are Open Game Content. 
+9. Updating the License: Wizards or its designated Agents may publish updated versions of this License. You may use any authorized version of this License to copy, 
+modify and distribute any Open Game Content originally distributed under any version of this License. 
+10 Copy of this License: You MUST include a copy of this License with every copy of the Open Game Content You Distribute. 
+11. Use of Contributor Credits: You may not market or advertise the Open Game Content using the name of any Contributor unless You have written permission from 
+the Contributor to do so. 
+12. Inability to Comply: If it is impossible for You to comply with any of the terms of this License with respect to some or all of the Open Game Content due to 
+statute, judicial order, or governmental regulation then You may not Use any Open Game Material so affected. 
+13. Termination: This License will terminate automatically if You fail to comply with all terms herein and fail to cure such breach within 30 days of becoming aware of 
+the breach. All sublicenses shall survive the termination of this License. 
+14. Reformation: If any provision of this License is held to be unenforceable, such provision shall be reformed only to the extent necessary to make it enforceable. 
+15. COPYRIGHT NOTICE 
+Open Game License v. 1.0, © 2000, Wizards of the Coast, Inc. 
+Legend, © 2011, Mongoose Publishing. 
+Unearthed Arcana, © 2004, Wizards of the Coast, Inc. 
+Delta Green: Agent’s Handbook, © 2016, Dennis Detwiller, Christopher Gunning, Shane Ivey, and Greg Stolze. 
+Delta Green: Handler’s Guide, © 2017, Dennis Detwiller, Adam Scott Glancy, Kenneth Hite, Shane Ivey, and Greg Stolze. 
+APOCTHULHU Quickstart, © 2020, Dean Engelhardt, Chad Bowser, Jo Kreil, and Michelle Bernay-Rogers. 
+APOCTHULHU Core Rules © 2020, Dean Engelhardt, Jo Kreil, Kevin Ross, Jeff Moeller, Chad Bowser, Dave Sokolowski, Christopher Smith Adair, Fred 
+Behrendt, Emily O’Neil, Paul Franzese, and Michelle Bernay-Rogers. 
+APOCTHULHU System Reference Document v0.666 © 2020, Dean Engelhardt, Jo Kreil, Kevin Ross, Jeff Moeller, Chad Bowser, Dave Sokolowski, 
+Christopher Smith Adair, Fred Behrendt, Emily O’Neil, Paul Franzese, and Michelle Bernay-Rogers. 
+Cthulhu Eternal System Reference Document v1.0 © 2021, Dean Engelhardt, Jo Kreil, Kevin Ross, Jeff Moeller, Chad Bowser, Dave Sokolowski, 
+Christopher Smith Adair, Fred Behrendt, Emily O’Neil, Paul Franzese, and Michelle Bernay-Rogers. 
+Cthulhu Eternal – Stone Age Localization Cheat Sheet © 2026, Adam Alexander with John Shimmin 
+PRODUCT IDENTITY: The following items are hereby identified as Product Identity, as defined in the Open Gaming License Version 1.0a, Section 1(e), and 
+are not Open Game Content: The name “Cthulhu Eternal” and the Cthulhu Eternal logo. 
+OPEN GAME CONTENT: The following items are hereby designated as Open Gaming Content under the terms of the Open Game License Version 1.0a, 
+Section 1(d): all text, and tables are considered Open Content except for the name “Cthulhu Eternal”. If you would like to use the term “Cthulhu Eternal” 
+within a product, please contact Cthulhu Reborn at inquiry@cthulhureborn.com to obtain written permission prior to publication. 
