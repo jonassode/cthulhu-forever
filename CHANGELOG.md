@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.8.7 - Remove accidentally committed node_modules and add .gitignore; Reduce tab text size and remove active tab bottom border for seamless blend; Fix active tab border to always show yellow/gold color; Tighten tab spacing - remove gap between tabs and reduce vertical margins; Simplify tab styling - remove flashy effects and header border; Tab system implementation complete - all tests passing; Add tab system with About tab  
 0.8.6 - Derive button labels from typeBadge instead of checking id directly; Refactor button label logic for better readability and maintainability; Fix button text to show "Select This Game" for apocthulhu and "Select This Era" for eras  
 0.8.5 - Make era/game badges less visible with subtle styling; Add Era/Game badges and update title text  
 0.8.4 - fix: add default unarmed attack row on initial state load  
