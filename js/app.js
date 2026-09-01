@@ -3149,7 +3149,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : state.age === 'stone' ? 'Stone Age' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -3972,6 +3972,10 @@ function exportToJson() {
     age: state.age,
     upbringing: state.upbringing,
     archetype: state.archetype,
+    lifestyle: state.lifestyle,
+    clanName: state.clanName,
+    clanProsperity: state.clanProsperity,
+    castOut: state.castOut,
     identity: { ...state.identity },
     attributes,
     skills,
@@ -4034,6 +4038,7 @@ function exportToOriginalSheet() {
     : state.age === 'alazrad'     ? 'Age of Al-Azrad'
     : state.age === 'apocthulhu'  ? 'Apocthulhu'
     : state.age === 'future'      ? 'The Future'
+    : state.age === 'stone'       ? 'Stone Age'
     : 'Modern Age';
 
   // All skills sorted alphabetically, including 0% values
@@ -4210,6 +4215,7 @@ function exportToOriginalSheet() {
     elizabethan: { name: 'IM Fell English',     url: 'IM+Fell+English:ital@0;1' },
     alazrad:     { name: 'Almendra SC',         url: 'Almendra+SC:wght@700' },
     apocthulhu:  { name: 'Rubik Glitch',        url: 'Rubik+Glitch' },
+    stone:       { name: 'Rock Salt',           url: 'Rock+Salt' },
   };
   const eraFontCfg  = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
   const eraFontName = eraFontCfg.name;
@@ -4517,6 +4523,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
           const sc = calculateSocietalClass();
           if (!sc) return '';
           return `<div class="oa-field"><span class="oa-flbl">Societal Class</span><span class="oa-fval oa-fval-sm">${esc(sc.label)} (${sc.score})</span></div>`;
+        })()}
+        ${(() => {
+          if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.clanName) {
+            return `<div class="oa-field"><span class="oa-flbl">Clan</span><span class="oa-fval oa-fval-sm">${esc(state.clanName)}</span></div>`;
+          }
+          return '';
         })()}
       </div>
     </div>
@@ -4872,6 +4884,10 @@ function importFromJsonV2(data) {
   // ── Identity & character meta ────────────────────────────
   state.age = data.age;
   state.upbringing = data.upbringing || null;
+  state.lifestyle = data.lifestyle || null;
+  state.clanName = data.clanName || '';
+  state.clanProsperity = data.clanProsperity || null;
+  state.castOut = data.castOut || false;
   // harshStatChoice is not stored in v2; attribute values already include the bonus.
   // Setting it to null makes getUpbringingBonus() return 0, so synthetic roll totals
   // can equal the exported attribute values directly.
@@ -4916,7 +4932,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : data.age === 'apocthulhu' ? APOCTHULHU_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : data.age === 'apocthulhu' ? APOCTHULHU_SKILLS : data.age === 'stone' ? STONE_AGE_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};
