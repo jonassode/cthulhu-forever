@@ -5,6 +5,7 @@
 // ── State ──────────────────────────────────────────────────
 
 const state = {
+  currentTab: 'character-creator',  // 'character-creator' | 'about'
   currentStep: 1,
   playMode: false,    // true = character sheet only view
   age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad' | 'apocthulhu'
@@ -278,6 +279,11 @@ function getPointsTotal() {
 
 function getPointsRemaining() {
   return POINTS_TOTAL - getPointsTotal();
+}
+
+function switchTab(tabName) {
+  state.currentTab = tabName;
+  render();
 }
 
 function switchAttrMode(mode) {
@@ -5046,6 +5052,59 @@ function renderCurrentStep() {
   }
 }
 
+// ── RENDER: Tabs ─────────────────────────────────────────────
+
+function renderTabs() {
+  return `
+  <div class="tabs no-print">
+    <button class="tab-btn ${state.currentTab === 'character-creator' ? 'active' : ''}" 
+            onclick="switchTab('character-creator')">
+      CHARACTER CREATOR
+    </button>
+    <button class="tab-btn ${state.currentTab === 'about' ? 'active' : ''}" 
+            onclick="switchTab('about')">
+      ABOUT
+    </button>
+  </div>`;
+}
+
+function renderAboutTab() {
+  return `
+  <div class="about-tab">
+    <h2>About Cthulhu Forever</h2>
+    <p>
+      <strong>Cthulhu Forever</strong> is a fan-made character generator for 
+      <strong>Cthulhu Eternal</strong>, a horror TTRPG published by 
+      <a href="https://cthulhueternal.com/" target="_blank" rel="noopener noreferrer">Cthulhu Reborn</a>.
+    </p>
+    <h3>Features</h3>
+    <ul>
+      <li>Create investigators in multiple eras, from ancient times to far-future settings</li>
+      <li>Choose from diverse archetypes with unique skill packages</li>
+      <li>Allocate attributes using rolling or points-based systems</li>
+      <li>Build character relationships through bonds</li>
+      <li>Export and import characters as JSON files</li>
+      <li>Print-optimized character sheets for tabletop play</li>
+    </ul>
+    <h3>Getting Started</h3>
+    <p>
+      Click on the <strong>CHARACTER CREATOR</strong> tab to begin building your investigator. 
+      Follow the steps to choose your era, attributes, skills, and background to create a unique character.
+    </p>
+    <h3>Need Help?</h3>
+    <p>
+      Found a bug or have a suggestion?
+      <a href="https://github.com/jonassode/cthulhu-forever/issues" target="_blank" rel="noopener noreferrer">Raise a ticket on GitHub</a>
+      or <a href="https://jonassoderstrom.itch.io/cthulhu-forever" target="_blank" rel="noopener noreferrer">check out the project on Itch</a>.
+    </p>
+    <h3>Credits</h3>
+    <p>
+      <strong>Cthulhu Eternal</strong> is created by Cthulhu Reborn. <strong>Cthulhu Forever</strong> is a fan project.
+      <a href="https://github.com/jonassode/cthulhu-forever/blob/main/Credits.md" target="_blank" rel="noopener noreferrer">View full credits</a>.
+    </p>
+  </div>`;
+}
+
 function render() {
   const app = document.getElementById('app');
   if (!app) return;
@@ -5055,17 +5114,23 @@ function render() {
     return;
   }
 
+  const tabContent = state.currentTab === 'character-creator'
+    ? `
+      ${renderStepper()}
+      <div id="main-content">
+        ${renderCurrentStep()}
+        ${renderNavButtons()}
+      </div>`
+    : renderAboutTab();
+
   app.innerHTML = `
     ${state.notification ? renderNotification() : ''}
     <div class="app-header no-print">
       <h1>Cthulhu Forever</h1>
       <div class="subtitle">Cthulhu Eternal Character Creator</div>
     </div>
-    ${renderStepper()}
-    <div id="main-content">
-      ${renderCurrentStep()}
-      ${renderNavButtons()}
-    </div>
+    ${renderTabs()}
+    ${tabContent}
     <footer class="app-footer no-print">
       <div class="app-footer__credits">
         <span><strong>Cthulhu Eternal</strong> is a horror TTRPG published by
