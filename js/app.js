@@ -608,15 +608,15 @@ function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
   
-  // Stone Age lifestyle handling
+  // Stone Age lifestyle-based resources
   if (state.age === 'stone') {
     if (state.lifestyle === 'hunter_gatherer') {
-      // If cast out, resources = 0
+      // Hunter/gatherer: resources = clan prosperity, or 0 if cast out
+      // Note: resourcesSetToZero sacrifice is replaced by castOut checkbox for this lifestyle
       if (state.castOut) return 0;
-      // Otherwise, use clan prosperity
-      return state.clanProsperity !== null ? state.clanProsperity : 0;
+      return state.clanProsperity !== null && state.clanProsperity !== undefined ? state.clanProsperity : 0;
     }
-    // Agricultural lifestyle uses normal archetype resources
+    // Agricultural: standard archetype resources (falls through to normal logic below)
   }
   
   // If resources are sacrificed for a bonus pick, resources = 0
@@ -4886,7 +4886,7 @@ function importFromJsonV2(data) {
   state.upbringing = data.upbringing || null;
   state.lifestyle = data.lifestyle || null;
   state.clanName = data.clanName || '';
-  state.clanProsperity = data.clanProsperity || null;
+  state.clanProsperity = data.clanProsperity !== undefined && data.clanProsperity !== null ? data.clanProsperity : null;
   state.castOut = data.castOut || false;
   // harshStatChoice is not stored in v2; attribute values already include the bonus.
   // Setting it to null makes getUpbringingBonus() return 0, so synthetic roll totals

@@ -6609,7 +6609,7 @@ const ARCHETYPES = [
     ],
     optionalSkills: [
       { name: 'Animal Handling',  value: 50 },
-      { name: 'Craft (Type)',     value: 50 },
+      { name: 'Boatbuilding',     value: 50 },
       { name: 'Dodge',            value: 70 },
       { name: 'First Aid',        value: 50 },
       { name: 'Harangue/Taunt',   value: 50 },
