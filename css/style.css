@@ -2535,6 +2535,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   padding: 0.5rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .tab-btn:last-child {
@@ -2549,6 +2550,8 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 .tab-btn.active {
   color: var(--accent-gold);
   border-color: var(--accent-gold);
+  border-right: 1px solid var(--accent-gold);
+  z-index: 1;
 }
 
 /* ── About Tab ── */
