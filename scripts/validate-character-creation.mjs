@@ -1660,6 +1660,26 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
     eqW(state.identity.weapons[0].damage, '1D4-1',
       'future era: weapons[0].damage === "1D4-1"');
   }
+
+  // 13.3  resetState clears Stone Age lifestyle state for a fresh character
+  {
+    state.age = 'stone';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 14;
+    state.castOut = true;
+
+    resetState();
+
+    eqW(state.lifestyle, null,
+      'resetState clears Stone Age lifestyle');
+    eqW(state.clanName, '',
+      'resetState clears Stone Age clanName');
+    eqW(state.clanProsperity, null,
+      'resetState clears Stone Age clanProsperity');
+    eqW(state.castOut, false,
+      'resetState clears Stone Age castOut flag');
+  }
 }
 `;
 
