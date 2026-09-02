@@ -2237,7 +2237,8 @@ function updateClanName(value) {
 }
 
 function updateClanProsperity(value) {
-  state.clanProsperity = value;
+  const n = Number(value);
+  state.clanProsperity = Number.isFinite(n) ? n : null;
   render();
 }
 
