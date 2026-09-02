@@ -17,18 +17,30 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
 
-const fixturePath = path.resolve(process.cwd(), 'scripts/fixtures/sample-character.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.join(__dirname, '..');
+const fixturePath = path.join(ROOT, 'scripts/fixtures/sample-character.json');
+const stoneFixturePath = path.join(ROOT, 'scripts/fixtures/sample-stone-character.json');
+const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu', 'stone'];
 
 // ── Load fixture ─────────────────────────────────────────────
-let character;
-try {
-  character = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
-} catch (err) {
-  console.error(`Failed to read or parse fixture: ${fixturePath}`);
-  console.error(err.message);
-  process.exit(1);
+function loadFixture(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (err) {
+    console.error(`Failed to read or parse fixture: ${filePath}`);
+    console.error(err.message);
+    process.exit(1);
+  }
 }
+const character = loadFixture(fixturePath);
+const stoneCharacter = loadFixture(stoneFixturePath);
+const dataSource = fs.readFileSync(path.join(ROOT, 'js/data.js'), 'utf8');
+const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
+const combinedSource = dataSource + '\n;\n' + appSource;
 
 // ── Helpers ──────────────────────────────────────────────────
 let failures = 0;
@@ -56,6 +68,131 @@ function assertAbsent(obj, key, label) {
   assert(!(key in obj), `${label}.${key} should NOT be present in v2 export (process field)`);
 }
 
+function makeSandbox(alerts) {
+  const el = () => ({
+    appendChild: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} },
+    style: {},
+    dataset: {},
+    value: '',
+    checked: false,
+    focus: () => {},
+    blur: () => {},
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    closest: () => null,
+    contains: () => false,
+    getAttribute: () => null,
+    setAttribute: () => {},
+    removeAttribute: () => {},
+    getBoundingClientRect: () => ({ top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0 }),
+    offsetWidth: 0,
+    offsetHeight: 0,
+  });
+
+  const ctx = {
+    console,
+    alert: (msg) => alerts.push(msg),
+    confirm: () => false,
+    prompt: () => null,
+    setTimeout: () => 0,
+    clearTimeout: () => {},
+    setInterval: () => 0,
+    clearInterval: () => {},
+    requestAnimationFrame: () => {},
+    localStorage: {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    },
+    document: {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      getElementById: () => null,
+      querySelector: () => null,
+      querySelectorAll: () => [],
+      createElement: () => el(),
+      body: el(),
+      documentElement: el(),
+      head: el(),
+    },
+    location: { href: '', hash: '', reload: () => {}, assign: () => {} },
+    history: { pushState: () => {}, replaceState: () => {} },
+    navigator: { userAgent: '' },
+    innerWidth: 1280,
+    innerHeight: 800,
+    HTMLElement: class {},
+    Element: class {},
+    Event: class { constructor() {} preventDefault() {} stopPropagation() {} },
+    CustomEvent: class { constructor() {} },
+    DragEvent: class { constructor() {} preventDefault() {} },
+    MouseEvent: class { constructor() {} preventDefault() {} },
+    MutationObserver: class { observe() {} disconnect() {} },
+    URL: { createObjectURL: () => '', revokeObjectURL: () => '' },
+    Blob: class { constructor() {} },
+    FileReader: class { constructor() {} readAsText() {} addEventListener() {} },
+    scrollTo: () => {},
+    __alerts: alerts,
+  };
+  ctx.window = ctx;
+  return ctx;
+}
+
+function assertImportable(data, label, expected) {
+  const alerts = [];
+  const sandbox = makeSandbox(alerts);
+  vm.createContext(sandbox);
+
+  try {
+    vm.runInContext(combinedSource, sandbox);
+    vm.runInContext('render = () => {};', sandbox);
+  } catch (err) {
+    assert(false, `${label} fixture should load the app in the VM sandbox: ${err.message}`);
+    return;
+  }
+
+  sandbox.__importData = JSON.parse(JSON.stringify(data));
+
+  let result;
+  try {
+    result = vm.runInContext(`
+      (() => {
+        importFromJson(__importData);
+        return {
+          alerts: __alerts.slice(),
+          age: state.age,
+          currentStep: state.currentStep,
+          lifestyle: state.lifestyle,
+          clanName: state.clanName,
+          clanProsperity: state.clanProsperity,
+          castOut: state.castOut
+        };
+      })()
+    `, sandbox);
+  } catch (err) {
+    assert(false, `${label} fixture should import without throwing: ${err.message}`);
+    return;
+  }
+
+  assert(result.alerts.length === 0, `${label} fixture should import without validation alerts`);
+  assert(result.age === expected.age, `${label} fixture should set state.age to '${expected.age}', got '${result.age}'`);
+  assert(result.currentStep === 6, `${label} fixture should advance to the completed sheet, got step ${result.currentStep}`);
+  if ('lifestyle' in expected) {
+    assert(result.lifestyle === expected.lifestyle, `${label} fixture should preserve lifestyle '${expected.lifestyle}', got '${result.lifestyle}'`);
+  }
+  if ('clanName' in expected) {
+    assert(result.clanName === expected.clanName, `${label} fixture should preserve clanName '${expected.clanName}', got '${result.clanName}'`);
+  }
+  if ('clanProsperity' in expected) {
+    assert(result.clanProsperity === expected.clanProsperity, `${label} fixture should preserve clanProsperity ${expected.clanProsperity}, got ${result.clanProsperity}`);
+  }
+  if ('castOut' in expected) {
+    assert(result.castOut === expected.castOut, `${label} fixture should preserve castOut ${expected.castOut}, got ${result.castOut}`);
+  }
+}
+
 // ── Validations ───────────────────────────────────────────────
 
 console.log('Validating import/export fixture…');
@@ -65,7 +202,7 @@ assertField(character, 'version', 'number', 'root');
 assert(character.version === 2, `root.version should be 2, got ${character.version}`);
 assertField(character, 'age', 'string', 'root');
 assert(
-  ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu'].includes(character.age),
+  VALID_ERAS.includes(character.age),
   `root.age must be a known era, got '${character.age}'`
 );
 
@@ -248,10 +385,20 @@ assertAbsent(character, 'selectedOptional',    'root');
 assertAbsent(character, 'skillEditAdjust',     'root');
 assertAbsent(character, 'resourcesEditAdjust', 'root');
 
+// 13. Import smoke tests for representative v2 fixtures
+assertImportable(character, 'Jazz Age sample', { age: 'jazz' });
+assertImportable(stoneCharacter, 'Stone Age sample', {
+  age: 'stone',
+  lifestyle: 'hunter_gatherer',
+  clanName: 'Red Mammoth Clan',
+  clanProsperity: 7,
+  castOut: false,
+});
+
 // ── Results ───────────────────────────────────────────────────
 if (failures > 0) {
   console.error(`\nImport/export validation FAILED with ${failures} error(s).`);
   process.exit(1);
 }
 
-console.log('Import/export validation passed. All fields are present and correctly typed.');
+console.log('Import/export validation passed. Fixtures are structurally valid and import cleanly.');

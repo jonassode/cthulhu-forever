@@ -1,0 +1,133 @@
+{
+  "version": 2,
+  "age": "stone",
+  "upbringing": "harsh",
+  "archetype": "hunter_stone",
+  "lifestyle": "hunter_gatherer",
+  "clanName": "Red Mammoth Clan",
+  "clanProsperity": 7,
+  "castOut": false,
+  "identity": {
+    "name": "Tala",
+    "profession": "Hunter",
+    "birthplace": "River Valley",
+    "gender": "Female",
+    "characterAge": 19,
+    "backstory": "A scout and provider who ranges far from camp and knows the old paths between the hills.",
+    "motivations": [
+      { "text": "Protect the clan through the hungry season", "crossed": false },
+      { "text": "Learn which strangers stole the sacred flints", "crossed": false },
+      { "text": "Earn the right to lead the next great hunt", "crossed": true },
+      { "text": "", "crossed": false },
+      { "text": "", "crossed": false }
+    ],
+    "gear": "Flint spear, hide cloak, bone needles, dried meat",
+    "terribleTomes": "",
+    "permanentInjuries": "Old wolf bite scar on the right calf",
+    "notes": "The river ford is safe only at dawn.",
+    "weapons": [
+      {
+        "weapon": "Flint Spear",
+        "skill": "Ranged Weapons",
+        "baseRange": "20m",
+        "damage": "1D8",
+        "ap": "0",
+        "condition": "pristine",
+        "lethality": "",
+        "killRadius": "",
+        "ammo": ""
+      },
+      {
+        "weapon": "",
+        "skill": "",
+        "baseRange": "",
+        "damage": "",
+        "ap": "",
+        "condition": "",
+        "lethality": "",
+        "killRadius": "",
+        "ammo": ""
+      }
+    ]
+  },
+  "attributes": {
+    "STR": 14,
+    "CON": 13,
+    "DEX": 16,
+    "INT": 12,
+    "POW": 11,
+    "CHA": 10
+  },
+  "skills": {
+    "Animal Handling": 50,
+    "Athletics": 70,
+    "Craft (Type)": 60,
+    "Forage/Hunt": 50,
+    "Ranged Weapons": 60,
+    "Repair/Devise": 40,
+    "Ride": 40,
+    "Track": 50
+  },
+  "skillTypes": {
+    "Craft (Type)": "Flintknapping"
+  },
+  "customSkills": [
+    { "name": "Mammoth Sign", "value": 35 }
+  ],
+  "bonds": [
+    {
+      "name": "Red Mammoth Clan",
+      "type": "community",
+      "currentScore": 5
+    },
+    {
+      "name": "Aru, elder brother",
+      "type": "individual",
+      "currentScore": 10
+    },
+    {
+      "name": "Suri, flint teacher",
+      "type": "individual",
+      "currentScore": 10
+    },
+    {
+      "name": "Winter camp by the chalk caves",
+      "type": "community",
+      "currentScore": 3
+    }
+  ],
+  "resources": 7,
+  "resourceChecked": [
+    false,
+    true,
+    false,
+    false
+  ],
+  "skillChecked": {
+    "Forage/Hunt": true,
+    "Track": false
+  },
+  "violenceChecked": [
+    false,
+    false,
+    false
+  ],
+  "helplessnessChecked": [
+    false,
+    true,
+    false
+  ],
+  "maxHP": 14,
+  "maxWP": 11,
+  "maxSAN": 99,
+  "currentHP": 12,
+  "currentWP": 10,
+  "currentSAN": 54,
+  "breakingPoint": 44,
+  "recoverySAN": 55,
+  "disorders": [],
+  "showAllSkills": false,
+  "exhausted": false,
+  "temporaryInsanity": false,
+  "bodyArmour": 0
+}
