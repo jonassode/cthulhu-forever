@@ -1294,7 +1294,13 @@ function canProceed(step) {
       return true;
     }
     case 3: {
-      if (state.age === 'stone' && !state.lifestyle) return false;
+      if (state.age === 'stone') {
+        if (!state.lifestyle) return false;
+        if (state.lifestyle === 'hunter_gatherer') {
+          if (!state.clanName.trim()) return false;
+          if (state.clanProsperity === null) return false;
+        }
+      }
       if (!state.archetype) return false;
       const arch = getArchetype();
       return arch && state.selectedOptional.length === arch.optionalCount;
@@ -2122,6 +2128,8 @@ function renderStep3() {
       ` : ''}
       
       ${!state.lifestyle ? `<p class="validation-msg">Select a lifestyle to continue.</p>` : ''}
+      ${isHunterGatherer && !state.clanName.trim() ? `<p class="validation-msg">Enter a clan name to continue.</p>` : ''}
+      ${isHunterGatherer && state.clanProsperity === null ? `<p class="validation-msg">Select clan prosperity to continue.</p>` : ''}
     </div>`;
   }
 
@@ -2238,6 +2246,8 @@ function updateClanName(value) {
   if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && b0 && b0.type === 'community') {
     b0.name = value || 'Clan/Tribe';
   }
+  const nextBtn = document.getElementById('next-btn');
+  if (nextBtn && state.currentStep === 3) nextBtn.disabled = !canProceed(3);
   // Don't re-render to preserve focus
 }
 
