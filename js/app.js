@@ -613,9 +613,8 @@ function getEffectiveResources() {
   if (state.age === 'stone') {
     if (state.lifestyle === 'hunter_gatherer') {
       // Hunter/gatherer: resources = clan prosperity, or 0 if cast out
-      // Note: resourcesSetToZero sacrifice is replaced by castOut checkbox for this lifestyle
-      if (state.castOut) return 0;
-      return state.clanProsperity !== null && state.clanProsperity !== undefined ? state.clanProsperity : 0;
+      if (state.castOut || state.resourcesSetToZero) return 0;
+      return Number.isFinite(state.clanProsperity) ? state.clanProsperity : 0;
     }
     // Agricultural: standard archetype resources (falls through to normal logic below)
   }
