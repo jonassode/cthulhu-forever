@@ -1618,6 +1618,41 @@ const testCode = `
     eq(state.disorders.length, 0, 'resetUpbringingEffectsState removes the auto-added disorder');
   }
 
+  // 12.16  Stone Age step 3 blocks progression until lifestyle is chosen
+  {
+    resetState(); state.age = 'stone';
+    state.archetype = 'herbalist_stone';
+    state.selectedOptional = ['Alertness', 'Beguile'];
+    eq(canProceed(3), false, 'Stone Age: canProceed(3) = false when lifestyle is missing');
+  }
+
+  // 12.17  Agricultural Stone Age can proceed without clan details once archetype choices are complete
+  {
+    resetState(); state.age = 'stone';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'herbalist_stone';
+    state.selectedOptional = ['Alertness', 'Beguile'];
+    eq(canProceed(3), true, 'Stone Age: canProceed(3) = true for agricultural lifestyle without clan details');
+  }
+
+  // 12.18  Hunter/gatherer Stone Age requires both clan name and clan prosperity
+  {
+    resetState(); state.age = 'stone';
+    state.lifestyle = 'hunter_gatherer';
+    state.archetype = 'herbalist_stone';
+    state.selectedOptional = ['Alertness', 'Beguile'];
+    state.clanName = '';
+    state.clanProsperity = 10;
+    eq(canProceed(3), false, 'Stone Age: canProceed(3) = false for hunter/gatherer when clan name is missing');
+
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = null;
+    eq(canProceed(3), false, 'Stone Age: canProceed(3) = false for hunter/gatherer when clan prosperity is missing');
+
+    state.clanProsperity = 0;
+    eq(canProceed(3), true, 'Stone Age: canProceed(3) = true for hunter/gatherer when clan details are complete');
+  }
+
 })();
 
 // ── Suite 13: Default Unarmed Weapon Row ─────────────────────────────────────
