@@ -2229,6 +2229,10 @@ function selectLifestyle(lifestyle) {
 
 function updateClanName(value) {
   state.clanName = value;
+  const b0 = state.bonds && state.bonds[0];
+  if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && b0 && b0.type === 'community') {
+    b0.name = value || 'Clan/Tribe';
+  }
   // Don't re-render to preserve focus
 }
 
