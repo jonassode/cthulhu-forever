@@ -2060,7 +2060,7 @@ function renderStep3() {
       
       <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
         <label class="lifestyle-option ${isAgricultural ? 'selected' : ''}" onclick="selectLifestyle('agricultural')" style="cursor:pointer;flex:1;min-width:200px;padding:1rem;border:2px solid ${isAgricultural ? 'var(--accent-gold)' : 'var(--border-color)'};border-radius:6px;background:${isAgricultural ? 'rgba(201,168,76,0.1)' : 'transparent'};">
-          <input type="radio" name="lifestyle" ${isAgricultural ? 'checked' : ''} onclick="event.stopPropagation();" style="pointer-events:none;margin-right:8px;"/>
+          <input type="radio" name="lifestyle" value="agricultural" ${isAgricultural ? 'checked' : ''} onchange="selectLifestyle('agricultural')" style="margin-right:8px;"/>
           <strong>Agricultural</strong>
           <p style="font-size:0.75rem;color:var(--text-secondary);margin:4px 0 0 0;">Personal wealth and belongings</p>
         </label>
