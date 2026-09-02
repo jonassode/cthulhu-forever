@@ -4879,7 +4879,7 @@ function importFromJson(data) {
     return;
   }
 
-  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu'];
+  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu', 'stone'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
