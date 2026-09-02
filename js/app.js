@@ -165,6 +165,12 @@ function getSkillDisplayName(skillName) {
   return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
+function getLifestyleLabel() {
+  if (state.lifestyle === 'agricultural') return 'Agricultural';
+  if (state.lifestyle === 'hunter_gatherer') return 'Hunter-Gatherer';
+  return '';
+}
+
 // Returns the description for a skill from the current age-specific description map, or empty string if none.
 function getSkillDescription(skillName) {
   const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS
@@ -3138,6 +3144,7 @@ function buildCharSheetHtml() {
       }))
       .filter(s => state.showAllSkills || state.editMode || s.final > 0),
   ].sort((a, b) => a.displayName.localeCompare(b.displayName));
+  const lifestyleLabel = getLifestyleLabel();
 
   return `
   <div class="character-sheet" id="character-sheet">
@@ -3148,6 +3155,7 @@ function buildCharSheetHtml() {
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
           <span>Birthplace <strong id="sheet-birthplace">${state.identity.birthplace ? escapeHtml(state.identity.birthplace) : '—'}</strong></span>
+          ${state.age === 'stone' ? `<span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>` : ''}
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
@@ -4203,6 +4211,7 @@ function exportToOriginalSheet() {
 
   // Upbringing label
   const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Normal';
+  const lifestyleLabel = getLifestyleLabel();
 
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
@@ -4523,6 +4532,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         <div class="wp-note">WP 2 or less = emotional breakdown (-20%), WP 0 = incapacitated</div>
         <div class="oa-field"><span class="oa-flbl">Damage Bonus</span><span class="oa-fval">${dmg}</span></div>
         <div class="oa-field"><span class="oa-flbl">Body Armor</span><span class="oa-fval">${state.bodyArmour || 0}</span></div>
+        ${state.age === 'stone' ? `<div class="oa-field"><span class="oa-flbl">Lifestyle</span><span class="oa-fval oa-fval-sm">${esc(lifestyleLabel)}</span></div>` : ''}
         ${(() => {
           if (!hasSocietalClass()) return '';
           const sc = calculateSocietalClass();
