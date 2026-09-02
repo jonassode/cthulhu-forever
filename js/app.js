@@ -3165,10 +3165,13 @@ function buildCharSheetHtml() {
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
           <span>Birthplace <strong id="sheet-birthplace">${state.identity.birthplace ? escapeHtml(state.identity.birthplace) : '—'}</strong></span>
-          ${state.age === 'stone' ? `<span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>` : ''}
-          ${state.age === 'stone' && state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${state.clanName ? escapeHtml(state.clanName) : '—'}</strong></span>` : ''}
-          ${state.age === 'stone' && state.lifestyle === 'hunter_gatherer' ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${state.clanProsperity ?? '—'}</strong></span>` : ''}
         </div>
+        ${state.age === 'stone' ? `
+        <div class="sheet-meta" style="margin-top:0.4rem;">
+          <span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${state.clanName ? escapeHtml(state.clanName) : '—'}</strong></span>` : ''}
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${state.clanProsperity ?? '—'}</strong></span>` : ''}
+        </div>` : ''}
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
         <div class="sheet-meta">
