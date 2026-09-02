@@ -5128,6 +5128,10 @@ function resetState() {
   state.upbringing       = null;
   state.harshStatChoice  = null;
   state.adversityPoints  = {};
+  state.lifestyle        = null;
+  state.clanName         = '';
+  state.clanProsperity   = null;
+  state.castOut          = false;
   state.archetype        = null;
   state.selectedOptional = [];
   state.skillPoints      = {};
