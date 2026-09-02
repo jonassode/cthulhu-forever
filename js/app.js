@@ -180,6 +180,7 @@ function getSkillDescription(skillName) {
     : state.age === 'elizabethan' ? ELIZABETHAN_SKILL_DESCRIPTIONS
     : state.age === 'alazrad' ? AL_AZRAD_SKILL_DESCRIPTIONS
     : state.age === 'apocthulhu' ? APOCTHULHU_SKILL_DESCRIPTIONS
+    : state.age === 'stone' ? STONE_AGE_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
