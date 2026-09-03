@@ -3170,7 +3170,7 @@ function buildCharSheetHtml() {
         <div class="sheet-meta" style="margin-top:0.4rem;">
           <span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>
           ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${state.clanName ? escapeHtml(state.clanName) : '—'}</strong></span>` : ''}
-          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${state.clanProsperity ?? '—'}</strong></span>` : ''}
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${escapeHtml(String(Number.isFinite(state.clanProsperity) ? state.clanProsperity : '—'))}</strong></span>` : ''}
         </div>` : ''}
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
