@@ -3165,8 +3165,13 @@ function buildCharSheetHtml() {
           <span>Profession / Occupation <strong id="sheet-profession">${state.identity.profession ? escapeHtml(state.identity.profession) : '—'}</strong></span>
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
           <span>Birthplace <strong id="sheet-birthplace">${state.identity.birthplace ? escapeHtml(state.identity.birthplace) : '—'}</strong></span>
-          ${state.age === 'stone' ? `<span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>` : ''}
         </div>
+        ${state.age === 'stone' ? `
+        <div class="sheet-meta" style="margin-top:0.4rem;">
+          <span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${state.clanName ? escapeHtml(state.clanName) : '—'}</strong></span>` : ''}
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${escapeHtml(String(Number.isFinite(state.clanProsperity) ? state.clanProsperity : '—'))}</strong></span>` : ''}
+        </div>` : ''}
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
         <div class="sheet-meta">
@@ -4552,6 +4557,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         ${(() => {
           if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.clanName) {
             return `<div class="oa-field"><span class="oa-flbl">Clan</span><span class="oa-fval oa-fval-sm">${esc(state.clanName)}</span></div>`;
+          }
+          return '';
+        })()}
+        ${(() => {
+          if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.clanProsperity !== null) {
+            return `<div class="oa-field"><span class="oa-flbl">Clan Prosperity</span><span class="oa-fval oa-fval-sm">${state.clanProsperity}</span></div>`;
           }
           return '';
         })()}
