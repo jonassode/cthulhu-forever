@@ -157,6 +157,10 @@ const testCode = `
     state.harshStatChoice   = null;
     state.adversityPoints   = {};
     state.archetype         = null;
+    state.lifestyle         = null;
+    state.clanName          = '';
+    state.clanProsperity    = null;
+    state.castOut           = false;
     state.selectedOptional  = [];
     state.skillPoints       = {};
     state.skillTypes        = {};
@@ -1008,6 +1012,20 @@ const testCode = `
     eq(cap34.checkboxes,3, 'Capacity rating=34: checkboxes=3');
   }
 
+  // 6.8  Hunter/gatherer resources are fixed to clan prosperity and ignore resource pick state
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    state.resourcesBonusSpent = 3;
+    state.resourcesSetToZero = true;
+
+    eq(getEffectiveResources(), 12, 'Hunter/gatherer resources stay at clan prosperity even if resource pick state is set');
+    eq(getBonusPointsSpent(), 0, 'Hunter/gatherer resource pick state does not spend bonus picks');
+    eq(getBonusPointsTotal(), 10, 'Hunter/gatherer cannot gain bonus picks by sacrificing resources');
+  }
+
   // ── Suite 7: Bond Values ─────────────────────────────────────────────────────
 
   console.log('\\n── Suite 7: Bond Values ─────────────────────────────────────────────────────');
@@ -1296,6 +1314,57 @@ const testCode = `
     toggleBondSetToOne(0);
     eq(state.bonds[0].setToOne, false, 'toggleBondSetToOne is no-op when resources are sacrificed');
     eq(getBonusPointsTotal(), 11, 'Bonus total unchanged (only resource sacrifice counts)');
+  }
+
+  // 10.9  Hunter/gatherer clan bond is fixed at CHA + 2 and cannot use bond bonus-pick actions
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+
+    eq(state.bonds[0].name, 'Bear Clan', 'Hunter/gatherer clan bond uses the clan name');
+    eq(state.bonds[0].type, 'community', 'Hunter/gatherer clan bond stays a community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 11, 'Hunter/gatherer clan bond value = CHA + 2');
+
+    adjustBond(0, 1);
+    eq(state.bonds[0].bonusSpent, 0, 'Hunter/gatherer clan bond ignores bond bonus-pick increases');
+
+    toggleBondSetToOne(0);
+    eq(state.bonds[0].setToOne, false, 'Hunter/gatherer clan bond cannot be sacrificed');
+
+    updateBondType(0, 'individual');
+    eq(state.bonds[0].type, 'community', 'Hunter/gatherer clan bond cannot switch away from community');
+
+    updateBond(0, 'Other Name');
+    eq(state.bonds[0].name, 'Bear Clan', 'Hunter/gatherer clan bond name remains tied to the clan');
+  }
+
+  // 10.10  Hunter/gatherer resource controls are disabled in logic and omitted from step 4 UI
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    state.resourcesBonusSpent = 2;
+    state.resourcesSetToZero = true;
+
+    adjustResources(1);
+    eq(state.resourcesBonusSpent, 2, 'Hunter/gatherer adjustResources(+1) is a no-op');
+
+    toggleResourcesZero();
+    eq(state.resourcesSetToZero, true, 'Hunter/gatherer toggleResourcesZero() is a no-op');
+
+    const html = renderStep4();
+    eq(state.resourcesBonusSpent, 0, 'renderStep4 normalizes stale hunter/gatherer resource picks');
+    eq(state.resourcesSetToZero, false, 'renderStep4 clears stale hunter/gatherer resource sacrifice state');
+    eq(String(html.includes('adjustResources(1)')), 'false', 'Hunter/gatherer step 4 omits the resource increase control');
+    eq(String(html.includes('toggleResourcesZero()')), 'false', 'Hunter/gatherer step 4 omits the resource sacrifice control');
   }
 
   // ── Suite 11: Attribute Edit Mode ────────────────────────────────────────────
