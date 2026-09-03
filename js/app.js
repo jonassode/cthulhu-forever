@@ -202,6 +202,14 @@ function createEmptyBond() {
   return { name: '', type: null, bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 };
 }
 
+function isHunterGathererClanBond(bond) {
+  return !!bond &&
+    state.age === 'stone' &&
+    state.lifestyle === 'hunter_gatherer' &&
+    bond === state.bonds[0] &&
+    bond.type === 'community';
+}
+
 // Ensure state.bonds array has the correct length
 function ensureBondsCount() {
   const count = getEffectiveBondsCount();
@@ -223,6 +231,13 @@ function ensureBondsCount() {
     }
   }
   while (state.bonds.length > count) state.bonds.pop();
+  const b0 = state.bonds[0];
+  if (isHunterGathererClanBond(b0)) {
+    b0.name = state.clanName || 'Clan/Tribe';
+    b0.type = 'community';
+    b0.bonusSpent = 0;
+    b0.setToOne = false;
+  }
 }
 
 function getUpbringingBonus(attrKey) {
@@ -656,7 +671,9 @@ function getResourcesCapacity(rating) {
 function getBondPreReductionValue(bond) {
   if (!bond || !bond.type) return null;
   let value;
-  if (bond.type === 'individual') {
+  if (isHunterGathererClanBond(bond)) {
+    value = (getOrigAttrValue('CHA') || 0) + 2;
+  } else if (bond.type === 'individual') {
     value = getAttrValue('CHA');
   } else {
     // Community bond sacrificed for a bonus pick: score is fixed at 1
@@ -2412,31 +2429,35 @@ function renderStep4() {
     <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.6;">
       Choose a type for each bond. <strong>Personal</strong> bonds represent specific people and start at your CHA score (${cha !== null ? cha : '—'}).
       <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2 (${Math.floor(effectiveResources / 2)}). Community bonds can be improved with Bonus Picks.
+      ${state.age === 'stone' && state.lifestyle === 'hunter_gatherer' ? `<br><strong>Bond 1</strong> is fixed as a Community Bond to your clan and starts at CHA + 2 (${(getOrigAttrValue('CHA') || 0) + 2}).` : ''}
     </p>
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
       ${state.bonds.map((b, i) => {
         const val = getBondEffectiveValue(b);
+        const isFixedClanBond = isHunterGathererClanBond(b);
         const isIndividual = b.type === 'individual';
         const isCommunity  = b.type === 'community';
         const isSetToOne   = isCommunity && !!b.setToOne;
         const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
-        const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0 && (val === null || val < 20);
-        const canSub = isCommunity && !isSetToOne && b.bonusSpent > 0;
+        const canAdd = isCommunity && !isFixedClanBond && !isSetToOne && getBonusPointsRemaining() > 0 && (val === null || val < 20);
+        const canSub = isCommunity && !isFixedClanBond && !isSetToOne && b.bonusSpent > 0;
         // Cannot sacrifice a community bond when Resources is already 0 (bond base = 0,
         // so setting to 1 would be an increase, not a sacrifice).
-        const canSacrifice = isCommunity && !state.resourcesSetToZero;
+        const canSacrifice = isCommunity && !isFixedClanBond && !state.resourcesSetToZero;
         return `<div class="bond-row">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
-            <button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateBondType(${i},'individual')">Personal</button>
-            <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateBondType(${i},'community')">Community</button>
+            ${isFixedClanBond
+              ? `<button class="bond-type-btn active-community" type="button" disabled>Community</button>`
+              : `<button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateBondType(${i},'individual')">Personal</button>
+            <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateBondType(${i},'community')">Community</button>`}
             ${b.type ? `
               <input class="bond-input" type="text" placeholder="${isIndividual ? 'Name a person…' : 'Name an organization, church, or neighborhood…'}"
                      value="${escapeHtml(b.name)}"
-                     oninput="updateBond(${i},this.value)" style="flex:1;min-width:10rem;" />
+                     oninput="updateBond(${i},this.value)" style="flex:1;min-width:10rem;" ${isFixedClanBond ? 'readonly aria-readonly="true"' : ''} />
               <span style="font-size:1rem;font-family:var(--font-head);color:${isSetToOne ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2rem;text-align:right;">${val !== null ? val : '—'}</span>
               ${isCommunity ? `
-                ${isSetToOne ? '' : `
+                ${isSetToOne || isFixedClanBond ? '' : `
                   <button class="skill-adj-btn" onclick="adjustBond(${i},-1)" ${canSub ? '' : 'disabled'}>−</button>
                   <span style="font-size:0.72rem;color:var(--text-secondary);">+${nextPickGain}</span>
                   <button class="skill-adj-btn plus" onclick="adjustBond(${i},1)" ${canAdd ? '' : 'disabled'}>+</button>
@@ -2630,6 +2651,7 @@ function updateCustomSkillName(id, value) {
 }
 
 function updateBond(index, value) {
+  if (isHunterGathererClanBond(state.bonds[index])) return;
   state.bonds[index].name = value;
   // Don't re-render (would lose focus), just update canProceed state silently
   // Update the next button disabled state
@@ -2645,6 +2667,11 @@ function updateSkillType(skillName, value) {
 function updateBondType(index, type) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object') return;
+  if (isHunterGathererClanBond(bond)) {
+    bond.type = 'community';
+    render();
+    return;
+  }
   // If switching away from community, refund bonus picks and clear setToOne
   if (bond.type === 'community' && type !== 'community') {
     bond.bonusSpent = 0;
@@ -2657,6 +2684,7 @@ function updateBondType(index, type) {
 function adjustBond(index, delta) {
   const bond = state.bonds[index];
   if (!bond || bond.type !== 'community') return;
+  if (isHunterGathererClanBond(bond)) return;
   if (delta > 0) {
     if (getBonusPointsRemaining() < 1) return;
     if (getBondPreReductionValue(bond) >= 20) return;
@@ -2696,6 +2724,7 @@ function toggleResourcesZero() {
 function toggleBondSetToOne(index) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object' || bond.type !== 'community') return;
+  if (isHunterGathererClanBond(bond)) return;
   if (bond.setToOne) {
     bond.setToOne = false;
   } else {

@@ -157,6 +157,10 @@ const testCode = `
     state.harshStatChoice   = null;
     state.adversityPoints   = {};
     state.archetype         = null;
+    state.lifestyle         = null;
+    state.clanName          = '';
+    state.clanProsperity    = null;
+    state.castOut           = false;
     state.selectedOptional  = [];
     state.skillPoints       = {};
     state.skillTypes        = {};
@@ -1296,6 +1300,34 @@ const testCode = `
     toggleBondSetToOne(0);
     eq(state.bonds[0].setToOne, false, 'toggleBondSetToOne is no-op when resources are sacrificed');
     eq(getBonusPointsTotal(), 11, 'Bonus total unchanged (only resource sacrifice counts)');
+  }
+
+  // 10.9  Hunter/gatherer clan bond is fixed at CHA + 2 and cannot use bond bonus-pick actions
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+
+    eq(state.bonds[0].name, 'Bear Clan', 'Hunter/gatherer clan bond uses the clan name');
+    eq(state.bonds[0].type, 'community', 'Hunter/gatherer clan bond stays a community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 11, 'Hunter/gatherer clan bond value = CHA + 2');
+
+    adjustBond(0, 1);
+    eq(state.bonds[0].bonusSpent, 0, 'Hunter/gatherer clan bond ignores bond bonus-pick increases');
+
+    toggleBondSetToOne(0);
+    eq(state.bonds[0].setToOne, false, 'Hunter/gatherer clan bond cannot be sacrificed');
+
+    updateBondType(0, 'individual');
+    eq(state.bonds[0].type, 'community', 'Hunter/gatherer clan bond cannot switch away from community');
+
+    updateBond(0, 'Other Name');
+    eq(state.bonds[0].name, 'Bear Clan', 'Hunter/gatherer clan bond name remains tied to the clan');
   }
 
   // ── Suite 11: Attribute Edit Mode ────────────────────────────────────────────
