@@ -604,7 +604,7 @@ function getBonusPointsTotal() {
   // +1 pick for sacrificing Resources (setting to 0)
   // +1 pick per Community Bond sacrificed (set to score of 1)
   let total = 10;
-  if (state.resourcesSetToZero) total += 1;
+  if (state.resourcesSetToZero && !hasHunterGathererResources()) total += 1;
   total += (state.bonds || []).filter(b => b && b.type === 'community' && b.setToOne).length;
   return total;
 }
@@ -613,7 +613,8 @@ function getBonusPointsSpent() {
   const skillPicks = Object.values(state.skillPoints).reduce((s, v) => s + v, 0);
   const bondPicks  = state.bonds.reduce((s, b) => s + (b && b.bonusSpent ? b.bonusSpent : 0), 0);
   const customPicks = (state.customSkills || []).reduce((s, cs) => s + (cs.points || 0), 0);
-  return skillPicks + state.resourcesBonusSpent + bondPicks + customPicks;
+  const resourcePicks = hasHunterGathererResources() ? 0 : state.resourcesBonusSpent;
+  return skillPicks + resourcePicks + bondPicks + customPicks;
 }
 
 function getBonusPointsRemaining() {
@@ -626,15 +627,19 @@ function getEffectiveBondsCount() {
   return arch.bonds;
 }
 
+function hasHunterGathererResources() {
+  return state.age === 'stone' && state.lifestyle === 'hunter_gatherer';
+}
+
 function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
   
   // Stone Age lifestyle-based resources
   if (state.age === 'stone') {
-    if (state.lifestyle === 'hunter_gatherer') {
+    if (hasHunterGathererResources()) {
       // Hunter/gatherer: resources = clan prosperity, or 0 if cast out
-      if (state.castOut || state.resourcesSetToZero) return 0;
+      if (state.castOut) return 0;
       return Number.isFinite(state.clanProsperity) ? state.clanProsperity : 0;
     }
     // Agricultural: standard archetype resources (falls through to normal logic below)
@@ -2279,10 +2284,17 @@ function toggleCastOut(checked) {
   render();
 }
 
+function normalizeHunterGathererResourceState() {
+  if (!hasHunterGathererResources()) return;
+  state.resourcesBonusSpent = 0;
+  state.resourcesSetToZero = false;
+}
+
 
 // ── RENDER: Step 4 — Point Distribution ─────────────────────
 
 function renderStep4() {
+  normalizeHunterGathererResourceState();
   const arch      = getArchetype();
   const bpTotal   = getBonusPointsTotal();
   const bpSpent   = getBonusPointsSpent();
@@ -2479,28 +2491,30 @@ function renderStep4() {
 
   // Resources: display current value and what the next pick adds
   const nextPickGain = state.resourcesBonusSpent === 0 ? 5 : 2;
+  const canAdjustResources = !hasHunterGathererResources() && !state.resourcesSetToZero;
+  const canSacrificeResources = !hasHunterGathererResources();
   const resourcesHtml = `
     <div class="section-header" style="margin-top:2rem;"><h3>Resources</h3></div>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
       <span style="font-size:1.5rem;font-family:var(--font-head);color:${state.resourcesSetToZero ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2.5rem;text-align:center;">${effectiveResources}</span>
       <span style="font-size:0.82rem;color:var(--text-secondary);">
-        base: ${arch ? arch.resources : 0}
+        base: ${hasHunterGathererResources() ? (Number.isFinite(state.clanProsperity) ? state.clanProsperity : 0) : (arch ? arch.resources : 0)}
         ${!state.resourcesSetToZero && state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
         ${state.resourcesSetToZero ? ' <em>(sacrificed for +1 Bonus Pick)</em>' : ''}
       </span>
-      ${state.resourcesSetToZero ? '' : `
+      ${canAdjustResources ? `
         <button class="skill-adj-btn" onclick="adjustResources(-1)"
                 ${state.resourcesBonusSpent > 0 ? '' : 'disabled'}>−</button>
         <span style="font-size:0.78rem;color:var(--text-secondary);">1 pick → +${nextPickGain}</span>
         <button class="skill-adj-btn plus" onclick="adjustResources(1)"
                 ${bpLeft >= 1 ? '' : 'disabled'}>+</button>
-      `}
-      <button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
+      ` : ''}
+      ${canSacrificeResources ? `<button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
               onclick="toggleResourcesZero()"
               data-tooltip="${state.resourcesSetToZero ? 'Undo: restore Resources to its base value.' : 'If you are willing for your Protagonist to have a Resources rating of 0 (absolutely without any worldly goods), that sacrifice earns one EXTRA Bonus Skill Point Pick.'}"
               aria-label="${state.resourcesSetToZero ? 'Undo resource sacrifice' : 'Sacrifice resources for bonus pick'}">
         ${state.resourcesSetToZero ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
-      </button>
+      </button>` : ''}
     </div>`;
 
   const bpClass = bpLeft === 0 ? 'good' : bpLeft < 0 ? 'warn' : '';
@@ -2577,6 +2591,7 @@ function adjustSkill(skillName, delta) {
 function adjustResources(delta) {
   const arch = getArchetype();
   if (!arch) return;
+  if (hasHunterGathererResources()) return;
   if (delta > 0) {
     if (getBonusPointsRemaining() < 1) return;
     state.resourcesBonusSpent++;
@@ -2701,6 +2716,7 @@ function adjustBond(index, delta) {
 // community bond sacrifices (since their base becomes 0, setting them to 1
 // would increase rather than decrease the score).
 function toggleResourcesZero() {
+  if (hasHunterGathererResources()) return;
   if (state.resourcesSetToZero) {
     state.resourcesSetToZero = false;
   } else {
