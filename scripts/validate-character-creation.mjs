@@ -1367,6 +1367,49 @@ const testCode = `
     eq(String(html.includes('toggleResourcesZero()')), 'false', 'Hunter/gatherer step 4 omits the resource sacrifice control');
   }
 
+  // 10.11  Cast-out hunter/gatherers lose the fixed clan bond and gain two extra bonus picks
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.castOut = true;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+
+    eq(getEffectiveResources(), 0, 'Cast-out hunter/gatherer resources are fixed at 0');
+    eq(getBonusPointsTotal(), 12, 'Cast-out hunter/gatherer gains 2 extra bonus picks');
+    eq(state.bonds[0].type, null, 'Cast-out hunter/gatherer first bond is not forced to community');
+    eq(state.bonds[0].name, '', 'Cast-out hunter/gatherer first bond is not forced to the clan name');
+
+    const html = renderStep4();
+    eq(String(html.includes('Bond 1</strong> is fixed as a Community Bond to your clan')), 'false',
+      'Cast-out hunter/gatherer step 4 omits the fixed clan bond note');
+    eq(String(html.includes('Resources are fixed at 0, and you receive 2 extra Bonus Picks.')), 'true',
+      'Cast-out hunter/gatherer step 4 explains the extra picks');
+  }
+
+  // 10.12  Cast-out hunter/gatherers cannot sacrifice community bonds that start at 0
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.castOut = true;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+    state.bonds[0].type = 'community';
+    state.bonds[0].name = 'Outcast Camp';
+
+    toggleBondSetToOne(0);
+    eq(state.bonds[0].setToOne, false, 'Cast-out hunter/gatherer community bond cannot be sacrificed from 0');
+    eq(getBonusPointsTotal(), 12, 'Cast-out hunter/gatherer bond sacrifice does not add extra picks');
+  }
+
   // ── Suite 11: Attribute Edit Mode ────────────────────────────────────────────
 
   console.log('\\n── Suite 11: Attribute Edit Mode ────────────────────────────────────────────');
