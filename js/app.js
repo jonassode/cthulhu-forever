@@ -681,6 +681,10 @@ function getDisplayedResources() {
   return Math.max(0, base + (state.resourcesEditAdjust || 0));
 }
 
+function getCommunityBondBaseValue(resources = getEffectiveResources()) {
+  return Math.ceil(Math.max(0, resources) / 2);
+}
+
 // Returns the Resources capacity for a given rating per SKILL.md table.
 function getResourcesCapacity(rating) {
   if (rating <= 0)  return { atHand: 0, stowed: 0, inStorage: 0, checkboxes: 0 };
@@ -690,7 +694,7 @@ function getResourcesCapacity(rating) {
 }
 
 // Returns the effective numeric value of a bond object.
-// Individual bonds are tied to CHA; Community bonds are Resources÷2 plus bonus from picks.
+// Individual bonds are tied to CHA; Community bonds are Resources÷2 rounded up plus bonus from picks.
 // Returns the bond value before any upbringing reductions are applied.
 function getBondPreReductionValue(bond) {
   if (!bond || !bond.type) return null;
@@ -704,8 +708,8 @@ function getBondPreReductionValue(bond) {
     if (bond.setToOne) {
       value = 1;
     } else {
-      // Community bond: base is Resources÷2, bonus per SKILL.md
-      const base = Math.floor(getEffectiveResources() / 2);
+      // Community bond: base is Resources÷2 rounded up, bonus per SKILL.md
+      const base = getCommunityBondBaseValue();
       const n = bond.bonusSpent || 0;
       const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
       value = base + bonus;
@@ -2479,7 +2483,7 @@ function renderStep4() {
     </div>
     <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.6;">
       Choose a type for each bond. <strong>Personal</strong> bonds represent specific people and start at your CHA score (${cha !== null ? cha : '—'}).
-      <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2 (${Math.floor(effectiveResources / 2)}). Community bonds can be improved with Bonus Picks.
+      <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2, rounded up (${getCommunityBondBaseValue(effectiveResources)}). Community bonds can be improved with Bonus Picks.
       ${hasFixedHunterGathererClanBond() ? `<br><strong>Bond 1</strong> is fixed as a Community Bond to your clan and starts at CHA + 2 (${(getOrigAttrValue('CHA') || 0) + 2}).` : ''}
       ${hasHunterGathererResources() && state.castOut ? '<br><strong>Cast out:</strong> Resources are fixed at 0, and you receive 2 extra Bonus Picks.' : ''}
     </p>

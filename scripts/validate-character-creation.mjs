@@ -12,8 +12,8 @@
  *   3. Skill values    — base + archetype bonus + bonus picks (cap at 80 %)
  *   4. Adversity picks — applied to eligible skills
  *   5. Resources       — archetype base + bonus picks (cap at 20)
- *   6. Bond values     — individual (= CHA) and community (= Resources÷2
- *                         + optional bonus picks)
+ *   6. Bond values     — individual (= CHA) and community (= Resources÷2,
+ *                         rounded up, + optional bonus picks)
  *   7. Bonus-point pool accounting
  *
  * The app's pure calculation functions (calculateDerived, getFinalSkillValue,
@@ -1066,9 +1066,9 @@ const testCode = `
     state.resourcesBonusSpent = 1; // Resources = 4 + 5 = 9
 
     const comBond = { name: 'Test Org', type: 'community', bonusSpent: 0, currentScore: null };
-    // floor(9/2) = 4
-    eq(getBondEffectiveValue(comBond), 4,
-      'Community bond: floor(Resources(9)/2) = 4 after 1 resource pick');
+    // ceil(9/2) = 5
+    eq(getBondEffectiveValue(comBond), 5,
+      'Community bond: ceil(Resources(9)/2) = 5 after 1 resource pick');
   }
 
   // ── Suite 7b: Community Bond Status Labels ───────────────────────────────────
@@ -1233,7 +1233,7 @@ const testCode = `
     setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
 
     const sacBond = { name: 'The Lodge', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false };
-    // Base community bond = floor(resources/2) = floor(4/2) = 2
+    // Base community bond = ceil(resources/2) = ceil(4/2) = 2
     eq(getBondEffectiveValue(sacBond), 2, 'Community bond before sacrifice = 2');
 
     sacBond.setToOne = true;
@@ -1242,6 +1242,18 @@ const testCode = `
     state.bonds = [sacBond];
     eq(getBonusPointsTotal(), 11, 'Bonus picks total with 1 bond sacrifice = 11');
     eq(getBonusPointsRemaining(), 11, 'All 11 remaining when no skills spent');
+  }
+
+  // 10.3b  Community bond base rounds up for odd Resources values
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+
+    const oddBond = { name: 'Village Council', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false };
+    eq(getEffectiveResources(), 5, 'Agricultural Stone Age leader resources = 5');
+    eq(getBondEffectiveValue(oddBond), 3, 'Community bond rounds up from odd Resources 5 to 3');
   }
 
   // 10.4  Multiple bond sacrifices stack with resource sacrifice
