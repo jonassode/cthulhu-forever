@@ -13,7 +13,10 @@ or validation behavior is changed here.
 
 ## Findings
 
-### 1. Community Bonds round down instead of up
+### REQ-1. Community Bonds round down instead of up
+
+Implementation status:
+Implemented incorrectly
 
 SRD reference:
 Section `2.8.2 Community Bonds` says a starting Community Bond "typically
@@ -33,7 +36,10 @@ Any Stone Age or non-Stone-Age Community Bond built from an odd Resources value
 starts 1 point lower than the SRD intends. Because the validation script
 expects the rounded-down value, the mismatch is currently locked in by tests.
 
-### 2. Agricultural `Leader / Elder` special bond rule is missing
+### REQ-2. Agricultural `Leader / Elder` special bond rule is missing
+
+Implementation status:
+Not implemented
 
 SRD reference:
 The `Leader / Elder` archetype says: "If Protagonist is from an agricultural
@@ -54,7 +60,10 @@ Agricultural Stone Age leaders can be created without the required Community
 Bond, and when a Community Bond is chosen it does not receive the SRD's fixed
 minimum starting rating.
 
-### 3. `Other Tribe (Type)` is collapsed into an untyped `Other Tribe` skill
+### REQ-3. `Other Tribe (Type)` is collapsed into an untyped `Other Tribe` skill
+
+Implementation status:
+Implemented incorrectly
 
 SRD reference:
 The skill description section names the skill `Other Tribe (Type)` with a base
@@ -73,7 +82,10 @@ Players cannot record which outside tribe the skill applies to, cannot model
 multiple separate tribe specializations, and lose the typed distinction the SRD
 expects for Stone Age character sheets and saved data.
 
-### 4. Stone Age lifestyle timing and scope differ from the SRD
+### REQ-4. Stone Age lifestyle timing and scope differ from the SRD
+
+Implementation status:
+Partially implemented with SRD divergence
 
 SRD reference:
 Section `2.2.1 Step 0` requires the group to establish lifestyle before the
