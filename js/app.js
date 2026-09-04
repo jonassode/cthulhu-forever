@@ -2031,15 +2031,16 @@ function renderStoneLifestyleSection() {
   return `
     <div class="section-header" style="margin-top:2rem;"><h3>Lifestyle</h3></div>
     <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
-      Work with the Game Moderator to determine the lifestyle the Protagonist grew up in.<br>
-      • In Paleolithic times, everyone would have lived a hunter/gatherer lifestyle;<br>
-      • In Mesolithic times, some people lived in agricultural (permanent) settlements, while others groups still foraged as hunter/gatherers;<br>
-      • In Neolithic times, the majority of people in more settled regions would live as part of agricultural settlements, with hunter/gatherers lifestyles only remaining in wilderness locales.<br>
-      Once you’ve determined your Protagonist’s lifestyle, you should work with the GM to determine exactly how harsh life was during their formative years.<br>
-      The defaults for different Stone Age times:<br>
-      • In Paleolithic times, everyone by default had a Harsh upbringing, with some clans/tribes who had the misfortune has Very Harsh conditions; nobody had a Normal(-ish) upbringing.<br>
-      • In Mesolithic times, Protagonists growing up in hunter/gatherer lifestyles would have had the same types of upbringings as per Paleolithic times, while those in agricultural settlements would have had an upbringing dependent on the stability and abundance of the settlement. Growing up in a typical settlement would be Harsh; if crops routinely failed or were raided, an upbringing might have been Very Harsh. Protagonists born into privilege in the very largest settlements might have experienced a Normal(-ish) upbringing.<br>
-      • In Neolithic times, the few Protagonists growing up in hunter/gatherer lifestyles would have had the same types of upbringings as per Paleolithic times. The rest would have had a default Normal(-ish) upbringing if living in a settlement, or a Harsh upbringing if living in an outlying semi-wilderness location. Individual circumstances might adjust the rating one step in either direction.
+      Work with the GM to select your Protagonist's lifestyle and upbringing harshness based on their era:<br><br>
+      <strong>Paleolithic</strong><br>
+      * Lifestyle: Hunter/gatherer only.<br>
+      * Harshness: Default Harsh; Very Harsh for unfortunate tribes. No Normal upbringings.<br>
+      <strong>Mesolithic</strong><br>
+      * Lifestyle: Hunter/gatherer or agricultural settlement.<br>
+      * Harshness: Hunter/gatherers follow Paleolithic rules. Settlement default is Harsh, rising to Very Harsh if raided or crops fail. Privileged elites in major settlements can be Normal.<br>
+      <strong>Neolithic</strong><br>
+      * Lifestyle: Predominantly agricultural settlement; rare hunter/gatherer in wilderness.<br>
+      * Harshness: Hunter/gatherers follow Paleolithic rules. Settlement default is Normal (Harsh for semi-wilderness outposts). Adjust ±1 level for individual circumstances.
     </p>
     <div class="upbringing-grid" style="margin-bottom:1rem;">
       <div class="sel-card ${isAgricultural ? 'selected' : ''}"
@@ -2058,7 +2059,7 @@ function renderStoneLifestyleSection() {
       </div>
     </div>
     ${isHunterGatherer ? `
-    <div class="notice" style="margin-bottom:1rem;">
+    <div style="margin-bottom:1rem;">
       <div style="margin-bottom:1rem;">
         <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Name</label>
         <input type="text"
