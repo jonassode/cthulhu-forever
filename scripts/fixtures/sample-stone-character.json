@@ -63,15 +63,13 @@
     "Athletics": 70,
     "Craft (Type)": 60,
     "Forage/Hunt": 50,
-    "Other Tribe (Type)": 40,
     "Ranged Weapons": 60,
     "Repair/Devise": 40,
     "Ride": 40,
     "Track": 50
   },
   "skillTypes": {
-    "Craft (Type)": "Flintknapping",
-    "Other Tribe (Type)": "Marsh Folk"
+    "Craft (Type)": "Flintknapping"
   },
   "customSkills": [
     { "name": "Mammoth Sign", "value": 35 }

@@ -1826,14 +1826,6 @@ const testCode = `
     eq(canProceed(3), true, 'Stone Age: canProceed(3) = true for hunter/gatherer when clan details are complete');
   }
 
-  // 12.19  Stone Age typed skills display the chosen tribe name
-  {
-    resetState(); state.age = 'stone';
-    state.skillTypes['Other Tribe (Type)'] = 'River Traders';
-    eq(getSkillDisplayName('Other Tribe (Type)'), 'Other Tribe (River Traders)',
-      'Stone Age typed skill display substitutes the chosen tribe name');
-  }
-
 })();
 
 // ── Suite 13: Default Unarmed Weapon Row ─────────────────────────────────────

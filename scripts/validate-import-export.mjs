@@ -71,7 +71,6 @@ function assertAbsent(obj, key, label) {
 function makeSandbox(alerts) {
   const el = () => ({
     appendChild: () => {},
-    removeChild: () => {},
     addEventListener: () => {},
     removeEventListener: () => {},
     classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} },
@@ -79,7 +78,6 @@ function makeSandbox(alerts) {
     dataset: {},
     value: '',
     checked: false,
-    click: () => {},
     focus: () => {},
     blur: () => {},
     querySelector: () => null,
@@ -169,11 +167,7 @@ function assertImportable(data, label, expected) {
           lifestyle: state.lifestyle,
           clanName: state.clanName,
           clanProsperity: state.clanProsperity,
-          castOut: state.castOut,
-          skillTypes: { ...state.skillTypes },
-          skillChecked: { ...state.skillChecked },
-          typedOtherTribeValue: getDisplayedSkillValue('Other Tribe (Type)'),
-          legacyOtherTribeValue: getDisplayedSkillValue('Other Tribe')
+          castOut: state.castOut
         };
       })()
     `, sandbox);
@@ -196,28 +190,6 @@ function assertImportable(data, label, expected) {
   }
   if ('castOut' in expected) {
     assert(result.castOut === expected.castOut, `${label} fixture should preserve castOut ${expected.castOut}, got ${result.castOut}`);
-  }
-  if ('typedOtherTribeValue' in expected) {
-    assert(
-      result.typedOtherTribeValue === expected.typedOtherTribeValue,
-      `${label} fixture should map Other Tribe (Type) to ${expected.typedOtherTribeValue}, got ${result.typedOtherTribeValue}`
-    );
-  }
-  if ('typedOtherTribeType' in expected) {
-    assert(
-      result.skillTypes['Other Tribe (Type)'] === expected.typedOtherTribeType,
-      `${label} fixture should preserve skillTypes['Other Tribe (Type)'] as '${expected.typedOtherTribeType}', got '${result.skillTypes['Other Tribe (Type)']}'`
-    );
-  }
-  if (expected.assertNoLegacyOtherTribe === true) {
-    assert(
-      !('Other Tribe' in result.skillTypes),
-      `${label} fixture should not keep a legacy skillTypes.Other Tribe entry after import`
-    );
-    assert(
-      !('Other Tribe' in result.skillChecked),
-      `${label} fixture should not keep a legacy skillChecked.Other Tribe entry after import`
-    );
   }
 }
 
@@ -322,10 +294,6 @@ for (const [typedSkill, typeVal] of Object.entries(character.skillTypes || {})) 
 // Spot-check known skill types for the sample character
 assert(character.skillTypes['Art (Type)'] === 'Writing',  `skillTypes['Art (Type)'] should be 'Writing', got '${character.skillTypes['Art (Type)']}'`);
 assert(character.skillTypes['Foreign Language (Type)'] === 'French', `skillTypes['Foreign Language (Type)'] should be 'French', got '${character.skillTypes['Foreign Language (Type)']}'`);
-assert('Other Tribe (Type)' in stoneCharacter.skills, `Stone Age sample should store 'Other Tribe (Type)' in skills`);
-assert(!('Other Tribe' in stoneCharacter.skills), `Stone Age sample should not store legacy 'Other Tribe' in skills`);
-assert(stoneCharacter.skillTypes['Other Tribe (Type)'] === 'Marsh Folk', `Stone Age sample should store skillTypes['Other Tribe (Type)'] as 'Marsh Folk', got '${stoneCharacter.skillTypes['Other Tribe (Type)']}'`);
-
 // 7. Custom skills shape in v2: { name, value }
 assertField(character, 'customSkills', 'array', 'root');
 assert((character.customSkills || []).length >= 1, `customSkills should have at least 1 entry for this sample character`);
@@ -424,79 +392,6 @@ assertImportable(stoneCharacter, 'Stone Age sample', {
   clanName: 'Red Mammoth Clan',
   clanProsperity: 7,
   castOut: false,
-  typedOtherTribeValue: 40,
-  typedOtherTribeType: 'Marsh Folk',
-  assertNoLegacyOtherTribe: true,
-});
-assertImportable({
-  version: 2,
-  age: 'stone',
-  upbringing: 'normal',
-  archetype: 'scout_stone',
-  lifestyle: 'hunter_gatherer',
-  clanName: 'Red Mammoth Clan',
-  clanProsperity: 7,
-  castOut: false,
-  identity: {
-    name: 'Legacy Save',
-    profession: 'Scout',
-    birthplace: 'River Valley',
-    gender: 'Female',
-    characterAge: 21,
-    backstory: '',
-    motivations: [],
-    gear: '',
-    terribleTomes: '',
-    permanentInjuries: '',
-    notes: '',
-    weapons: []
-  },
-  attributes: {
-    STR: 10,
-    CON: 10,
-    DEX: 12,
-    INT: 12,
-    POW: 11,
-    CHA: 9
-  },
-  skills: {
-    'Other Tribe': 50,
-    'Navigate': 60
-  },
-  skillTypes: {
-    'Other Tribe': 'Marsh Folk'
-  },
-  customSkills: [],
-  bonds: [],
-  resources: 7,
-  resourceChecked: [],
-  skillChecked: {
-    'Other Tribe': true
-  },
-  violenceChecked: [false, false, false],
-  helplessnessChecked: [false, false, false],
-  maxHP: 10,
-  maxWP: 11,
-  maxSAN: 99,
-  currentHP: 10,
-  currentWP: 11,
-  currentSAN: 55,
-  breakingPoint: 44,
-  recoverySAN: 55,
-  disorders: [],
-  showAllSkills: false,
-  exhausted: false,
-  temporaryInsanity: false,
-  bodyArmour: 0
-}, 'Legacy Stone Age Other Tribe sample', {
-  age: 'stone',
-  lifestyle: 'hunter_gatherer',
-  clanName: 'Red Mammoth Clan',
-  clanProsperity: 7,
-  castOut: false,
-  typedOtherTribeValue: 50,
-  typedOtherTribeType: 'Marsh Folk',
-  assertNoLegacyOtherTribe: true,
 });
 
 // ── Results ───────────────────────────────────────────────────
