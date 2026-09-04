@@ -1814,39 +1814,47 @@ const testCode = `
     eq(state.disorders.length, 0, 'resetUpbringingEffectsState removes the auto-added disorder');
   }
 
-  // 12.16  Stone Age step 3 blocks progression until lifestyle is chosen
+  // 12.16  Stone Age step 2 blocks progression until lifestyle is chosen
   {
     resetState(); state.age = 'stone';
-    state.archetype = 'herbalist_stone';
-    state.selectedOptional = ['Alertness', 'Beguile'];
-    eq(canProceed(3), false, 'Stone Age: canProceed(3) = false when lifestyle is missing');
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    state.upbringing = 'normal';
+    eq(canProceed(2), false, 'Stone Age: canProceed(2) = false when lifestyle is missing');
   }
 
-  // 12.17  Agricultural Stone Age can proceed without clan details once archetype choices are complete
+  // 12.17  Agricultural Stone Age can proceed through step 2 without clan details
   {
     resetState(); state.age = 'stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
     state.lifestyle = 'agricultural';
-    state.archetype = 'herbalist_stone';
-    state.selectedOptional = ['Alertness', 'Beguile'];
-    eq(canProceed(3), true, 'Stone Age: canProceed(3) = true for agricultural lifestyle without clan details');
+    state.upbringing = 'normal';
+    eq(canProceed(2), true, 'Stone Age: canProceed(2) = true for agricultural lifestyle without clan details');
   }
 
-  // 12.18  Hunter/gatherer Stone Age requires both clan name and clan prosperity
+  // 12.18  Hunter/gatherer Stone Age requires both clan name and clan prosperity in step 2
   {
     resetState(); state.age = 'stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
     state.lifestyle = 'hunter_gatherer';
-    state.archetype = 'herbalist_stone';
-    state.selectedOptional = ['Alertness', 'Beguile'];
+    state.upbringing = 'normal';
     state.clanName = '';
     state.clanProsperity = 10;
-    eq(canProceed(3), false, 'Stone Age: canProceed(3) = false for hunter/gatherer when clan name is missing');
+    eq(canProceed(2), false, 'Stone Age: canProceed(2) = false for hunter/gatherer when clan name is missing');
 
     state.clanName = 'Bear Clan';
     state.clanProsperity = null;
-    eq(canProceed(3), false, 'Stone Age: canProceed(3) = false for hunter/gatherer when clan prosperity is missing');
+    eq(canProceed(2), false, 'Stone Age: canProceed(2) = false for hunter/gatherer when clan prosperity is missing');
 
     state.clanProsperity = 0;
-    eq(canProceed(3), true, 'Stone Age: canProceed(3) = true for hunter/gatherer when clan details are complete');
+    eq(canProceed(2), true, 'Stone Age: canProceed(2) = true for hunter/gatherer when clan details are complete');
+  }
+
+  // 12.18b  Stone Age step 3 no longer depends on lifestyle or clan details
+  {
+    resetState(); state.age = 'stone';
+    state.archetype = 'herbalist_stone';
+    state.selectedOptional = ['Alertness', 'Beguile'];
+    eq(canProceed(3), true, 'Stone Age: canProceed(3) = true once archetype choices are complete even without lifestyle details');
   }
 
   // 12.19  Switching Stone Age lifestyles re-applies the fixed first-bond rule for agricultural leaders

@@ -2,14 +2,13 @@
 
 ## Status
 
-Implemented: no
+Implemented: yes
 
 ## Summary
 
 This document records Stone Age-specific mismatches found by comparing the
-current implementation against **Cthulhu Eternal – Stone Age Localization:
-System Reference Document v1.6**. It is an analysis-only spec: no runtime code
-or validation behavior is changed here.
+implementation against **Cthulhu Eternal – Stone Age Localization:
+System Reference Document v1.6** and tracks their implementation status.
 
 ## Findings
 
@@ -85,7 +84,7 @@ expects for Stone Age character sheets and saved data.
 ### REQ-4. Stone Age lifestyle timing and scope differ from the SRD
 
 Implementation status:
-Partially implemented with SRD divergence
+Implemented
 
 SRD reference:
 Section `2.2.1 Step 0` requires the group to establish lifestyle before the
