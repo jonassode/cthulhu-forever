@@ -16,7 +16,7 @@ or validation behavior is changed here.
 ### REQ-1. Community Bonds round down instead of up
 
 Implementation status:
-Implemented incorrectly
+Implemented: yes
 
 SRD reference:
 Section `2.8.2 Community Bonds` says a starting Community Bond "typically
