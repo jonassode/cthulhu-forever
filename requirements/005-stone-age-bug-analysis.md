@@ -16,7 +16,7 @@ or validation behavior is changed here.
 ### REQ-1. Community Bonds round down instead of up
 
 Implementation status:
-Implemented: yes
+Implemented
 
 SRD reference:
 Section `2.8.2 Community Bonds` says a starting Community Bond "typically
@@ -63,7 +63,7 @@ minimum starting rating.
 ### REQ-3. `Other Tribe (Type)` is collapsed into an untyped `Other Tribe` skill
 
 Implementation status:
-Implemented: yes
+Implemented
 
 SRD reference:
 The skill description section names the skill `Other Tribe (Type)` with a base
