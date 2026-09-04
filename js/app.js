@@ -165,6 +165,25 @@ function getSkillDisplayName(skillName) {
   return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
+function normalizeStoneAgeOtherTribeSkillName(skillName) {
+  return skillName === 'Other Tribe' ? 'Other Tribe (Type)' : skillName;
+}
+
+function normalizeStoneAgeOtherTribeSkillMap(skillMap) {
+  if (!skillMap || typeof skillMap !== 'object' || Array.isArray(skillMap)) return {};
+  const normalized = { ...skillMap };
+  if ('Other Tribe' in normalized && !('Other Tribe (Type)' in normalized)) {
+    normalized['Other Tribe (Type)'] = normalized['Other Tribe'];
+  }
+  delete normalized['Other Tribe'];
+  return normalized;
+}
+
+function normalizeStoneAgeOtherTribeSkillList(skillNames) {
+  if (!Array.isArray(skillNames)) return [];
+  return skillNames.map(normalizeStoneAgeOtherTribeSkillName);
+}
+
 function getLifestyleLabel() {
   if (state.lifestyle === 'agricultural') return 'Agricultural';
   if (state.lifestyle === 'hunter_gatherer') return 'Hunter-Gatherer';
@@ -1307,7 +1326,7 @@ function getAdversitySkills() {
     return ['Post-Apocalypse Lore (Type)', 'Scavenge', 'Survival (Type)', 'Unnatural'];
   }
   if (state.age === 'stone') {
-    return ['Carouse', 'First Aid', 'Other Tribe', 'Scavenge'];
+    return ['Carouse', 'First Aid', 'Other Tribe (Type)', 'Scavenge'];
   }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
@@ -5053,14 +5072,18 @@ function importFromJsonV2(data) {
   // getDisplayedSkillValue() returns the correct value.
   state.skillPoints = {};
   state.adversityPoints = {};
-  state.skillTypes = data.skillTypes || {};
+  state.skillTypes = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skillTypes || {})
+    : (data.skillTypes || {});
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
   const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : data.age === 'apocthulhu' ? APOCTHULHU_SKILLS : data.age === 'stone' ? STONE_AGE_SKILLS : MODERN_SKILLS;
+  const skillData = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skills || {})
+    : (data.skills || {});
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
-    const skillData = data.skills || {};
     const exported = s in skillData ? skillData[s] : getFinalSkillValue(s);
     const computed = getFinalSkillValue(s);
     const adj = exported - computed;
@@ -5098,7 +5121,9 @@ function importFromJsonV2(data) {
 
   // ── Play state & tracking ────────────────────────────────
   state.resourceChecked = data.resourceChecked || [];
-  state.skillChecked = data.skillChecked || {};
+  state.skillChecked = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skillChecked || {})
+    : (data.skillChecked || {});
   state.violenceChecked = data.violenceChecked || [false, false, false];
   state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
   // currentHP/WP/SAN are stored as final numbers in v2; null falls back to derived max.
@@ -5138,11 +5163,19 @@ function importFromJsonV1(data) {
   });
   state.upbringing = data.upbringing || null;
   state.harshStatChoice = data.harshStatChoice || null;
-  state.adversityPoints = data.adversityPoints || {};
+  state.adversityPoints = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.adversityPoints || {})
+    : (data.adversityPoints || {});
   state.archetype = data.archetype || null;
-  state.selectedOptional = data.selectedOptional || [];
-  state.skillPoints = data.skillPoints || {};
-  state.skillTypes = data.skillTypes || {};
+  state.selectedOptional = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillList(data.selectedOptional || [])
+    : (data.selectedOptional || []);
+  state.skillPoints = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skillPoints || {})
+    : (data.skillPoints || {});
+  state.skillTypes = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skillTypes || {})
+    : (data.skillTypes || {});
   state.customSkills = data.customSkills || [];
   state.bonds = (data.bonds || []).map(b => ({
     name: b.name || '',
@@ -5155,7 +5188,9 @@ function importFromJsonV1(data) {
   state.resourcesBonusSpent = data.resourcesBonusSpent || 0;
   state.resourcesSetToZero  = data.resourcesSetToZero  || false;
   state.resourceChecked = data.resourceChecked || [];
-  state.skillChecked = data.skillChecked || {};
+  state.skillChecked = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skillChecked || {})
+    : (data.skillChecked || {});
   state.violenceChecked = data.violenceChecked || [false, false, false];
   state.helplessnessChecked = data.helplessnessChecked || [false, false, false];
   state.currentHP  = (data.currentHP  !== undefined && data.currentHP  !== null) ? data.currentHP  : null;
@@ -5167,7 +5202,9 @@ function importFromJsonV1(data) {
   state.bodyArmour = data.bodyArmour || 0;
   state.exhausted = data.exhausted || false;
   state.temporaryInsanity = data.temporaryInsanity || false;
-  state.skillEditAdjust = data.skillEditAdjust || {};
+  state.skillEditAdjust = data.age === 'stone'
+    ? normalizeStoneAgeOtherTribeSkillMap(data.skillEditAdjust || {})
+    : (data.skillEditAdjust || {});
   state.resourcesEditAdjust = data.resourcesEditAdjust || 0;
   state.attrEditAdjust = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
   state.editMode = false;

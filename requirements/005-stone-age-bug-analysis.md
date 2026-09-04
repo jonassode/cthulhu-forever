@@ -63,7 +63,7 @@ minimum starting rating.
 ### REQ-3. `Other Tribe (Type)` is collapsed into an untyped `Other Tribe` skill
 
 Implementation status:
-Implemented incorrectly
+Implemented: yes
 
 SRD reference:
 The skill description section names the skill `Other Tribe (Type)` with a base
