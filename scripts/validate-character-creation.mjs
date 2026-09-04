@@ -751,6 +751,14 @@ const testCode = `
       'Apocthulhu adversity skills: Post-Apocalypse Lore (Type), Scavenge, Survival (Type), Unnatural');
   }
 
+  // 5b.13  Stone Age era
+  {
+    const STONE_AGE_ADVERSITY = ['Carouse', 'First Aid', 'Other Tribe (Type)', 'Scavenge'];
+    resetState(); state.age = 'stone';
+    arrEq(getAdversitySkills(), STONE_AGE_ADVERSITY,
+      'Stone Age adversity skills: Carouse, First Aid, Other Tribe (Type), Scavenge');
+  }
+
   // ── Suite 5c: Nightmarish Upbringing ───────────────────────────────────────
   console.log('\\n\u2500\u2500 Suite 5c: Nightmarish Upbringing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
 

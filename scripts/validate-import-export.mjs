@@ -294,7 +294,6 @@ for (const [typedSkill, typeVal] of Object.entries(character.skillTypes || {})) 
 // Spot-check known skill types for the sample character
 assert(character.skillTypes['Art (Type)'] === 'Writing',  `skillTypes['Art (Type)'] should be 'Writing', got '${character.skillTypes['Art (Type)']}'`);
 assert(character.skillTypes['Foreign Language (Type)'] === 'French', `skillTypes['Foreign Language (Type)'] should be 'French', got '${character.skillTypes['Foreign Language (Type)']}'`);
-
 // 7. Custom skills shape in v2: { name, value }
 assertField(character, 'customSkills', 'array', 'root');
 assert((character.customSkills || []).length >= 1, `customSkills should have at least 1 entry for this sample character`);

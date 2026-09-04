@@ -1307,7 +1307,7 @@ function getAdversitySkills() {
     return ['Post-Apocalypse Lore (Type)', 'Scavenge', 'Survival (Type)', 'Unnatural'];
   }
   if (state.age === 'stone') {
-    return ['Carouse', 'First Aid', 'Other Tribe', 'Scavenge'];
+    return ['Carouse', 'First Aid', 'Other Tribe (Type)', 'Scavenge'];
   }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
