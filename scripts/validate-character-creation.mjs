@@ -1264,6 +1264,29 @@ const testCode = `
     eq(getBondEffectiveValue(oddBond), 3, 'Community bond rounds up from odd Resources 5 to 3');
   }
 
+  // 10.3c  Agricultural Stone Age leader has a fixed first community bond worth at least 12
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+
+    ensureBondsCount();
+    eq(state.bonds[0].type, 'community', 'Agricultural Stone Age leader first bond is fixed as a community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 12, 'Agricultural Stone Age leader first bond starts at 12');
+  }
+
+  // 10.3d  Agricultural Stone Age leader first bond type cannot be switched away from community
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+
+    ensureBondsCount();
+    updateBondType(0, 'individual');
+    eq(state.bonds[0].type, 'community', 'Agricultural Stone Age leader first bond stays community when type switch is attempted');
+  }
+
   // 10.4  Multiple bond sacrifices stack with resource sacrifice
   {
     resetState(); state.age = 'jazz'; state.upbringing = 'normal';
@@ -1824,6 +1847,21 @@ const testCode = `
 
     state.clanProsperity = 0;
     eq(canProceed(3), true, 'Stone Age: canProceed(3) = true for hunter/gatherer when clan details are complete');
+  }
+
+  // 12.19  Switching Stone Age lifestyles re-applies the fixed first-bond rule for agricultural leaders
+  {
+    resetState(); state.age = 'stone';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+    ensureBondsCount();
+
+    selectLifestyle('hunter_gatherer');
+    eq(state.bonds[0].type, 'community', 'Stone Age: hunter/gatherer lifestyle still forces the first bond to community');
+
+    selectLifestyle('agricultural');
+    eq(state.bonds[0].type, 'community', 'Stone Age: switching back to agricultural leader restores the fixed first community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 12, 'Stone Age: switching back to agricultural leader restores the first bond base to 12');
   }
 
 })();

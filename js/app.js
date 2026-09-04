@@ -226,10 +226,27 @@ function createHunterGathererClanBond() {
   };
 }
 
+function createAgriculturalLeaderBond(existingBond = null) {
+  return {
+    name: existingBond && typeof existingBond.name === 'string' ? existingBond.name : '',
+    type: 'community',
+    bonusSpent: existingBond && Number.isFinite(existingBond.bonusSpent) ? existingBond.bonusSpent : 0,
+    currentScore: existingBond && existingBond.currentScore !== undefined ? existingBond.currentScore : null,
+    setToOne: !!(existingBond && existingBond.setToOne),
+    upbringingReduction: existingBond && Number.isFinite(existingBond.upbringingReduction) ? existingBond.upbringingReduction : 0
+  };
+}
+
 function hasFixedHunterGathererClanBond() {
   return state.age === 'stone' &&
     state.lifestyle === 'hunter_gatherer' &&
     !state.castOut;
+}
+
+function hasFixedAgriculturalLeaderBond() {
+  return state.age === 'stone' &&
+    state.lifestyle === 'agricultural' &&
+    state.archetype === 'leader_stone';
 }
 
 function isHunterGathererClanBond(bond) {
@@ -237,6 +254,17 @@ function isHunterGathererClanBond(bond) {
     hasFixedHunterGathererClanBond() &&
     bond === state.bonds[0] &&
     bond.type === 'community';
+}
+
+function isAgriculturalLeaderBond(bond) {
+  return !!bond &&
+    hasFixedAgriculturalLeaderBond() &&
+    bond === state.bonds[0] &&
+    bond.type === 'community';
+}
+
+function hasLockedCommunityBondType(bond) {
+  return isHunterGathererClanBond(bond) || isAgriculturalLeaderBond(bond);
 }
 
 // Ensure state.bonds array has the correct length
@@ -247,6 +275,8 @@ function ensureBondsCount() {
     // Stone Age hunter/gatherer: first bond is automatic community bond to clan/tribe
     if (hasFixedHunterGathererClanBond() && index === 0) {
       state.bonds.push(createHunterGathererClanBond());
+    } else if (hasFixedAgriculturalLeaderBond() && index === 0) {
+      state.bonds.push(createAgriculturalLeaderBond());
     } else {
       state.bonds.push(createEmptyBond());
     }
@@ -255,6 +285,8 @@ function ensureBondsCount() {
   const b0 = state.bonds[0];
   if (hasFixedHunterGathererClanBond() && b0) {
     state.bonds[0] = createHunterGathererClanBond();
+  } else if (hasFixedAgriculturalLeaderBond() && b0) {
+    state.bonds[0] = createAgriculturalLeaderBond(b0);
   }
 }
 
@@ -709,7 +741,9 @@ function getBondPreReductionValue(bond) {
       value = 1;
     } else {
       // Community bond: base is Resources÷2 rounded up, bonus per SKILL.md
-      const base = getCommunityBondBaseValue();
+      const base = isAgriculturalLeaderBond(bond)
+        ? Math.max(12, getCommunityBondBaseValue())
+        : getCommunityBondBaseValue();
       const n = bond.bonusSpent || 0;
       const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
       value = base + bonus;
@@ -2280,6 +2314,8 @@ function selectLifestyle(lifestyle) {
   if (state.age === 'stone' && state.bonds.length > 0) {
     if (lifestyle === 'hunter_gatherer' && !state.castOut) {
       state.bonds[0] = createHunterGathererClanBond();
+    } else if (lifestyle === 'agricultural' && state.archetype === 'leader_stone') {
+      state.bonds[0] = createAgriculturalLeaderBond(prevLifestyle === 'hunter_gatherer' ? null : state.bonds[0]);
     } else if (prevLifestyle === 'hunter_gatherer') {
       state.bonds[0] = createEmptyBond();
     }
@@ -2485,12 +2521,14 @@ function renderStep4() {
       Choose a type for each bond. <strong>Personal</strong> bonds represent specific people and start at your CHA score (${cha !== null ? cha : '—'}).
       <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2, rounded up (${getCommunityBondBaseValue(effectiveResources)}). Community bonds can be improved with Bonus Picks.
       ${hasFixedHunterGathererClanBond() ? `<br><strong>Bond 1</strong> is fixed as a Community Bond to your clan and starts at CHA + 2 (${(getOrigAttrValue('CHA') || 0) + 2}).` : ''}
+      ${hasFixedAgriculturalLeaderBond() ? `<br><strong>Bond 1</strong> is fixed as a Community Bond and starts at 12 or half your Resources, whichever is higher.` : ''}
       ${hasHunterGathererResources() && state.castOut ? '<br><strong>Cast out:</strong> Resources are fixed at 0, and you receive 2 extra Bonus Picks.' : ''}
     </p>
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
       ${state.bonds.map((b, i) => {
         const val = getBondEffectiveValue(b);
         const isFixedClanBond = isHunterGathererClanBond(b);
+        const hasLockedType = hasLockedCommunityBondType(b);
         const isIndividual = b.type === 'individual';
         const isCommunity  = b.type === 'community';
         const isSetToOne   = isCommunity && !!b.setToOne;
@@ -2503,7 +2541,7 @@ function renderStep4() {
         return `<div class="bond-row">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
-            ${isFixedClanBond
+            ${hasLockedType
               ? `<button class="bond-type-btn active-community" type="button" disabled>Community</button>`
               : `<button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateBondType(${i},'individual')">Personal</button>
             <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateBondType(${i},'community')">Community</button>`}
@@ -2726,7 +2764,7 @@ function updateSkillType(skillName, value) {
 function updateBondType(index, type) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object') return;
-  if (isHunterGathererClanBond(bond)) {
+  if (hasLockedCommunityBondType(bond)) {
     bond.type = 'community';
     render();
     return;

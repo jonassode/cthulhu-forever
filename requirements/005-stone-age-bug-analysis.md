@@ -39,7 +39,7 @@ expects the rounded-down value, the mismatch is currently locked in by tests.
 ### REQ-2. Agricultural `Leader / Elder` special bond rule is missing
 
 Implementation status:
-Not implemented
+Implemented
 
 SRD reference:
 The `Leader / Elder` archetype says: "If Protagonist is from an agricultural
