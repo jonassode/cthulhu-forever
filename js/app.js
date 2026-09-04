@@ -1368,11 +1368,6 @@ function canProceed(step) {
     case 1: return !!state.age;
     case 2: {
       if (!allAttributesAssigned()) return false;
-      if (!state.upbringing) return false;
-      if (state.upbringing === 'harsh' && !state.harshStatChoice) return false;
-      return true;
-    }
-    case 3: {
       if (state.age === 'stone') {
         if (!state.lifestyle) return false;
         if (state.lifestyle === 'hunter_gatherer') {
@@ -1380,6 +1375,11 @@ function canProceed(step) {
           if (state.clanProsperity === null) return false;
         }
       }
+      if (!state.upbringing) return false;
+      if (state.upbringing === 'harsh' && !state.harshStatChoice) return false;
+      return true;
+    }
+    case 3: {
       if (!state.archetype) return false;
       const arch = getArchetype();
       return arch && state.selectedOptional.length === arch.optionalCount;
@@ -1795,9 +1795,10 @@ function renderStep2() {
 
       ${remaining !== 0 ? `<p class="validation-msg">Spend all 72 points to continue (${remaining > 0 ? remaining + ' remaining' : Math.abs(remaining) + ' over budget'}).</p>` : ''}
 
+      ${allAssigned ? renderStoneLifestyleSection() : ''}
       ${allAssigned ? renderUpbringing() : ''}
 
-      ${allAssigned && !canProceed(2) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
+      ${allAssigned && !canProceed(2) ? `<p class="validation-msg">${getStep2ValidationMessage()}</p>` : ''}
     </div>`;
   }
 
@@ -1922,9 +1923,10 @@ function renderStep2() {
 
     ${!allAttributesAssigned() && hasRolled ? `<p class="validation-msg">Assign all 6 attribute values to continue.</p>` : ''}
 
+    ${allAssigned ? renderStoneLifestyleSection() : ''}
     ${allAssigned ? renderUpbringing() : ''}
 
-    ${allAssigned && !canProceed(2) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
+    ${allAssigned && !canProceed(2) ? `<p class="validation-msg">${getStep2ValidationMessage()}</p>` : ''}
   </div>`;
 }
 
@@ -2018,6 +2020,104 @@ function renderUpbringing() {
         </div>`).join('')}
     </div>
     ${statChoiceHtml}`;
+}
+
+function renderStoneLifestyleSection() {
+  if (state.age !== 'stone') return '';
+
+  const isHunterGatherer = state.lifestyle === 'hunter_gatherer';
+  const isAgricultural = state.lifestyle === 'agricultural';
+
+  return `
+    <div class="section-header" style="margin-top:2rem;"><h3>Lifestyle</h3></div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
+      Work with the GM to select your Protagonist's lifestyle and upbringing harshness based on their era:<br><br>
+      <strong>Paleolithic</strong><br>
+      * Lifestyle: Hunter/gatherer only.<br>
+      * Harshness: Default Harsh; Very Harsh for unfortunate tribes. No Normal upbringings.<br>
+      <strong>Mesolithic</strong><br>
+      * Lifestyle: Hunter/gatherer or agricultural settlement.<br>
+      * Harshness: Hunter/gatherers follow Paleolithic rules. Settlement default is Harsh, rising to Very Harsh if raided or crops fail. Privileged elites in major settlements can be Normal.<br>
+      <strong>Neolithic</strong><br>
+      * Lifestyle: Predominantly agricultural settlement; rare hunter/gatherer in wilderness.<br>
+      * Harshness: Hunter/gatherers follow Paleolithic rules. Settlement default is Normal (Harsh for semi-wilderness outposts). Adjust ±1 level for individual circumstances.
+    </p>
+    <div class="upbringing-grid" style="margin-bottom:1rem;">
+      <div class="sel-card ${isAgricultural ? 'selected' : ''}"
+           onclick="selectLifestyle('agricultural')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectLifestyle('agricultural')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-tag">Agricultural</div>
+        <div class="card-desc" style="font-size:0.78rem;margin-top:0.4rem;">Permanent settlement life centered on personal wealth and stored belongings.</div>
+      </div>
+      <div class="sel-card ${isHunterGatherer ? 'selected' : ''}"
+           onclick="selectLifestyle('hunter_gatherer')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectLifestyle('hunter_gatherer')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-tag">Hunter/Gatherer</div>
+        <div class="card-desc" style="font-size:0.78rem;margin-top:0.4rem;">Foraging life centered on the communal wealth and standing of the clan or tribe.</div>
+      </div>
+    </div>
+    ${isHunterGatherer ? `
+    <div style="margin-bottom:1rem;">
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Name</label>
+        <input type="text"
+               value="${state.clanName || ''}"
+               oninput="updateClanName(this.value)"
+               placeholder="Enter your clan name"
+               style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:0.85rem;"/>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Prosperity</label>
+        <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:6px;font-style:italic;">Work with your GM to determine prosperity</p>
+        <select onchange="updateClanProsperity(parseInt(this.value, 10))"
+                style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:0.85rem;">
+          <option value="" ${state.clanProsperity === null ? 'selected' : ''}>Select prosperity level...</option>
+          ${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(v =>
+            `<option value="${v}" ${state.clanProsperity === v ? 'selected' : ''}>${v} - ${
+              v === 0 ? 'Starving' :
+              v <= 4 ? 'Barely surviving' :
+              v <= 8 ? 'Underfed but stable' :
+              v <= 12 ? 'Comfortable' :
+              v <= 16 ? 'Prosperous' :
+              v <= 18 ? 'Well resourced' :
+              v === 19 ? 'Very prosperous' :
+              'Exceptional windfall'
+            }</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div>
+        <label style="display:flex;align-items:center;cursor:pointer;font-size:0.85rem;">
+          <input type="checkbox"
+                 ${state.castOut ? 'checked' : ''}
+                 onchange="toggleCastOut(this.checked)"
+                 style="margin-right:8px;"/>
+          Cast out of the clan/tribe (Resources = 0)
+        </label>
+      </div>
+    </div>
+    ` : ''}
+    ${!state.lifestyle ? `<p class="validation-msg">Select a lifestyle to continue.</p>` : ''}
+    ${isHunterGatherer && !state.clanName.trim() ? `<p class="validation-msg">Enter a clan name to continue.</p>` : ''}
+    ${isHunterGatherer && state.clanProsperity === null ? `<p class="validation-msg">Select clan prosperity to continue.</p>` : ''}`;
+}
+
+function getStep2ValidationMessage() {
+  if (state.age === 'stone') {
+    if (!state.lifestyle) return 'Select your lifestyle to continue.';
+    if (state.lifestyle === 'hunter_gatherer') {
+      if (!state.clanName.trim() || state.clanProsperity === null) {
+        return 'Complete your clan details to continue.';
+      }
+    }
+  }
+  if (!state.upbringing) return 'Select your upbringing to continue.';
+  if (state.upbringing === 'harsh' && !state.harshStatChoice) {
+    return 'Select your upbringing and choose STR or CON bonus to continue.';
+  }
+  return '';
 }
 
 function selectUpbringing(val) {
@@ -2137,81 +2237,6 @@ function renderStep3() {
   const filtered = ARCHETYPES.filter(a => a.ages.includes(state.age));
   const selected  = getArchetype();
 
-  // ── Stone Age Lifestyle Selection ────────────────────────────
-  let lifestyleHtml = '';
-  if (state.age === 'stone') {
-    const isHunterGatherer = state.lifestyle === 'hunter_gatherer';
-    const isAgricultural = state.lifestyle === 'agricultural';
-    
-    lifestyleHtml = `
-    <div class="lifestyle-selector" style="margin-bottom:2rem;padding:1.5rem;background:var(--surface-color);border-radius:8px;border:1px solid var(--border-color);">
-      <h3 style="font-family:var(--font-head);font-size:1.1rem;margin-bottom:1rem;color:var(--accent-gold);">Select Your Lifestyle</h3>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Stone Age protagonists must choose a lifestyle that affects their resources and bonds.</p>
-      
-      <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
-        <label class="lifestyle-option ${isAgricultural ? 'selected' : ''}" onclick="selectLifestyle('agricultural')" style="cursor:pointer;flex:1;min-width:200px;padding:1rem;border:2px solid ${isAgricultural ? 'var(--accent-gold)' : 'var(--border-color)'};border-radius:6px;background:${isAgricultural ? 'rgba(201,168,76,0.1)' : 'transparent'};">
-          <input type="radio" name="lifestyle" value="agricultural" ${isAgricultural ? 'checked' : ''} onchange="selectLifestyle('agricultural')" style="margin-right:8px;"/>
-          <strong>Agricultural</strong>
-          <p style="font-size:0.75rem;color:var(--text-secondary);margin:4px 0 0 0;">Personal wealth and belongings</p>
-        </label>
-        
-        <label class="lifestyle-option ${isHunterGatherer ? 'selected' : ''}" onclick="selectLifestyle('hunter_gatherer')" style="cursor:pointer;flex:1;min-width:200px;padding:1rem;border:2px solid ${isHunterGatherer ? 'var(--accent-gold)' : 'var(--border-color)'};border-radius:6px;background:${isHunterGatherer ? 'rgba(201,168,76,0.1)' : 'transparent'};">
-          <input type="radio" name="lifestyle" ${isHunterGatherer ? 'checked' : ''} onclick="event.stopPropagation();" style="pointer-events:none;margin-right:8px;"/>
-          <strong>Hunter/Gatherer</strong>
-          <p style="font-size:0.75rem;color:var(--text-secondary);margin:4px 0 0 0;">Communal clan/tribe wealth</p>
-        </label>
-      </div>
-      
-      ${isHunterGatherer ? `
-      <div class="hunter-gatherer-details" style="padding:1rem;background:rgba(0,0,0,0.2);border-radius:6px;">
-        <div style="margin-bottom:1rem;">
-          <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Name</label>
-          <input type="text" 
-                 value="${state.clanName || ''}" 
-                 oninput="updateClanName(this.value)"
-                 placeholder="Enter your clan name"
-                 style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:0.85rem;"/>
-        </div>
-        
-        <div style="margin-bottom:1rem;">
-          <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Prosperity</label>
-          <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:6px;font-style:italic;">Work with your GM to determine prosperity</p>
-          <select onchange="updateClanProsperity(parseInt(this.value))" 
-                  style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:0.85rem;">
-            <option value="" ${state.clanProsperity === null ? 'selected' : ''}>Select prosperity level...</option>
-            ${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(v => 
-              `<option value="${v}" ${state.clanProsperity === v ? 'selected' : ''}>${v} - ${
-                v === 0 ? 'Starving' :
-                v <= 4 ? 'Barely surviving' :
-                v <= 8 ? 'Underfed but stable' :
-                v <= 12 ? 'Comfortable' :
-                v <= 16 ? 'Prosperous' :
-                v <= 18 ? 'Well resourced' :
-                v === 19 ? 'Very prosperous' :
-                'Exceptional windfall'
-              }</option>`
-            ).join('')}
-          </select>
-        </div>
-        
-        <div>
-          <label style="display:flex;align-items:center;cursor:pointer;font-size:0.85rem;">
-            <input type="checkbox" 
-                   ${state.castOut ? 'checked' : ''} 
-                   onchange="toggleCastOut(this.checked)"
-                   style="margin-right:8px;"/>
-            Cast out of the clan/tribe (Resources = 0)
-          </label>
-        </div>
-      </div>
-      ` : ''}
-      
-      ${!state.lifestyle ? `<p class="validation-msg">Select a lifestyle to continue.</p>` : ''}
-      ${isHunterGatherer && !state.clanName.trim() ? `<p class="validation-msg">Enter a clan name to continue.</p>` : ''}
-      ${isHunterGatherer && state.clanProsperity === null ? `<p class="validation-msg">Select clan prosperity to continue.</p>` : ''}
-    </div>`;
-  }
-
   const archetypeCards = filtered.map(arch => `
     <div class="archetype-card ${state.archetype === arch.id ? 'selected' : ''}"
          onclick="selectArchetype('${arch.id}')" role="button" tabindex="0"
@@ -2268,8 +2293,6 @@ function renderStep3() {
   <div class="step-content">
     <h2 class="step-title">Choose Your Archetype</h2>
     <p class="step-subtitle">Your archetype defines your occupation and grants bonus skills. Choose wisely—the cosmos cares nothing for your credentials.</p>
-
-    ${lifestyleHtml}
 
     <div class="archetype-grid">${archetypeCards}</div>
 
@@ -2336,7 +2359,7 @@ function updateClanName(value) {
     b0.name = value || 'Clan/Tribe';
   }
   const nextBtn = document.getElementById('next-btn');
-  if (nextBtn && state.currentStep === 3) nextBtn.disabled = !canProceed(3);
+  if (nextBtn && state.currentStep === 2) nextBtn.disabled = !canProceed(2);
   // Don't re-render to preserve focus
 }
 
