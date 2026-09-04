@@ -171,6 +171,18 @@ function getLifestyleLabel() {
   return '';
 }
 
+function getClanDisplayName() {
+  if (!state.clanName) return '';
+  return state.castOut ? `${state.clanName} (outcast)` : state.clanName;
+}
+
+function shouldShowClanProsperity() {
+  return state.age === 'stone' &&
+    state.lifestyle === 'hunter_gatherer' &&
+    !state.castOut &&
+    state.clanProsperity !== null;
+}
+
 // Returns the description for a skill from the current age-specific description map, or empty string if none.
 function getSkillDescription(skillName) {
   const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS
@@ -3242,8 +3254,8 @@ function buildCharSheetHtml() {
         ${state.age === 'stone' ? `
         <div class="sheet-meta" style="margin-top:0.4rem;">
           <span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>
-          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${state.clanName ? escapeHtml(state.clanName) : '—'}</strong></span>` : ''}
-          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${escapeHtml(String(Number.isFinite(state.clanProsperity) ? state.clanProsperity : '—'))}</strong></span>` : ''}
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${getClanDisplayName() ? escapeHtml(getClanDisplayName()) : '—'}</strong></span>` : ''}
+          ${shouldShowClanProsperity() ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${escapeHtml(String(Number.isFinite(state.clanProsperity) ? state.clanProsperity : '—'))}</strong></span>` : ''}
         </div>` : ''}
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
@@ -4629,12 +4641,12 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         })()}
         ${(() => {
           if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.clanName) {
-            return `<div class="oa-field"><span class="oa-flbl">Clan</span><span class="oa-fval oa-fval-sm">${esc(state.clanName)}</span></div>`;
+            return `<div class="oa-field"><span class="oa-flbl">Clan</span><span class="oa-fval oa-fval-sm">${esc(getClanDisplayName())}</span></div>`;
           }
           return '';
         })()}
         ${(() => {
-          if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.clanProsperity !== null) {
+          if (shouldShowClanProsperity()) {
             return `<div class="oa-field"><span class="oa-flbl">Clan Prosperity</span><span class="oa-fval oa-fval-sm">${state.clanProsperity}</span></div>`;
           }
           return '';

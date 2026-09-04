@@ -1410,6 +1410,47 @@ const testCode = `
     eq(getBonusPointsTotal(), 12, 'Cast-out hunter/gatherer bond sacrifice does not add extra picks');
   }
 
+  // 10.13  Cast-out clan label appears on both sheets and clan prosperity is hidden
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.castOut = true;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+    Object.assign(state.identity, {
+      gender: '',
+      permanentInjuries: '',
+      terribleTomes: '',
+      gear: '',
+      notes: '',
+    });
+
+    eq(getClanDisplayName(), 'Bear Clan (outcast)', 'Cast-out clan display name appends the outcast label');
+    eq(shouldShowClanProsperity(), false, 'Cast-out hunter/gatherer hides clan prosperity');
+
+    const charSheetHtml = buildCharSheetHtml();
+    eq(String(charSheetHtml.includes('Bear Clan (outcast)')), 'true', 'Character sheet shows clan name with outcast label');
+    eq(String(charSheetHtml.includes('sheet-clan-prosperity')), 'false', 'Character sheet hides clan prosperity for cast-out hunter/gatherer');
+
+    let exportedHtml = '';
+    const originalOpen = window.open;
+    window.open = () => ({
+      document: {
+        open() {},
+        write(html) { exportedHtml = html; },
+        close() {},
+      },
+    });
+
+    exportToOriginalSheet();
+    window.open = originalOpen;
+
+    eq(String(exportedHtml.includes('Bear Clan (outcast)')), 'true', 'Original sheet shows clan name with outcast label');
+    eq(String(exportedHtml.includes('Clan Prosperity')), 'false', 'Original sheet hides clan prosperity for cast-out hunter/gatherer');
+  }
+
   // ── Suite 11: Attribute Edit Mode ────────────────────────────────────────────
 
   console.log('\\n── Suite 11: Attribute Edit Mode ────────────────────────────────────────────');
