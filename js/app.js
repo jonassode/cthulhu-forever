@@ -202,6 +202,18 @@ function createEmptyBond() {
   return { name: '', type: null, bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 };
 }
 
+function createHunterGathererClanBond() {
+  const cha = getOrigAttrValue('CHA') || 0;
+  return {
+    name: state.clanName || 'Clan/Tribe',
+    type: 'community',
+    bonusSpent: 0,
+    currentScore: cha + 2,
+    setToOne: false,
+    upbringingReduction: 0
+  };
+}
+
 function isHunterGathererClanBond(bond) {
   return !!bond &&
     state.age === 'stone' &&
@@ -217,26 +229,15 @@ function ensureBondsCount() {
     const index = state.bonds.length;
     // Stone Age hunter/gatherer: first bond is automatic community bond to clan/tribe
     if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && index === 0) {
-      const cha = getOrigAttrValue('CHA') || 0;
-      state.bonds.push({ 
-        name: state.clanName || 'Clan/Tribe', 
-        type: 'community', 
-        bonusSpent: 0, 
-        currentScore: cha + 2, 
-        setToOne: false,
-        upbringingReduction: 0
-      });
+      state.bonds.push(createHunterGathererClanBond());
     } else {
       state.bonds.push(createEmptyBond());
     }
   }
   while (state.bonds.length > count) state.bonds.pop();
   const b0 = state.bonds[0];
-  if (isHunterGathererClanBond(b0)) {
-    b0.name = state.clanName || 'Clan/Tribe';
-    b0.type = 'community';
-    b0.bonusSpent = 0;
-    b0.setToOne = false;
+  if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && b0) {
+    state.bonds[0] = createHunterGathererClanBond();
   }
 }
 
@@ -2252,7 +2253,15 @@ function toggleOptional(skillName, maxCount) {
 // ── Stone Age Lifestyle ────────────────────────────────────
 
 function selectLifestyle(lifestyle) {
+  const prevLifestyle = state.lifestyle;
   state.lifestyle = lifestyle;
+  if (state.age === 'stone' && state.bonds.length > 0) {
+    if (lifestyle === 'hunter_gatherer') {
+      state.bonds[0] = createHunterGathererClanBond();
+    } else if (prevLifestyle === 'hunter_gatherer') {
+      state.bonds[0] = createEmptyBond();
+    }
+  }
   // Reset hunter/gatherer specific fields when switching to agricultural
   if (lifestyle === 'agricultural') {
     state.clanName = '';
