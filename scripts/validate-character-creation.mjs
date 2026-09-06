@@ -12,8 +12,8 @@
  *   3. Skill values    — base + archetype bonus + bonus picks (cap at 80 %)
  *   4. Adversity picks — applied to eligible skills
  *   5. Resources       — archetype base + bonus picks (cap at 20)
- *   6. Bond values     — individual (= CHA) and community (= Resources÷2
- *                         + optional bonus picks)
+ *   6. Bond values     — individual (= CHA) and community (= Resources÷2,
+ *                         rounded up, + optional bonus picks)
  *   7. Bonus-point pool accounting
  *
  * The app's pure calculation functions (calculateDerived, getFinalSkillValue,
@@ -157,6 +157,10 @@ const testCode = `
     state.harshStatChoice   = null;
     state.adversityPoints   = {};
     state.archetype         = null;
+    state.lifestyle         = null;
+    state.clanName          = '';
+    state.clanProsperity    = null;
+    state.castOut           = false;
     state.selectedOptional  = [];
     state.skillPoints       = {};
     state.skillTypes        = {};
@@ -747,6 +751,14 @@ const testCode = `
       'Apocthulhu adversity skills: Post-Apocalypse Lore (Type), Scavenge, Survival (Type), Unnatural');
   }
 
+  // 5b.13  Stone Age era
+  {
+    const STONE_AGE_ADVERSITY = ['Carouse', 'First Aid', 'Other Tribe (Type)', 'Scavenge'];
+    resetState(); state.age = 'stone';
+    arrEq(getAdversitySkills(), STONE_AGE_ADVERSITY,
+      'Stone Age adversity skills: Carouse, First Aid, Other Tribe (Type), Scavenge');
+  }
+
   // ── Suite 5c: Nightmarish Upbringing ───────────────────────────────────────
   console.log('\\n\u2500\u2500 Suite 5c: Nightmarish Upbringing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
 
@@ -1008,6 +1020,20 @@ const testCode = `
     eq(cap34.checkboxes,3, 'Capacity rating=34: checkboxes=3');
   }
 
+  // 6.8  Hunter/gatherer resources are fixed to clan prosperity and ignore resource pick state
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    state.resourcesBonusSpent = 3;
+    state.resourcesSetToZero = true;
+
+    eq(getEffectiveResources(), 12, 'Hunter/gatherer resources stay at clan prosperity even if resource pick state is set');
+    eq(getBonusPointsSpent(), 0, 'Hunter/gatherer resource pick state does not spend bonus picks');
+    eq(getBonusPointsTotal(), 10, 'Hunter/gatherer cannot gain bonus picks by sacrificing resources');
+  }
+
   // ── Suite 7: Bond Values ─────────────────────────────────────────────────────
 
   console.log('\\n── Suite 7: Bond Values ─────────────────────────────────────────────────────');
@@ -1048,9 +1074,9 @@ const testCode = `
     state.resourcesBonusSpent = 1; // Resources = 4 + 5 = 9
 
     const comBond = { name: 'Test Org', type: 'community', bonusSpent: 0, currentScore: null };
-    // floor(9/2) = 4
-    eq(getBondEffectiveValue(comBond), 4,
-      'Community bond: floor(Resources(9)/2) = 4 after 1 resource pick');
+    // ceil(9/2) = 5
+    eq(getBondEffectiveValue(comBond), 5,
+      'Community bond: ceil(Resources(9)/2) = 5 after 1 resource pick');
   }
 
   // ── Suite 7b: Community Bond Status Labels ───────────────────────────────────
@@ -1215,7 +1241,7 @@ const testCode = `
     setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
 
     const sacBond = { name: 'The Lodge', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false };
-    // Base community bond = floor(resources/2) = floor(4/2) = 2
+    // Base community bond = ceil(resources/2) = ceil(4/2) = 2
     eq(getBondEffectiveValue(sacBond), 2, 'Community bond before sacrifice = 2');
 
     sacBond.setToOne = true;
@@ -1224,6 +1250,41 @@ const testCode = `
     state.bonds = [sacBond];
     eq(getBonusPointsTotal(), 11, 'Bonus picks total with 1 bond sacrifice = 11');
     eq(getBonusPointsRemaining(), 11, 'All 11 remaining when no skills spent');
+  }
+
+  // 10.3b  Community bond base rounds up for odd Resources values
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+
+    const oddBond = { name: 'Village Council', type: 'community', bonusSpent: 0, currentScore: null, setToOne: false };
+    eq(getEffectiveResources(), 5, 'Agricultural Stone Age leader resources = 5');
+    eq(getBondEffectiveValue(oddBond), 3, 'Community bond rounds up from odd Resources 5 to 3');
+  }
+
+  // 10.3c  Agricultural Stone Age leader has a fixed first community bond worth at least 12
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+
+    ensureBondsCount();
+    eq(state.bonds[0].type, 'community', 'Agricultural Stone Age leader first bond is fixed as a community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 12, 'Agricultural Stone Age leader first bond starts at 12');
+  }
+
+  // 10.3d  Agricultural Stone Age leader first bond type cannot be switched away from community
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+
+    ensureBondsCount();
+    updateBondType(0, 'individual');
+    eq(state.bonds[0].type, 'community', 'Agricultural Stone Age leader first bond stays community when type switch is attempted');
   }
 
   // 10.4  Multiple bond sacrifices stack with resource sacrifice
@@ -1296,6 +1357,141 @@ const testCode = `
     toggleBondSetToOne(0);
     eq(state.bonds[0].setToOne, false, 'toggleBondSetToOne is no-op when resources are sacrificed');
     eq(getBonusPointsTotal(), 11, 'Bonus total unchanged (only resource sacrifice counts)');
+  }
+
+  // 10.9  Hunter/gatherer clan bond is fixed at CHA + 2 and cannot use bond bonus-pick actions
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+
+    eq(state.bonds[0].name, 'Bear Clan', 'Hunter/gatherer clan bond uses the clan name');
+    eq(state.bonds[0].type, 'community', 'Hunter/gatherer clan bond stays a community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 11, 'Hunter/gatherer clan bond value = CHA + 2');
+
+    adjustBond(0, 1);
+    eq(state.bonds[0].bonusSpent, 0, 'Hunter/gatherer clan bond ignores bond bonus-pick increases');
+
+    toggleBondSetToOne(0);
+    eq(state.bonds[0].setToOne, false, 'Hunter/gatherer clan bond cannot be sacrificed');
+
+    updateBondType(0, 'individual');
+    eq(state.bonds[0].type, 'community', 'Hunter/gatherer clan bond cannot switch away from community');
+
+    updateBond(0, 'Other Name');
+    eq(state.bonds[0].name, 'Bear Clan', 'Hunter/gatherer clan bond name remains tied to the clan');
+  }
+
+  // 10.10  Hunter/gatherer resource controls are disabled in logic and omitted from step 4 UI
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.archetype = 'hunter_stone';
+    state.resourcesBonusSpent = 2;
+    state.resourcesSetToZero = true;
+
+    adjustResources(1);
+    eq(state.resourcesBonusSpent, 2, 'Hunter/gatherer adjustResources(+1) is a no-op');
+
+    toggleResourcesZero();
+    eq(state.resourcesSetToZero, true, 'Hunter/gatherer toggleResourcesZero() is a no-op');
+
+    const html = renderStep4();
+    eq(state.resourcesBonusSpent, 0, 'renderStep4 normalizes stale hunter/gatherer resource picks');
+    eq(state.resourcesSetToZero, false, 'renderStep4 clears stale hunter/gatherer resource sacrifice state');
+    eq(String(html.includes('adjustResources(1)')), 'false', 'Hunter/gatherer step 4 omits the resource increase control');
+    eq(String(html.includes('toggleResourcesZero()')), 'false', 'Hunter/gatherer step 4 omits the resource sacrifice control');
+  }
+
+  // 10.11  Cast-out hunter/gatherers lose the fixed clan bond and gain two extra bonus picks
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.castOut = true;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+
+    eq(getEffectiveResources(), 0, 'Cast-out hunter/gatherer resources are fixed at 0');
+    eq(getBonusPointsTotal(), 12, 'Cast-out hunter/gatherer gains 2 extra bonus picks');
+    eq(state.bonds[0].type, null, 'Cast-out hunter/gatherer first bond is not forced to community');
+    eq(state.bonds[0].name, '', 'Cast-out hunter/gatherer first bond is not forced to the clan name');
+
+    const html = renderStep4();
+    eq(String(html.includes('Bond 1</strong> is fixed as a Community Bond to your clan')), 'false',
+      'Cast-out hunter/gatherer step 4 omits the fixed clan bond note');
+    eq(String(html.includes('Resources are fixed at 0, and you receive 2 extra Bonus Picks.')), 'true',
+      'Cast-out hunter/gatherer step 4 explains the extra picks');
+  }
+
+  // 10.12  Cast-out hunter/gatherers cannot sacrifice community bonds that start at 0
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.castOut = true;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+
+    ensureBondsCount();
+    state.bonds[0].type = 'community';
+    state.bonds[0].name = 'Outcast Camp';
+
+    toggleBondSetToOne(0);
+    eq(state.bonds[0].setToOne, false, 'Cast-out hunter/gatherer community bond cannot be sacrificed from 0');
+    eq(getBonusPointsTotal(), 12, 'Cast-out hunter/gatherer bond sacrifice does not add extra picks');
+  }
+
+  // 10.13  Cast-out clan label appears on both sheets and clan prosperity is hidden
+  {
+    resetState(); state.age = 'stone'; state.upbringing = 'normal';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 12;
+    state.castOut = true;
+    state.archetype = 'hunter_stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 9 });
+    Object.assign(state.identity, {
+      gender: '',
+      permanentInjuries: '',
+      terribleTomes: '',
+      gear: '',
+      notes: '',
+    });
+
+    eq(getClanDisplayName(), 'Bear Clan (outcast)', 'Cast-out clan display name appends the outcast label');
+    eq(shouldShowClanProsperity(), false, 'Cast-out hunter/gatherer hides clan prosperity');
+
+    const charSheetHtml = buildCharSheetHtml();
+    eq(String(charSheetHtml.includes('Bear Clan (outcast)')), 'true', 'Character sheet shows clan name with outcast label');
+    eq(String(charSheetHtml.includes('sheet-clan-prosperity')), 'false', 'Character sheet hides clan prosperity for cast-out hunter/gatherer');
+
+    let exportedHtml = '';
+    const originalOpen = window.open;
+    window.open = () => ({
+      document: {
+        open() {},
+        write(html) { exportedHtml = html; },
+        close() {},
+      },
+    });
+
+    exportToOriginalSheet();
+    window.open = originalOpen;
+
+    eq(String(exportedHtml.includes('Bear Clan (outcast)')), 'true', 'Original sheet shows clan name with outcast label');
+    eq(String(exportedHtml.includes('Clan Prosperity')), 'false', 'Original sheet hides clan prosperity for cast-out hunter/gatherer');
   }
 
   // ── Suite 11: Attribute Edit Mode ────────────────────────────────────────────
@@ -1618,6 +1814,64 @@ const testCode = `
     eq(state.disorders.length, 0, 'resetUpbringingEffectsState removes the auto-added disorder');
   }
 
+  // 12.16  Stone Age step 2 blocks progression until lifestyle is chosen
+  {
+    resetState(); state.age = 'stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    state.upbringing = 'normal';
+    eq(canProceed(2), false, 'Stone Age: canProceed(2) = false when lifestyle is missing');
+  }
+
+  // 12.17  Agricultural Stone Age can proceed through step 2 without clan details
+  {
+    resetState(); state.age = 'stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    state.lifestyle = 'agricultural';
+    state.upbringing = 'normal';
+    eq(canProceed(2), true, 'Stone Age: canProceed(2) = true for agricultural lifestyle without clan details');
+  }
+
+  // 12.18  Hunter/gatherer Stone Age requires both clan name and clan prosperity in step 2
+  {
+    resetState(); state.age = 'stone';
+    setAttributes({ STR: 10, CON: 10, DEX: 10, INT: 10, POW: 10, CHA: 10 });
+    state.lifestyle = 'hunter_gatherer';
+    state.upbringing = 'normal';
+    state.clanName = '';
+    state.clanProsperity = 10;
+    eq(canProceed(2), false, 'Stone Age: canProceed(2) = false for hunter/gatherer when clan name is missing');
+
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = null;
+    eq(canProceed(2), false, 'Stone Age: canProceed(2) = false for hunter/gatherer when clan prosperity is missing');
+
+    state.clanProsperity = 0;
+    eq(canProceed(2), true, 'Stone Age: canProceed(2) = true for hunter/gatherer when clan details are complete');
+  }
+
+  // 12.18b  Stone Age step 3 no longer depends on lifestyle or clan details
+  {
+    resetState(); state.age = 'stone';
+    state.archetype = 'herbalist_stone';
+    state.selectedOptional = ['Alertness', 'Beguile'];
+    eq(canProceed(3), true, 'Stone Age: canProceed(3) = true once archetype choices are complete even without lifestyle details');
+  }
+
+  // 12.19  Switching Stone Age lifestyles re-applies the fixed first-bond rule for agricultural leaders
+  {
+    resetState(); state.age = 'stone';
+    state.lifestyle = 'agricultural';
+    state.archetype = 'leader_stone';
+    ensureBondsCount();
+
+    selectLifestyle('hunter_gatherer');
+    eq(state.bonds[0].type, 'community', 'Stone Age: hunter/gatherer lifestyle still forces the first bond to community');
+
+    selectLifestyle('agricultural');
+    eq(state.bonds[0].type, 'community', 'Stone Age: switching back to agricultural leader restores the fixed first community bond');
+    eq(getBondEffectiveValue(state.bonds[0]), 12, 'Stone Age: switching back to agricultural leader restores the first bond base to 12');
+  }
+
 })();
 
 // ── Suite 13: Default Unarmed Weapon Row ─────────────────────────────────────
@@ -1659,6 +1913,26 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
       'future era: weapons[0].skill === "Unarmed Combat"');
     eqW(state.identity.weapons[0].damage, '1D4-1',
       'future era: weapons[0].damage === "1D4-1"');
+  }
+
+  // 13.3  resetState clears Stone Age lifestyle state for a fresh character
+  {
+    state.age = 'stone';
+    state.lifestyle = 'hunter_gatherer';
+    state.clanName = 'Bear Clan';
+    state.clanProsperity = 14;
+    state.castOut = true;
+
+    resetState();
+
+    eqW(state.lifestyle, null,
+      'resetState clears Stone Age lifestyle');
+    eqW(state.clanName, '',
+      'resetState clears Stone Age clanName');
+    eqW(state.clanProsperity, null,
+      'resetState clears Stone Age clanProsperity');
+    eqW(state.castOut, false,
+      'resetState clears Stone Age castOut flag');
   }
 }
 `;

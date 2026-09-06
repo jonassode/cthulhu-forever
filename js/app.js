@@ -8,7 +8,7 @@ const state = {
   currentTab: 'character-creator',  // 'character-creator' | 'about'
   currentStep: 1,
   playMode: false,    // true = character sheet only view
-  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad' | 'apocthulhu'
+  age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad' | 'apocthulhu' | 'stone'
 
   attrMode: 'rolling',  // 'rolling' | 'points'
   pointsAttr: {         // points-based allocation values (used when attrMode === 'points')
@@ -25,6 +25,12 @@ const state = {
   upbringing: null,        // 'normal' | 'harsh' | 'very_harsh' | 'nightmarish'
   harshStatChoice: null,   // 'STR' | 'CON' — only for 'harsh' upbringing
   adversityPoints: {},     // skillName -> bonus picks spent (adversity pool)
+
+  // ── Stone Age lifestyle (only used when age === 'stone') ────
+  lifestyle: null,          // 'agricultural' | 'hunter_gatherer' | null
+  clanName: '',             // clan name (for hunter_gatherer lifestyle)
+  clanProsperity: null,     // 0-20 (for hunter_gatherer lifestyle)
+  castOut: false,           // true = cast out of clan (for hunter_gatherer lifestyle)
 
   archetype: null,               // archetype id
   selectedOptional: [],          // chosen optional skill names
@@ -159,6 +165,24 @@ function getSkillDisplayName(skillName) {
   return customType ? skillName.replaceAll('(Type)', '(' + customType + ')') : skillName;
 }
 
+function getLifestyleLabel() {
+  if (state.lifestyle === 'agricultural') return 'Agricultural';
+  if (state.lifestyle === 'hunter_gatherer') return 'Hunter-Gatherer';
+  return '';
+}
+
+function getClanDisplayName() {
+  if (!state.clanName) return '';
+  return state.castOut ? `${state.clanName} (outcast)` : state.clanName;
+}
+
+function shouldShowClanProsperity() {
+  return state.age === 'stone' &&
+    state.lifestyle === 'hunter_gatherer' &&
+    !state.castOut &&
+    state.clanProsperity !== null;
+}
+
 // Returns the description for a skill from the current age-specific description map, or empty string if none.
 function getSkillDescription(skillName) {
   const descriptions = state.age === 'jazz' ? JAZZ_SKILL_DESCRIPTIONS
@@ -174,6 +198,7 @@ function getSkillDescription(skillName) {
     : state.age === 'elizabethan' ? ELIZABETHAN_SKILL_DESCRIPTIONS
     : state.age === 'alazrad' ? AL_AZRAD_SKILL_DESCRIPTIONS
     : state.age === 'apocthulhu' ? APOCTHULHU_SKILL_DESCRIPTIONS
+    : state.age === 'stone' ? STONE_AGE_SKILL_DESCRIPTIONS
     : MODERN_SKILL_DESCRIPTIONS;
   return descriptions[skillName] || '';
 }
@@ -189,11 +214,80 @@ function createEmptyBond() {
   return { name: '', type: null, bonusSpent: 0, currentScore: null, setToOne: false, upbringingReduction: 0 };
 }
 
+function createHunterGathererClanBond() {
+  const cha = getOrigAttrValue('CHA') || 0;
+  return {
+    name: state.clanName || 'Clan/Tribe',
+    type: 'community',
+    bonusSpent: 0,
+    currentScore: cha + 2,
+    setToOne: false,
+    upbringingReduction: 0
+  };
+}
+
+function createAgriculturalLeaderBond(existingBond = null) {
+  return {
+    name: existingBond && typeof existingBond.name === 'string' ? existingBond.name : '',
+    type: 'community',
+    bonusSpent: existingBond && Number.isFinite(existingBond.bonusSpent) ? existingBond.bonusSpent : 0,
+    currentScore: existingBond && existingBond.currentScore !== undefined ? existingBond.currentScore : null,
+    setToOne: !!(existingBond && existingBond.setToOne),
+    upbringingReduction: existingBond && Number.isFinite(existingBond.upbringingReduction) ? existingBond.upbringingReduction : 0
+  };
+}
+
+function hasFixedHunterGathererClanBond() {
+  return state.age === 'stone' &&
+    state.lifestyle === 'hunter_gatherer' &&
+    !state.castOut;
+}
+
+function hasFixedAgriculturalLeaderBond() {
+  return state.age === 'stone' &&
+    state.lifestyle === 'agricultural' &&
+    state.archetype === 'leader_stone';
+}
+
+function isHunterGathererClanBond(bond) {
+  return !!bond &&
+    hasFixedHunterGathererClanBond() &&
+    bond === state.bonds[0] &&
+    bond.type === 'community';
+}
+
+function isAgriculturalLeaderBond(bond) {
+  return !!bond &&
+    hasFixedAgriculturalLeaderBond() &&
+    bond === state.bonds[0] &&
+    bond.type === 'community';
+}
+
+function hasLockedCommunityBondType(bond) {
+  return isHunterGathererClanBond(bond) || isAgriculturalLeaderBond(bond);
+}
+
 // Ensure state.bonds array has the correct length
 function ensureBondsCount() {
   const count = getEffectiveBondsCount();
-  while (state.bonds.length < count) state.bonds.push(createEmptyBond());
+  while (state.bonds.length < count) {
+    const index = state.bonds.length;
+    // Stone Age hunter/gatherer: first bond is automatic community bond to clan/tribe
+    if (hasFixedHunterGathererClanBond() && index === 0) {
+      state.bonds.push(createHunterGathererClanBond());
+    } else if (hasFixedAgriculturalLeaderBond() && index === 0) {
+      state.bonds.push(createAgriculturalLeaderBond());
+    } else {
+      state.bonds.push(createEmptyBond());
+    }
+  }
   while (state.bonds.length > count) state.bonds.pop();
+  const b0 = state.bonds[0];
+  if (hasFixedHunterGathererClanBond() && b0) {
+    state.bonds[0] = createHunterGathererClanBond();
+  } else if (hasFixedAgriculturalLeaderBond() && b0) {
+    state.bonds[0] = createAgriculturalLeaderBond(b0);
+  }
 }
 
 function getUpbringingBonus(attrKey) {
@@ -497,6 +591,7 @@ function getCurrentSkills() {
   if (state.age === 'elizabethan')  return ELIZABETHAN_SKILLS;
   if (state.age === 'alazrad')      return AL_AZRAD_SKILLS;
   if (state.age === 'apocthulhu')   return APOCTHULHU_SKILLS;
+  if (state.age === 'stone')        return STONE_AGE_SKILLS;
   return MODERN_SKILLS;
 }
 
@@ -559,7 +654,8 @@ function getBonusPointsTotal() {
   // +1 pick for sacrificing Resources (setting to 0)
   // +1 pick per Community Bond sacrificed (set to score of 1)
   let total = 10;
-  if (state.resourcesSetToZero) total += 1;
+  if (hasHunterGathererResources() && state.castOut) total += 2;
+  if (state.resourcesSetToZero && !hasHunterGathererResources()) total += 1;
   total += (state.bonds || []).filter(b => b && b.type === 'community' && b.setToOne).length;
   return total;
 }
@@ -568,7 +664,8 @@ function getBonusPointsSpent() {
   const skillPicks = Object.values(state.skillPoints).reduce((s, v) => s + v, 0);
   const bondPicks  = state.bonds.reduce((s, b) => s + (b && b.bonusSpent ? b.bonusSpent : 0), 0);
   const customPicks = (state.customSkills || []).reduce((s, cs) => s + (cs.points || 0), 0);
-  return skillPicks + state.resourcesBonusSpent + bondPicks + customPicks;
+  const resourcePicks = hasHunterGathererResources() ? 0 : state.resourcesBonusSpent;
+  return skillPicks + resourcePicks + bondPicks + customPicks;
 }
 
 function getBonusPointsRemaining() {
@@ -581,9 +678,24 @@ function getEffectiveBondsCount() {
   return arch.bonds;
 }
 
+function hasHunterGathererResources() {
+  return state.age === 'stone' && state.lifestyle === 'hunter_gatherer';
+}
+
 function getEffectiveResources() {
   const arch = getArchetype();
   if (!arch) return 0;
+  
+  // Stone Age lifestyle-based resources
+  if (state.age === 'stone') {
+    if (hasHunterGathererResources()) {
+      // Hunter/gatherer: resources = clan prosperity, or 0 if cast out
+      if (state.castOut) return 0;
+      return Number.isFinite(state.clanProsperity) ? state.clanProsperity : 0;
+    }
+    // Agricultural: standard archetype resources (falls through to normal logic below)
+  }
+  
   // If resources are sacrificed for a bonus pick, resources = 0
   if (state.resourcesSetToZero) return 0;
   const base = arch.resources;
@@ -601,6 +713,10 @@ function getDisplayedResources() {
   return Math.max(0, base + (state.resourcesEditAdjust || 0));
 }
 
+function getCommunityBondBaseValue(resources = getEffectiveResources()) {
+  return Math.ceil(Math.max(0, resources) / 2);
+}
+
 // Returns the Resources capacity for a given rating per SKILL.md table.
 function getResourcesCapacity(rating) {
   if (rating <= 0)  return { atHand: 0, stowed: 0, inStorage: 0, checkboxes: 0 };
@@ -610,20 +726,24 @@ function getResourcesCapacity(rating) {
 }
 
 // Returns the effective numeric value of a bond object.
-// Individual bonds are tied to CHA; Community bonds are Resources÷2 plus bonus from picks.
+// Individual bonds are tied to CHA; Community bonds are Resources÷2 rounded up plus bonus from picks.
 // Returns the bond value before any upbringing reductions are applied.
 function getBondPreReductionValue(bond) {
   if (!bond || !bond.type) return null;
   let value;
-  if (bond.type === 'individual') {
+  if (isHunterGathererClanBond(bond)) {
+    value = (getOrigAttrValue('CHA') || 0) + 2;
+  } else if (bond.type === 'individual') {
     value = getAttrValue('CHA');
   } else {
     // Community bond sacrificed for a bonus pick: score is fixed at 1
     if (bond.setToOne) {
       value = 1;
     } else {
-      // Community bond: base is Resources÷2, bonus per SKILL.md
-      const base = Math.floor(getEffectiveResources() / 2);
+      // Community bond: base is Resources÷2 rounded up, bonus per SKILL.md
+      const base = isAgriculturalLeaderBond(bond)
+        ? Math.max(12, getCommunityBondBaseValue())
+        : getCommunityBondBaseValue();
       const n = bond.bonusSpent || 0;
       const bonus = n > 0 ? 5 + (n - 1) * 2 : 0;
       value = base + bonus;
@@ -1220,6 +1340,9 @@ function getAdversitySkills() {
   if (state.age === 'apocthulhu') {
     return ['Post-Apocalypse Lore (Type)', 'Scavenge', 'Survival (Type)', 'Unnatural'];
   }
+  if (state.age === 'stone') {
+    return ['Carouse', 'First Aid', 'Other Tribe (Type)', 'Scavenge'];
+  }
   return ['First Aid', 'Military Training (Type)', 'Regional Lore (Type)', 'Survival (Type)'];
 }
 
@@ -1245,6 +1368,13 @@ function canProceed(step) {
     case 1: return !!state.age;
     case 2: {
       if (!allAttributesAssigned()) return false;
+      if (state.age === 'stone') {
+        if (!state.lifestyle) return false;
+        if (state.lifestyle === 'hunter_gatherer') {
+          if (!state.clanName.trim()) return false;
+          if (state.clanProsperity === null) return false;
+        }
+      }
       if (!state.upbringing) return false;
       if (state.upbringing === 'harsh' && !state.harshStatChoice) return false;
       return true;
@@ -1485,13 +1615,16 @@ function renderStep1() {
       ${_eraAccordionItem('alazrad', 'Age of Al-Azrad', '700–1200 CE',
         'The Islamic Golden Age — a time of flourishing scholarship, trade, and culture across a vast caliphate. Beneath the gleaming domes of Baghdad and the dusty caravans of the Silk Road, the author of the Kitab Al-Azif walked a world where cosmic horror was only a prayer away.',
         ['Technology: Swords, bows, siege weapons, chirurgery, alchemy', 'Tone: Scholarly dread, desert horror, ancient cosmic mystery'])}
+      ${_eraAccordionItem('stone', 'Stone Age', '2.5 Million years ago – 3,000 BCE',
+        'The dawn of human civilization — a time of hunter-gatherers and early agricultural communities. Survival depends on knowledge of the natural world, and the spirit realm is as real as the earth beneath your feet.',
+        ['Technology: Stone tools, fire, early agriculture, oral tradition', 'Tone: Primal horror, shamanic dread, nature\'s indifference'])}
       ${_eraAccordionItem('apocthulhu', 'Apocthulhu', 'Post-Apocalypse',
         'The world has ended — or nearly so. Whatever caused the collapse has left the survivors to scratch out an existence among the ruins, fighting over scraps while something vast and hungry stirs in the silence left behind.',
         ['Technology: Salvaged firearms, improvised weapons, jury-rigged vehicles', 'Tone: Survival horror, post-apocalyptic dread, cosmic hopelessness'])}
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : 'Modern Age'}</strong> selected.
+      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : state.age === 'stone' ? 'Stone Age' : 'Modern Age'}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -1662,9 +1795,10 @@ function renderStep2() {
 
       ${remaining !== 0 ? `<p class="validation-msg">Spend all 72 points to continue (${remaining > 0 ? remaining + ' remaining' : Math.abs(remaining) + ' over budget'}).</p>` : ''}
 
+      ${allAssigned ? renderStoneLifestyleSection() : ''}
       ${allAssigned ? renderUpbringing() : ''}
 
-      ${allAssigned && !canProceed(2) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
+      ${allAssigned && !canProceed(2) ? `<p class="validation-msg">${getStep2ValidationMessage()}</p>` : ''}
     </div>`;
   }
 
@@ -1789,9 +1923,10 @@ function renderStep2() {
 
     ${!allAttributesAssigned() && hasRolled ? `<p class="validation-msg">Assign all 6 attribute values to continue.</p>` : ''}
 
+    ${allAssigned ? renderStoneLifestyleSection() : ''}
     ${allAssigned ? renderUpbringing() : ''}
 
-    ${allAssigned && !canProceed(2) ? `<p class="validation-msg">Select your upbringing${state.upbringing === 'harsh' && !state.harshStatChoice ? ' and choose STR or CON bonus' : ''} to continue.</p>` : ''}
+    ${allAssigned && !canProceed(2) ? `<p class="validation-msg">${getStep2ValidationMessage()}</p>` : ''}
   </div>`;
 }
 
@@ -1885,6 +2020,104 @@ function renderUpbringing() {
         </div>`).join('')}
     </div>
     ${statChoiceHtml}`;
+}
+
+function renderStoneLifestyleSection() {
+  if (state.age !== 'stone') return '';
+
+  const isHunterGatherer = state.lifestyle === 'hunter_gatherer';
+  const isAgricultural = state.lifestyle === 'agricultural';
+
+  return `
+    <div class="section-header" style="margin-top:2rem;"><h3>Lifestyle</h3></div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
+      Work with the GM to select your Protagonist's lifestyle and upbringing harshness based on their era:<br><br>
+      <strong>Paleolithic</strong><br>
+      * Lifestyle: Hunter/gatherer only.<br>
+      * Harshness: Default Harsh; Very Harsh for unfortunate tribes. No Normal upbringings.<br>
+      <strong>Mesolithic</strong><br>
+      * Lifestyle: Hunter/gatherer or agricultural settlement.<br>
+      * Harshness: Hunter/gatherers follow Paleolithic rules. Settlement default is Harsh, rising to Very Harsh if raided or crops fail. Privileged elites in major settlements can be Normal.<br>
+      <strong>Neolithic</strong><br>
+      * Lifestyle: Predominantly agricultural settlement; rare hunter/gatherer in wilderness.<br>
+      * Harshness: Hunter/gatherers follow Paleolithic rules. Settlement default is Normal (Harsh for semi-wilderness outposts). Adjust ±1 level for individual circumstances.
+    </p>
+    <div class="upbringing-grid" style="margin-bottom:1rem;">
+      <div class="sel-card ${isAgricultural ? 'selected' : ''}"
+           onclick="selectLifestyle('agricultural')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectLifestyle('agricultural')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-tag">Agricultural</div>
+        <div class="card-desc" style="font-size:0.78rem;margin-top:0.4rem;">Permanent settlement life centered on personal wealth and stored belongings.</div>
+      </div>
+      <div class="sel-card ${isHunterGatherer ? 'selected' : ''}"
+           onclick="selectLifestyle('hunter_gatherer')" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')selectLifestyle('hunter_gatherer')">
+        <div class="card-check">${checkIcon()}</div>
+        <div class="card-tag">Hunter/Gatherer</div>
+        <div class="card-desc" style="font-size:0.78rem;margin-top:0.4rem;">Foraging life centered on the communal wealth and standing of the clan or tribe.</div>
+      </div>
+    </div>
+    ${isHunterGatherer ? `
+    <div style="margin-bottom:1rem;">
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Name</label>
+        <input type="text"
+               value="${state.clanName || ''}"
+               oninput="updateClanName(this.value)"
+               placeholder="Enter your clan name"
+               style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:0.85rem;"/>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:0.85rem;margin-bottom:4px;color:var(--text-primary);">Clan Prosperity</label>
+        <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:6px;font-style:italic;">Work with your GM to determine prosperity</p>
+        <select onchange="updateClanProsperity(parseInt(this.value, 10))"
+                style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:0.85rem;">
+          <option value="" ${state.clanProsperity === null ? 'selected' : ''}>Select prosperity level...</option>
+          ${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(v =>
+            `<option value="${v}" ${state.clanProsperity === v ? 'selected' : ''}>${v} - ${
+              v === 0 ? 'Starving' :
+              v <= 4 ? 'Barely surviving' :
+              v <= 8 ? 'Underfed but stable' :
+              v <= 12 ? 'Comfortable' :
+              v <= 16 ? 'Prosperous' :
+              v <= 18 ? 'Well resourced' :
+              v === 19 ? 'Very prosperous' :
+              'Exceptional windfall'
+            }</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div>
+        <label style="display:flex;align-items:center;cursor:pointer;font-size:0.85rem;">
+          <input type="checkbox"
+                 ${state.castOut ? 'checked' : ''}
+                 onchange="toggleCastOut(this.checked)"
+                 style="margin-right:8px;"/>
+          Cast out of the clan/tribe (Resources = 0)
+        </label>
+      </div>
+    </div>
+    ` : ''}
+    ${!state.lifestyle ? `<p class="validation-msg">Select a lifestyle to continue.</p>` : ''}
+    ${isHunterGatherer && !state.clanName.trim() ? `<p class="validation-msg">Enter a clan name to continue.</p>` : ''}
+    ${isHunterGatherer && state.clanProsperity === null ? `<p class="validation-msg">Select clan prosperity to continue.</p>` : ''}`;
+}
+
+function getStep2ValidationMessage() {
+  if (state.age === 'stone') {
+    if (!state.lifestyle) return 'Select your lifestyle to continue.';
+    if (state.lifestyle === 'hunter_gatherer') {
+      if (!state.clanName.trim() || state.clanProsperity === null) {
+        return 'Complete your clan details to continue.';
+      }
+    }
+  }
+  if (!state.upbringing) return 'Select your upbringing to continue.';
+  if (state.upbringing === 'harsh' && !state.harshStatChoice) {
+    return 'Select your upbringing and choose STR or CON bonus to continue.';
+  }
+  return '';
 }
 
 function selectUpbringing(val) {
@@ -2096,9 +2329,74 @@ function toggleOptional(skillName, maxCount) {
   }, 50);
 }
 
+// ── Stone Age Lifestyle ────────────────────────────────────
+
+function selectLifestyle(lifestyle) {
+  const prevLifestyle = state.lifestyle;
+  state.lifestyle = lifestyle;
+  if (state.age === 'stone' && state.bonds.length > 0) {
+    if (lifestyle === 'hunter_gatherer' && !state.castOut) {
+      state.bonds[0] = createHunterGathererClanBond();
+    } else if (lifestyle === 'agricultural' && state.archetype === 'leader_stone') {
+      state.bonds[0] = createAgriculturalLeaderBond(prevLifestyle === 'hunter_gatherer' ? null : state.bonds[0]);
+    } else if (prevLifestyle === 'hunter_gatherer') {
+      state.bonds[0] = createEmptyBond();
+    }
+  }
+  // Reset hunter/gatherer specific fields when switching to agricultural
+  if (lifestyle === 'agricultural') {
+    state.clanName = '';
+    state.clanProsperity = null;
+    state.castOut = false;
+  }
+  render();
+}
+
+function updateClanName(value) {
+  state.clanName = value;
+  const b0 = state.bonds && state.bonds[0];
+  if (isHunterGathererClanBond(b0)) {
+    b0.name = value || 'Clan/Tribe';
+  }
+  const nextBtn = document.getElementById('next-btn');
+  if (nextBtn && state.currentStep === 2) nextBtn.disabled = !canProceed(2);
+  // Don't re-render to preserve focus
+}
+
+function updateClanProsperity(value) {
+  const n = Number(value);
+  state.clanProsperity = Number.isFinite(n) ? n : null;
+  render();
+}
+
+function toggleCastOut(checked) {
+  state.castOut = checked;
+  if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.bonds.length > 0) {
+    if (checked) {
+      state.bonds[0] = createEmptyBond();
+      state.bonds.forEach(b => {
+        if (b && typeof b === 'object' && b.type === 'community' && b.setToOne) {
+          b.setToOne = false;
+        }
+      });
+    } else {
+      state.bonds[0] = createHunterGathererClanBond();
+    }
+  }
+  render();
+}
+
+function normalizeHunterGathererResourceState() {
+  if (!hasHunterGathererResources()) return;
+  state.resourcesBonusSpent = 0;
+  state.resourcesSetToZero = false;
+}
+
+
 // ── RENDER: Step 4 — Point Distribution ─────────────────────
 
 function renderStep4() {
+  normalizeHunterGathererResourceState();
   const arch      = getArchetype();
   const bpTotal   = getBonusPointsTotal();
   const bpSpent   = getBonusPointsSpent();
@@ -2244,32 +2542,39 @@ function renderStep4() {
     </div>
     <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.75rem;line-height:1.6;">
       Choose a type for each bond. <strong>Personal</strong> bonds represent specific people and start at your CHA score (${cha !== null ? cha : '—'}).
-      <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2 (${Math.floor(effectiveResources / 2)}). Community bonds can be improved with Bonus Picks.
+      <strong>Community</strong> bonds represent organizations, churches, or neighborhoods and start at Resources ÷ 2, rounded up (${getCommunityBondBaseValue(effectiveResources)}). Community bonds can be improved with Bonus Picks.
+      ${hasFixedHunterGathererClanBond() ? `<br><strong>Bond 1</strong> is fixed as a Community Bond to your clan and starts at CHA + 2 (${(getOrigAttrValue('CHA') || 0) + 2}).` : ''}
+      ${hasFixedAgriculturalLeaderBond() ? `<br><strong>Bond 1</strong> is fixed as a Community Bond and starts at 12 or half your Resources, whichever is higher.` : ''}
+      ${hasHunterGathererResources() && state.castOut ? '<br><strong>Cast out:</strong> Resources are fixed at 0, and you receive 2 extra Bonus Picks.' : ''}
     </p>
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
       ${state.bonds.map((b, i) => {
         const val = getBondEffectiveValue(b);
+        const isFixedClanBond = isHunterGathererClanBond(b);
+        const hasLockedType = hasLockedCommunityBondType(b);
         const isIndividual = b.type === 'individual';
         const isCommunity  = b.type === 'community';
         const isSetToOne   = isCommunity && !!b.setToOne;
         const nextPickGain = (b.bonusSpent || 0) === 0 ? 5 : 2;
-        const canAdd = isCommunity && !isSetToOne && getBonusPointsRemaining() > 0 && (val === null || val < 20);
-        const canSub = isCommunity && !isSetToOne && b.bonusSpent > 0;
+        const canAdd = isCommunity && !isFixedClanBond && !isSetToOne && getBonusPointsRemaining() > 0 && (val === null || val < 20);
+        const canSub = isCommunity && !isFixedClanBond && !isSetToOne && b.bonusSpent > 0;
         // Cannot sacrifice a community bond when Resources is already 0 (bond base = 0,
         // so setting to 1 would be an increase, not a sacrifice).
-        const canSacrifice = isCommunity && !state.resourcesSetToZero;
+        const canSacrifice = isCommunity && !isFixedClanBond && effectiveResources > 0 && !state.resourcesSetToZero;
         return `<div class="bond-row">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.06em;min-width:3.5rem;">Bond ${i + 1}</span>
-            <button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateBondType(${i},'individual')">Personal</button>
-            <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateBondType(${i},'community')">Community</button>
+            ${hasLockedType
+              ? `<button class="bond-type-btn active-community" type="button" disabled>Community</button>`
+              : `<button class="bond-type-btn${isIndividual ? ' active-personal' : ''}" onclick="updateBondType(${i},'individual')">Personal</button>
+            <button class="bond-type-btn${isCommunity ? ' active-community' : ''}" onclick="updateBondType(${i},'community')">Community</button>`}
             ${b.type ? `
               <input class="bond-input" type="text" placeholder="${isIndividual ? 'Name a person…' : 'Name an organization, church, or neighborhood…'}"
                      value="${escapeHtml(b.name)}"
-                     oninput="updateBond(${i},this.value)" style="flex:1;min-width:10rem;" />
+                     oninput="updateBond(${i},this.value)" style="flex:1;min-width:10rem;" ${isFixedClanBond ? 'readonly aria-readonly="true"' : ''} />
               <span style="font-size:1rem;font-family:var(--font-head);color:${isSetToOne ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2rem;text-align:right;">${val !== null ? val : '—'}</span>
               ${isCommunity ? `
-                ${isSetToOne ? '' : `
+                ${isSetToOne || isFixedClanBond ? '' : `
                   <button class="skill-adj-btn" onclick="adjustBond(${i},-1)" ${canSub ? '' : 'disabled'}>−</button>
                   <span style="font-size:0.72rem;color:var(--text-secondary);">+${nextPickGain}</span>
                   <button class="skill-adj-btn plus" onclick="adjustBond(${i},1)" ${canAdd ? '' : 'disabled'}>+</button>
@@ -2291,28 +2596,30 @@ function renderStep4() {
 
   // Resources: display current value and what the next pick adds
   const nextPickGain = state.resourcesBonusSpent === 0 ? 5 : 2;
+  const canAdjustResources = !hasHunterGathererResources() && !state.resourcesSetToZero;
+  const canSacrificeResources = !hasHunterGathererResources();
   const resourcesHtml = `
     <div class="section-header" style="margin-top:2rem;"><h3>Resources</h3></div>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
       <span style="font-size:1.5rem;font-family:var(--font-head);color:${state.resourcesSetToZero ? 'var(--ct-danger,#7a1c1c)' : 'var(--accent-gold)'};min-width:2.5rem;text-align:center;">${effectiveResources}</span>
       <span style="font-size:0.82rem;color:var(--text-secondary);">
-        base: ${arch ? arch.resources : 0}
+        base: ${hasHunterGathererResources() ? (Number.isFinite(state.clanProsperity) ? state.clanProsperity : 0) : (arch ? arch.resources : 0)}
         ${!state.resourcesSetToZero && state.resourcesBonusSpent > 0 ? ` + ${state.resourcesBonusSpent === 1 ? 5 : 5 + (state.resourcesBonusSpent - 1) * 2} from picks` : ''}
         ${state.resourcesSetToZero ? ' <em>(sacrificed for +1 Bonus Pick)</em>' : ''}
       </span>
-      ${state.resourcesSetToZero ? '' : `
+      ${canAdjustResources ? `
         <button class="skill-adj-btn" onclick="adjustResources(-1)"
                 ${state.resourcesBonusSpent > 0 ? '' : 'disabled'}>−</button>
         <span style="font-size:0.78rem;color:var(--text-secondary);">1 pick → +${nextPickGain}</span>
         <button class="skill-adj-btn plus" onclick="adjustResources(1)"
                 ${bpLeft >= 1 ? '' : 'disabled'}>+</button>
-      `}
-      <button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
+      ` : ''}
+      ${canSacrificeResources ? `<button class="toggle-sacrifice-btn${state.resourcesSetToZero ? ' active' : ''}"
               onclick="toggleResourcesZero()"
               data-tooltip="${state.resourcesSetToZero ? 'Undo: restore Resources to its base value.' : 'If you are willing for your Protagonist to have a Resources rating of 0 (absolutely without any worldly goods), that sacrifice earns one EXTRA Bonus Skill Point Pick.'}"
               aria-label="${state.resourcesSetToZero ? 'Undo resource sacrifice' : 'Sacrifice resources for bonus pick'}">
         ${state.resourcesSetToZero ? '↩ Undo' : '⚡ Sacrifice (+1 Pick)'}
-      </button>
+      </button>` : ''}
     </div>`;
 
   const bpClass = bpLeft === 0 ? 'good' : bpLeft < 0 ? 'warn' : '';
@@ -2389,6 +2696,7 @@ function adjustSkill(skillName, delta) {
 function adjustResources(delta) {
   const arch = getArchetype();
   if (!arch) return;
+  if (hasHunterGathererResources()) return;
   if (delta > 0) {
     if (getBonusPointsRemaining() < 1) return;
     state.resourcesBonusSpent++;
@@ -2463,6 +2771,7 @@ function updateCustomSkillName(id, value) {
 }
 
 function updateBond(index, value) {
+  if (isHunterGathererClanBond(state.bonds[index])) return;
   state.bonds[index].name = value;
   // Don't re-render (would lose focus), just update canProceed state silently
   // Update the next button disabled state
@@ -2478,6 +2787,11 @@ function updateSkillType(skillName, value) {
 function updateBondType(index, type) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object') return;
+  if (hasLockedCommunityBondType(bond)) {
+    bond.type = 'community';
+    render();
+    return;
+  }
   // If switching away from community, refund bonus picks and clear setToOne
   if (bond.type === 'community' && type !== 'community') {
     bond.bonusSpent = 0;
@@ -2490,6 +2804,7 @@ function updateBondType(index, type) {
 function adjustBond(index, delta) {
   const bond = state.bonds[index];
   if (!bond || bond.type !== 'community') return;
+  if (isHunterGathererClanBond(bond)) return;
   if (delta > 0) {
     if (getBonusPointsRemaining() < 1) return;
     if (getBondPreReductionValue(bond) >= 20) return;
@@ -2506,6 +2821,7 @@ function adjustBond(index, delta) {
 // community bond sacrifices (since their base becomes 0, setting them to 1
 // would increase rather than decrease the score).
 function toggleResourcesZero() {
+  if (hasHunterGathererResources()) return;
   if (state.resourcesSetToZero) {
     state.resourcesSetToZero = false;
   } else {
@@ -2529,10 +2845,11 @@ function toggleResourcesZero() {
 function toggleBondSetToOne(index) {
   const bond = state.bonds[index];
   if (!bond || typeof bond !== 'object' || bond.type !== 'community') return;
+  if (isHunterGathererClanBond(bond)) return;
   if (bond.setToOne) {
     bond.setToOne = false;
   } else {
-    if (state.resourcesSetToZero) return; // cannot sacrifice a bond that starts at 0
+    if (getEffectiveResources() <= 0 || state.resourcesSetToZero) return; // cannot sacrifice a bond that starts at 0
     bond.setToOne = true;
     bond.bonusSpent = 0; // refund any picks spent on this bond
   }
@@ -2987,6 +3304,7 @@ function buildCharSheetHtml() {
       }))
       .filter(s => state.showAllSkills || state.editMode || s.final > 0),
   ].sort((a, b) => a.displayName.localeCompare(b.displayName));
+  const lifestyleLabel = getLifestyleLabel();
 
   return `
   <div class="character-sheet" id="character-sheet">
@@ -2998,12 +3316,18 @@ function buildCharSheetHtml() {
           <span>Gender <strong id="sheet-gender">${state.identity.gender ? escapeHtml(state.identity.gender) : '—'}</strong></span>
           <span>Birthplace <strong id="sheet-birthplace">${state.identity.birthplace ? escapeHtml(state.identity.birthplace) : '—'}</strong></span>
         </div>
+        ${state.age === 'stone' ? `
+        <div class="sheet-meta" style="margin-top:0.4rem;">
+          <span>Lifestyle <strong id="sheet-lifestyle">${lifestyleLabel || '—'}</strong></span>
+          ${state.lifestyle === 'hunter_gatherer' ? `<span>Clan Name <strong id="sheet-clan-name">${getClanDisplayName() ? escapeHtml(getClanDisplayName()) : '—'}</strong></span>` : ''}
+          ${shouldShowClanProsperity() ? `<span>Clan Prosperity <strong id="sheet-clan-prosperity">${escapeHtml(String(Number.isFinite(state.clanProsperity) ? state.clanProsperity : '—'))}</strong></span>` : ''}
+        </div>` : ''}
       </div>
       <div style="display:flex;align-items:flex-start;gap:1rem;">
         <div class="sheet-meta">
           <span>Archetype <strong>${arch ? arch.name : '—'}</strong></span>
           <span>Age <strong id="sheet-age">${state.identity.characterAge}</strong></span>
-          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : 'Modern Age'}</strong></span>
+          <span><strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : state.age === 'stone' ? 'Stone Age' : 'Modern Age'}</strong></span>
           ${state.upbringing ? `<span>Upbringing: <strong>${state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Normal'}</strong></span>` : ''}
         </div>
         <div style="display:flex;align-items:flex-start;gap:0.5rem;">
@@ -3826,6 +4150,10 @@ function exportToJson() {
     age: state.age,
     upbringing: state.upbringing,
     archetype: state.archetype,
+    lifestyle: state.lifestyle,
+    clanName: state.clanName,
+    clanProsperity: state.clanProsperity,
+    castOut: state.castOut,
     identity: { ...state.identity },
     attributes,
     skills,
@@ -3888,6 +4216,7 @@ function exportToOriginalSheet() {
     : state.age === 'alazrad'     ? 'Age of Al-Azrad'
     : state.age === 'apocthulhu'  ? 'Apocthulhu'
     : state.age === 'future'      ? 'The Future'
+    : state.age === 'stone'       ? 'Stone Age'
     : 'Modern Age';
 
   // All skills sorted alphabetically, including 0% values
@@ -4047,6 +4376,7 @@ function exportToOriginalSheet() {
 
   // Upbringing label
   const upbringingLabel = state.upbringing === 'very_harsh' ? 'Very Harsh' : state.upbringing === 'harsh' ? 'Harsh' : state.upbringing === 'nightmarish' ? 'Nightmarish' : 'Normal';
+  const lifestyleLabel = getLifestyleLabel();
 
   // Era-specific heading fonts
   const ERA_FONT_MAP = {
@@ -4064,6 +4394,7 @@ function exportToOriginalSheet() {
     elizabethan: { name: 'IM Fell English',     url: 'IM+Fell+English:ital@0;1' },
     alazrad:     { name: 'Almendra SC',         url: 'Almendra+SC:wght@700' },
     apocthulhu:  { name: 'Rubik Glitch',        url: 'Rubik+Glitch' },
+    stone:       { name: 'Londrina Outline',    url: 'Londrina+Outline' },
   };
   const eraFontCfg  = ERA_FONT_MAP[state.age] || ERA_FONT_MAP.modern;
   const eraFontName = eraFontCfg.name;
@@ -4366,11 +4697,24 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
         <div class="wp-note">WP 2 or less = emotional breakdown (-20%), WP 0 = incapacitated</div>
         <div class="oa-field"><span class="oa-flbl">Damage Bonus</span><span class="oa-fval">${dmg}</span></div>
         <div class="oa-field"><span class="oa-flbl">Body Armor</span><span class="oa-fval">${state.bodyArmour || 0}</span></div>
+        ${state.age === 'stone' ? `<div class="oa-field"><span class="oa-flbl">Lifestyle</span><span class="oa-fval oa-fval-sm">${esc(lifestyleLabel)}</span></div>` : ''}
         ${(() => {
           if (!hasSocietalClass()) return '';
           const sc = calculateSocietalClass();
           if (!sc) return '';
           return `<div class="oa-field"><span class="oa-flbl">Societal Class</span><span class="oa-fval oa-fval-sm">${esc(sc.label)} (${sc.score})</span></div>`;
+        })()}
+        ${(() => {
+          if (state.age === 'stone' && state.lifestyle === 'hunter_gatherer' && state.clanName) {
+            return `<div class="oa-field"><span class="oa-flbl">Clan</span><span class="oa-fval oa-fval-sm">${esc(getClanDisplayName())}</span></div>`;
+          }
+          return '';
+        })()}
+        ${(() => {
+          if (shouldShowClanProsperity()) {
+            return `<div class="oa-field"><span class="oa-flbl">Clan Prosperity</span><span class="oa-fval oa-fval-sm">${state.clanProsperity}</span></div>`;
+          }
+          return '';
         })()}
       </div>
     </div>
@@ -4706,7 +5050,7 @@ function importFromJson(data) {
     return;
   }
 
-  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu'];
+  const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu', 'stone'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
     alert('Invalid character data: missing or unknown era (age).');
     return;
@@ -4726,6 +5070,10 @@ function importFromJsonV2(data) {
   // ── Identity & character meta ────────────────────────────
   state.age = data.age;
   state.upbringing = data.upbringing || null;
+  state.lifestyle = data.lifestyle || null;
+  state.clanName = data.clanName || '';
+  state.clanProsperity = data.clanProsperity !== undefined && data.clanProsperity !== null ? data.clanProsperity : null;
+  state.castOut = data.castOut || false;
   // harshStatChoice is not stored in v2; attribute values already include the bonus.
   // Setting it to null makes getUpbringingBonus() return 0, so synthetic roll totals
   // can equal the exported attribute values directly.
@@ -4770,7 +5118,7 @@ function importFromJsonV2(data) {
 
   // Compute adjustments: getFinalSkillValue uses state.archetype (now set) with
   // empty skillPoints/adversityPoints, so it returns base + archetypeBonus.
-  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : data.age === 'apocthulhu' ? APOCTHULHU_SKILLS : MODERN_SKILLS;
+  const baseSkills = data.age === 'jazz' ? JAZZ_SKILLS : data.age === 'coldwar' ? COLD_WAR_SKILLS : data.age === 'victorian' ? VICTORIAN_SKILLS : data.age === 'ww1' ? WWI_SKILLS : data.age === 'ww2' ? WWII_SKILLS : data.age === 'future' ? FUTURE_SKILLS : data.age === 'medieval' ? MEDIEVAL_SKILLS : data.age === 'classical' ? CLASSICAL_SKILLS : data.age === 'sails' ? AGE_OF_SAILS_SKILLS : data.age === 'revolutions' ? REVOLUTIONS_SKILLS : data.age === 'elizabethan' ? ELIZABETHAN_SKILLS : data.age === 'alazrad' ? AL_AZRAD_SKILLS : data.age === 'apocthulhu' ? APOCTHULHU_SKILLS : data.age === 'stone' ? STONE_AGE_SKILLS : MODERN_SKILLS;
   state.skillEditAdjust = {};
   Object.keys(baseSkills).forEach(s => {
     const skillData = data.skills || {};
@@ -4951,6 +5299,10 @@ function resetState() {
   state.upbringing       = null;
   state.harshStatChoice  = null;
   state.adversityPoints  = {};
+  state.lifestyle        = null;
+  state.clanName         = '';
+  state.clanProsperity   = null;
+  state.castOut          = false;
   state.archetype        = null;
   state.selectedOptional = [];
   state.skillPoints      = {};
