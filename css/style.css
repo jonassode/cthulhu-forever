@@ -2717,17 +2717,24 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 
 .stored-character-delete {
   flex-shrink: 0;
-  padding: 0.4rem 0.7rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: 1px solid rgba(163, 48, 48, 0.55);
   border-radius: 999px;
   background: rgba(122, 28, 28, 0.18);
   color: #f2b4b4;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.stored-character-delete svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
 }
 
 .stored-character-delete:hover {
@@ -2743,7 +2750,8 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   }
 
   .stored-character-delete {
-    width: 100%;
+    width: 2.5rem;
+    align-self: flex-end;
   }
 }
 

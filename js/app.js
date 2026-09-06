@@ -205,6 +205,12 @@ function getEraSortIndex(age) {
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
 }
 
+function getArchetypeLabel(archetypeId) {
+  if (!archetypeId) return 'Unknown Archetype';
+  const archetype = ARCHETYPES.find(entry => entry.id === archetypeId);
+  return archetype && archetype.name ? archetype.name : 'Unknown Archetype';
+}
+
 function getClanDisplayName() {
   if (!state.clanName) return '';
   return state.castOut ? `${state.clanName} (outcast)` : state.clanName;
@@ -391,6 +397,7 @@ function getCharacterLibraryEntries() {
       name: getStoredCharacterName(entry.data),
       age: entry.data.age,
       eraLabel: getEraLabel(entry.data.age),
+      archetypeLabel: getArchetypeLabel(entry.data.archetype),
     }))
     .sort((a, b) => (
       getEraSortIndex(a.age) - getEraSortIndex(b.age) ||
@@ -5627,9 +5634,13 @@ function renderMyCharactersTab() {
       <div class="stored-character-card">
         <button class="stored-character-open" onclick="openStoredCharacter('${entry.id}')" aria-label="Open ${escapeHtml(entry.name)}">
           <span class="stored-character-name">${escapeHtml(entry.name)}</span>
-          <span class="stored-character-meta">Open on the character sheet</span>
+          <span class="stored-character-meta">${escapeHtml(entry.archetypeLabel)}</span>
         </button>
-        <button class="stored-character-delete" onclick="deleteStoredCharacter(event,'${entry.id}')" aria-label="Delete ${escapeHtml(entry.name)}">Delete</button>
+        <button class="stored-character-delete" onclick="deleteStoredCharacter(event,'${entry.id}')" aria-label="Delete ${escapeHtml(entry.name)}" title="Delete ${escapeHtml(entry.name)}">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 6h2v8h-2V9Zm4 0h2v8h-2V9ZM7 9h2v8H7V9Zm1 11a2 2 0 0 1-2-2V8h12v10a2 2 0 0 1-2 2H8Z"></path>
+          </svg>
+        </button>
       </div>`;
   }).join('');
 
