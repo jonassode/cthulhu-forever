@@ -69,6 +69,7 @@ function assertAbsent(obj, key, label) {
 }
 
 function makeSandbox(alerts) {
+  const storage = {};
   const el = () => ({
     appendChild: () => {},
     addEventListener: () => {},
@@ -103,9 +104,10 @@ function makeSandbox(alerts) {
     clearInterval: () => {},
     requestAnimationFrame: () => {},
     localStorage: {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
+      getItem: (key) => Object.prototype.hasOwnProperty.call(storage, key) ? storage[key] : null,
+      setItem: (key, value) => { storage[key] = String(value); },
+      removeItem: (key) => { delete storage[key]; },
+      clear: () => { Object.keys(storage).forEach(key => delete storage[key]); },
     },
     document: {
       addEventListener: () => {},
@@ -135,6 +137,7 @@ function makeSandbox(alerts) {
     FileReader: class { constructor() {} readAsText() {} addEventListener() {} },
     scrollTo: () => {},
     __alerts: alerts,
+    __storage: storage,
   };
   ctx.window = ctx;
   return ctx;
@@ -190,6 +193,63 @@ function assertImportable(data, label, expected) {
   }
   if ('castOut' in expected) {
     assert(result.castOut === expected.castOut, `${label} fixture should preserve castOut ${expected.castOut}, got ${result.castOut}`);
+  }
+}
+
+function assertDuplicateImportBehavior(data, shouldReplace, expectedCount, label) {
+  const alerts = [];
+  const sandbox = makeSandbox(alerts);
+  vm.createContext(sandbox);
+
+  try {
+    vm.runInContext(combinedSource, sandbox);
+    vm.runInContext('render = () => {};', sandbox);
+  } catch (err) {
+    assert(false, `${label} should load the app in the VM sandbox: ${err.message}`);
+    return;
+  }
+
+  const seeded = {
+    id: 'existing-character',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-02T00:00:00.000Z',
+    data: {
+      ...JSON.parse(JSON.stringify(data)),
+      identity: {
+        ...JSON.parse(JSON.stringify(data.identity || {})),
+        notes: shouldReplace ? 'older version' : 'original copy',
+      },
+    },
+  };
+  sandbox.localStorage.setItem('cthulhu-forever.characters.v1', JSON.stringify([seeded]));
+  sandbox.__importData = JSON.parse(JSON.stringify(data));
+  sandbox.confirm = () => shouldReplace;
+
+  let result;
+  try {
+    result = vm.runInContext(`
+      (() => {
+        const options = getImportStorageOptions(__importData);
+        importFromJson(__importData, options);
+        const saved = JSON.parse(localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY) || '[]');
+        return {
+          count: saved.length,
+          ids: saved.map(entry => entry.id),
+          notes: saved.map(entry => entry.data.identity.notes || ''),
+        };
+      })()
+    `, sandbox);
+  } catch (err) {
+    assert(false, `${label} should import without throwing: ${err.message}`);
+    return;
+  }
+
+  assert(result.count === expectedCount, `${label} should leave ${expectedCount} saved character(s), got ${result.count}`);
+  if (shouldReplace) {
+    assert(result.ids.length === 1 && result.ids[0] === 'existing-character', `${label} should reuse the existing storage id when replacing`);
+    assert(result.notes[0] === (data.identity.notes || ''), `${label} should overwrite the existing stored payload when replacing`);
+  } else {
+    assert(result.ids.includes('existing-character'), `${label} should keep the original stored character when not replacing`);
   }
 }
 
@@ -393,6 +453,10 @@ assertImportable(stoneCharacter, 'Stone Age sample', {
   clanProsperity: 7,
   castOut: false,
 });
+
+// 14. Duplicate-name import behavior in local storage
+assertDuplicateImportBehavior(character, false, 2, 'Importing a duplicate-name character without replacement');
+assertDuplicateImportBehavior(character, true, 1, 'Importing a duplicate-name character with replacement');
 
 // ── Results ───────────────────────────────────────────────────
 if (failures > 0) {

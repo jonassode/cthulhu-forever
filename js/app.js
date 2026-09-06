@@ -5,7 +5,7 @@
 // ── State ──────────────────────────────────────────────────
 
 const state = {
-  currentTab: 'character-creator',  // 'character-creator' | 'about'
+  currentTab: 'character-creator',  // 'character-creator' | 'my-characters' | 'about'
   currentStep: 1,
   playMode: false,    // true = character sheet only view
   age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad' | 'apocthulhu' | 'stone'
@@ -98,6 +98,7 @@ const state = {
     name: '',
     profession: '',
     birthplace: '',
+    gender: '',
     characterAge: 25,
     backstory: '',
     motivations: [{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false}],
@@ -118,6 +119,30 @@ let _customSkillIdCounter = 0;
 
 // Counter for disorder unique IDs
 let _disorderIdCounter = 0;
+
+// Current local-storage-backed character being edited/viewed
+let _activeCharacterId = null;
+let _lastSavedCharacterSignature = null;
+
+const CHARACTER_LIBRARY_STORAGE_KEY = 'cthulhu-forever.characters.v1';
+const ERA_ORDER = ['jazz', 'modern', 'victorian', 'coldwar', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'sails', 'revolutions', 'elizabethan', 'alazrad', 'stone', 'apocthulhu'];
+const ERA_LABELS = {
+  jazz: 'Jazz Age',
+  modern: 'Modern Age',
+  victorian: 'Victorian Age',
+  coldwar: 'Cold War',
+  ww1: 'World War I',
+  ww2: 'World War II',
+  future: 'The Future',
+  medieval: 'Medieval Era',
+  classical: 'Classical Era',
+  sails: 'Age of Sails',
+  revolutions: 'Age of Revolutions',
+  elizabethan: 'Elizabethan Age',
+  alazrad: 'Age of Al-Azrad',
+  stone: 'Stone Age',
+  apocthulhu: 'Apocthulhu',
+};
 
 // ── Utility ────────────────────────────────────────────────
 
@@ -171,6 +196,15 @@ function getLifestyleLabel() {
   return '';
 }
 
+function getEraLabel(age = state.age) {
+  return ERA_LABELS[age] || 'Modern Age';
+}
+
+function getEraSortIndex(age) {
+  const idx = ERA_ORDER.indexOf(age);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
 function getClanDisplayName() {
   if (!state.clanName) return '';
   return state.castOut ? `${state.clanName} (outcast)` : state.clanName;
@@ -181,6 +215,188 @@ function shouldShowClanProsperity() {
     state.lifestyle === 'hunter_gatherer' &&
     !state.castOut &&
     state.clanProsperity !== null;
+}
+
+function clearActiveCharacterTracking() {
+  _activeCharacterId = null;
+  _lastSavedCharacterSignature = null;
+}
+
+function buildCharacterExportData() {
+  const attributes = {};
+  ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
+
+  const skills = {};
+  const baseSkills = getCurrentSkills();
+  Object.keys(baseSkills).forEach(s => {
+    const base = getFinalSkillValue(s);
+    const editAdj = state.skillEditAdjust[s] || 0;
+    skills[s] = Math.min(99, Math.max(0, base + editAdj));
+  });
+
+  const customSkills = (state.customSkills || [])
+    .filter(cs => (cs.customName || '').trim())
+    .map(cs => {
+      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+      return {
+        name: getCustomSkillDisplayName(cs),
+        value: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
+      };
+    });
+
+  const bonds = (state.bonds || [])
+    .filter(b => b && b.name && b.name.trim())
+    .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
+
+  const derived = calculateDerived();
+
+  return {
+    version: 2,
+    age: state.age,
+    upbringing: state.upbringing,
+    archetype: state.archetype,
+    lifestyle: state.lifestyle,
+    clanName: state.clanName,
+    clanProsperity: state.clanProsperity,
+    castOut: state.castOut,
+    identity: { ...state.identity },
+    attributes,
+    skills,
+    skillTypes: { ...state.skillTypes },
+    customSkills,
+    bonds,
+    resources: getDisplayedResources(),
+    resourceChecked: [...(state.resourceChecked || [])],
+    skillChecked: { ...state.skillChecked },
+    violenceChecked: [...(state.violenceChecked || [false, false, false])],
+    helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
+    maxHP:  derived ? derived.HP : 0,
+    maxWP:  derived ? derived.WP : 0,
+    maxSAN: derived ? derived.MaxSAN : 0,
+    currentHP: derived ? Math.max(0, Math.min(state.currentHP !== null ? state.currentHP : derived.HP, derived.HP)) : 0,
+    currentWP: derived ? Math.max(0, Math.min(state.currentWP !== null ? state.currentWP : derived.WP, derived.WP)) : 0,
+    currentSAN: derived ? Math.max(0, Math.min(state.currentSAN !== null ? state.currentSAN : derived.SAN, derived.MaxSAN)) : 0,
+    breakingPoint: derived ? derived.BP + (state.bpAdjust || 0) : 0,
+    recoverySAN: derived ? derived.RecoverySAN : 0,
+    disorders: JSON.parse(JSON.stringify(state.disorders || [])),
+    showAllSkills: state.showAllSkills || false,
+    bodyArmour: state.bodyArmour || 0,
+    exhausted: state.exhausted || false,
+    temporaryInsanity: state.temporaryInsanity || false,
+  };
+}
+
+function canPersistCharacter() {
+  return !!state.age &&
+    !!state.archetype &&
+    ATTRIBUTES.every(a => Number.isFinite(getDisplayedAttrValue(a)));
+}
+
+function getStoredCharacters() {
+  if (typeof localStorage === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(entry => entry &&
+      typeof entry.id === 'string' &&
+      entry.data &&
+      typeof entry.data === 'object' &&
+      typeof entry.data.age === 'string');
+  } catch (err) {
+    console.error('Failed to read character library from local storage:', err);
+    return [];
+  }
+}
+
+function writeStoredCharacters(entries) {
+  if (typeof localStorage === 'undefined') return false;
+  try {
+    localStorage.setItem(CHARACTER_LIBRARY_STORAGE_KEY, JSON.stringify(entries));
+    return true;
+  } catch (err) {
+    console.error('Failed to write character library to local storage:', err);
+    return false;
+  }
+}
+
+function generateStoredCharacterId() {
+  return 'char_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function getStoredCharacterName(data) {
+  const rawName = data && data.identity && typeof data.identity.name === 'string'
+    ? data.identity.name.trim()
+    : '';
+  return rawName || 'Unnamed Character';
+}
+
+function persistCurrentCharacter(options = {}) {
+  if (!canPersistCharacter()) return null;
+  const exportData = buildCharacterExportData();
+  const signature = JSON.stringify(exportData);
+  const targetId = options.preferredId || _activeCharacterId || generateStoredCharacterId();
+  if (!options.force && targetId === _activeCharacterId && signature === _lastSavedCharacterSignature) {
+    return _activeCharacterId;
+  }
+
+  const entries = getStoredCharacters();
+  const existingIndex = entries.findIndex(entry => entry.id === targetId);
+  const existing = existingIndex >= 0 ? entries[existingIndex] : null;
+  const now = new Date().toISOString();
+  const nextEntry = {
+    id: targetId,
+    createdAt: existing && typeof existing.createdAt === 'string' ? existing.createdAt : now,
+    updatedAt: now,
+    data: exportData,
+  };
+
+  if (existingIndex >= 0) entries[existingIndex] = nextEntry;
+  else entries.push(nextEntry);
+
+  if (!writeStoredCharacters(entries)) return null;
+
+  _activeCharacterId = targetId;
+  _lastSavedCharacterSignature = signature;
+  return targetId;
+}
+
+function persistTrackedCharacter() {
+  if (!_activeCharacterId) return;
+  persistCurrentCharacter();
+}
+
+function findStoredCharactersByName(name) {
+  const normalized = String(name || '').trim().toLocaleLowerCase();
+  if (!normalized) return [];
+  return getStoredCharacters().filter(entry => getStoredCharacterName(entry.data).toLocaleLowerCase() === normalized);
+}
+
+function getImportStorageOptions(data) {
+  const matches = findStoredCharactersByName(data && data.identity ? data.identity.name : '');
+  if (matches.length === 0) return {};
+
+  const replace = confirm(`A character named "${getStoredCharacterName(data)}" already exists in local storage. Replace the most recently saved copy?`);
+  if (!replace) return {};
+
+  matches.sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
+  return { storageId: matches[0].id };
+}
+
+function getCharacterLibraryEntries() {
+  return getStoredCharacters()
+    .map(entry => ({
+      ...entry,
+      name: getStoredCharacterName(entry.data),
+      age: entry.data.age,
+      eraLabel: getEraLabel(entry.data.age),
+    }))
+    .sort((a, b) => (
+      getEraSortIndex(a.age) - getEraSortIndex(b.age) ||
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) ||
+      String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || ''))
+    ));
 }
 
 // Returns the description for a skill from the current age-specific description map, or empty string if none.
@@ -999,6 +1215,7 @@ function updateWeaponField(rowIdx, field, value) {
       tbody.insertAdjacentHTML('beforeend', renderWeaponRow({}, newIdx));
     }
   }
+  persistTrackedCharacter();
 }
 
 function updateWeaponCondition(rowIdx, value) {
@@ -1046,6 +1263,7 @@ function updateMotivation(index, value) {
   if (state.identity.motivations[index]) {
     state.identity.motivations[index].text = value;
   }
+  persistTrackedCharacter();
 }
 
 function toggleMotivationCrossed(index) {
@@ -1101,6 +1319,7 @@ function finishEditMotivation(index, input) {
     state.identity.motivations[index].text = newVal;
   }
   input.replaceWith(createMotivationSpan(index, newVal));
+  persistTrackedCharacter();
 }
 
 function createMotivationSpan(index, text) {
@@ -1135,6 +1354,7 @@ function removeDisorder(id) {
 function updateDisorderText(id, value) {
   const d = state.disorders.find(d => d.id === id);
   if (d) d.text = value;
+  persistTrackedCharacter();
 }
 
 // ── Upbringing Effects (Step 4.5) ──────────────────────────
@@ -1437,8 +1657,11 @@ function canProceed(step) {
 
 // ── Routing ────────────────────────────────────────────────
 
-function goToStep(n) {
+function goToStep(n, options = {}) {
   state.currentStep = n;
+  if (n === 6 && options.persistOnEnter) {
+    persistCurrentCharacter(options.persistOptions || {});
+  }
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1460,6 +1683,10 @@ function nextStep() {
     }
     if (state.currentStep === 4.5) {
       goToStep(5);
+      return;
+    }
+    if (state.currentStep === 5) {
+      goToStep(6, { persistOnEnter: true });
       return;
     }
     goToStep(state.currentStep + 1);
@@ -1624,7 +1851,7 @@ function renderStep1() {
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : state.age === 'stone' ? 'Stone Age' : 'Modern Age'}</strong> selected.
+      <strong>${getEraLabel()}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -2768,6 +2995,7 @@ function updateCustomSkillName(id, value) {
   if (!cs) return;
   cs.customName = value;
   // Don't re-render to preserve focus
+  persistTrackedCharacter();
 }
 
 function updateBond(index, value) {
@@ -2777,11 +3005,13 @@ function updateBond(index, value) {
   // Update the next button disabled state
   const nextBtn = document.getElementById('next-btn');
   if (nextBtn) nextBtn.disabled = !canProceed(4);
+  persistTrackedCharacter();
 }
 
 function updateSkillType(skillName, value) {
   state.skillTypes[skillName] = value;
   // Don't re-render (would lose focus); the display name is only used on the character sheet
+  persistTrackedCharacter();
 }
 
 function updateBondType(index, type) {
@@ -3817,14 +4047,17 @@ function updateIdentity(field, value) {
       if (ageEl) ageEl.textContent = value;
     }
   }
+  persistTrackedCharacter();
 }
 
 function toggleResourceCheck(idx) {
   state.resourceChecked[idx] = !(state.resourceChecked[idx] || false);
+  persistTrackedCharacter();
 }
 
 function toggleSkillCheck(skillName) {
   state.skillChecked[skillName] = !(state.skillChecked[skillName] || false);
+  persistTrackedCharacter();
 }
 
 function toggleViolenceCheck(idx) {
@@ -3958,6 +4191,7 @@ function finishEditStat(statKey, elemId, input) {
 
   const span = makeStatSpan(elemId, statKey, newVal);
   input.replaceWith(span);
+  persistTrackedCharacter();
 }
 
 // ── Inline text editing (double-click) ──────────────────────
@@ -4003,6 +4237,7 @@ function finishEditText(fieldKey, elemId, textarea) {
   if (div) {
     div.textContent = newVal;
   }
+  persistTrackedCharacter();
 }
 
 // ── Inline bond name editing (double-click) ──────────────────
@@ -4067,6 +4302,7 @@ function finishEditBondName(origIdx, input) {
   }
   const span = createBondNameSpan(origIdx, newName);
   input.replaceWith(span);
+  persistTrackedCharacter();
 }
 
 // ── Sheet-mode bond management (edit mode on the character sheet) ─────────────
@@ -4096,6 +4332,7 @@ function undoRemoveBond() {
 
 function updateSheetBondName(idx, value) {
   if (state.bonds[idx]) state.bonds[idx].name = value;
+  persistTrackedCharacter();
 }
 
 function updateSheetBondType(idx, type) {
@@ -4111,75 +4348,7 @@ function toggleShowAllSkills() {
 // ── Import / Export ─────────────────────────────────────────
 
 function exportToJson() {
-  // Final attribute values (including any edit-mode adjustments)
-  const attributes = {};
-  ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
-
-  // Final skill percentages for every skill in the current era (always base values, exhausted penalty is display-only)
-  const skills = {};
-  const baseSkills = getCurrentSkills();
-  Object.keys(baseSkills).forEach(s => {
-    const base = getFinalSkillValue(s);
-    const editAdj = state.skillEditAdjust[s] || 0;
-    skills[s] = Math.min(99, Math.max(0, base + editAdj));
-  });
-
-  // Custom skills: just name and final displayed value
-  const customSkills = (state.customSkills || [])
-    .filter(cs => (cs.customName || '').trim())
-    .map(cs => {
-      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
-      return {
-        name: getCustomSkillDisplayName(cs),
-        value: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
-      };
-    });
-
-  // Bonds: just name, type, and current in-play score (no bonusSpent)
-  const bonds = (state.bonds || [])
-    .filter(b => b && b.name && b.name.trim())
-    .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
-
-  const derived = calculateDerived();
-  // derived is always non-null here: export is only reachable from the completed
-  // character sheet (step 6) where all attributes are assigned.
-  // The fallbacks below are purely defensive and should never be used.
-
-  const exportData = {
-    version: 2,
-    age: state.age,
-    upbringing: state.upbringing,
-    archetype: state.archetype,
-    lifestyle: state.lifestyle,
-    clanName: state.clanName,
-    clanProsperity: state.clanProsperity,
-    castOut: state.castOut,
-    identity: { ...state.identity },
-    attributes,
-    skills,
-    skillTypes: { ...state.skillTypes },
-    customSkills,
-    bonds,
-    resources: getDisplayedResources(),
-    resourceChecked: [...(state.resourceChecked || [])],
-    skillChecked: { ...state.skillChecked },
-    violenceChecked: [...(state.violenceChecked || [false, false, false])],
-    helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
-    maxHP:  derived ? derived.HP       : 0,
-    maxWP:  derived ? derived.WP       : 0,
-    maxSAN: derived ? derived.MaxSAN   : 0,
-    currentHP:  derived ? Math.max(0, Math.min(state.currentHP  !== null ? state.currentHP  : derived.HP,       derived.HP))       : 0,
-    currentWP:  derived ? Math.max(0, Math.min(state.currentWP  !== null ? state.currentWP  : derived.WP,       derived.WP))       : 0,
-    currentSAN: derived ? Math.max(0, Math.min(state.currentSAN !== null ? state.currentSAN : derived.SAN,      derived.MaxSAN))   : 0,
-    breakingPoint: derived ? derived.BP + (state.bpAdjust || 0) : 0,
-    recoverySAN:   derived ? derived.RecoverySAN : 0,
-    disorders: JSON.parse(JSON.stringify(state.disorders || [])),
-    showAllSkills: state.showAllSkills || false,
-    bodyArmour: state.bodyArmour || 0,
-    exhausted: state.exhausted || false,
-    temporaryInsanity: state.temporaryInsanity || false,
-  };
-
+  const exportData = buildCharacterExportData();
   const json = JSON.stringify(exportData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -4203,21 +4372,7 @@ function exportToOriginalSheet() {
   const skills  = getCurrentSkills();
 
   // Era display name
-  const eraLabel = state.age === 'jazz' ? 'Jazz Age'
-    : state.age === 'coldwar'     ? 'Cold War'
-    : state.age === 'victorian'   ? 'Victorian Age'
-    : state.age === 'ww1'         ? 'World War I'
-    : state.age === 'ww2'         ? 'World War II'
-    : state.age === 'medieval'    ? 'Medieval Era'
-    : state.age === 'classical'   ? 'Classical Era'
-    : state.age === 'sails'       ? 'Age of Sails'
-    : state.age === 'revolutions' ? 'Age of Revolutions'
-    : state.age === 'elizabethan' ? 'Elizabethan Age'
-    : state.age === 'alazrad'     ? 'Age of Al-Azrad'
-    : state.age === 'apocthulhu'  ? 'Apocthulhu'
-    : state.age === 'future'      ? 'The Future'
-    : state.age === 'stone'       ? 'Stone Age'
-    : 'Modern Age';
+  const eraLabel = getEraLabel();
 
   // All skills sorted alphabetically, including 0% values
   const allSkills = [
@@ -4987,7 +5142,7 @@ function triggerImport() {
     reader.onload = function (ev) {
       try {
         const data = JSON.parse(ev.target.result);
-        importFromJson(data);
+        importFromJson(data, getImportStorageOptions(data));
       } catch (_err) {
         console.error('Failed to parse character JSON:', _err);
         alert('Invalid file. Please select a valid character JSON export.');
@@ -5044,7 +5199,7 @@ function importWeapons(raw) {
 }
 
 
-function importFromJson(data) {
+function importFromJson(data, options = {}) {
   if (!data || typeof data !== 'object') {
     alert('Invalid character data.');
     return;
@@ -5057,16 +5212,16 @@ function importFromJson(data) {
   }
 
   if ((data.version || 1) >= 2) {
-    importFromJsonV2(data);
+    importFromJsonV2(data, options);
   } else {
-    importFromJsonV1(data);
+    importFromJsonV1(data, options);
   }
 }
 
 // Imports a v2 (outcome-only) character export.
 // Reconstructs the minimal synthetic internal state so all rendering functions
 // return the correct final values without replaying the creation process.
-function importFromJsonV2(data) {
+function importFromJsonV2(data, options = {}) {
   // ── Identity & character meta ────────────────────────────
   state.age = data.age;
   state.upbringing = data.upbringing || null;
@@ -5186,12 +5341,13 @@ function importFromJsonV2(data) {
   state.editMode = false;
   state.playMode = false;
   state.currentStep = 6;
+  persistCurrentCharacter({ preferredId: options.storageId, force: true });
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Imports a v1 (process-based) character export for backward compatibility.
-function importFromJsonV1(data) {
+function importFromJsonV1(data, options = {}) {
   state.age = data.age;
   state.rolledSets = data.rolledSets || [];
   ATTRIBUTES.forEach(a => {
@@ -5256,6 +5412,7 @@ function importFromJsonV1(data) {
     : 0;
 
   state.currentStep = 6;
+  persistCurrentCharacter({ preferredId: options.storageId, force: true });
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -5289,6 +5446,7 @@ function exitPlayMode() {
 }
 
 function resetState() {
+  clearActiveCharacterTracking();
   state.currentStep = 1;
   state.playMode    = false;
   state.age         = null;
@@ -5413,10 +5571,77 @@ function renderTabs() {
             onclick="switchTab('character-creator')">
       CHARACTER CREATOR
     </button>
+    <button class="tab-btn ${state.currentTab === 'my-characters' ? 'active' : ''}" 
+            onclick="switchTab('my-characters')">
+      MY CHARACTERS
+    </button>
     <button class="tab-btn ${state.currentTab === 'about' ? 'active' : ''}" 
             onclick="switchTab('about')">
       ABOUT
     </button>
+  </div>`;
+}
+
+function openStoredCharacter(id) {
+  const entry = getStoredCharacters().find(item => item.id === id);
+  if (!entry) return;
+  state.currentTab = 'character-creator';
+  importFromJson(entry.data, { storageId: id });
+}
+
+function deleteStoredCharacter(event, id) {
+  if (event) event.stopPropagation();
+  const entries = getStoredCharacters();
+  const index = entries.findIndex(entry => entry.id === id);
+  if (index === -1) return;
+
+  const name = getStoredCharacterName(entries[index].data);
+  if (!confirm(`Delete "${name}" from local storage?`)) return;
+
+  entries.splice(index, 1);
+  if (!writeStoredCharacters(entries)) return;
+  if (_activeCharacterId === id) clearActiveCharacterTracking();
+  render();
+}
+
+function renderMyCharactersTab() {
+  const entries = getCharacterLibraryEntries();
+  if (entries.length === 0) {
+    return `
+    <div class="my-characters-tab">
+      <div class="my-characters-empty">
+        <h2>No investigators in the archive yet</h2>
+        <p>Create or import a character and they’ll appear here, ready for the next descent into cosmic ruin.</p>
+        <button class="btn btn-gold" onclick="switchTab('character-creator')">Create A Character</button>
+      </div>
+    </div>`;
+  }
+
+  let currentEra = null;
+  const sections = entries.map(entry => {
+    const heading = entry.age !== currentEra
+      ? `<h3 class="stored-character-era-heading">${escapeHtml(entry.eraLabel)}</h3>`
+      : '';
+    currentEra = entry.age;
+    return `${heading}
+      <div class="stored-character-card">
+        <button class="stored-character-open" onclick="openStoredCharacter('${entry.id}')" aria-label="Open ${escapeHtml(entry.name)}">
+          <span class="stored-character-name">${escapeHtml(entry.name)}</span>
+          <span class="stored-character-meta">Open on the character sheet</span>
+        </button>
+        <button class="stored-character-delete" onclick="deleteStoredCharacter(event,'${entry.id}')" aria-label="Delete ${escapeHtml(entry.name)}">Delete</button>
+      </div>`;
+  }).join('');
+
+  return `
+  <div class="my-characters-tab">
+    <div class="my-characters-header">
+      <h2>My Characters</h2>
+      <p>Your saved investigators are grouped by era. Open one to jump straight back to the sheet.</p>
+    </div>
+    <div class="stored-character-list">
+      ${sections}
+    </div>
   </div>`;
 }
 
@@ -5435,6 +5660,7 @@ function renderAboutTab() {
       <li>Choose from diverse archetypes with unique skill packages</li>
       <li>Allocate attributes using rolling or points-based systems</li>
       <li>Build character relationships through bonds</li>
+      <li>Save characters locally and reopen them from the My Characters tab</li>
       <li>Export and import characters as JSON files</li>
       <li>Print-optimized character sheets for tabletop play</li>
     </ul>
@@ -5463,6 +5689,7 @@ function render() {
 
   if (state.playMode) {
     app.innerHTML = renderPlayMode();
+    persistTrackedCharacter();
     return;
   }
 
@@ -5473,7 +5700,9 @@ function render() {
         ${renderCurrentStep()}
         ${renderNavButtons()}
       </div>`
-    : renderAboutTab();
+    : state.currentTab === 'my-characters'
+      ? renderMyCharactersTab()
+      : renderAboutTab();
 
   app.innerHTML = `
     ${state.notification ? renderNotification() : ''}
@@ -5500,6 +5729,7 @@ function render() {
 
   // Attach drag listeners after DOM is updated
   attachDragListeners();
+  persistTrackedCharacter();
 }
 
 // ── Helpers ────────────────────────────────────────────────
