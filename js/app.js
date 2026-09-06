@@ -373,6 +373,11 @@ function persistTrackedCharacter() {
   persistCurrentCharacter();
 }
 
+function renderAndPersistTrackedCharacter() {
+  render();
+  persistTrackedCharacter();
+}
+
 function findStoredCharactersByName(name) {
   const normalized = String(name || '').trim().toLocaleLowerCase();
   if (!normalized) return [];
@@ -613,7 +618,7 @@ function switchAttrMode(mode) {
     // Reset points to default balanced allocation (12 each = 72 total)
     ATTRIBUTES.forEach(a => { state.pointsAttr[a] = 12; });
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustPointsAttr(attrKey, delta) {
@@ -623,7 +628,7 @@ function adjustPointsAttr(attrKey, delta) {
   const remaining = getPointsRemaining();
   if (delta > 0 && remaining < delta) return; // not enough points left
   state.pointsAttr[attrKey] = next;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function calculateDerived() {
@@ -1024,7 +1029,7 @@ function adjustBondPlayScore(idx, delta) {
     return;
   }
   bond.currentScore = Math.min(maxScore, Math.max(0, current + delta));
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function showNotification(message) {
@@ -1056,13 +1061,13 @@ function renderNotification() {
 // Adjusts the Breaking Point by a manual offset.
 function adjustBP(delta) {
   state.bpAdjust = (state.bpAdjust || 0) + delta;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts the Body Armour value in edit mode (clamped to 0–20).
 function adjustBodyArmour(delta) {
   state.bodyArmour = Math.min(20, Math.max(0, (state.bodyArmour || 0) + delta));
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Toggles Edit Mode on/off.
@@ -1077,7 +1082,7 @@ function adjustResourcesInEditMode(delta) {
   const current = base + (state.resourcesEditAdjust || 0);
   const newVal = Math.max(0, current + delta);
   state.resourcesEditAdjust = newVal - base;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts a skill value in edit mode.
@@ -1089,7 +1094,7 @@ function adjustSkillInEditMode(skillName, delta) {
   if (base + newAdj < 0) return;
   if (base + newAdj > 99) return;
   state.skillEditAdjust[skillName] = newAdj;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts a custom skill value in edit mode (no bonus-pick restriction).
@@ -1103,7 +1108,7 @@ function adjustCustomSkillInEditMode(id, delta) {
   if (base + newAdj < 0) return;
   if (base + newAdj > 99) return;
   state.skillEditAdjust[key] = newAdj;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts an attribute value in edit mode (clamped to 3–18).
@@ -1114,7 +1119,7 @@ function adjustAttrInEditMode(attrKey, delta) {
   const newVal = base + current + delta;
   if (newVal < 3 || newVal > 18) return;
   state.attrEditAdjust[attrKey] = current + delta;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Motivations ─────────────────────────────────────────────
@@ -1232,7 +1237,7 @@ function updateWeaponCondition(rowIdx, value) {
   // radio-group behaviour: toggle off if already selected
   state.identity.weapons[rowIdx].condition = current === value ? '' : value;
   ensureTrailingBlankWeaponRow();
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeWeapon(idx) {
@@ -1246,6 +1251,7 @@ function removeWeapon(idx) {
   if (state.identity.weapons.length === 0) state.identity.weapons = [{}];
   ensureTrailingBlankWeaponRow();
   showNotification('Weapon removed.');
+  persistTrackedCharacter();
 }
 
 function undoRemoveWeapon() {
@@ -1262,7 +1268,7 @@ function undoRemoveWeapon() {
   state.lastRemovedWeapon = null;
   state.notification = null;
   ensureTrailingBlankWeaponRow();
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateMotivation(index, value) {
@@ -1277,7 +1283,7 @@ function toggleMotivationCrossed(index) {
   if (!Array.isArray(state.identity.motivations)) return;
   if (state.identity.motivations[index]) {
     state.identity.motivations[index].crossed = !state.identity.motivations[index].crossed;
-    render();
+    renderAndPersistTrackedCharacter();
   }
 }
 
@@ -1350,12 +1356,12 @@ function createMotivationSpan(index, text) {
 
 function addDisorder() {
   state.disorders.push({ id: ++_disorderIdCounter, text: '' });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeDisorder(id) {
   state.disorders = state.disorders.filter(d => d.id !== id);
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateDisorderText(id, value) {
@@ -1405,7 +1411,7 @@ function rollHarshD4s() {
   state.harshBondChoice1 = null;
   state.harshBondChoice2 = null;
   state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Selects which bond to apply a Harsh d4 deduction to (rollIndex = 0 or 1).
@@ -1426,7 +1432,7 @@ function selectHarshBondChoice(rollIndex, bondIndex) {
   const newChoice = isDeselect ? null : bondIndex;
   if (rollIndex === 0) state.harshBondChoice1 = newChoice;
   else                 state.harshBondChoice2 = newChoice;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls d100 for the Very Harsh POW × 4 test.
@@ -1440,7 +1446,7 @@ function rollVhPowTest() {
   } else {
     state.vhPowDisorderId = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Selects the adaptation type for Very Harsh Part 2.
@@ -1455,7 +1461,7 @@ function selectVhAdaptation(adaptationType) {
     state.vhAdaptRoll = null;
   }
   state.vhAdaptedTo = adaptationType;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls 1d6 for the Very Harsh adaptation effect and applies the result.
@@ -1472,7 +1478,7 @@ function rollVhAdaptDice() {
     state.upbringingPowReduction = roll;
     state.helplessnessChecked = [true, true, true];
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Nightmarish upbringing effect handlers ──────────────────
@@ -1488,7 +1494,7 @@ function rollNmPowTest1() {
   } else {
     state.nmDisorderId1 = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls d100 for the second Nightmarish POW × 4 test.
@@ -1502,7 +1508,7 @@ function rollNmPowTest2() {
   } else {
     state.nmDisorderId2 = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Selects the adaptation type for Nightmarish (when player has a choice).
@@ -1519,7 +1525,7 @@ function selectNmAdaptation(adaptationType) {
     state.nmAdaptHelplessRoll = null;
   }
   state.nmAdaptedTo = adaptationType;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls 1d6 for the Nightmarish violence adaptation and applies the result.
@@ -1531,7 +1537,7 @@ function rollNmAdaptViolenceDice() {
   // Only community bonds need a direct upbringingReduction; individual bonds must not be reduced twice.
   state.bonds.forEach(b => { if (b && b.type === 'community') b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
   state.violenceChecked = [true, true, true];
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls 1d6 for the Nightmarish helplessness adaptation and applies the result.
@@ -1540,7 +1546,7 @@ function rollNmAdaptHelplessnessDice() {
   state.nmAdaptHelplessRoll = roll;
   state.upbringingPowReduction = (state.upbringingPowReduction || 0) + roll;
   state.helplessnessChecked = [true, true, true];
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Adversity Picks ─────────────────────────────────────────
@@ -1901,6 +1907,7 @@ function selectAge(val) {
     }
   }
   nextStep();
+  persistTrackedCharacter();
 }
 
 // ── RENDER: Step 2 — Attributes ─────────────────────────────
@@ -2168,7 +2175,7 @@ function doRollAll() {
   const btn = document.getElementById('rollBtn');
   if (btn) { btn.classList.add('shaking'); setTimeout(() => btn.classList.remove('shaking'), 600); }
   rollAllAttributes();
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function rerollAll() {
@@ -2366,12 +2373,12 @@ function selectUpbringing(val) {
     state.nmAdaptViolenceRoll = null;
     state.nmAdaptHelplessRoll = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function selectHarshStat(attr) {
   state.harshStatChoice = attr;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function handleAttrDropdown(attr, val) {
@@ -2386,7 +2393,7 @@ function handleAttrDropdown(attr, val) {
     if (state.attrAssign[a] === rollId) state.attrAssign[a] = null;
   });
   state.attrAssign[attr] = rollId;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function handleChipClick(rollId) {
@@ -2394,14 +2401,14 @@ function handleChipClick(rollId) {
   const firstEmpty = ATTRIBUTES.find(a => state.attrAssign[a] === null || state.attrAssign[a] === undefined);
   if (firstEmpty) {
     state.attrAssign[firstEmpty] = rollId;
-    render();
+    renderAndPersistTrackedCharacter();
   }
 }
 
 function unassignAttr(attr, event) {
   if (event) event.stopPropagation();
   state.attrAssign[attr] = null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Drag & Drop handlers ─────────────────────────────────────
@@ -2462,7 +2469,7 @@ function handleDrop(e, targetAttr) {
   state.attrAssign[targetAttr] = _dragRollId;
   _dragRollId   = null;
   _dragFromAttr = null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── RENDER: Step 3 — Archetype ──────────────────────────────
@@ -2540,7 +2547,7 @@ function selectArchetype(id) {
     state.archetype  = id;
     state.selectedOptional = [];
   }
-  render();
+  renderAndPersistTrackedCharacter();
   setTimeout(() => {
     const detail = document.getElementById('archetype-detail');
     if (detail && detail.scrollIntoView) detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2555,7 +2562,7 @@ function toggleOptional(skillName, maxCount) {
       state.selectedOptional.push(skillName);
     }
   }
-  render();
+  renderAndPersistTrackedCharacter();
   // Re-scroll to detail panel without full page jump
   setTimeout(() => {
     const detail = document.getElementById('archetype-detail');
@@ -2583,7 +2590,7 @@ function selectLifestyle(lifestyle) {
     state.clanProsperity = null;
     state.castOut = false;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateClanName(value) {
@@ -2595,12 +2602,13 @@ function updateClanName(value) {
   const nextBtn = document.getElementById('next-btn');
   if (nextBtn && state.currentStep === 2) nextBtn.disabled = !canProceed(2);
   // Don't re-render to preserve focus
+  persistTrackedCharacter();
 }
 
 function updateClanProsperity(value) {
   const n = Number(value);
   state.clanProsperity = Number.isFinite(n) ? n : null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleCastOut(checked) {
@@ -2617,7 +2625,7 @@ function toggleCastOut(checked) {
       state.bonds[0] = createHunterGathererClanBond();
     }
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function normalizeHunterGathererResourceState() {
@@ -2924,7 +2932,7 @@ function adjustSkill(skillName, delta) {
     if (base + archBon + (newPicks + advPicks) * 20 > 80) return;
   }
   state.skillPoints[skillName] = newPicks;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustResources(delta) {
@@ -2938,7 +2946,7 @@ function adjustResources(delta) {
     if (state.resourcesBonusSpent <= 0) return;
     state.resourcesBonusSpent--;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustAdversity(skillName, delta) {
@@ -2956,7 +2964,7 @@ function adjustAdversity(skillName, delta) {
     if (base + archBon + (bpPicks + newPicks) * 20 > 80) return;
   }
   state.adversityPoints[skillName] = newPicks;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Custom Skills ───────────────────────────────────
@@ -2976,12 +2984,12 @@ function addCustomSkill() {
     customName: '',
     points: 0,
   });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeCustomSkill(id) {
   state.customSkills = state.customSkills.filter(cs => cs.id !== id);
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustCustomSkill(id, delta) {
@@ -2994,7 +3002,7 @@ function adjustCustomSkill(id, delta) {
     if (cs.baseValue + newPicks * 20 > 80) return;
   }
   cs.points = newPicks;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateCustomSkillName(id, value) {
@@ -3026,7 +3034,7 @@ function updateBondType(index, type) {
   if (!bond || typeof bond !== 'object') return;
   if (hasLockedCommunityBondType(bond)) {
     bond.type = 'community';
-    render();
+    renderAndPersistTrackedCharacter();
     return;
   }
   // If switching away from community, refund bonus picks and clear setToOne
@@ -3035,7 +3043,7 @@ function updateBondType(index, type) {
     bond.setToOne = false;
   }
   bond.type = type;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustBond(index, delta) {
@@ -3050,7 +3058,7 @@ function adjustBond(index, delta) {
     if ((bond.bonusSpent || 0) <= 0) return;
     bond.bonusSpent--;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Toggles Resources to 0, granting +1 bonus pick when enabled.
@@ -3072,7 +3080,7 @@ function toggleResourcesZero() {
       }
     });
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Toggles a community bond score to 1, granting +1 bonus pick when enabled.
@@ -3090,7 +3098,7 @@ function toggleBondSetToOne(index) {
     bond.setToOne = true;
     bond.bonusSpent = 0; // refund any picks spent on this bond
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── RENDER: Step 4.5 — Upbringing Effects ───────────────────
@@ -4070,38 +4078,56 @@ function toggleSkillCheck(skillName) {
 function toggleViolenceCheck(idx) {
   state.violenceChecked[idx] = !state.violenceChecked[idx];
   // Re-render to show/hide the Adapted badge
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleHelplessnessCheck(idx) {
   state.helplessnessChecked[idx] = !state.helplessnessChecked[idx];
   // Re-render to show/hide the Adapted badge
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleExhausted() {
   state.exhausted = !state.exhausted;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleTemporaryInsanity() {
   state.temporaryInsanity = !state.temporaryInsanity;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── HP / WP / SAN Adjustment ────────────────────────────────
+
+function setCurrentStatDisplay(el, statKey, value) {
+  if (!el) return;
+  if (statKey === 'HP') {
+    el.textContent = value;
+    el.className = 'db-current-val' + getHPStatusClass(value);
+    return;
+  }
+  if (statKey === 'WP') {
+    el.textContent = value;
+    el.className = 'db-current-val' + getWPStatusClass(value);
+    return;
+  }
+  if (statKey === 'SAN') {
+    el.className = 'db-current-val';
+    el.innerHTML = `${value}${state.exhausted ? `<span class="exhausted-san-penalty">(${Math.max(0, value - 20)})</span>` : ''}`;
+    return;
+  }
+  el.textContent = value;
+}
 
 function adjustHP(delta) {
   const d = calculateDerived();
   if (!d) return;
   state.currentHP = Math.max(0, Math.min(getEffectiveHP() + delta, d.HP));
   const el = document.getElementById('hp-current-val');
-  if (el) {
-    el.textContent = state.currentHP;
-    el.className = 'db-current-val' + getHPStatusClass(state.currentHP);
-  }
+  setCurrentStatDisplay(el, 'HP', state.currentHP);
   const badgeEl = document.getElementById('hp-status-badge');
   if (badgeEl) badgeEl.innerHTML = getHPBadgeContent(state.currentHP);
+  persistTrackedCharacter();
 }
 
 function adjustWP(delta) {
@@ -4109,12 +4135,10 @@ function adjustWP(delta) {
   if (!d) return;
   state.currentWP = Math.max(0, Math.min(getEffectiveWP() + delta, d.WP));
   const el = document.getElementById('wp-current-val');
-  if (el) {
-    el.textContent = state.currentWP;
-    el.className = 'db-current-val' + getWPStatusClass(state.currentWP);
-  }
+  setCurrentStatDisplay(el, 'WP', state.currentWP);
   const badgeEl = document.getElementById('wp-status-badge');
   if (badgeEl) badgeEl.innerHTML = getWPBadgeContent(state.currentWP);
+  persistTrackedCharacter();
 }
 
 function adjustSAN(delta) {
@@ -4122,17 +4146,17 @@ function adjustSAN(delta) {
   if (!d) return;
   state.currentSAN = Math.max(0, Math.min(getEffectiveSAN() + delta, d.MaxSAN));
   const el = document.getElementById('san-current-val');
-  if (el) el.textContent = state.currentSAN;
+  setCurrentStatDisplay(el, 'SAN', state.currentSAN);
+  persistTrackedCharacter();
 }
 
 // ── Inline stat editing (double-click) ──────────────────────
 
 function makeStatSpan(elemId, statKey, value) {
   const span = document.createElement('span');
-  span.className = 'db-current-val';
   span.id = elemId;
-  span.textContent = value;
   span.title = 'Double-click to edit';
+  setCurrentStatDisplay(span, statKey, value);
   span.addEventListener('dblclick', () => startEditStat(statKey));
   return span;
 }
@@ -4198,6 +4222,13 @@ function finishEditStat(statKey, elemId, input) {
 
   const span = makeStatSpan(elemId, statKey, newVal);
   input.replaceWith(span);
+  if (statKey === 'HP') {
+    const badgeEl = document.getElementById('hp-status-badge');
+    if (badgeEl) badgeEl.innerHTML = getHPBadgeContent(state.currentHP);
+  } else if (statKey === 'WP') {
+    const badgeEl = document.getElementById('wp-status-badge');
+    if (badgeEl) badgeEl.innerHTML = getWPBadgeContent(state.currentWP);
+  }
   persistTrackedCharacter();
 }
 
@@ -4316,7 +4347,7 @@ function finishEditBondName(origIdx, input) {
 
 function addSheetBond() {
   state.bonds.push({ name: '', type: null, bonusSpent: 0, currentScore: 1, setToOne: false, upbringingReduction: 0 });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeSheetBond(idx) {
@@ -4325,6 +4356,7 @@ function removeSheetBond(idx) {
   state.lastRemovedWeapon = null;
   state.bonds.splice(idx, 1);
   showNotification('Bond removed.');
+  persistTrackedCharacter();
 }
 
 function undoRemoveBond() {
@@ -4334,7 +4366,7 @@ function undoRemoveBond() {
   state.bonds.splice(insertAt, 0, bond);
   state.lastRemovedBond = null;
   state.notification = null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateSheetBondName(idx, value) {
@@ -4344,12 +4376,12 @@ function updateSheetBondName(idx, value) {
 
 function updateSheetBondType(idx, type) {
   if (state.bonds[idx]) state.bonds[idx].type = type;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleShowAllSkills() {
   state.showAllSkills = !state.showAllSkills;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Import / Export ─────────────────────────────────────────

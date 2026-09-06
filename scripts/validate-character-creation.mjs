@@ -2026,6 +2026,64 @@ console.log('\\n── Suite 14: Local Storage Character Library ─────
     const html = renderMyCharactersTab();
     eqS(String(html.indexOf('Modern Age') < html.indexOf('Stone Age')), 'true', 'My Characters sorts saved entries by era');
   }
+
+  // 14.5  Editable tracked-character values stay in sync with local storage
+  {
+    resetLibraryState();
+    makeSavableCharacter('Irene Bell', 'jazz', 'journalist');
+    nextStep();
+
+    adjustHP(-1);
+    adjustWP(-2);
+    adjustSAN(-3);
+    adjustBP(2);
+    adjustBodyArmour(3);
+    toggleViolenceCheck(0);
+    toggleHelplessnessCheck(2);
+    toggleExhausted();
+    toggleTemporaryInsanity();
+    updateMotivation(0, 'See tomorrow');
+    toggleMotivationCrossed(0);
+    addDisorder();
+    updateDisorderText(1, 'Shaken hands');
+    state.editMode = true;
+    adjustResourcesInEditMode(2);
+    adjustSkillInEditMode('Alertness', 1);
+    addCustomSkill();
+    const customId = state.customSkills[state.customSkills.length - 1].id;
+    updateCustomSkillName(customId, 'Occult Journalism');
+    adjustCustomSkill(customId, 1);
+    adjustCustomSkillInEditMode(customId, 1);
+    updateWeaponField(1, 'weapon', 'Revolver');
+    updateWeaponCondition(1, 'worn');
+    addSheetBond();
+    const addedBondIdx = state.bonds.length - 1;
+    updateSheetBondName(addedBondIdx, 'Detective Moore');
+    updateSheetBondType(addedBondIdx, 'individual');
+    adjustBondPlayScore(addedBondIdx, 1);
+    toggleShowAllSkills();
+
+    const saved = library();
+    const exported = buildCharacterExportData();
+    eqS(saved.length, 1, 'Tracked edits keep a single local-storage record');
+    eqS(saved[0].data.currentSAN, exported.currentSAN, 'SAN edits save through to local storage');
+    eqS(saved[0].data.bodyArmour, exported.bodyArmour, 'Body Armour edits save through to local storage');
+    eqS(saved[0].data.identity.motivations[0].crossed, true, 'Crossed motivations save through to local storage');
+    eqS(JSON.stringify(saved[0].data), JSON.stringify(exported), 'Tracked editable values remain fully synced with the exported local-storage payload');
+
+    removeDisorder(1);
+    removeWeapon(1);
+    removeSheetBond(addedBondIdx);
+    let afterRemoval = library();
+    let removalExport = buildCharacterExportData();
+    eqS(JSON.stringify(afterRemoval[0].data), JSON.stringify(removalExport), 'Removing editable items updates the saved local-storage payload');
+
+    undoRemoveWeapon();
+    undoRemoveBond();
+    let afterUndo = library();
+    let undoExport = buildCharacterExportData();
+    eqS(JSON.stringify(afterUndo[0].data), JSON.stringify(undoExport), 'Undoing editable item removal restores the saved local-storage payload');
+  }
 }
 `;
 
