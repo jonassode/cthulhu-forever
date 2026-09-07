@@ -125,6 +125,7 @@ let _activeCharacterId = null;
 let _lastSavedCharacterSignature = null;
 
 const CHARACTER_LIBRARY_STORAGE_KEY = 'cthulhu-forever.characters.v1';
+const IMPORT_FAILURE_REASSURANCE = "But don't worry your character is safe in local storage.";
 const ERA_ORDER = ['jazz', 'modern', 'victorian', 'coldwar', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'sails', 'revolutions', 'elizabethan', 'alazrad', 'stone', 'apocthulhu'];
 const ERA_LABELS = {
   jazz: 'Jazz Age',
@@ -5184,7 +5185,7 @@ function triggerImport() {
         importFromJson(data, getImportStorageOptions(data));
       } catch (_err) {
         console.error('Failed to parse character JSON:', _err);
-        alert('Invalid file. Please select a valid character JSON export.');
+        alert(`Invalid file. Please select a valid character JSON export. ${IMPORT_FAILURE_REASSURANCE}`);
       }
     };
     reader.readAsText(file);
@@ -5240,13 +5241,13 @@ function importWeapons(raw) {
 
 function importFromJson(data, options = {}) {
   if (!data || typeof data !== 'object') {
-    alert('Invalid character data.');
+    alert(`Invalid character data. ${IMPORT_FAILURE_REASSURANCE}`);
     return;
   }
 
   const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu', 'stone'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
-    alert('Invalid character data: missing or unknown era (age).');
+    alert(`Invalid character data: missing or unknown era (age). ${IMPORT_FAILURE_REASSURANCE}`);
     return;
   }
 
