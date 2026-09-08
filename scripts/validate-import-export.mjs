@@ -166,6 +166,7 @@ function assertImportable(data, label, expected) {
         return {
           alerts: __alerts.slice(),
           age: state.age,
+          attrMode: state.attrMode,
           currentStep: state.currentStep,
           lifestyle: state.lifestyle,
           clanName: state.clanName,
@@ -181,6 +182,7 @@ function assertImportable(data, label, expected) {
 
   assert(result.alerts.length === 0, `${label} fixture should import without validation alerts`);
   assert(result.age === expected.age, `${label} fixture should set state.age to '${expected.age}', got '${result.age}'`);
+  assert(result.attrMode === 'rolling', `${label} fixture should leave attrMode as 'rolling', got '${result.attrMode}'`);
   assert(result.currentStep === 6, `${label} fixture should advance to the completed sheet, got step ${result.currentStep}`);
   if ('lifestyle' in expected) {
     assert(result.lifestyle === expected.lifestyle, `${label} fixture should preserve lifestyle '${expected.lifestyle}', got '${result.lifestyle}'`);
@@ -251,6 +253,108 @@ function assertDuplicateImportBehavior(data, shouldReplace, expectedCount, label
   } else {
     assert(result.ids.includes('existing-character'), `${label} should keep the original stored character when not replacing`);
   }
+}
+
+function assertImportCreatesNewEntryWhenAnotherCharacterIsActive(data, label) {
+  const alerts = [];
+  const sandbox = makeSandbox(alerts);
+  vm.createContext(sandbox);
+
+  try {
+    vm.runInContext(combinedSource, sandbox);
+    vm.runInContext('render = () => {};', sandbox);
+  } catch (err) {
+    assert(false, `${label} should load the app in the VM sandbox: ${err.message}`);
+    return;
+  }
+
+  const seeded = {
+    id: 'active-character',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-02T00:00:00.000Z',
+    data: {
+      ...JSON.parse(JSON.stringify(data)),
+      identity: {
+        ...JSON.parse(JSON.stringify(data.identity || {})),
+        name: 'Original Active Character',
+        notes: 'should remain untouched',
+      },
+    },
+  };
+  sandbox.localStorage.setItem('cthulhu-forever.characters.v1', JSON.stringify([seeded]));
+  sandbox.__importData = JSON.parse(JSON.stringify(data));
+
+  let result;
+  try {
+    result = vm.runInContext(`
+      (() => {
+        _activeCharacterId = 'active-character';
+        _lastSavedCharacterSignature = 'seed-signature';
+        importFromJson(__importData);
+        const saved = JSON.parse(localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY) || '[]');
+        const active = saved.find(entry => entry.id === 'active-character');
+        const imported = saved.find(entry => (entry.data.identity.name || '') === (__importData.identity.name || ''));
+        return {
+          alerts: __alerts.slice(),
+          count: saved.length,
+          ids: saved.map(entry => entry.id),
+          activeNotes: active ? (active.data.identity.notes || '') : '',
+          importedId: imported ? imported.id : null,
+        };
+      })()
+    `, sandbox);
+  } catch (err) {
+    assert(false, `${label} should import without throwing: ${err.message}`);
+    return;
+  }
+
+  assert(result.alerts.length === 0, `${label} should import without validation alerts`);
+  assert(result.count === 2, `${label} should create a second saved character, got ${result.count}`);
+  assert(result.ids.includes('active-character'), `${label} should keep the original active character entry`);
+  assert(result.activeNotes === 'should remain untouched', `${label} should leave the original active character payload unchanged`);
+  assert(result.importedId && result.importedId !== 'active-character', `${label} should assign a fresh storage id to the imported character`);
+}
+
+function assertImportResetsAttrModeBeforePersisting(data, label) {
+  const alerts = [];
+  const sandbox = makeSandbox(alerts);
+  vm.createContext(sandbox);
+
+  try {
+    vm.runInContext(combinedSource, sandbox);
+    vm.runInContext('render = () => {};', sandbox);
+  } catch (err) {
+    assert(false, `${label} should load the app in the VM sandbox: ${err.message}`);
+    return;
+  }
+
+  sandbox.__importData = JSON.parse(JSON.stringify(data));
+
+  let result;
+  try {
+    result = vm.runInContext(`
+      (() => {
+        state.attrMode = 'points';
+        importFromJson(__importData);
+        const saved = JSON.parse(localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY) || '[]');
+        const persisted = saved[0] ? saved[0].data : null;
+        return {
+          alerts: __alerts.slice(),
+          attrMode: state.attrMode,
+          str: persisted ? persisted.attributes.STR : null,
+          hp: persisted ? persisted.maxHP : null,
+        };
+      })()
+    `, sandbox);
+  } catch (err) {
+    assert(false, `${label} should import without throwing: ${err.message}`);
+    return;
+  }
+
+  assert(result.alerts.length === 0, `${label} should import without validation alerts`);
+  assert(result.attrMode === 'rolling', `${label} should reset attrMode to 'rolling', got '${result.attrMode}'`);
+  assert(result.str === data.attributes.STR, `${label} should persist imported STR ${data.attributes.STR}, got ${result.str}`);
+  assert(result.hp === data.maxHP, `${label} should persist imported maxHP ${data.maxHP}, got ${result.hp}`);
 }
 
 // ── Validations ───────────────────────────────────────────────
@@ -457,6 +561,8 @@ assertImportable(stoneCharacter, 'Stone Age sample', {
 // 14. Duplicate-name import behavior in local storage
 assertDuplicateImportBehavior(character, false, 2, 'Importing a duplicate-name character without replacement');
 assertDuplicateImportBehavior(character, true, 1, 'Importing a duplicate-name character with replacement');
+assertImportCreatesNewEntryWhenAnotherCharacterIsActive(character, 'Importing while another saved character is active');
+assertImportResetsAttrModeBeforePersisting(character, 'Importing after using points-based allocation');
 
 // ── Results ───────────────────────────────────────────────────
 if (failures > 0) {

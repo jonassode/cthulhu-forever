@@ -5251,6 +5251,9 @@ function importFromJson(data, options = {}) {
     return;
   }
 
+  state.attrMode = 'rolling';
+  if (!options.storageId) clearActiveCharacterTracking();
+
   if ((data.version || 1) >= 2) {
     importFromJsonV2(data, options);
   } else {
