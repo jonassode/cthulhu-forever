@@ -5251,9 +5251,13 @@ function importFromJson(data, options = {}) {
     return;
   }
 
+  if (!data.identity || typeof data.identity !== 'object') {
+    alert(`Invalid character data: missing identity block. ${IMPORT_FAILURE_REASSURANCE}`);
+    return;
+  }
+
   state.attrMode = 'rolling';
   if (!options.storageId) clearActiveCharacterTracking();
-
   if ((data.version || 1) >= 2) {
     importFromJsonV2(data, options);
   } else {
