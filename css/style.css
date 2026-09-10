@@ -2627,7 +2627,10 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   margin: 2rem auto;
 }
 
-.my-characters-header,
+.my-characters-header {
+  padding: 0;
+}
+
 .my-characters-empty {
   padding: 2rem;
   background: rgba(26, 34, 51, 0.5);
