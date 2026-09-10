@@ -293,7 +293,7 @@ function assertImportCreatesNewEntryWhenAnotherCharacterIsActive(data, label) {
         importFromJson(__importData);
         const saved = JSON.parse(localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY) || '[]');
         const active = saved.find(entry => entry.id === 'active-character');
-        const imported = saved.find(entry => (entry.data.identity.name || '') === (__importData.identity.name || ''));
+        const imported = saved.find(entry => entry.id !== 'active-character');
         return {
           alerts: __alerts.slice(),
           count: saved.length,
