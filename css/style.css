@@ -2662,6 +2662,11 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   margin-top: 1.5rem;
 }
 
+.my-characters-import {
+  margin-top: 1rem;
+  text-align: center;
+}
+
 .stored-character-era-heading {
   margin: 1.5rem 0 0.75rem;
   color: var(--accent-goldl);
