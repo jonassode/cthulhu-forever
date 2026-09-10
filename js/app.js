@@ -5702,7 +5702,7 @@ function renderMyCharactersTab() {
   <div class="my-characters-tab">
     <div class="my-characters-header">
       <h2>My Characters</h2>
-      <p>Your saved investigators are grouped by era. Open one to jump straight back to the sheet.</p>
+      <p>Your investigators are grouped by era. Open one to jump straight back to the sheet.</p>
     </div>
     <div class="stored-character-list">
       ${sections}
