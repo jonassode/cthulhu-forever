@@ -5651,6 +5651,19 @@ function deleteStoredCharacter(event, id) {
   render();
 }
 
+function renderMyCharactersImportButton() {
+  return `
+    <div class="import-divider">
+      <span>or</span>
+    </div>
+    <div class="my-characters-import">
+      <button class="btn btn-outline" onclick="triggerImport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import Character from JSON
+      </button>
+    </div>`;
+}
+
 function renderMyCharactersTab() {
   const entries = getCharacterLibraryEntries();
   if (entries.length === 0) {
@@ -5661,6 +5674,7 @@ function renderMyCharactersTab() {
         <p>Create or import a character and they’ll appear here, ready for the next descent into cosmic ruin.</p>
         <button class="btn btn-gold" onclick="switchTab('character-creator')">Create A Character</button>
       </div>
+      ${renderMyCharactersImportButton()}
     </div>`;
   }
 
@@ -5693,6 +5707,7 @@ function renderMyCharactersTab() {
     <div class="stored-character-list">
       ${sections}
     </div>
+    ${renderMyCharactersImportButton()}
   </div>`;
 }
 
