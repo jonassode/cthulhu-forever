@@ -33,6 +33,7 @@ const ROOT      = path.join(__dirname, '..');
 // ── Minimal browser sandbox ──────────────────────────────────────────────────
 
 function makeSandbox() {
+  const storage = {};
   const el = () => ({
     appendChild:          () => {},
     addEventListener:     () => {},
@@ -70,10 +71,12 @@ function makeSandbox() {
     setInterval:          () => 0,
     clearInterval:        () => {},
     requestAnimationFrame: () => {},
+    scrollTo:             () => {},
     localStorage: {
-      getItem:    () => null,
-      setItem:    () => {},
-      removeItem: () => {},
+      getItem:    (key) => Object.prototype.hasOwnProperty.call(storage, key) ? storage[key] : null,
+      setItem:    (key, value) => { storage[key] = String(value); },
+      removeItem: (key) => { delete storage[key]; },
+      clear:      () => { Object.keys(storage).forEach(key => delete storage[key]); },
     },
     document: {
       addEventListener:    () => {},
@@ -101,6 +104,7 @@ function makeSandbox() {
     URL:              { createObjectURL: () => '', revokeObjectURL: () => '' },
     Blob:             class { constructor() {} },
     FileReader:       class { constructor() {} readAsText() {} addEventListener() {} },
+    __storage:        storage,
     // results array — set before VM code runs, read afterwards
     _results: [],
   };
@@ -148,7 +152,12 @@ const testCode = `
 
   // Resets state to a clean, archetype-less baseline.
   function resetState() {
+    localStorage.clear();
+    clearActiveCharacterTracking();
     state.age               = null;
+    state.currentStep       = 1;
+    state.currentTab        = 'character-creator';
+    state.playMode          = false;
     state.attrMode          = 'rolling';
     state.pointsAttr        = { STR: 12, CON: 12, DEX: 12, INT: 12, POW: 12, CHA: 12 };
     state.rolledSets        = [];
@@ -179,8 +188,8 @@ const testCode = `
     state.skillEditAdjust   = {};
     state.attrEditAdjust    = { STR: 0, CON: 0, DEX: 0, INT: 0, POW: 0, CHA: 0 };
     state.identity          = {
-      name: '', profession: '', birthplace: '', characterAge: 25,
-      backstory: '', motivations: '', gear: '',
+      name: '', profession: '', birthplace: '', gender: '', characterAge: 25,
+      backstory: '', motivations: makeDefaultMotivations(), gear: '', terribleTomes: '', permanentInjuries: '', notes: '', weapons: [makeDefaultUnarmedWeaponRow(), {}],
     };
     // Upbringing effects
     state.harshD4Rolls           = null;
@@ -1933,6 +1942,147 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
       'resetState clears Stone Age clanProsperity');
     eqW(state.castOut, false,
       'resetState clears Stone Age castOut flag');
+  }
+}
+
+// ── Suite 14: Local Storage Character Library ─────────────────────────────────
+
+console.log('\\n── Suite 14: Local Storage Character Library ─────────────────────────────────');
+
+{
+  const eqS = (actual, expected, message) => {
+    if (actual === expected) {
+      _results.push({ ok: true, msg: message });
+    } else {
+      _results.push({ ok: false, msg: message + ' — expected ' + JSON.stringify(expected) + ', got ' + JSON.stringify(actual) });
+      console.error('  FAIL: ' + message);
+    }
+  };
+
+  function library() {
+    const raw = localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function resetLibraryState() {
+    localStorage.clear();
+    clearActiveCharacterTracking();
+    resetState();
+  }
+
+  function makeSavableCharacter(name, age, archetype) {
+    clearActiveCharacterTracking();
+    resetState();
+    state.age = age;
+    state.upbringing = 'normal';
+    state.archetype = archetype;
+    state.currentStep = 5;
+    state.identity.name = name;
+    state.identity.gender = '';
+    state.identity.weapons = [makeDefaultUnarmedWeaponRow(), {}];
+    state.rolledSets = [];
+    [['STR', 12], ['CON', 12], ['DEX', 12], ['INT', 12], ['POW', 12], ['CHA', 12]].forEach(([key, total], index) => {
+      state.rolledSets.push({ id: index + 1, values: [total, 0, 0, 0], total });
+      state.attrAssign[key] = index + 1;
+    });
+  }
+
+  // 14.1  Entering the sheet for the first time writes a character to local storage
+  {
+    resetLibraryState();
+    makeSavableCharacter('Agnes Blake', 'jazz', 'journalist');
+    nextStep();
+
+    const saved = library();
+    eqS(saved.length, 1, 'First visit to step 6 saves one character in local storage');
+    eqS(saved[0].data.identity.name, 'Agnes Blake', 'Saved character keeps the current name');
+    eqS(saved[0].data.age, 'jazz', 'Saved character keeps the current era');
+  }
+
+  // 14.2  Direct sheet edits update the same stored character
+  {
+    updateIdentity('name', 'Agnes Blake-Smythe');
+    const saved = library();
+    eqS(saved.length, 1, 'Updating sheet identity keeps a single stored record');
+    eqS(saved[0].data.identity.name, 'Agnes Blake-Smythe', 'Updating identity saves through to local storage');
+  }
+
+  // 14.3  Library tab renders the cheerful empty state when no characters exist
+  {
+    resetLibraryState();
+    const html = renderMyCharactersTab();
+    eqS(String(html.includes('No investigators in the archive yet')), 'true', 'My Characters shows the empty-state heading');
+    eqS(String(html.includes('Create or import a character and they’ll appear here')), 'true', 'My Characters shows the cheerful empty-state copy');
+  }
+
+  // 14.4  Library tab groups saved characters by era order
+  {
+    resetLibraryState();
+    makeSavableCharacter('Mara Holt', 'stone', 'hunter_stone');
+    nextStep();
+    makeSavableCharacter('Edgar Vale', 'modern', 'author');
+    nextStep();
+
+    const html = renderMyCharactersTab();
+    eqS(String(html.indexOf('Modern Age') < html.indexOf('Stone Age')), 'true', 'My Characters sorts saved entries by era');
+  }
+
+  // 14.5  Editable tracked-character values stay in sync with local storage
+  {
+    resetLibraryState();
+    makeSavableCharacter('Irene Bell', 'jazz', 'journalist');
+    nextStep();
+
+    adjustHP(-1);
+    adjustWP(-2);
+    adjustSAN(-3);
+    adjustBP(2);
+    adjustBodyArmour(3);
+    toggleViolenceCheck(0);
+    toggleHelplessnessCheck(2);
+    toggleExhausted();
+    toggleTemporaryInsanity();
+    updateMotivation(0, 'See tomorrow');
+    toggleMotivationCrossed(0);
+    addDisorder();
+    updateDisorderText(1, 'Shaken hands');
+    state.editMode = true;
+    adjustResourcesInEditMode(2);
+    adjustSkillInEditMode('Alertness', 1);
+    addCustomSkill();
+    const customId = state.customSkills[state.customSkills.length - 1].id;
+    updateCustomSkillName(customId, 'Occult Journalism');
+    adjustCustomSkill(customId, 1);
+    adjustCustomSkillInEditMode(customId, 1);
+    updateWeaponField(1, 'weapon', 'Revolver');
+    updateWeaponCondition(1, 'worn');
+    addSheetBond();
+    const addedBondIdx = state.bonds.length - 1;
+    updateSheetBondName(addedBondIdx, 'Detective Moore');
+    updateSheetBondType(addedBondIdx, 'individual');
+    adjustBondPlayScore(addedBondIdx, 1);
+    toggleShowAllSkills();
+
+    const saved = library();
+    const exported = buildCharacterExportData();
+    eqS(saved.length, 1, 'Tracked edits keep a single local-storage record');
+    eqS(saved[0].data.currentSAN, exported.currentSAN, 'SAN edits save through to local storage');
+    eqS(saved[0].data.bodyArmour, exported.bodyArmour, 'Body Armour edits save through to local storage');
+    eqS(saved[0].data.identity.motivations[0].crossed, true, 'Crossed motivations save through to local storage');
+    eqS(JSON.stringify(saved[0].data), JSON.stringify(exported), 'Tracked editable values remain fully synced with the exported local-storage payload');
+
+    removeDisorder(1);
+    removeWeapon(1);
+    removeSheetBond(addedBondIdx);
+    let afterRemoval = library();
+    let removalExport = buildCharacterExportData();
+    eqS(JSON.stringify(afterRemoval[0].data), JSON.stringify(removalExport), 'Removing editable items updates the saved local-storage payload');
+
+    undoRemoveWeapon();
+    undoRemoveBond();
+    let afterUndo = library();
+    let undoExport = buildCharacterExportData();
+    eqS(JSON.stringify(afterUndo[0].data), JSON.stringify(undoExport), 'Undoing editable item removal restores the saved local-storage payload');
   }
 }
 `;

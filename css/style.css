@@ -2545,6 +2545,8 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 .tab-btn:hover {
   color: var(--accent-gold);
   border-color: var(--accent-gold);
+  border-right: 1px solid var(--accent-gold);
+  z-index: 1;
 }
 
 .tab-btn.active {
@@ -2617,6 +2619,150 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   position: absolute;
   left: 0.5rem;
   color: var(--accent-gold);
+}
+
+/* ── My Characters Tab ── */
+.my-characters-tab {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+.my-characters-header {
+  padding: 0;
+}
+
+.my-characters-empty {
+  padding: 2rem;
+  background: rgba(26, 34, 51, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.my-characters-header h2,
+.my-characters-empty h2 {
+  font-size: 1.8rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.75rem;
+  text-shadow: 0 0 16px rgba(201,168,76,0.2);
+}
+
+.my-characters-header p,
+.my-characters-empty p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.my-characters-empty {
+  text-align: center;
+}
+
+.my-characters-empty .btn {
+  margin-top: 1.25rem;
+}
+
+.stored-character-list {
+  margin-top: 1.5rem;
+}
+
+.my-characters-import {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.stored-character-era-heading {
+  margin: 1.5rem 0 0.75rem;
+  color: var(--accent-goldl);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stored-character-era-heading:first-child {
+  margin-top: 0;
+}
+
+.stored-character-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.75rem;
+  background: rgba(17, 24, 39, 0.72);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.stored-character-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stored-character-open:hover .stored-character-name {
+  color: var(--accent-gold);
+}
+
+.stored-character-name {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+}
+
+.stored-character-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.stored-character-delete {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(154, 141, 114, 0.45);
+  border-radius: 999px;
+  background: rgba(154, 141, 114, 0.08);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stored-character-delete svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.stored-character-delete:hover {
+  border-color: var(--accent-gold);
+  background: rgba(201, 168, 76, 0.12);
+  color: var(--accent-gold);
+}
+
+@media (max-width: 640px) {
+  .stored-character-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stored-character-delete {
+    width: 2.5rem;
+    align-self: flex-end;
+  }
 }
 
 

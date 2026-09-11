@@ -5,7 +5,7 @@
 // ── State ──────────────────────────────────────────────────
 
 const state = {
-  currentTab: 'character-creator',  // 'character-creator' | 'about'
+  currentTab: 'character-creator',  // 'character-creator' | 'my-characters' | 'about'
   currentStep: 1,
   playMode: false,    // true = character sheet only view
   age: null,          // 'jazz' | 'modern' | 'coldwar' | 'victorian' | 'ww1' | 'ww2' | 'future' | 'medieval' | 'classical' | 'revolutions' | 'sails' | 'elizabethan' | 'alazrad' | 'apocthulhu' | 'stone'
@@ -98,6 +98,7 @@ const state = {
     name: '',
     profession: '',
     birthplace: '',
+    gender: '',
     characterAge: 25,
     backstory: '',
     motivations: [{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false},{text:'',crossed:false}],
@@ -118,6 +119,31 @@ let _customSkillIdCounter = 0;
 
 // Counter for disorder unique IDs
 let _disorderIdCounter = 0;
+
+// Current local-storage-backed character being edited/viewed
+let _activeCharacterId = null;
+let _lastSavedCharacterSignature = null;
+
+const CHARACTER_LIBRARY_STORAGE_KEY = 'cthulhu-forever.characters.v1';
+const IMPORT_FAILURE_REASSURANCE = "But don't worry your character is safe in local storage.";
+const ERA_ORDER = ['jazz', 'modern', 'victorian', 'coldwar', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'sails', 'revolutions', 'elizabethan', 'alazrad', 'stone', 'apocthulhu'];
+const ERA_LABELS = {
+  jazz: 'Jazz Age',
+  modern: 'Modern Age',
+  victorian: 'Victorian Age',
+  coldwar: 'Cold War',
+  ww1: 'World War I',
+  ww2: 'World War II',
+  future: 'The Future',
+  medieval: 'Medieval Era',
+  classical: 'Classical Era',
+  sails: 'Age of Sails',
+  revolutions: 'Age of Revolutions',
+  elizabethan: 'Elizabethan Age',
+  alazrad: 'Age of Al-Azrad',
+  stone: 'Stone Age',
+  apocthulhu: 'Apocthulhu',
+};
 
 // ── Utility ────────────────────────────────────────────────
 
@@ -171,6 +197,21 @@ function getLifestyleLabel() {
   return '';
 }
 
+function getEraLabel(age = state.age) {
+  return ERA_LABELS[age] || 'Modern Age';
+}
+
+function getEraSortIndex(age) {
+  const idx = ERA_ORDER.indexOf(age);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
+function getArchetypeLabel(archetypeId) {
+  if (!archetypeId) return 'Unknown Archetype';
+  const archetype = ARCHETYPES.find(entry => entry.id === archetypeId);
+  return archetype && archetype.name ? archetype.name : 'Unknown Archetype';
+}
+
 function getClanDisplayName() {
   if (!state.clanName) return '';
   return state.castOut ? `${state.clanName} (outcast)` : state.clanName;
@@ -181,6 +222,194 @@ function shouldShowClanProsperity() {
     state.lifestyle === 'hunter_gatherer' &&
     !state.castOut &&
     state.clanProsperity !== null;
+}
+
+function clearActiveCharacterTracking() {
+  _activeCharacterId = null;
+  _lastSavedCharacterSignature = null;
+}
+
+function buildCharacterExportData() {
+  const attributes = {};
+  ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
+
+  const skills = {};
+  const baseSkills = getCurrentSkills();
+  Object.keys(baseSkills).forEach(s => {
+    const base = getFinalSkillValue(s);
+    const editAdj = state.skillEditAdjust[s] || 0;
+    skills[s] = Math.min(99, Math.max(0, base + editAdj));
+  });
+
+  const customSkills = (state.customSkills || [])
+    .filter(cs => (cs.customName || '').trim())
+    .map(cs => {
+      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
+      return {
+        name: getCustomSkillDisplayName(cs),
+        value: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
+      };
+    });
+
+  const bonds = (state.bonds || [])
+    .filter(b => b && b.name && b.name.trim())
+    .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
+
+  const derived = calculateDerived();
+
+  return {
+    version: 2,
+    age: state.age,
+    upbringing: state.upbringing,
+    archetype: state.archetype,
+    lifestyle: state.lifestyle,
+    clanName: state.clanName,
+    clanProsperity: state.clanProsperity,
+    castOut: state.castOut,
+    identity: { ...state.identity },
+    attributes,
+    skills,
+    skillTypes: { ...state.skillTypes },
+    customSkills,
+    bonds,
+    resources: getDisplayedResources(),
+    resourceChecked: [...(state.resourceChecked || [])],
+    skillChecked: { ...state.skillChecked },
+    violenceChecked: [...(state.violenceChecked || [false, false, false])],
+    helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
+    maxHP:  derived ? derived.HP : 0,
+    maxWP:  derived ? derived.WP : 0,
+    maxSAN: derived ? derived.MaxSAN : 0,
+    currentHP: derived ? Math.max(0, Math.min(state.currentHP !== null ? state.currentHP : derived.HP, derived.HP)) : 0,
+    currentWP: derived ? Math.max(0, Math.min(state.currentWP !== null ? state.currentWP : derived.WP, derived.WP)) : 0,
+    currentSAN: derived ? Math.max(0, Math.min(state.currentSAN !== null ? state.currentSAN : derived.SAN, derived.MaxSAN)) : 0,
+    breakingPoint: derived ? derived.BP + (state.bpAdjust || 0) : 0,
+    recoverySAN: derived ? derived.RecoverySAN : 0,
+    disorders: JSON.parse(JSON.stringify(state.disorders || [])),
+    showAllSkills: state.showAllSkills || false,
+    bodyArmour: state.bodyArmour || 0,
+    exhausted: state.exhausted || false,
+    temporaryInsanity: state.temporaryInsanity || false,
+  };
+}
+
+function canPersistCharacter() {
+  return !!state.age &&
+    !!state.archetype &&
+    ATTRIBUTES.every(a => Number.isFinite(getDisplayedAttrValue(a)));
+}
+
+function getStoredCharacters() {
+  if (typeof localStorage === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(CHARACTER_LIBRARY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(entry => entry &&
+      typeof entry.id === 'string' &&
+      entry.data &&
+      typeof entry.data === 'object' &&
+      typeof entry.data.age === 'string');
+  } catch (err) {
+    console.error('Failed to read character library from local storage:', err);
+    return [];
+  }
+}
+
+function writeStoredCharacters(entries) {
+  if (typeof localStorage === 'undefined') return false;
+  try {
+    localStorage.setItem(CHARACTER_LIBRARY_STORAGE_KEY, JSON.stringify(entries));
+    return true;
+  } catch (err) {
+    console.error('Failed to write character library to local storage:', err);
+    return false;
+  }
+}
+
+function generateStoredCharacterId() {
+  return 'char_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function getStoredCharacterName(data) {
+  const rawName = data && data.identity && typeof data.identity.name === 'string'
+    ? data.identity.name.trim()
+    : '';
+  return rawName || 'Unnamed Character';
+}
+
+function persistCurrentCharacter(options = {}) {
+  if (!canPersistCharacter()) return null;
+  const exportData = buildCharacterExportData();
+  const signature = JSON.stringify(exportData);
+  const targetId = options.preferredId || _activeCharacterId || generateStoredCharacterId();
+  if (!options.force && targetId === _activeCharacterId && signature === _lastSavedCharacterSignature) {
+    return _activeCharacterId;
+  }
+
+  const entries = getStoredCharacters();
+  const existingIndex = entries.findIndex(entry => entry.id === targetId);
+  const existing = existingIndex >= 0 ? entries[existingIndex] : null;
+  const now = new Date().toISOString();
+  const nextEntry = {
+    id: targetId,
+    createdAt: existing && typeof existing.createdAt === 'string' ? existing.createdAt : now,
+    updatedAt: now,
+    data: exportData,
+  };
+
+  if (existingIndex >= 0) entries[existingIndex] = nextEntry;
+  else entries.push(nextEntry);
+
+  if (!writeStoredCharacters(entries)) return null;
+
+  _activeCharacterId = targetId;
+  _lastSavedCharacterSignature = signature;
+  return targetId;
+}
+
+function persistTrackedCharacter() {
+  if (!_activeCharacterId) return;
+  persistCurrentCharacter();
+}
+
+function renderAndPersistTrackedCharacter() {
+  render();
+  persistTrackedCharacter();
+}
+
+function findStoredCharactersByName(name) {
+  const normalized = String(name || '').trim().toLocaleLowerCase();
+  if (!normalized) return [];
+  return getStoredCharacters().filter(entry => getStoredCharacterName(entry.data).toLocaleLowerCase() === normalized);
+}
+
+function getImportStorageOptions(data) {
+  const matches = findStoredCharactersByName(data && data.identity ? data.identity.name : '');
+  if (matches.length === 0) return {};
+
+  const replace = confirm(`A character named "${getStoredCharacterName(data)}" already exists in local storage. Replace the most recently saved copy?`);
+  if (!replace) return {};
+
+  matches.sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
+  return { storageId: matches[0].id };
+}
+
+function getCharacterLibraryEntries() {
+  return getStoredCharacters()
+    .map(entry => ({
+      ...entry,
+      name: getStoredCharacterName(entry.data),
+      age: entry.data.age,
+      eraLabel: getEraLabel(entry.data.age),
+      archetypeLabel: getArchetypeLabel(entry.data.archetype),
+    }))
+    .sort((a, b) => (
+      getEraSortIndex(a.age) - getEraSortIndex(b.age) ||
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) ||
+      String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || ''))
+    ));
 }
 
 // Returns the description for a skill from the current age-specific description map, or empty string if none.
@@ -390,7 +619,7 @@ function switchAttrMode(mode) {
     // Reset points to default balanced allocation (12 each = 72 total)
     ATTRIBUTES.forEach(a => { state.pointsAttr[a] = 12; });
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustPointsAttr(attrKey, delta) {
@@ -400,7 +629,7 @@ function adjustPointsAttr(attrKey, delta) {
   const remaining = getPointsRemaining();
   if (delta > 0 && remaining < delta) return; // not enough points left
   state.pointsAttr[attrKey] = next;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function calculateDerived() {
@@ -801,7 +1030,7 @@ function adjustBondPlayScore(idx, delta) {
     return;
   }
   bond.currentScore = Math.min(maxScore, Math.max(0, current + delta));
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function showNotification(message) {
@@ -833,13 +1062,13 @@ function renderNotification() {
 // Adjusts the Breaking Point by a manual offset.
 function adjustBP(delta) {
   state.bpAdjust = (state.bpAdjust || 0) + delta;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts the Body Armour value in edit mode (clamped to 0–20).
 function adjustBodyArmour(delta) {
   state.bodyArmour = Math.min(20, Math.max(0, (state.bodyArmour || 0) + delta));
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Toggles Edit Mode on/off.
@@ -854,7 +1083,7 @@ function adjustResourcesInEditMode(delta) {
   const current = base + (state.resourcesEditAdjust || 0);
   const newVal = Math.max(0, current + delta);
   state.resourcesEditAdjust = newVal - base;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts a skill value in edit mode.
@@ -866,7 +1095,7 @@ function adjustSkillInEditMode(skillName, delta) {
   if (base + newAdj < 0) return;
   if (base + newAdj > 99) return;
   state.skillEditAdjust[skillName] = newAdj;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts a custom skill value in edit mode (no bonus-pick restriction).
@@ -880,7 +1109,7 @@ function adjustCustomSkillInEditMode(id, delta) {
   if (base + newAdj < 0) return;
   if (base + newAdj > 99) return;
   state.skillEditAdjust[key] = newAdj;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Adjusts an attribute value in edit mode (clamped to 3–18).
@@ -891,7 +1120,7 @@ function adjustAttrInEditMode(attrKey, delta) {
   const newVal = base + current + delta;
   if (newVal < 3 || newVal > 18) return;
   state.attrEditAdjust[attrKey] = current + delta;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Motivations ─────────────────────────────────────────────
@@ -999,6 +1228,7 @@ function updateWeaponField(rowIdx, field, value) {
       tbody.insertAdjacentHTML('beforeend', renderWeaponRow({}, newIdx));
     }
   }
+  persistTrackedCharacter();
 }
 
 function updateWeaponCondition(rowIdx, value) {
@@ -1008,7 +1238,7 @@ function updateWeaponCondition(rowIdx, value) {
   // radio-group behaviour: toggle off if already selected
   state.identity.weapons[rowIdx].condition = current === value ? '' : value;
   ensureTrailingBlankWeaponRow();
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeWeapon(idx) {
@@ -1022,6 +1252,7 @@ function removeWeapon(idx) {
   if (state.identity.weapons.length === 0) state.identity.weapons = [{}];
   ensureTrailingBlankWeaponRow();
   showNotification('Weapon removed.');
+  persistTrackedCharacter();
 }
 
 function undoRemoveWeapon() {
@@ -1038,7 +1269,7 @@ function undoRemoveWeapon() {
   state.lastRemovedWeapon = null;
   state.notification = null;
   ensureTrailingBlankWeaponRow();
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateMotivation(index, value) {
@@ -1046,13 +1277,14 @@ function updateMotivation(index, value) {
   if (state.identity.motivations[index]) {
     state.identity.motivations[index].text = value;
   }
+  persistTrackedCharacter();
 }
 
 function toggleMotivationCrossed(index) {
   if (!Array.isArray(state.identity.motivations)) return;
   if (state.identity.motivations[index]) {
     state.identity.motivations[index].crossed = !state.identity.motivations[index].crossed;
-    render();
+    renderAndPersistTrackedCharacter();
   }
 }
 
@@ -1101,6 +1333,7 @@ function finishEditMotivation(index, input) {
     state.identity.motivations[index].text = newVal;
   }
   input.replaceWith(createMotivationSpan(index, newVal));
+  persistTrackedCharacter();
 }
 
 function createMotivationSpan(index, text) {
@@ -1124,17 +1357,18 @@ function createMotivationSpan(index, text) {
 
 function addDisorder() {
   state.disorders.push({ id: ++_disorderIdCounter, text: '' });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeDisorder(id) {
   state.disorders = state.disorders.filter(d => d.id !== id);
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateDisorderText(id, value) {
   const d = state.disorders.find(d => d.id === id);
   if (d) d.text = value;
+  persistTrackedCharacter();
 }
 
 // ── Upbringing Effects (Step 4.5) ──────────────────────────
@@ -1178,7 +1412,7 @@ function rollHarshD4s() {
   state.harshBondChoice1 = null;
   state.harshBondChoice2 = null;
   state.bonds.forEach(b => { if (b) b.upbringingReduction = 0; });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Selects which bond to apply a Harsh d4 deduction to (rollIndex = 0 or 1).
@@ -1199,7 +1433,7 @@ function selectHarshBondChoice(rollIndex, bondIndex) {
   const newChoice = isDeselect ? null : bondIndex;
   if (rollIndex === 0) state.harshBondChoice1 = newChoice;
   else                 state.harshBondChoice2 = newChoice;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls d100 for the Very Harsh POW × 4 test.
@@ -1213,7 +1447,7 @@ function rollVhPowTest() {
   } else {
     state.vhPowDisorderId = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Selects the adaptation type for Very Harsh Part 2.
@@ -1228,7 +1462,7 @@ function selectVhAdaptation(adaptationType) {
     state.vhAdaptRoll = null;
   }
   state.vhAdaptedTo = adaptationType;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls 1d6 for the Very Harsh adaptation effect and applies the result.
@@ -1245,7 +1479,7 @@ function rollVhAdaptDice() {
     state.upbringingPowReduction = roll;
     state.helplessnessChecked = [true, true, true];
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Nightmarish upbringing effect handlers ──────────────────
@@ -1261,7 +1495,7 @@ function rollNmPowTest1() {
   } else {
     state.nmDisorderId1 = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls d100 for the second Nightmarish POW × 4 test.
@@ -1275,7 +1509,7 @@ function rollNmPowTest2() {
   } else {
     state.nmDisorderId2 = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Selects the adaptation type for Nightmarish (when player has a choice).
@@ -1292,7 +1526,7 @@ function selectNmAdaptation(adaptationType) {
     state.nmAdaptHelplessRoll = null;
   }
   state.nmAdaptedTo = adaptationType;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls 1d6 for the Nightmarish violence adaptation and applies the result.
@@ -1304,7 +1538,7 @@ function rollNmAdaptViolenceDice() {
   // Only community bonds need a direct upbringingReduction; individual bonds must not be reduced twice.
   state.bonds.forEach(b => { if (b && b.type === 'community') b.upbringingReduction = (b.upbringingReduction || 0) + roll; });
   state.violenceChecked = [true, true, true];
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Rolls 1d6 for the Nightmarish helplessness adaptation and applies the result.
@@ -1313,7 +1547,7 @@ function rollNmAdaptHelplessnessDice() {
   state.nmAdaptHelplessRoll = roll;
   state.upbringingPowReduction = (state.upbringingPowReduction || 0) + roll;
   state.helplessnessChecked = [true, true, true];
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Adversity Picks ─────────────────────────────────────────
@@ -1437,8 +1671,11 @@ function canProceed(step) {
 
 // ── Routing ────────────────────────────────────────────────
 
-function goToStep(n) {
+function goToStep(n, options = {}) {
   state.currentStep = n;
+  if (n === 6 && options.persistOnEnter) {
+    persistCurrentCharacter(options.persistOptions || {});
+  }
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1460,6 +1697,10 @@ function nextStep() {
     }
     if (state.currentStep === 4.5) {
       goToStep(5);
+      return;
+    }
+    if (state.currentStep === 5) {
+      goToStep(6, { persistOnEnter: true });
       return;
     }
     goToStep(state.currentStep + 1);
@@ -1624,7 +1865,7 @@ function renderStep1() {
     </div>
 
     ${state.age ? `<div class="notice mt-4">
-      <strong>${state.age === 'jazz' ? 'Jazz Age' : state.age === 'coldwar' ? 'Cold War' : state.age === 'victorian' ? 'Victorian Age' : state.age === 'ww1' ? 'World War I' : state.age === 'ww2' ? 'World War II' : state.age === 'future' ? 'The Future' : state.age === 'medieval' ? 'Medieval Era' : state.age === 'classical' ? 'Classical Era' : state.age === 'sails' ? 'Age of Sails' : state.age === 'revolutions' ? 'Age of Revolutions' : state.age === 'elizabethan' ? 'Elizabethan Age' : state.age === 'alazrad' ? 'Age of Al-Azrad' : state.age === 'apocthulhu' ? 'Apocthulhu' : state.age === 'stone' ? 'Stone Age' : 'Modern Age'}</strong> selected.
+      <strong>${getEraLabel()}</strong> selected.
       You may proceed to the next step.
     </div>` : ''}
 
@@ -1667,6 +1908,7 @@ function selectAge(val) {
     }
   }
   nextStep();
+  persistTrackedCharacter();
 }
 
 // ── RENDER: Step 2 — Attributes ─────────────────────────────
@@ -1934,7 +2176,7 @@ function doRollAll() {
   const btn = document.getElementById('rollBtn');
   if (btn) { btn.classList.add('shaking'); setTimeout(() => btn.classList.remove('shaking'), 600); }
   rollAllAttributes();
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function rerollAll() {
@@ -2132,12 +2374,12 @@ function selectUpbringing(val) {
     state.nmAdaptViolenceRoll = null;
     state.nmAdaptHelplessRoll = null;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function selectHarshStat(attr) {
   state.harshStatChoice = attr;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function handleAttrDropdown(attr, val) {
@@ -2152,7 +2394,7 @@ function handleAttrDropdown(attr, val) {
     if (state.attrAssign[a] === rollId) state.attrAssign[a] = null;
   });
   state.attrAssign[attr] = rollId;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function handleChipClick(rollId) {
@@ -2160,14 +2402,14 @@ function handleChipClick(rollId) {
   const firstEmpty = ATTRIBUTES.find(a => state.attrAssign[a] === null || state.attrAssign[a] === undefined);
   if (firstEmpty) {
     state.attrAssign[firstEmpty] = rollId;
-    render();
+    renderAndPersistTrackedCharacter();
   }
 }
 
 function unassignAttr(attr, event) {
   if (event) event.stopPropagation();
   state.attrAssign[attr] = null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Drag & Drop handlers ─────────────────────────────────────
@@ -2228,7 +2470,7 @@ function handleDrop(e, targetAttr) {
   state.attrAssign[targetAttr] = _dragRollId;
   _dragRollId   = null;
   _dragFromAttr = null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── RENDER: Step 3 — Archetype ──────────────────────────────
@@ -2306,7 +2548,7 @@ function selectArchetype(id) {
     state.archetype  = id;
     state.selectedOptional = [];
   }
-  render();
+  renderAndPersistTrackedCharacter();
   setTimeout(() => {
     const detail = document.getElementById('archetype-detail');
     if (detail && detail.scrollIntoView) detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2321,7 +2563,7 @@ function toggleOptional(skillName, maxCount) {
       state.selectedOptional.push(skillName);
     }
   }
-  render();
+  renderAndPersistTrackedCharacter();
   // Re-scroll to detail panel without full page jump
   setTimeout(() => {
     const detail = document.getElementById('archetype-detail');
@@ -2349,7 +2591,7 @@ function selectLifestyle(lifestyle) {
     state.clanProsperity = null;
     state.castOut = false;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateClanName(value) {
@@ -2361,12 +2603,13 @@ function updateClanName(value) {
   const nextBtn = document.getElementById('next-btn');
   if (nextBtn && state.currentStep === 2) nextBtn.disabled = !canProceed(2);
   // Don't re-render to preserve focus
+  persistTrackedCharacter();
 }
 
 function updateClanProsperity(value) {
   const n = Number(value);
   state.clanProsperity = Number.isFinite(n) ? n : null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleCastOut(checked) {
@@ -2383,7 +2626,7 @@ function toggleCastOut(checked) {
       state.bonds[0] = createHunterGathererClanBond();
     }
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function normalizeHunterGathererResourceState() {
@@ -2690,7 +2933,7 @@ function adjustSkill(skillName, delta) {
     if (base + archBon + (newPicks + advPicks) * 20 > 80) return;
   }
   state.skillPoints[skillName] = newPicks;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustResources(delta) {
@@ -2704,7 +2947,7 @@ function adjustResources(delta) {
     if (state.resourcesBonusSpent <= 0) return;
     state.resourcesBonusSpent--;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustAdversity(skillName, delta) {
@@ -2722,7 +2965,7 @@ function adjustAdversity(skillName, delta) {
     if (base + archBon + (bpPicks + newPicks) * 20 > 80) return;
   }
   state.adversityPoints[skillName] = newPicks;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Custom Skills ───────────────────────────────────
@@ -2742,12 +2985,12 @@ function addCustomSkill() {
     customName: '',
     points: 0,
   });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeCustomSkill(id) {
   state.customSkills = state.customSkills.filter(cs => cs.id !== id);
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustCustomSkill(id, delta) {
@@ -2760,7 +3003,7 @@ function adjustCustomSkill(id, delta) {
     if (cs.baseValue + newPicks * 20 > 80) return;
   }
   cs.points = newPicks;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateCustomSkillName(id, value) {
@@ -2768,6 +3011,7 @@ function updateCustomSkillName(id, value) {
   if (!cs) return;
   cs.customName = value;
   // Don't re-render to preserve focus
+  persistTrackedCharacter();
 }
 
 function updateBond(index, value) {
@@ -2777,11 +3021,13 @@ function updateBond(index, value) {
   // Update the next button disabled state
   const nextBtn = document.getElementById('next-btn');
   if (nextBtn) nextBtn.disabled = !canProceed(4);
+  persistTrackedCharacter();
 }
 
 function updateSkillType(skillName, value) {
   state.skillTypes[skillName] = value;
   // Don't re-render (would lose focus); the display name is only used on the character sheet
+  persistTrackedCharacter();
 }
 
 function updateBondType(index, type) {
@@ -2789,7 +3035,7 @@ function updateBondType(index, type) {
   if (!bond || typeof bond !== 'object') return;
   if (hasLockedCommunityBondType(bond)) {
     bond.type = 'community';
-    render();
+    renderAndPersistTrackedCharacter();
     return;
   }
   // If switching away from community, refund bonus picks and clear setToOne
@@ -2798,7 +3044,7 @@ function updateBondType(index, type) {
     bond.setToOne = false;
   }
   bond.type = type;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function adjustBond(index, delta) {
@@ -2813,7 +3059,7 @@ function adjustBond(index, delta) {
     if ((bond.bonusSpent || 0) <= 0) return;
     bond.bonusSpent--;
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Toggles Resources to 0, granting +1 bonus pick when enabled.
@@ -2835,7 +3081,7 @@ function toggleResourcesZero() {
       }
     });
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // Toggles a community bond score to 1, granting +1 bonus pick when enabled.
@@ -2853,7 +3099,7 @@ function toggleBondSetToOne(index) {
     bond.setToOne = true;
     bond.bonusSpent = 0; // refund any picks spent on this bond
   }
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── RENDER: Step 4.5 — Upbringing Effects ───────────────────
@@ -3817,51 +4063,72 @@ function updateIdentity(field, value) {
       if (ageEl) ageEl.textContent = value;
     }
   }
+  persistTrackedCharacter();
 }
 
 function toggleResourceCheck(idx) {
   state.resourceChecked[idx] = !(state.resourceChecked[idx] || false);
+  persistTrackedCharacter();
 }
 
 function toggleSkillCheck(skillName) {
   state.skillChecked[skillName] = !(state.skillChecked[skillName] || false);
+  persistTrackedCharacter();
 }
 
 function toggleViolenceCheck(idx) {
   state.violenceChecked[idx] = !state.violenceChecked[idx];
   // Re-render to show/hide the Adapted badge
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleHelplessnessCheck(idx) {
   state.helplessnessChecked[idx] = !state.helplessnessChecked[idx];
   // Re-render to show/hide the Adapted badge
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleExhausted() {
   state.exhausted = !state.exhausted;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleTemporaryInsanity() {
   state.temporaryInsanity = !state.temporaryInsanity;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── HP / WP / SAN Adjustment ────────────────────────────────
+
+function setCurrentStatDisplay(el, statKey, value) {
+  if (!el) return;
+  if (statKey === 'HP') {
+    el.textContent = value;
+    el.className = 'db-current-val' + getHPStatusClass(value);
+    return;
+  }
+  if (statKey === 'WP') {
+    el.textContent = value;
+    el.className = 'db-current-val' + getWPStatusClass(value);
+    return;
+  }
+  if (statKey === 'SAN') {
+    el.className = 'db-current-val';
+    el.innerHTML = `${value}${state.exhausted ? `<span class="exhausted-san-penalty">(${Math.max(0, value - 20)})</span>` : ''}`;
+    return;
+  }
+  el.textContent = value;
+}
 
 function adjustHP(delta) {
   const d = calculateDerived();
   if (!d) return;
   state.currentHP = Math.max(0, Math.min(getEffectiveHP() + delta, d.HP));
   const el = document.getElementById('hp-current-val');
-  if (el) {
-    el.textContent = state.currentHP;
-    el.className = 'db-current-val' + getHPStatusClass(state.currentHP);
-  }
+  setCurrentStatDisplay(el, 'HP', state.currentHP);
   const badgeEl = document.getElementById('hp-status-badge');
   if (badgeEl) badgeEl.innerHTML = getHPBadgeContent(state.currentHP);
+  persistTrackedCharacter();
 }
 
 function adjustWP(delta) {
@@ -3869,12 +4136,10 @@ function adjustWP(delta) {
   if (!d) return;
   state.currentWP = Math.max(0, Math.min(getEffectiveWP() + delta, d.WP));
   const el = document.getElementById('wp-current-val');
-  if (el) {
-    el.textContent = state.currentWP;
-    el.className = 'db-current-val' + getWPStatusClass(state.currentWP);
-  }
+  setCurrentStatDisplay(el, 'WP', state.currentWP);
   const badgeEl = document.getElementById('wp-status-badge');
   if (badgeEl) badgeEl.innerHTML = getWPBadgeContent(state.currentWP);
+  persistTrackedCharacter();
 }
 
 function adjustSAN(delta) {
@@ -3882,17 +4147,17 @@ function adjustSAN(delta) {
   if (!d) return;
   state.currentSAN = Math.max(0, Math.min(getEffectiveSAN() + delta, d.MaxSAN));
   const el = document.getElementById('san-current-val');
-  if (el) el.textContent = state.currentSAN;
+  setCurrentStatDisplay(el, 'SAN', state.currentSAN);
+  persistTrackedCharacter();
 }
 
 // ── Inline stat editing (double-click) ──────────────────────
 
 function makeStatSpan(elemId, statKey, value) {
   const span = document.createElement('span');
-  span.className = 'db-current-val';
   span.id = elemId;
-  span.textContent = value;
   span.title = 'Double-click to edit';
+  setCurrentStatDisplay(span, statKey, value);
   span.addEventListener('dblclick', () => startEditStat(statKey));
   return span;
 }
@@ -3958,6 +4223,14 @@ function finishEditStat(statKey, elemId, input) {
 
   const span = makeStatSpan(elemId, statKey, newVal);
   input.replaceWith(span);
+  if (statKey === 'HP') {
+    const badgeEl = document.getElementById('hp-status-badge');
+    if (badgeEl) badgeEl.innerHTML = getHPBadgeContent(state.currentHP);
+  } else if (statKey === 'WP') {
+    const badgeEl = document.getElementById('wp-status-badge');
+    if (badgeEl) badgeEl.innerHTML = getWPBadgeContent(state.currentWP);
+  }
+  persistTrackedCharacter();
 }
 
 // ── Inline text editing (double-click) ──────────────────────
@@ -4003,6 +4276,7 @@ function finishEditText(fieldKey, elemId, textarea) {
   if (div) {
     div.textContent = newVal;
   }
+  persistTrackedCharacter();
 }
 
 // ── Inline bond name editing (double-click) ──────────────────
@@ -4067,13 +4341,14 @@ function finishEditBondName(origIdx, input) {
   }
   const span = createBondNameSpan(origIdx, newName);
   input.replaceWith(span);
+  persistTrackedCharacter();
 }
 
 // ── Sheet-mode bond management (edit mode on the character sheet) ─────────────
 
 function addSheetBond() {
   state.bonds.push({ name: '', type: null, bonusSpent: 0, currentScore: 1, setToOne: false, upbringingReduction: 0 });
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function removeSheetBond(idx) {
@@ -4082,6 +4357,7 @@ function removeSheetBond(idx) {
   state.lastRemovedWeapon = null;
   state.bonds.splice(idx, 1);
   showNotification('Bond removed.');
+  persistTrackedCharacter();
 }
 
 function undoRemoveBond() {
@@ -4091,95 +4367,28 @@ function undoRemoveBond() {
   state.bonds.splice(insertAt, 0, bond);
   state.lastRemovedBond = null;
   state.notification = null;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function updateSheetBondName(idx, value) {
   if (state.bonds[idx]) state.bonds[idx].name = value;
+  persistTrackedCharacter();
 }
 
 function updateSheetBondType(idx, type) {
   if (state.bonds[idx]) state.bonds[idx].type = type;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 function toggleShowAllSkills() {
   state.showAllSkills = !state.showAllSkills;
-  render();
+  renderAndPersistTrackedCharacter();
 }
 
 // ── Import / Export ─────────────────────────────────────────
 
 function exportToJson() {
-  // Final attribute values (including any edit-mode adjustments)
-  const attributes = {};
-  ATTRIBUTES.forEach(a => { attributes[a] = getDisplayedAttrValue(a); });
-
-  // Final skill percentages for every skill in the current era (always base values, exhausted penalty is display-only)
-  const skills = {};
-  const baseSkills = getCurrentSkills();
-  Object.keys(baseSkills).forEach(s => {
-    const base = getFinalSkillValue(s);
-    const editAdj = state.skillEditAdjust[s] || 0;
-    skills[s] = Math.min(99, Math.max(0, base + editAdj));
-  });
-
-  // Custom skills: just name and final displayed value
-  const customSkills = (state.customSkills || [])
-    .filter(cs => (cs.customName || '').trim())
-    .map(cs => {
-      const editAdj = state.skillEditAdjust[`custom_${cs.id}`] || 0;
-      return {
-        name: getCustomSkillDisplayName(cs),
-        value: Math.min(99, Math.max(0, getFinalCustomSkillValue(cs) + editAdj)),
-      };
-    });
-
-  // Bonds: just name, type, and current in-play score (no bonusSpent)
-  const bonds = (state.bonds || [])
-    .filter(b => b && b.name && b.name.trim())
-    .map(b => ({ name: b.name, type: b.type, currentScore: getBondPlayScore(b) }));
-
-  const derived = calculateDerived();
-  // derived is always non-null here: export is only reachable from the completed
-  // character sheet (step 6) where all attributes are assigned.
-  // The fallbacks below are purely defensive and should never be used.
-
-  const exportData = {
-    version: 2,
-    age: state.age,
-    upbringing: state.upbringing,
-    archetype: state.archetype,
-    lifestyle: state.lifestyle,
-    clanName: state.clanName,
-    clanProsperity: state.clanProsperity,
-    castOut: state.castOut,
-    identity: { ...state.identity },
-    attributes,
-    skills,
-    skillTypes: { ...state.skillTypes },
-    customSkills,
-    bonds,
-    resources: getDisplayedResources(),
-    resourceChecked: [...(state.resourceChecked || [])],
-    skillChecked: { ...state.skillChecked },
-    violenceChecked: [...(state.violenceChecked || [false, false, false])],
-    helplessnessChecked: [...(state.helplessnessChecked || [false, false, false])],
-    maxHP:  derived ? derived.HP       : 0,
-    maxWP:  derived ? derived.WP       : 0,
-    maxSAN: derived ? derived.MaxSAN   : 0,
-    currentHP:  derived ? Math.max(0, Math.min(state.currentHP  !== null ? state.currentHP  : derived.HP,       derived.HP))       : 0,
-    currentWP:  derived ? Math.max(0, Math.min(state.currentWP  !== null ? state.currentWP  : derived.WP,       derived.WP))       : 0,
-    currentSAN: derived ? Math.max(0, Math.min(state.currentSAN !== null ? state.currentSAN : derived.SAN,      derived.MaxSAN))   : 0,
-    breakingPoint: derived ? derived.BP + (state.bpAdjust || 0) : 0,
-    recoverySAN:   derived ? derived.RecoverySAN : 0,
-    disorders: JSON.parse(JSON.stringify(state.disorders || [])),
-    showAllSkills: state.showAllSkills || false,
-    bodyArmour: state.bodyArmour || 0,
-    exhausted: state.exhausted || false,
-    temporaryInsanity: state.temporaryInsanity || false,
-  };
-
+  const exportData = buildCharacterExportData();
   const json = JSON.stringify(exportData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -4203,21 +4412,7 @@ function exportToOriginalSheet() {
   const skills  = getCurrentSkills();
 
   // Era display name
-  const eraLabel = state.age === 'jazz' ? 'Jazz Age'
-    : state.age === 'coldwar'     ? 'Cold War'
-    : state.age === 'victorian'   ? 'Victorian Age'
-    : state.age === 'ww1'         ? 'World War I'
-    : state.age === 'ww2'         ? 'World War II'
-    : state.age === 'medieval'    ? 'Medieval Era'
-    : state.age === 'classical'   ? 'Classical Era'
-    : state.age === 'sails'       ? 'Age of Sails'
-    : state.age === 'revolutions' ? 'Age of Revolutions'
-    : state.age === 'elizabethan' ? 'Elizabethan Age'
-    : state.age === 'alazrad'     ? 'Age of Al-Azrad'
-    : state.age === 'apocthulhu'  ? 'Apocthulhu'
-    : state.age === 'future'      ? 'The Future'
-    : state.age === 'stone'       ? 'Stone Age'
-    : 'Modern Age';
+  const eraLabel = getEraLabel();
 
   // All skills sorted alphabetically, including 0% values
   const allSkills = [
@@ -4987,10 +5182,10 @@ function triggerImport() {
     reader.onload = function (ev) {
       try {
         const data = JSON.parse(ev.target.result);
-        importFromJson(data);
+        importFromJson(data, getImportStorageOptions(data));
       } catch (_err) {
         console.error('Failed to parse character JSON:', _err);
-        alert('Invalid file. Please select a valid character JSON export.');
+        alert(`Invalid file. Please select a valid character JSON export. ${IMPORT_FAILURE_REASSURANCE}`);
       }
     };
     reader.readAsText(file);
@@ -5044,29 +5239,36 @@ function importWeapons(raw) {
 }
 
 
-function importFromJson(data) {
+function importFromJson(data, options = {}) {
   if (!data || typeof data !== 'object') {
-    alert('Invalid character data.');
+    alert(`Invalid character data. ${IMPORT_FAILURE_REASSURANCE}`);
     return;
   }
 
   const VALID_ERAS = ['jazz', 'modern', 'coldwar', 'victorian', 'ww1', 'ww2', 'future', 'medieval', 'classical', 'revolutions', 'sails', 'elizabethan', 'alazrad', 'apocthulhu', 'stone'];
   if (!data.age || !VALID_ERAS.includes(data.age)) {
-    alert('Invalid character data: missing or unknown era (age).');
+    alert(`Invalid character data: missing or unknown era (age). ${IMPORT_FAILURE_REASSURANCE}`);
     return;
   }
 
+  if (!data.identity || typeof data.identity !== 'object') {
+    alert(`Invalid character data: missing identity block. ${IMPORT_FAILURE_REASSURANCE}`);
+    return;
+  }
+
+  state.attrMode = 'rolling';
+  if (!options.storageId) clearActiveCharacterTracking();
   if ((data.version || 1) >= 2) {
-    importFromJsonV2(data);
+    importFromJsonV2(data, options);
   } else {
-    importFromJsonV1(data);
+    importFromJsonV1(data, options);
   }
 }
 
 // Imports a v2 (outcome-only) character export.
 // Reconstructs the minimal synthetic internal state so all rendering functions
 // return the correct final values without replaying the creation process.
-function importFromJsonV2(data) {
+function importFromJsonV2(data, options = {}) {
   // ── Identity & character meta ────────────────────────────
   state.age = data.age;
   state.upbringing = data.upbringing || null;
@@ -5186,12 +5388,13 @@ function importFromJsonV2(data) {
   state.editMode = false;
   state.playMode = false;
   state.currentStep = 6;
+  persistCurrentCharacter({ preferredId: options.storageId, force: true });
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Imports a v1 (process-based) character export for backward compatibility.
-function importFromJsonV1(data) {
+function importFromJsonV1(data, options = {}) {
   state.age = data.age;
   state.rolledSets = data.rolledSets || [];
   ATTRIBUTES.forEach(a => {
@@ -5256,6 +5459,7 @@ function importFromJsonV1(data) {
     : 0;
 
   state.currentStep = 6;
+  persistCurrentCharacter({ preferredId: options.storageId, force: true });
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -5289,6 +5493,7 @@ function exitPlayMode() {
 }
 
 function resetState() {
+  clearActiveCharacterTracking();
   state.currentStep = 1;
   state.playMode    = false;
   state.age         = null;
@@ -5413,10 +5618,96 @@ function renderTabs() {
             onclick="switchTab('character-creator')">
       CHARACTER CREATOR
     </button>
+    <button class="tab-btn ${state.currentTab === 'my-characters' ? 'active' : ''}" 
+            onclick="switchTab('my-characters')">
+      MY CHARACTERS
+    </button>
     <button class="tab-btn ${state.currentTab === 'about' ? 'active' : ''}" 
             onclick="switchTab('about')">
       ABOUT
     </button>
+  </div>`;
+}
+
+function openStoredCharacter(id) {
+  const entry = getStoredCharacters().find(item => item.id === id);
+  if (!entry) return;
+  state.currentTab = 'character-creator';
+  importFromJson(entry.data, { storageId: id });
+}
+
+function deleteStoredCharacter(event, id) {
+  if (event) event.stopPropagation();
+  const entries = getStoredCharacters();
+  const index = entries.findIndex(entry => entry.id === id);
+  if (index === -1) return;
+
+  const name = getStoredCharacterName(entries[index].data);
+  if (!confirm(`Delete "${name}" from local storage?`)) return;
+
+  entries.splice(index, 1);
+  if (!writeStoredCharacters(entries)) return;
+  if (_activeCharacterId === id) clearActiveCharacterTracking();
+  render();
+}
+
+function renderMyCharactersImportButton() {
+  return `
+    <div class="import-divider">
+      <span>or</span>
+    </div>
+    <div class="my-characters-import">
+      <button class="btn btn-outline" onclick="triggerImport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import Character from JSON
+      </button>
+    </div>`;
+}
+
+function renderMyCharactersTab() {
+  const entries = getCharacterLibraryEntries();
+  if (entries.length === 0) {
+    return `
+    <div class="my-characters-tab">
+      <div class="my-characters-empty">
+        <h2>No investigators in the archive yet</h2>
+        <p>Create or import a character and they’ll appear here, ready for the next descent into cosmic ruin.</p>
+        <button class="btn btn-gold" onclick="switchTab('character-creator')">Create A Character</button>
+      </div>
+      ${renderMyCharactersImportButton()}
+    </div>`;
+  }
+
+  let currentEra = null;
+  const sections = entries.map(entry => {
+    const heading = entry.age !== currentEra
+      ? `<h3 class="stored-character-era-heading">${escapeHtml(entry.eraLabel)}</h3>`
+      : '';
+    currentEra = entry.age;
+    return `${heading}
+      <div class="stored-character-card">
+        <button class="stored-character-open" onclick="openStoredCharacter('${entry.id}')" aria-label="Open ${escapeHtml(entry.name)}">
+          <span class="stored-character-name">${escapeHtml(entry.name)}</span>
+          <span class="stored-character-meta">${escapeHtml(entry.archetypeLabel)}</span>
+        </button>
+        <button class="stored-character-delete" onclick="deleteStoredCharacter(event,'${entry.id}')" aria-label="Delete ${escapeHtml(entry.name)}" title="Delete ${escapeHtml(entry.name)}">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 6h2v8h-2V9Zm4 0h2v8h-2V9ZM7 9h2v8H7V9Zm1 11a2 2 0 0 1-2-2V8h12v10a2 2 0 0 1-2 2H8Z"></path>
+          </svg>
+        </button>
+      </div>`;
+  }).join('');
+
+  return `
+  <div class="my-characters-tab">
+    <div class="my-characters-header">
+      <h2>My Characters</h2>
+      <p>Your investigators are grouped by era. Open one to jump straight back to the sheet.</p>
+    </div>
+    <div class="stored-character-list">
+      ${sections}
+    </div>
+    ${renderMyCharactersImportButton()}
   </div>`;
 }
 
@@ -5435,6 +5726,7 @@ function renderAboutTab() {
       <li>Choose from diverse archetypes with unique skill packages</li>
       <li>Allocate attributes using rolling or points-based systems</li>
       <li>Build character relationships through bonds</li>
+      <li>Save characters locally and reopen them from the My Characters tab</li>
       <li>Export and import characters as JSON files</li>
       <li>Print-optimized character sheets for tabletop play</li>
     </ul>
@@ -5463,6 +5755,7 @@ function render() {
 
   if (state.playMode) {
     app.innerHTML = renderPlayMode();
+    persistTrackedCharacter();
     return;
   }
 
@@ -5473,7 +5766,9 @@ function render() {
         ${renderCurrentStep()}
         ${renderNavButtons()}
       </div>`
-    : renderAboutTab();
+    : state.currentTab === 'my-characters'
+      ? renderMyCharactersTab()
+      : renderAboutTab();
 
   app.innerHTML = `
     ${state.notification ? renderNotification() : ''}
@@ -5500,6 +5795,7 @@ function render() {
 
   // Attach drag listeners after DOM is updated
   attachDragListeners();
+  persistTrackedCharacter();
 }
 
 // ── Helpers ────────────────────────────────────────────────
