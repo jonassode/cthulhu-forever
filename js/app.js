@@ -4730,10 +4730,10 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .skills-note { font-size: 5.5pt; color: #555; padding: 1px 3px; border-bottom: 1px solid #ddd; }
 .skills-2col { display: flex; gap: 0 4px; padding: 2px 3px; }
 .sk-col { flex: 1; min-width: 0; }
-.sk-row { display: flex; align-items: baseline; gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 7pt; break-inside: avoid; }
-.sk-cb { flex-shrink: 0; font-size: 8pt; line-height: 1; }
-.sk-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sk-score { flex-shrink: 0; font-weight: bold; font-size: 7pt; min-width: 18px; text-align: right; margin-left: 2px; }
+.sk-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: start; column-gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 10.5pt; break-inside: avoid; }
+.sk-cb { grid-column: 3; font-size: 12pt; line-height: 1; align-self: start; }
+.sk-name { grid-column: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.15; }
+.sk-score { grid-column: 2; font-weight: bold; font-size: 10.5pt; min-width: 27px; text-align: right; margin-left: 2px; align-self: start; }
 
 /* bonds */
 .bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
