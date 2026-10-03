@@ -1155,9 +1155,10 @@ function getWeaponSkills() {
     case 'classical':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
     case 'revolutions':
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Militaria (Type)', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     case 'sails':
     case 'elizabethan':
-      return ['Athletics', 'Firearms', 'Melee Weapons', 'Militaria (Type)', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     case 'alazrad':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
     case 'apocthulhu':

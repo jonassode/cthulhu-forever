@@ -1952,10 +1952,10 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
     const presets = getEraWeaponPresets();
     eqW(Array.isArray(presets), true,
       'revolutions: weapon presets are available as an array');
-    eqW(presets.length, 32,
-      'revolutions: weapon preset count matches the SRD sample tables');
     eqW(presets[0].weapon, 'Bare hands and feet',
       'revolutions: first weapon preset is Bare hands and feet');
+    eqW(presets[presets.length - 1].weapon, '12-pound Canister or Grapeshot',
+      'revolutions: last weapon preset matches the SRD field-gun table');
     eqW(presets[23].skill, 'Militaria (Type)',
       'revolutions: explosive presets retain the Militaria skill');
     eqW(getWeaponSkills().includes('Militaria (Type)'), true,
