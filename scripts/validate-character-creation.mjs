@@ -1981,18 +1981,19 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
   {
     resetState();
     state.age = 'revolutions';
+    const targetIdx = state.identity.weapons.findIndex(isWeaponRowBlank);
 
     addWeaponPresetByIndex(12);
 
-    eqW(state.identity.weapons[1].weapon, 'Dueling Pistol',
+    eqW(state.identity.weapons[targetIdx].weapon, 'Dueling Pistol',
       'preset add: first empty weapon row receives the selected weapon');
-    eqW(state.identity.weapons[1].skill, 'Firearms',
+    eqW(state.identity.weapons[targetIdx].skill, 'Firearms',
       'preset add: selected row receives the weapon skill');
-    eqW(state.identity.weapons[1].baseRange, '20 yards',
+    eqW(state.identity.weapons[targetIdx].baseRange, '20 yards',
       'preset add: selected row receives the weapon range');
-    eqW(state.identity.weapons[1].ammo, '1 shot / 4 turns',
+    eqW(state.identity.weapons[targetIdx].ammo, '1 shot / 4 turns',
       'preset add: rate of fire is stored in the ammo column');
-    eqW(isWeaponRowBlank(state.identity.weapons[2]), true,
+    eqW(isWeaponRowBlank(state.identity.weapons[targetIdx + 1]), true,
       'preset add: a trailing blank weapon row remains available');
   }
 }

@@ -3982,7 +3982,7 @@ function buildCharSheetHtml() {
       </table>
       ${!state.playMode && weaponPresets.length ? `
       <div class="sheet-weapon-preset-row no-print">
-        <select id="sheet-weapon-preset" class="form-select sheet-weapon-preset-select" onchange="addWeaponPresetByIndex(this.value); this.value='';" aria-label="Add weapon preset">
+        <select id="sheet-weapon-preset" class="form-select sheet-weapon-preset-select" onchange="if (!this.value) return; addWeaponPresetByIndex(this.value); this.value='';" aria-label="Add weapon preset">
           <option value="">Add weapon</option>
           ${weaponPresets.map((preset, index) => `<option value="${index}">${escapeHtml(preset.weapon)}</option>`).join('')}
         </select>
