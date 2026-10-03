@@ -1137,6 +1137,11 @@ function makeDefaultUnarmedWeaponRow() {
   return { weapon: 'Unarmed Attack', skill: 'Unarmed Combat', baseRange: '', damage: '1D4-1', ap: '', condition: '', lethality: '', killRadius: '', ammo: '' };
 }
 
+function getEraWeaponPresets(age = state.age) {
+  if (!age || typeof ERA_WEAPON_PRESETS !== 'object' || !ERA_WEAPON_PRESETS) return [];
+  return Array.isArray(ERA_WEAPON_PRESETS[age]) ? ERA_WEAPON_PRESETS[age] : [];
+}
+
 function getWeaponSkills() {
   switch (state.age) {
     case 'coldwar':
@@ -1152,7 +1157,7 @@ function getWeaponSkills() {
     case 'revolutions':
     case 'sails':
     case 'elizabethan':
-      return ['Athletics', 'Firearms', 'Melee Weapons', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
+      return ['Athletics', 'Firearms', 'Melee Weapons', 'Militaria (Type)', 'Ordnance', 'Ranged Weapons', 'Unarmed Combat'];
     case 'alazrad':
       return ['Athletics', 'Melee Weapons', 'Ranged Weapons', 'Siege Weapons', 'Unarmed Combat'];
     case 'apocthulhu':
@@ -1166,14 +1171,37 @@ function isMeleeOrUnarmedWeaponSkill(skillName) {
   return skillName === 'Melee Weapons' || skillName === 'Unarmed Combat';
 }
 
+function isWeaponRowBlank(row) {
+  if (!row || typeof row !== 'object') return true;
+  const empty = makeEmptyWeaponRow();
+  return Object.keys(empty).every(k => !row[k]) && !row.condition;
+}
+
+function findFirstEmptyWeaponRowIndex() {
+  if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
+  const idx = state.identity.weapons.findIndex(isWeaponRowBlank);
+  if (idx !== -1) return idx;
+  state.identity.weapons.push({});
+  return state.identity.weapons.length - 1;
+}
+
 function ensureTrailingBlankWeaponRow() {
   if (!Array.isArray(state.identity.weapons)) state.identity.weapons = [{}];
   const rows = state.identity.weapons;
   const last = rows[rows.length - 1] || {};
-  const empty = makeEmptyWeaponRow();
-  const isBlank = Object.keys(empty).every(k => !last[k]);
+  const isBlank = isWeaponRowBlank(last);
   if (!isBlank) { rows.push({}); return true; }
   return false;
+}
+
+function addWeaponPresetByIndex(presetIndex) {
+  const presets = getEraWeaponPresets();
+  const preset = presets[Number(presetIndex)];
+  if (!preset) return;
+  const rowIdx = findFirstEmptyWeaponRowIndex();
+  state.identity.weapons[rowIdx] = { ...makeEmptyWeaponRow(), ...preset };
+  ensureTrailingBlankWeaponRow();
+  renderAndPersistTrackedCharacter();
 }
 
 function renderWeaponRow(row, i) {
@@ -1188,12 +1216,15 @@ function renderWeaponRow(row, i) {
   const deleteCell = state.editMode
     ? `<td class="wpn-delete-cell no-print"><button class="wpn-delete-btn" onclick="removeWeapon(${i})" aria-label="Delete weapon row ${i+1}" title="Delete weapon">×</button></td>`
     : '';
+  const skillOptions = row.skill && !weaponSkills.includes(row.skill)
+    ? [row.skill, ...weaponSkills]
+    : weaponSkills;
   return `<tr>
     <td><input class="wpn-input" type="text" value="${escapeHtml(row.weapon || '')}" oninput="updateWeaponField(${i},'weapon',this.value)" aria-label="Weapon name row ${i+1}" /></td>
     <td class="wpn-skill-cell">
       <select class="wpn-skill-select" onchange="updateWeaponField(${i},'skill',this.value)" aria-label="Skill row ${i+1}">
         <option value="">—</option>
-        ${weaponSkills.map(s => `<option value="${escapeHtml(s)}"${row.skill === s ? ' selected' : ''}>${escapeHtml(s)}</option>`).join('')}
+        ${skillOptions.map(s => `<option value="${escapeHtml(s)}"${row.skill === s ? ' selected' : ''}>${escapeHtml(s)}</option>`).join('')}
       </select>
       <span class="wpn-skill-pct">${skillPct}</span>
     </td>
@@ -3527,6 +3558,7 @@ function buildCharSheetHtml() {
   const arch    = getArchetype();
   const derived = calculateDerived();
   const skills  = getCurrentSkills();
+  const weaponPresets = getEraWeaponPresets();
 
   const skillsForSheet = [
     ...Object.keys(skills)
@@ -3948,6 +3980,13 @@ function buildCharSheetHtml() {
           ${(Array.isArray(state.identity.weapons) ? state.identity.weapons : [{}]).map((row, i) => renderWeaponRow(row, i)).join('')}
         </tbody>
       </table>
+      ${!state.playMode && weaponPresets.length ? `
+      <div class="sheet-weapon-preset-row no-print">
+        <select id="sheet-weapon-preset" class="form-select sheet-weapon-preset-select" onchange="addWeaponPresetByIndex(this.value); this.value='';" aria-label="Add weapon preset">
+          <option value="">Add weapon</option>
+          ${weaponPresets.map((preset, index) => `<option value="${index}">${escapeHtml(preset.weapon)}</option>`).join('')}
+        </select>
+      </div>` : ''}
     </div>
 
     <div class="sheet-section">

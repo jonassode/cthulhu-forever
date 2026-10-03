@@ -1776,6 +1776,14 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
 }
 .sheet-weapons-table tr:last-child td { border-bottom: none; }
 .sheet-weapons-table tr:nth-child(even) td { background: rgba(42,53,72,0.04); }
+.sheet-weapon-preset-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+.sheet-weapon-preset-select {
+  width: min(100%, 19rem);
+}
 .wpn-input {
   width: 100%;
   background: transparent;

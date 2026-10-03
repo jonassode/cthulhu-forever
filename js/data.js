@@ -1454,6 +1454,43 @@ const STONE_AGE_SKILL_DESCRIPTIONS = {
   'Weather & Season': 'Knowledge of the patterns of the seasons and the best time to plant crops and reap, to make best use of the sun and rain. The skill also covers the day-to-day prediction of the weather, based on a combination of observation, established folk wisdom, and intuition.',
 };
 
+const ERA_WEAPON_PRESETS = {
+  revolutions: [
+    { weapon: 'Bare hands and feet', skill: 'Unarmed Combat', damage: '1D4-1' },
+    { weapon: 'Brass knuckles, shiv, or cosh', skill: 'Melee Weapons', damage: '1D4' },
+    { weapon: 'Ordinary knife or hatchet', skill: 'Melee Weapons', damage: '1D4' },
+    { weapon: 'Axe, Light spear (indigenous, stone head)', skill: 'Melee Weapons', damage: '1D6+1' },
+    { weapon: 'Cutlass', skill: 'Melee Weapons', damage: '1D6+2' },
+    { weapon: 'War club (indigenous)', skill: 'Melee Weapons', damage: '1D8' },
+    { weapon: 'Bayonet, Cavalry sabre, Heavy spear (indigenous)', skill: 'Melee Weapons', damage: '1D8+1' },
+    { weapon: 'Bow and arrow', skill: 'Ranged Weapons', damage: '1D8', baseRange: '150 yards' },
+    { weapon: 'Crossbow', skill: 'Ranged Weapons', damage: '1D10', baseRange: '200 yards' },
+    { weapon: 'Thrown Knife', skill: 'Athletics', damage: '1D4', baseRange: 'STR×5 feet' },
+    { weapon: 'Thrown Spear, Light', skill: 'Athletics', damage: '1D6+1', baseRange: 'STR×5 yards' },
+    { weapon: 'Thrown Spear, Heavy', skill: 'Athletics', damage: '1D8+1', baseRange: 'STR×2 yards' },
+    { weapon: 'Dueling Pistol', skill: 'Firearms', damage: '2D4+1', baseRange: '20 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Blunderbuss Pistol', skill: 'Firearms', damage: '1D6+1', baseRange: '5 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Flintlock Pistol', skill: 'Firearms', damage: '1D6+1', baseRange: '10 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Dutch (long) Pistol', skill: 'Firearms', damage: '1D6+1', baseRange: '15 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Cannon Barrel Pistol', skill: 'Firearms', damage: '1D8', baseRange: '8 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Fowling Piece', skill: 'Firearms', damage: '4D6 (2D6 at 10–20 yds, 1D6 at 20+)', baseRange: '50 yards', ammo: '1 shot / 3 turns' },
+    { weapon: 'Carbine', skill: 'Firearms', damage: '2D6+1', ap: '2', baseRange: '25 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Musket', skill: 'Firearms', damage: '1D10+4', ap: '2', baseRange: '60 yards', ammo: '1 shot / 4 turns' },
+    { weapon: 'Longrifle (rare, American)', skill: 'Firearms', damage: '2D10+2', ap: '3', baseRange: '80 yards', ammo: '1 shot / 6 turns' },
+    { weapon: 'Rampart gun (swivel stick mount)', skill: 'Firearms', ap: '5', lethality: '15%', killRadius: '1 yd', baseRange: '50 yards', ammo: '1 shot / 6 turns' },
+    { weapon: 'Horn of Black Powder', skill: 'Militaria (Type)', damage: '2D6', baseRange: '2 yards' },
+    { weapon: 'Keg of Black Powder', skill: 'Militaria (Type)', lethality: '12%', baseRange: '5 yards' },
+    { weapon: '3-pound Roundshot', skill: 'Ordnance', ap: '3', lethality: '12%', killRadius: '1 yard', baseRange: 'Gun 200 / Howitzer 100 / Mortar 60 yds', ammo: '1 shot / 6 turns' },
+    { weapon: '3-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '6%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 200 / 100 / 60 yds', ammo: '1 shot / 6 turns' },
+    { weapon: '6-pound Roundshot', skill: 'Ordnance', ap: '5', lethality: '16%', killRadius: '1 yard', baseRange: 'Gun 300 / Howitzer 150 / Mortar 90 yds', ammo: '1 shot / 10 turns' },
+    { weapon: '6-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '8%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 300 / 150 / 90 yds', ammo: '1 shot / 10 turns' },
+    { weapon: '9-pound Roundshot', skill: 'Ordnance', ap: '8', lethality: '20%', killRadius: '1 yard', baseRange: 'Gun 400 / Howitzer 200 / Mortar 120 yds', ammo: '1 shot / 14 turns' },
+    { weapon: '9-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '10%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 400 / 200 / 120 yds', ammo: '1 shot / 14 turns' },
+    { weapon: '12-pound Roundshot', skill: 'Ordnance', ap: '10', lethality: '24%', killRadius: '1 yard', baseRange: 'Gun 500 / Howitzer 250 / Mortar 180 yds', ammo: '1 shot / 18 turns' },
+    { weapon: '12-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '12%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 500 / 250 / 180 yds', ammo: '1 shot / 18 turns' },
+  ],
+};
+
 // ── Archetypes ───────────────────────────────────────────────
 
 const ARCHETYPES = [

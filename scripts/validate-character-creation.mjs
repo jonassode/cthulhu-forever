@@ -1943,6 +1943,58 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
     eqW(state.castOut, false,
       'resetState clears Stone Age castOut flag');
   }
+
+  // 13.4  Age of Revolutions exposes weapon presets on the builder sheet only
+  {
+    resetState();
+    state.age = 'revolutions';
+
+    const presets = getEraWeaponPresets();
+    eqW(Array.isArray(presets), true,
+      'revolutions: weapon presets are available as an array');
+    eqW(presets.length, 32,
+      'revolutions: weapon preset count matches the SRD sample tables');
+    eqW(presets[0].weapon, 'Bare hands and feet',
+      'revolutions: first weapon preset is Bare hands and feet');
+    eqW(presets[23].skill, 'Militaria (Type)',
+      'revolutions: explosive presets retain the Militaria skill');
+    eqW(getWeaponSkills().includes('Militaria (Type)'), true,
+      'revolutions: weapon skill picker includes Militaria (Type)');
+
+    let html = buildCharSheetHtml();
+    eqW(html.includes('id="sheet-weapon-preset"'), true,
+      'revolutions builder sheet renders the add-weapon dropdown');
+
+    state.playMode = true;
+    html = buildCharSheetHtml();
+    eqW(html.includes('id="sheet-weapon-preset"'), false,
+      'play mode hides the add-weapon dropdown');
+
+    state.playMode = false;
+    state.age = 'jazz';
+    html = buildCharSheetHtml();
+    eqW(html.includes('id="sheet-weapon-preset"'), false,
+      'eras without presets do not render the add-weapon dropdown');
+  }
+
+  // 13.5  Selecting a preset fills the first empty weapon row and preserves a trailing blank row
+  {
+    resetState();
+    state.age = 'revolutions';
+
+    addWeaponPresetByIndex(12);
+
+    eqW(state.identity.weapons[1].weapon, 'Dueling Pistol',
+      'preset add: first empty weapon row receives the selected weapon');
+    eqW(state.identity.weapons[1].skill, 'Firearms',
+      'preset add: selected row receives the weapon skill');
+    eqW(state.identity.weapons[1].baseRange, '20 yards',
+      'preset add: selected row receives the weapon range');
+    eqW(state.identity.weapons[1].ammo, '1 shot / 4 turns',
+      'preset add: rate of fire is stored in the ammo column');
+    eqW(isWeaponRowBlank(state.identity.weapons[2]), true,
+      'preset add: a trailing blank weapon row remains available');
+  }
 }
 
 // ── Suite 14: Local Storage Character Library ─────────────────────────────────
