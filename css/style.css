@@ -1665,14 +1665,14 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   gap: 0.35rem;
   padding: 3px 0 7px;
   border-bottom: 1px solid rgba(42,53,72,0.4);
-  font-size: 0.78rem;
+  font-size: 1.17rem;
   break-inside: avoid;
 }
 .skill-sheet-cb {
   appearance: none;
   -webkit-appearance: none;
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 1.125rem;
+  height: 1.125rem;
   background: var(--bg-card);
   border: 1px solid var(--text-primary);
   border-radius: 2px;
@@ -1692,7 +1692,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 0.6rem;
+  font-size: 0.9rem;
   color: var(--text-primary);
   line-height: 1;
 }
@@ -1704,7 +1704,7 @@ html::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
   font-family: var(--font-head);
   font-weight: 700;
   color: var(--text-primary);
-  min-width: 36px;
+  min-width: 54px;
   text-align: right;
 }
 .resources-pips {
