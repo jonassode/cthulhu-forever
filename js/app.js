@@ -1174,7 +1174,7 @@ function isMeleeOrUnarmedWeaponSkill(skillName) {
 function isWeaponRowBlank(row) {
   if (!row || typeof row !== 'object') return true;
   const empty = makeEmptyWeaponRow();
-  return Object.keys(empty).every(k => !row[k]) && !row.condition;
+  return Object.keys(empty).every(k => !row[k]);
 }
 
 function findFirstEmptyWeaponRowIndex() {
