@@ -4731,9 +4731,9 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; b
 .skills-2col { display: flex; gap: 0 4px; padding: 2px 3px; }
 .sk-col { flex: 1; min-width: 0; }
 .sk-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: start; column-gap: 2px; border-bottom: 1px solid #ddd; padding: 0.5px 0; font-size: 10.5pt; break-inside: avoid; }
-.sk-cb { font-size: 12pt; line-height: 1; align-self: start; }
-.sk-name { min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.15; }
-.sk-score { font-weight: bold; font-size: 10.5pt; min-width: 27px; text-align: right; margin-left: 2px; align-self: start; }
+.sk-cb { grid-column: 3; font-size: 12pt; line-height: 1; align-self: start; }
+.sk-name { grid-column: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.15; }
+.sk-score { grid-column: 2; font-weight: bold; font-size: 10.5pt; min-width: 27px; text-align: right; margin-left: 2px; align-self: start; }
 
 /* bonds */
 .bonds-block { border: 1.5px solid #555; display: flex; flex-direction: column; }
