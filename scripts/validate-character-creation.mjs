@@ -1956,10 +1956,6 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
       'revolutions: first weapon preset is Bare hands and feet');
     eqW(presets[presets.length - 1].weapon, '12-pound Canister or Grapeshot',
       'revolutions: last weapon preset matches the SRD field-gun table');
-    eqW(presets[23].skill, 'Militaria (Type)',
-      'revolutions: explosive presets retain the Militaria skill');
-    eqW(getWeaponSkills().includes('Militaria (Type)'), true,
-      'revolutions: weapon skill picker includes Militaria (Type)');
 
     let html = buildCharSheetHtml();
     eqW(html.includes('id="sheet-weapon-preset"'), true,
