@@ -1478,8 +1478,6 @@ const ERA_WEAPON_PRESETS = {
     { weapon: 'Musket', skill: 'Firearms', damage: '1D10+4', ap: '2', baseRange: '60 yards', ammo: '1 shot / 4 turns' },
     { weapon: 'Longrifle (rare, American)', skill: 'Firearms', damage: '2D10+2', ap: '3', baseRange: '80 yards', ammo: '1 shot / 6 turns' },
     { weapon: 'Rampart gun (swivel stick mount)', skill: 'Firearms', ap: '5', lethality: '15%', killRadius: '1 yard', baseRange: '50 yards', ammo: '1 shot / 6 turns' },
-    { weapon: 'Horn of Black Powder', skill: 'Militaria (Type)', damage: '2D6', baseRange: '2 yards' },
-    { weapon: 'Keg of Black Powder', skill: 'Militaria (Type)', lethality: '12%', baseRange: '5 yards' },
     { weapon: '3-pound Roundshot', skill: 'Ordnance', ap: '3', lethality: '12%', killRadius: '1 yard', baseRange: 'Gun 200 / Howitzer 100 / Mortar 60 yds', ammo: '1 shot / 6 turns' },
     { weapon: '3-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '6%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 200 / 100 / 60 yds', ammo: '1 shot / 6 turns' },
     { weapon: '6-pound Roundshot', skill: 'Ordnance', ap: '5', lethality: '16%', killRadius: '1 yard', baseRange: 'Gun 300 / Howitzer 150 / Mortar 90 yds', ammo: '1 shot / 10 turns' },
