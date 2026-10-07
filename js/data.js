@@ -1476,16 +1476,8 @@ const ERA_WEAPON_PRESETS = {
     { weapon: 'Fowling Piece', skill: 'Firearms', damage: '4D6 (2D6 at 10–20 yds, 1D6 at 20+)', baseRange: '50 yards', ammo: '1 shot / 3 turns' },
     { weapon: 'Carbine', skill: 'Firearms', damage: '2D6+1', ap: '2', baseRange: '25 yards', ammo: '1 shot / 4 turns' },
     { weapon: 'Musket', skill: 'Firearms', damage: '1D10+4', ap: '2', baseRange: '60 yards', ammo: '1 shot / 4 turns' },
-    { weapon: 'Longrifle (rare, American)', skill: 'Firearms', damage: '2D10+2', ap: '3', baseRange: '80 yards', ammo: '1 shot / 6 turns' },
+    { weapon: 'Longrifle (American)', skill: 'Firearms', damage: '2D10+2', ap: '3', baseRange: '80 yards', ammo: '1 shot / 6 turns' },
     { weapon: 'Rampart gun (swivel stick mount)', skill: 'Firearms', ap: '5', lethality: '15%', killRadius: '1 yard', baseRange: '50 yards', ammo: '1 shot / 6 turns' },
-    { weapon: '3-pound Roundshot', skill: 'Ordnance', ap: '3', lethality: '12%', killRadius: '1 yard', baseRange: 'Gun 200 / Howitzer 100 / Mortar 60 yds', ammo: '1 shot / 6 turns' },
-    { weapon: '3-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '6%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 200 / 100 / 60 yds', ammo: '1 shot / 6 turns' },
-    { weapon: '6-pound Roundshot', skill: 'Ordnance', ap: '5', lethality: '16%', killRadius: '1 yard', baseRange: 'Gun 300 / Howitzer 150 / Mortar 90 yds', ammo: '1 shot / 10 turns' },
-    { weapon: '6-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '8%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 300 / 150 / 90 yds', ammo: '1 shot / 10 turns' },
-    { weapon: '9-pound Roundshot', skill: 'Ordnance', ap: '8', lethality: '20%', killRadius: '1 yard', baseRange: 'Gun 400 / Howitzer 200 / Mortar 120 yds', ammo: '1 shot / 14 turns' },
-    { weapon: '9-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '10%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 400 / 200 / 120 yds', ammo: '1 shot / 14 turns' },
-    { weapon: '12-pound Roundshot', skill: 'Ordnance', ap: '10', lethality: '24%', killRadius: '1 yard', baseRange: 'Gun 500 / Howitzer 250 / Mortar 180 yds', ammo: '1 shot / 18 turns' },
-    { weapon: '12-pound Canister or Grapeshot', skill: 'Ordnance', lethality: '12%', killRadius: '1 yard per 4 yards from firer', baseRange: 'Half of 500 / 250 / 180 yds', ammo: '1 shot / 18 turns' },
   ],
 };
 
