@@ -1954,7 +1954,7 @@ console.log('\\n── Suite 13: Default Unarmed Weapon Row ──────�
       'revolutions: weapon presets are available as an array');
     eqW(presets[0].weapon, 'Bare hands and feet',
       'revolutions: first weapon preset is Bare hands and feet');
-    eqW(presets[presets.length - 1].weapon, '12-pound Canister or Grapeshot',
+    eqW(presets[presets.length - 1].weapon, 'Rampart gun (swivel stick mount)',
       'revolutions: last weapon preset matches the SRD field-gun table');
 
     let html = buildCharSheetHtml();
