@@ -2,6 +2,7 @@
 
 All notable changes are listed here from newest to oldest.
 
+0.10.4 - Document app modes; Update agents guidance; Add repository agent guide  
 0.10.3 - Pin exported skill grid columns; Clean up exported sheet skill wrap styles; Wrap long exported skill names; Revert in-app sheet skill sizing; Fix original sheet skill sizing; Increase sheet skill sizing  
 0.10.2 - Update app version to 0.10.1  
 0.8.9 - Update stored character delete button styling; Remove My Characters header box; Remove 'Your saved' from character description; Add import button to My Characters tab; Change import condition to exclude active character; Validate identity block in character data; Fix imported character local storage persistence; Fix tab hover border rendering; Add local storage reassurance to import errors; Persist editable character values to local storage; Refine character library card actions; Add local storage character library  
