@@ -16,6 +16,8 @@
   - `node scripts/validate-character-creation.mjs` for character creation logic, derived stats, bonus picks, or sheet calculations in `/js/app.js`
   - `node scripts/validate-import-export.mjs` for import/export behavior, save format, fixtures, or JSON structure
 - If a change touches more than one area, run every relevant script.
+- Add tests when the change needs them, following the existing validation approach in `/scripts`.
+- If you add a new era, test import/export and verify the era is wired in everywhere it needs to appear.
 - For UI changes, preserve the current visual style and verify the browser behavior when practical.
 
 ## What not to do
