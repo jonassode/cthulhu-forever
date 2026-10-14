@@ -7,6 +7,13 @@
 - Styling lives in `/css/style.css`.
 - You can open `/index.html` directly in a browser to use the app.
 
+## Modes
+
+- **Character sheet** — the final in-app sheet shown in step 6 of the builder. The main rendering lives in `buildCharSheetHtml()` and `renderStep6()` in `/js/app.js`.
+- **Play mode** — a sheet-only play view for active use at the table. It is controlled by `state.playMode` and rendered by `enterPlayMode()`, `exitPlayMode()`, and `renderPlayMode()` in `/js/app.js`.
+- **Edit mode** — inline editing controls on the in-app character sheet. It is controlled by `state.editMode`, toggled by `toggleEditMode()`, and applied throughout `buildCharSheetHtml()` in `/js/app.js`.
+- **Exported character sheet** — the printable original-sheet export generated from the current character state. It lives in `exportToOriginalSheet()` in `/js/app.js`.
+
 ## What to do
 
 - Keep changes small, focused, and local to the issue you are fixing.
